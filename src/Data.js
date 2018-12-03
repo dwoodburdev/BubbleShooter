@@ -23,6 +23,9 @@ DATA.rankProgress = .35;
 DATA.coins = 10;
 DATA.gems = 0;
 
+DATA.streakStep = 0;
+DATA.challengeTries = 0;
+
 DATA.retrieveLevel = function()
 {
 	if(DATA.levelIndexA == null)

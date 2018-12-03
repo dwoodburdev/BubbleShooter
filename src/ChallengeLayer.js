@@ -6,14 +6,12 @@ var ChallengeLayer = cc.Layer.extend({
         
 		 var size = cc.winSize;
 		
-		this.bottomUILayer = new BottomUILayer();
+		this.bottomUILayer = new ChallengeBottomUILayer(size.height/12);
 		this.bottomUILayer.attr({
 			x: 0,
 			y: 0,
 			anchorX: 0,
-			anchorY: 0,
-			width:size.width,
-			height:size.height/12
+			anchorY: 0
 		});
 		this.addChild(this.bottomUILayer);
 

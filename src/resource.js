@@ -151,7 +151,14 @@ var res = {
     rank4: "res/rank4.png",
     rank5: "res/rank5.png",
     
-    red_x_button: "res/red-x-button.png"
+    red_x_button: "res/red-x-button.png",
+    play_button_green: "res/play-button-green.png",
+    
+    pre_booster_moves: "res/prebooster-moves.png",
+    pre_booster_moves_selected: "res/prebooster-moves-selected.png",
+    
+    first_try_alert: "res/first-try-alert.png",
+    last_try_alert: "res/last-try-alert.png"
 };
 
 var g_resources = [];

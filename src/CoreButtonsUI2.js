@@ -7,10 +7,15 @@ var CoreButtonsUI = cc.Layer.extend({
 		
 		var size=cc.winSize;
 		
-		this.dn=new cc.DrawNode;
+		this.dn=new cc.DrawNode();
 		this.addChild(this.dn);
 		
 		this.bubbleR=bubbleR;
+		
+		
+		this.preLayer = null;
+		
+		
 		
 		this.challengeButton={x:(size.width-60)/3+30,y:15,width:(size.width-60)/3,height:45};
 		this.storeButton={x:15,y:15,width:(size.width-60)/3,height:45};
@@ -81,36 +86,26 @@ var CoreButtonsUI = cc.Layer.extend({
 	onTouchEnd:function(pos){
 		cc.log("onTouchEnd");
 		var size = cc.winSize;
-		if(DATA.levelIndexA!=null && pos.y>this.challengeButton.y && pos.y<this.challengeButton.y+this.challengeButton.height
+		if(this.preLayer != null && this.posWithin(pos, this.preLayer))
+		{
+			var returnCommand = this.preLayer.onTouchEnd(pos);
+			if(returnCommand == "close")
+			{
+				this.removeChild(this.preLayer);
+				this.preLayer = null;
+				return "close";
+			}
+		}
+		else if(DATA.levelIndexA!=null
+			&& pos.y>this.challengeButton.y && pos.y<this.challengeButton.y+this.challengeButton.height
 			&& pos.x>this.challengeButton.x && pos.x<this.challengeButton.x+this.challengeButton.width)
 		{
 			cc.log("DRAW PRECHALLENGE");
-			var preLayer = new PreChallengeLayer(DATA.levelIndexA,size.width-50,this.height-50);
-			preLayer.attr({x:25,y:25,anchorX:0,anchorY:0});
-			this.addChild(preLayer);
+			this.preLayer = new PreChallengeLayer(DATA.levelIndexA,size.width-50,this.height-50);
+			this.preLayer.attr({x:25,y:25,anchorX:0,anchorY:0});
+			this.addChild(this.preLayer);
 			
-			
-			var bubbles = DATA.challenges[DATA.levelIndexA].bubbles;
-    		var maxRow = 0;
-	    	var bubbleData = [];
-	    	for(var i=0; i<bubbles.length; i++)
-	    	{
-	   			if(bubbles[i].row > maxRow)
-	    			maxRow = bubbles[i].row;
-	    	}cc.log(bubbles.length);cc.log(maxRow);
-			this.bubblePreview = new BubbleLayer(bubbles,maxRow,10,"challenge",(size.width-50)*.9,(this.height-50)*.8);
-			this.bubblePreview.attr({
-				/*x:this.width/2,
-				y:this.height/2,
-				anchorX:.5,
-				anchorY:.5*/
-				x:0,
-				y:0,
-				anchorX:0,
-				anchorY:0
-			});
-			this.addChild(this.bubblePreview);
-			
+			return "openPrelayer";
 		}
 		else if(this.posWithin(pos,this.storeButton))
 		{
@@ -170,6 +165,7 @@ var CoreButtonsUI = cc.Layer.extend({
 		this.drawChallengeButton();
 		this.dn.drawRect(cc.p(this.storeButton.x,this.storeButton.y),cc.p(this.storeButton.x+this.storeButton.width,this.storeButton.y+this.storeButton.height),cc.color(255,255,0,255),5,cc.color(0,0,0,255));
 		this.dn.drawRect(cc.p(this.editorButton.x,this.editorButton.y),cc.p(this.editorButton.x+this.editorButton.width,this.editorButton.y+this.editorButton.height),cc.color(0,0,255,255),5,cc.color(0,0,0,255));
+	
 	},
 	drawChallengeButton:function(){
 		var buttonColor=cc.color(100,100,100,255);

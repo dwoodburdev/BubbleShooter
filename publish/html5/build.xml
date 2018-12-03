@@ -175,7 +175,7 @@
                 <file name="src/app.js"/>
                 <file name="src/Bubble.js"/>
                 <file name="src/BubbleLayer.js"/>
-                <file name="src/CoreButtonsUI.js"/>
+                <file name="src/CoreButtonsUI2.js"/>
                 <file name="src/GameplayLayer.js"/>
                 <file name="src/EditorBubbleLayer.js"/>
                 <file name="src/EditorLayer.js"/>
@@ -203,6 +203,7 @@
                 <file name="src/LeagueDisplayLayer.js"/>
                 <file name="src/MeDisplayLayer.js"/>
                 <file name="src/ChallengeMenuDisplayLayer.js"/>
+                <file name="src/ChallengeBottomUILayer.js"/>
                 <file name="main.js"/>
 
             </sources>
