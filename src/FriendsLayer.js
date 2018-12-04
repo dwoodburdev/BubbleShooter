@@ -19,7 +19,7 @@ var FriendsLayer = cc.Layer.extend({
 		this.addChild(this.bottomUILayer);
 		this.bottomUILayer.selectButton("friends");
 		
-		this.coreButtonsLayer = new CoreButtonsUI(DATA.bubbleR);
+		this.coreButtonsLayer = new CoreButtonsUI(DATA.bubbleR, size.height-this.bottomUILayer.height, "friends");
 		this.coreButtonsLayer.attr({
 			x:0,
 			y:this.bottomUILayer.height,

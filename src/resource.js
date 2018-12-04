@@ -158,7 +158,14 @@ var res = {
     pre_booster_moves_selected: "res/prebooster-moves-selected.png",
     
     first_try_alert: "res/first-try-alert.png",
-    last_try_alert: "res/last-try-alert.png"
+    last_try_alert: "res/last-try-alert.png",
+    
+    world_rewards_button: "res/world-rewards-button.png",
+    
+    regular_chest: "res/plain-chest.png",
+    
+    watch_ad_button: "res/watch-ad-button.png",
+    buy_balls_button: "res/buy-moves-button.png"
 };
 
 var g_resources = [];

@@ -37,7 +37,6 @@ var GameplayLayer = cc.Layer.extend({
 		this.addChild(this.bubbleLayer);
 		
 		
-		
 		var self = this;
 		
 		
@@ -74,7 +73,7 @@ var GameplayLayer = cc.Layer.extend({
 				    //cc.log(locationInNode);
 				    if(locationInNode.y < 0)
 			    	{
-			    		self.bottomUILayer.onTouchEnd(self.bottomUILayer.convertToNodeSpace(touch.getLocation()));
+						self.bottomUILayer.onTouchEnd(self.bottomUILayer.convertToNodeSpace(touch.getLocation()));
 			    	}
 			    	else {
 			    	//	if(!self.bubbleLayerUI.onTouchEnd(locationInNode))

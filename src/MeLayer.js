@@ -20,7 +20,7 @@ var MeLayer = cc.Layer.extend({
 		this.addChild(this.bottomUILayer);
 		this.bottomUILayer.selectButton("me");
 		
-		this.coreButtonsLayer = new CoreButtonsUI(DATA.bubbleR);
+		this.coreButtonsLayer = new CoreButtonsUI(DATA.bubbleR, size.height-this.bottomUILayer.height, "me");
 		this.coreButtonsLayer.attr({
 			x:0,
 			y:this.bottomUILayer.height,

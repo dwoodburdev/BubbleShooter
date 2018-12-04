@@ -21,7 +21,7 @@ var ChallengeMenuLayer = cc.Layer.extend({
 		this.bottomUILayer.selectButton("challenge");
 		
 		
-		this.coreButtonsLayer = new CoreButtonsUI(DATA.bubbleR);
+		this.coreButtonsLayer = new CoreButtonsUI(DATA.bubbleR, size.height-this.bottomUILayer.height, "challengeMenu");
 		this.coreButtonsLayer.attr({
 			x:0,
 			y:this.bottomUILayer.height,

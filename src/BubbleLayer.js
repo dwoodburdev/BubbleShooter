@@ -9,7 +9,7 @@ var BubbleLayer = cc.Layer.extend({
 	
 	ctor:function(bubbles, numRows, numMoves, modeType, width, height){
 		this._super();
-		this.init();//?
+
 		this.bubbles = bubbles;
 		
 		this.modeType = modeType;
@@ -59,7 +59,7 @@ var BubbleLayer = cc.Layer.extend({
        	
        	if(this.modeType == "world")
        	{
-       		this.bubbleLayerUI = new CoreButtonsUI(this.bubbleR, this.height);
+       		this.bubbleLayerUI = new CoreButtonsUI(this.bubbleR, this.height, "world");
 			this.bubbleLayerUI.attr({
 				x:0,
 				y:0,
@@ -384,9 +384,13 @@ cc.log(this.bubbles);
 	},
 
 	onTouchBegin:function(loc){cc.log("touchstart");
-		if((this.bubbleLayerUI != null && this.bubbleLayerUI.preLayer == null) || this.modeType == "challenge")
+		if((this.bubbleLayerUI != null && this.bubbleLayerUI.preLayer == null && this.bubbleLayerUI.worldRewardsLayer == null && this.bubbleLayerUI.buyBallsLayer == null) || this.modeType == "challenge")
 		{
-			if(loc.y > this.shooter.y+this.bubbleR)
+			if(this.bubbleLayerUI.posWithin(loc, this.bubbleLayerUI.worldChestButton))
+			{
+				//
+			}
+			else if(loc.y > this.shooter.y+this.bubbleR)
 			{
 				if(this.numMoves <= 0 && this.outOfMovesWarningLabel == null)
 				{cc.log("OUT OF MOVES");
@@ -404,6 +408,11 @@ cc.log(this.bubbles);
 					*/
 					return;
 				}
+				
+				
+				this.bubbleLayerUI.hideMinorUI();
+				
+				
 				this.aimLine = new AimLine({"x":this.shooter.x, "y":this.shooter.y},{"x":loc.x, "y":loc.y}, cc.color(122,0,122,255));
 		    	this.aimLine.attr({
 		    		x:0,
@@ -432,9 +441,13 @@ cc.log(this.bubbles);
     	
    	},
 	onTouchMove:function(loc){
-		if((this.bubbleLayerUI != null && this.bubbleLayerUI.preLayer == null) || this.modeType == "challenge")
+		if((this.bubbleLayerUI != null && this.bubbleLayerUI.preLayer == null && this.bubbleLayerUI.worldRewardsLayer == null && this.bubbleLayerUI.buyBallsLayer == null) || this.modeType == "challenge")
 		{
-			if(loc.y > this.shooter.y+this.bubbleR)
+			if(this.bubbleLayerUI.posWithin(loc, this.bubbleLayerUI.worldChestButton))
+			{
+				//
+			}
+			else if(loc.y > this.shooter.y+this.bubbleR)
 			{
 				if(this.numMoves <= 0 && this.outOfMovesWarningLabel == null)
 				{
@@ -481,9 +494,10 @@ cc.log(this.bubbles);
 	   	}
 	},
 	onTouchEnd:function(loc){cc.log("touchEnd");
-		if(this.numMoves == 0)
-		{
-			cc.director.runScene(new BuyBallsScene());
+		if(this.bubbleLayerUI.buyBallsLayer == null && this.numMoves == 0)
+		{cc.log("open buy balls");
+			this.bubbleLayerUI.openBuyBalls();
+			return;
 		}
 		
 		var returnUIAction = null;
@@ -494,6 +508,8 @@ cc.log(this.bubbles);
 		{
 			if(this.aimLine != null)
 			{
+				this.bubbleLayerUI.showMinorUI();
+				
 				// remove aim line
 		   		this.aimLine.clear();
 		   		this.removeChild(this.aimLine);
@@ -544,6 +560,20 @@ cc.log(this.bubbles);
 			   		cc.director.runScene(new PreChallengeScene(DATA.levelIndexA));
 			   }*/
 		   }
+		}
+		else
+		{
+			this.numMoves = DATA.worldBallsLeft;
+			this.removeChild(this.ballsLeftLabel);
+			this.ballsLeftLabel = new cc.LabelTTF(this.numMoves, "Roboto", 30);
+			this.ballsLeftLabel.attr({
+				"x":this.queueBubble.x-40,
+				"y":this.queueBubble.y,
+				"anchorX":.5,
+				"anchorY":.5
+			});
+			this.ballsLeftLabel.color = cc.color(0,0,0,255);
+			this.addChild(this.ballsLeftLabel);
 		}
 	},
 	

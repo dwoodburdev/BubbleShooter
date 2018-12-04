@@ -204,6 +204,7 @@
                 <file name="src/MeDisplayLayer.js"/>
                 <file name="src/ChallengeMenuDisplayLayer.js"/>
                 <file name="src/ChallengeBottomUILayer.js"/>
+                <file name="src/WorldRewardsLayer.js"/>
                 <file name="main.js"/>
 
             </sources>

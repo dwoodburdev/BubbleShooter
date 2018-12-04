@@ -160,10 +160,12 @@ var BottomUILayer = cc.Layer.extend({
 		if(pos.x > this.meButton.x && pos.x < this.meButton.x+this.buttonWidth)
 		{
 			cc.director.runScene(new MeScene());
+			//cc.director.pushScene(new MeScene());
 		}
 		else if(pos.x > this.challengeMenuButton.x && pos.x < this.challengeMenuButton.x+this.buttonWidth)
 		{
 			cc.director.runScene(new ChallengeMenuScene());
+			//cc.director.pushScene(new ChallengeMenuScene());
 		}
 		else if(pos.x > this.playButton.x && pos.x < this.playButton.x+this.buttonWidth)
 		{
@@ -177,14 +179,18 @@ var BottomUILayer = cc.Layer.extend({
     				maxRow = bubbles[i].row;
     		}
 			cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
+			//cc.director.runScene(DATA.scenes["world-gameplay"]);
+			//cc.director.popToRootScene();
 		}
 		else if(pos.x > this.friendsButton.x && pos.x < this.friendsButton.x+this.buttonWidth)
 		{
 			cc.director.runScene(new FriendsScene());
+			//cc.director.pushScene(new FriendsScene());
 		}
 		else if(pos.x > this.leagueButton.x && pos.x < this.leagueButton.x+this.buttonWidth)
 		{
 			cc.director.runScene(new LeagueScene());
+			//cc.director.pushScene(new LeagueScene());
 		}
 		
 	}

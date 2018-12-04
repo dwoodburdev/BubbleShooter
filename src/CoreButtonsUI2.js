@@ -1,5 +1,5 @@
 var CoreButtonsUI = cc.Layer.extend({
-	ctor:function(bubbleR,height){
+	ctor:function(bubbleR,height,tabName){
 		this._super();
 		cc.associateWithNative(this,cc.Sprite);
 		
@@ -14,8 +14,12 @@ var CoreButtonsUI = cc.Layer.extend({
 		
 		
 		this.preLayer = null;
+		this.worldRewardsLayer = null;
+		this.buyBallsLayer = null;
 		
+		this.tabName = tabName;
 		
+		this.minorUIHidden = false;
 		
 		this.challengeButton={x:(size.width-60)/3+30,y:15,width:(size.width-60)/3,height:45};
 		this.storeButton={x:15,y:15,width:(size.width-60)/3,height:45};
@@ -60,28 +64,51 @@ var CoreButtonsUI = cc.Layer.extend({
 			anchorX:0.5,
 			anchorY:0.5
 		});
-		this.editorButtonLabel.color=cc.color(0,0,0,255);
+		this.editorButtonLabel.color=cc.color(255,255,255,255);
 		this.addChild(this.editorButtonLabel);
 		
-		this.levelAShadow=new cc.Sprite(res.star_shadow);
-		this.levelAShadow.setScale(2*this.bubbleR/this.levelAShadow.width);
-		this.levelAShadow.attr({
-			x:this.width/2-this.challengeButton.width/5,
-			y:this.challengeButton.y+this.challengeButton.height/2,
-			anchorX:0.5,
-			anchorY:0.5
-		});
-		this.addChild(this.levelAShadow);
-		this.levelBShadow=new cc.Sprite(res.star_shadow);
-		this.levelBShadow.setScale(2*this.bubbleR/this.levelBShadow.width);
-		this.levelBShadow.attr({
-			x:this.width/2+this.challengeButton.width/5,
-			y:this.challengeButton.y+this.challengeButton.height/2,
-			anchorX:0.5,
-			anchorY:0.5
-		});
-		this.addChild(this.levelBShadow);
+		this.levelAShadow = null;
+		if(DATA.levelIndexA == null)
+		{
+			this.levelAShadow=new cc.Sprite(res.star_shadow);
+			this.levelAShadow.setScale(2*this.bubbleR/this.levelAShadow.width);
+			this.levelAShadow.attr({
+				x:this.width/2-this.challengeButton.width/5,
+				y:this.challengeButton.y+this.challengeButton.height/2,
+				anchorX:0.5,
+				anchorY:0.5
+			});
+			this.addChild(this.levelAShadow);
+		}
+		
+		this.levelBShadow = null;
+		if(DATA.levelIndexB == null)
+		{
+			this.levelBShadow=new cc.Sprite(res.star_shadow);
+			this.levelBShadow.setScale(2*this.bubbleR/this.levelBShadow.width);
+			this.levelBShadow.attr({
+				x:this.width/2+this.challengeButton.width/5,
+				y:this.challengeButton.y+this.challengeButton.height/2,
+				anchorX:0.5,
+				anchorY:0.5
+			});
+			this.addChild(this.levelBShadow);
+		}
 		this.draw();
+		
+		if(this.tabName == "world")
+		{
+			this.worldChestButton = new cc.Sprite(res.world_rewards_button);
+			this.worldChestButton.setScale((this.editorButton.width/2 - 2) / this.worldChestButton.width);
+			this.worldChestButton.attr({
+				x:this.editorButton.x + this.editorButton.width/2 + 2,
+				y:this.editorButton.y+this.editorButton.height+10,
+				anchorX:0,
+				anchorY:0
+			});
+			this.addChild(this.worldChestButton);
+		}
+		
 	},
 	onTouchEnd:function(pos){
 		cc.log("onTouchEnd");
@@ -93,6 +120,26 @@ var CoreButtonsUI = cc.Layer.extend({
 			{
 				this.removeChild(this.preLayer);
 				this.preLayer = null;
+				return "close";
+			}
+		}
+		else if(this.worldRewardsLayer != null && this.posWithin(pos, this.worldRewardsLayer))
+		{
+			var returnCommand = this.worldRewardsLayer.onTouchEnd(pos);
+			if(returnCommand == "close")
+			{
+				this.removeChild(this.worldRewardsLayer);
+				this.worldRewardsLayer = null;
+				return "close";
+			}
+		}
+		else if(this.buyBallsLayer != null && this.posWithin(pos, this.buyBallsLayer))
+		{cc.log("a");
+			var returnCommand = this.buyBallsLayer.onTouchEnd(pos);
+			if(returnCommand == "close")
+			{cc.log("removing");
+				this.removeChild(this.buyBallsLayer);
+				this.buyBallsLayer = null;
 				return "close";
 			}
 		}
@@ -115,10 +162,22 @@ var CoreButtonsUI = cc.Layer.extend({
 		{
 			cc.director.runScene(new EditorScene);
 		}
+		else if(this.posWithin(pos,{x:this.worldChestButton.x,y:this.worldChestButton.y,width:this.worldChestButton.width*this.worldChestButton.scale,height:this.worldChestButton.height*this.worldChestButton.scale}))
+		{
+			this.worldRewardsLayer = new WorldRewardsLayer(size.width-50,this.height-50);
+			this.worldRewardsLayer.attr({x:25,y:25,anchorX:0,anchorY:0});
+			this.addChild(this.worldRewardsLayer);
+		}
 	},
 	posWithin:function(a,b)
 	{
 		if(a.y>b.y&&a.y<b.y+b.height&&a.x>b.x&&a.x<b.x+b.width)
+			return true;
+		return false;
+	},
+	posWithinScaled:function(a,b)
+	{
+		if(a.y>b.y&&a.y<b.y+b.height*b.scale&&a.x>b.x&&a.x<b.x+b.width*b.scale)
 			return true;
 		return false;
 	},
@@ -160,6 +219,36 @@ var CoreButtonsUI = cc.Layer.extend({
 			this.levelBImg=null;
 		}
 	},
+	
+	openBuyBalls:function()
+	{
+		this.buyBallsLayer = new BuyBallsLayer(this.width-50,this.height-50);
+		this.buyBallsLayer.attr({
+			x:25,y:25,
+			anchorX:0,anchorY:0
+		});
+		this.addChild(this.buyBallsLayer);
+	},
+	
+	hideMinorUI:function()
+	{
+		if((this.worldChestButton != null))
+		{
+			this.minorUIHidden = true;
+			if(this.worldChestButton != null)
+			{
+				this.removeChild(this.worldChestButton);
+			}
+		}
+	},
+	showMinorUI:function()
+	{
+		if(this.minorUIHidden)
+		{
+			this.addChild(this.worldChestButton);
+		}
+	},
+	
 	draw:function()
 	{
 		this.drawChallengeButton();

@@ -115,7 +115,9 @@ cc.game.onStart = function(){
 				maxRow = bubbles[i].row;
 		}
 		
-		cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
+		DATA.scenes["world-gameplay"] = new GameplayScene(bubbles, maxRow+1);
+		cc.director.runScene(DATA.scenes["world-gameplay"]);
+    	//cc.director.pushScene(DATA.scenes["world-gameplay"]);
     }, this);
 };
 cc.game.run();

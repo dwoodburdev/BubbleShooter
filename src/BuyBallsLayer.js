@@ -1,136 +1,129 @@
 var BuyBallsLayer = cc.Layer.extend({
-	ctor:function(){
+	ctor:function(width, height){
 		this._super();
 		//cc.associateWithNative( this, cc.Sprite );
 		
 		var size = cc.winSize;
 		
+		this.width = width;
+		this.height = height;
+		
 		this.dn = new cc.DrawNode();
-		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),0,cc.color(0,0,0,255));
+		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),5,cc.color(0,0,0,255));
 		this.addChild(this.dn);
 		
 		
 		this.tabTitleLabel = new cc.LabelTTF("Out Of Moves", "Arial", 40);
 		this.tabTitleLabel.attr({
-			"x":size.width/2,
-			"y":size.height-60,
+			"x":this.x+this.width/2,
+			"y":this.y+this.height-60,
 			"anchorX":.5,
 			"anchorY":1
 		});
 		this.tabTitleLabel.color = cc.color(0,0,0,255);
 		this.addChild(this.tabTitleLabel);
 		
-		this.buyBallsButton = new Button(0, 0, "Buy Balls", 32, cc.color(255,255,0,255), cc.color(255,255,255,255));
-        this.buyBallsButton.attr({
-        	"x":size.width/3,
-        	"y":size.height*2/5,
-        	"anchorX":.5,
-        	"anchorY":.5
-        });
+		
+		this.buyBallsButton = new cc.Sprite(res.buy_balls_button);
+		this.buyBallsButton.setScale(this.width/2 / this.buyBallsButton.width);
+		this.buyBallsButton.attr({
+			x:this.x+this.width/2 - (this.buyBallsButton.width*this.buyBallsButton.scale)/2,
+			y:this.y+this.height*.1,
+			anchorX:0,anchorY:0
+		});
 		this.addChild(this.buyBallsButton);
 		
-		this.watchAdButton = new Button(0, 0, "Watch Ad", 32, cc.color(0,255,0,255), cc.color(255,255,255,255));
-        this.watchAdButton.attr({
-        	"x":size.width*2/3,
-        	"y":size.height*2/5,
-        	"anchorX":.5,
-        	"anchorY":.5
-        });
+		this.watchAdButton = new cc.Sprite(res.watch_ad_button);
+		this.watchAdButton.setScale(this.width/2 / this.watchAdButton.width);
+		this.watchAdButton.attr({
+			x:this.x+this.width/2 - (this.buyBallsButton.width*this.buyBallsButton.scale)/2,
+			y:this.buyBallsButton.y+(this.buyBallsButton.height*this.buyBallsButton.scale)+20,
+			anchorX:0,anchorY:0
+		});
 		this.addChild(this.watchAdButton);
 		
-		this.backButton = new Button(0, 0, "Back", 32, cc.color(255,0,0,255), cc.color(255,255,255,255));
-        this.backButton.attr({
-        	"x":size.width/2,
-        	"y":size.height/5,
-        	"anchorX":.5,
-        	"anchorY":.5
+		
+		this.closeButton = new cc.Sprite(res.red_x_button);
+        this.closeButton.setScale(this.width/10 / this.closeButton.width);
+        this.closeButton.attr({
+        	"x":0,
+        	"y":this.height-(this.closeButton.height*this.closeButton.scale),
+        	"anchorX":0,
+        	"anchorY":0
         });
-		this.addChild(this.backButton);
+		this.addChild(this.closeButton);
 		
-		
-		var self = this;
-		
-		if (cc.sys.capabilities.hasOwnProperty('touches')) {
-			cc.eventManager.addListener({
-			    event: cc.EventListener.TOUCH_ONE_BY_ONE,
-			    swallowTouches:true,
-			    onTouchBegan: function(touch, event){
-			   		var target = event.getCurrentTarget();
-			    	var locationInNode = self.convertToNodeSpace(touch.getLocation());
-
-			    	
-			    	
-			    	return true;
-			    },
-			    onTouchMoved: function(touch, event){
-			    	var target = event.getCurrentTarget();
-			    	var locationInNode = self.convertToNodeSpace(touch.getLocation());
-
-			    	
-			    	
-			    	return true;
-			    },
-			    onTouchEnded: function(touch, event){
-				    var target = event.getCurrentTarget();
-				    var locationInNode = self.convertToNodeSpace(touch.getLocation());
-			    	if(self.backButton.pointWithin(locationInNode))
-			    	{
-				    	var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
-			    		//cc.log(bubbles);
-			    		var maxRow = 0;
-			    		var bubbleData = [];
-			    		for(var i=0; i<bubbles.length; i++)
-			    		{
-			    			if(bubbles[i].row > maxRow)
-			    				maxRow = bubbles[i].row;
-			    		}
-						cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
-					}
-					else if(self.buyBallsButton.pointWithin(locationInNode))
-					{
-						DATA.worldBallsLeft += 10;
-						
-						var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
-			    		//cc.log(bubbles);
-			    		var maxRow = 0;
-			    		var bubbleData = [];
-			    		for(var i=0; i<bubbles.length; i++)
-			    		{
-			    			if(bubbles[i].row > maxRow)
-			    				maxRow = bubbles[i].row;
-			    		}
-						cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
-					}
-					else if(self.watchAdButton.pointWithin(locationInNode))
-					{
-						DATA.worldBallsLeft++;
-						
-						var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
-			    		//cc.log(bubbles);
-			    		var maxRow = 0;
-			    		var bubbleData = [];
-			    		for(var i=0; i<bubbles.length; i++)
-			    		{
-			    			if(bubbles[i].row > maxRow)
-			    				maxRow = bubbles[i].row;
-			    		}
-						cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
-					}
-					  	
-				 
-			    	return true;
-			    }
-		    },this);
-		}
-		
-        //return true;
-	}
+	},
 	
-});
-var BuyBallsScene = cc.Scene.extend({
-	onEnter:function(){
-		this._super();
-		var layer = new BuyBallsLayer();
-		this.addChild(layer);
+	onTouchBegan: function(pos){
+		
+    },
+    onTouchMoved: function(pos){
+
+    },
+    onTouchEnd: function(pos){cc.log("touch end back");
+    cc.log(pos);cc.log(this.closeButton.x + " " + this.closeButton.y + " " + (this.closeButton.width*this.closeButton.scale));
+    	//if(this.posWithinScaled(pos, this.closeButton))
+    	if(this.posWithin(pos, {"x":this.x+this.closeButton.x,"y":this.y+this.closeButton.y,"width":this.closeButton.width*this.closeButton.scale,"height":this.closeButton.height*this.closeButton.scale}))
+    	{cc.log("closing");
+	    	/*var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
+    		//cc.log(bubbles);
+    		var maxRow = 0;
+    		var bubbleData = [];
+    		for(var i=0; i<bubbles.length; i++)
+    		{
+    			if(bubbles[i].row > maxRow)
+    				maxRow = bubbles[i].row;
+    		}
+			cc.director.runScene(new GameplayScene(bubbles, maxRow+1));*/
+			return "close";
+		}
+		else if(this.posWithin(pos, {"x":this.x+this.buyBallsButton.x,"y":this.y+this.buyBallsButton.y,"width":this.buyBallsButton.width*this.buyBallsButton.scale,"height":this.buyBallsButton.height*this.buyBallsButton.scale}))
+    	{cc.log("buy");
+			DATA.worldBallsLeft += 10;
+			/*
+			var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
+    		//cc.log(bubbles);
+    		var maxRow = 0;
+    		var bubbleData = [];
+    		for(var i=0; i<bubbles.length; i++)
+    		{
+    			if(bubbles[i].row > maxRow)
+    				maxRow = bubbles[i].row;
+    		}*/
+    		return "close";
+			//cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
+		}
+		else if(this.posWithin(pos, {"x":this.x+this.watchAdButton.x,"y":this.y+this.watchAdButton.y,"width":this.watchAdButton.width*this.watchAdButton.scale,"height":this.watchAdButton.height*this.watchAdButton.scale}))
+    	{cc.log("watch");
+			DATA.worldBallsLeft++;
+			
+			/*var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
+    		//cc.log(bubbles);
+    		var maxRow = 0;
+    		var bubbleData = [];
+    		for(var i=0; i<bubbles.length; i++)
+    		{
+    			if(bubbles[i].row > maxRow)
+    				maxRow = bubbles[i].row;
+    		}
+			cc.director.runScene(new GameplayScene(bubbles, maxRow+1));*/
+			return "close";
+		}
+	},
+	
+	posWithin:function(pos, square)
+	{
+		if(pos.y > square.y && pos.y < square.y+square.height &&
+			pos.x > square.x && pos.x < square.x+square.width)
+			return true;
+		return false;
+	},
+	posWithinScaled:function(pos, square)
+	{
+		if(pos.y > square.y && pos.y < square.y+square.height*square.scale &&
+			pos.x > square.x && pos.x < square.x+square.width*square.scale)
+			return true;
+		return false;
 	}
 });
