@@ -25,6 +25,7 @@
         "src/Button.js",
         "src/ShopLayer.js","src/FriendsLayer.js","src/LeagueLayer.js","src/MeLayer.js","src/ChallengeMenuLayer.js",
         "src/ShopDisplayLayer.js","src/FriendsDisplayLayer.js","src/LeagueDisplayLayer.js","src/MeDisplayLayer.js","src/ChallengeMenuDisplayLayer.js",
-        "src/ChallengeBottomUILayer.js","src/WorldRewardsLayer.js"
+        "src/ChallengeBottomUILayer.js","src/WorldRewardsLayer.js",
+        "src/ProgressBar.js"
     ]
 }

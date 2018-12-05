@@ -165,7 +165,9 @@ var res = {
     regular_chest: "res/plain-chest.png",
     
     watch_ad_button: "res/watch-ad-button.png",
-    buy_balls_button: "res/buy-moves-button.png"
+    buy_balls_button: "res/buy-moves-button.png",
+    
+    xp: "res/xp.png"
 };
 
 var g_resources = [];

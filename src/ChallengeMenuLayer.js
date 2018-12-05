@@ -29,6 +29,7 @@ var ChallengeMenuLayer = cc.Layer.extend({
 			anchorY:0
 		});
 		this.addChild(this.coreButtonsLayer, 9);
+		var maxYCoreUI = this.coreButtonsLayer.challengeButton.y + this.coreButtonsLayer.challengeButton.height;
 		
 		this.topUILayer = new TopUILayer(size.height/15);
 		this.topUILayer.attr({
@@ -39,7 +40,7 @@ var ChallengeMenuLayer = cc.Layer.extend({
 		});
 		this.addChild(this.topUILayer, 8);
 		
-		this.challengeMenuDisplay = new ChallengeMenuDisplayLayer(size.height-this.bottomUILayer.height-this.topUILayer.height);
+		this.challengeMenuDisplay = new ChallengeMenuDisplayLayer(size.height-this.bottomUILayer.height-this.topUILayer.height, maxYCoreUI);
 		this.challengeMenuDisplay.attr({
 			x:0,
 			y:this.bottomUILayer.height,
