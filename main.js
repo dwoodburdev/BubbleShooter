@@ -115,8 +115,10 @@ cc.game.onStart = function(){
 				maxRow = bubbles[i].row;
 		}
 		
-		DATA.scenes["world-gameplay"] = new GameplayScene(bubbles, maxRow+1);
-		cc.director.runScene(DATA.scenes["world-gameplay"]);
+		DATA.worldBubbles = bubbles;
+		DATA.setWorldQueue(DATA.levels[DATA.worldLevelIndex].queue);
+		
+		cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
     	//cc.director.pushScene(DATA.scenes["world-gameplay"]);
     }, this);
 };

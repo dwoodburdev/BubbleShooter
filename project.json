@@ -19,13 +19,14 @@
         "src/EditorBubbleLayer.js","src/EditorLayer.js",
         "src/BottomUILayer.js","src/TopUILayer.js","src/EditorUILayer.js","src/MidUILayer.js",
         "src/RewardLayer.js","src/PreChallengeLayer.js","src/ChallengeLayer.js","src/ChallengeRewardLayer.js","src/ChallengeFailLayer.js",
-        "src/BonusRewardPickerLayer.js","src/ChallengeCollectionDisplayLayer.js",
+        "src/ExtraBonusRewardPickerLayer.js","src/BonusRewardPickerLayer.js","src/ChallengeCollectionDisplayLayer.js",
         "src/BuyBallsLayer.js",
         "src/AimLine.js",
         "src/Button.js",
         "src/ShopLayer.js","src/FriendsLayer.js","src/LeagueLayer.js","src/MeLayer.js","src/ChallengeMenuLayer.js",
         "src/ShopDisplayLayer.js","src/FriendsDisplayLayer.js","src/LeagueDisplayLayer.js","src/MeDisplayLayer.js","src/ChallengeMenuDisplayLayer.js",
         "src/ChallengeBottomUILayer.js","src/WorldRewardsLayer.js",
-        "src/ProgressBar.js"
+        "src/ProgressBar.js",
+        "src/ChallengeWinSummaryLayer.js"
     ]
 }

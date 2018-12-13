@@ -120,6 +120,12 @@ var res = {
     three_move_card: "res/card-3-ball.png",
     five_move_card: "res/card-5-ball.png",
     
+    gold_card_back: "res/card-back-gold.png",
+    fifteen_coins_gold_card: "res/card-gold-15-coins-moves.png",
+    twentyfive_coins_gold_card: "res/card-gold-25-coins-moves.png",
+    gem_gold_card: "res/card-gold-gem.png",
+    ten_moves_gold_card: "res/card-gold-10-balls.png",
+    
     shop_button: "res/shop-button.png",
     editor_button: "res/editor-button.png",
     
@@ -150,6 +156,11 @@ var res = {
     rank3: "res/rank3.png",
     rank4: "res/rank4.png",
     rank5: "res/rank5.png",
+    rank6: "res/rank6.png",
+    rank7: "res/rank7.png",
+    rank8: "res/rank8.png",
+    rank9: "res/rank9.png",
+    rank10: "res/rank10.png",
     
     red_x_button: "res/red-x-button.png",
     play_button_green: "res/play-button-green.png",
@@ -157,15 +168,24 @@ var res = {
     pre_booster_moves: "res/prebooster-moves.png",
     pre_booster_moves_selected: "res/prebooster-moves-selected.png",
     
+    in_booster_bomb: "res/inbooster-bomb.png",
+    in_booster_beachball: "res/inbooster-beachball.png",
+    
     first_try_alert: "res/first-try-alert.png",
     last_try_alert: "res/last-try-alert.png",
+    streak_up_alert: "res/streak-up-alert.png",
     
     world_rewards_button: "res/world-rewards-button.png",
+    buy_button: "res/buy-button.png",
     
     regular_chest: "res/plain-chest.png",
+    regular_silver_chest: "res/plain-silver-chest.png",
+    regular_gold_chest: "res/plain-gold-chest.png",
     
     watch_ad_button: "res/watch-ad-button.png",
     buy_balls_button: "res/buy-moves-button.png",
+    get_button: "res/get-button.png",
+    next_button: "res/next-button.png",
     
     xp: "res/xp.png"
 };

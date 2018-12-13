@@ -91,7 +91,7 @@ var BuyBallsLayer = cc.Layer.extend({
     			if(bubbles[i].row > maxRow)
     				maxRow = bubbles[i].row;
     		}*/
-    		return "close";
+    		return "buy";
 			//cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
 		}
 		else if(this.posWithin(pos, {"x":this.x+this.watchAdButton.x,"y":this.y+this.watchAdButton.y,"width":this.watchAdButton.width*this.watchAdButton.scale,"height":this.watchAdButton.height*this.watchAdButton.scale}))
@@ -108,7 +108,7 @@ var BuyBallsLayer = cc.Layer.extend({
     				maxRow = bubbles[i].row;
     		}
 			cc.director.runScene(new GameplayScene(bubbles, maxRow+1));*/
-			return "close";
+			return "buy";
 		}
 	},
 	

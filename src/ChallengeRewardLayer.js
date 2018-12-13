@@ -9,25 +9,21 @@ var ChallengeRewardLayer = cc.Layer.extend({
 		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),0,cc.color(0,0,0,255));
 		this.addChild(this.dn);
 		
-		this.tabTitleLabel = new cc.LabelTTF("Challenge Complete!", "Arial", 40);
-		this.tabTitleLabel.attr({
-			"x":size.width/2,
-			"y":size.height-60,
-			"anchorX":.5,
-			"anchorY":1
+		this.topUILayer = new TopUILayer(size.height/15);
+		this.topUILayer.attr({
+			x: 0,
+			y:size.height-(size.height/15),
+			anchorX:0,
+			anchorY:0
 		});
-		this.tabTitleLabel.color = cc.color(0,0,0,255);
-		this.addChild(this.tabTitleLabel);
+		this.addChild(this.topUILayer,9);
 		
-		this.bonusRewardPicker = new BonusRewardPickerLayer(size.width*.9, this.tabTitleLabel.y-80);
+		this.winSummaryLayer = null;
+		this.winSummaryLayer = new ChallengeWinSummaryLayer(size.width, size.height-this.topUILayer.height);
+		this.addChild(this.winSummaryLayer);
 		
-		this.bonusRewardPicker.attr({
-			"x":size.width*.05,
-			"y":10,
-			"anchorX":0,
-			"anchorY":0
-		});
-		this.addChild(this.bonusRewardPicker);
+		
+		
 		
 		var self = this;
 		
@@ -55,38 +51,67 @@ var ChallengeRewardLayer = cc.Layer.extend({
 				    var target = event.getCurrentTarget();
 				    var locationInNode = self.convertToNodeSpace(touch.getLocation());
 			    	
-			    	
-				   	if(self.bonusRewardPicker != null && !self.bonusRewardPicker.cardPicked)
-				   	{
-				   		self.bonusRewardPicker.onTouchEnd(locationInNode);
-				 	}
-				 	else if(self.bonusRewardPicker != null && self.bonusRewardPicker.cardPicked)
-				 	{
-				 		self.removeChild(self.bonusRewardPicker);
-				 		self.bonusRewardPicker = null;
-				 		self.challengeCollectionDisplay = new ChallengeCollectionDisplayLayer(size.width*.9, self.tabTitleLabel.y-80);
-				   		self.challengeCollectionDisplay.attr({
-				   			"x":size.width*.05,
-							"y":10,
-							"anchorX":0,
-							"anchorY":0
-				   		});
-				   		self.addChild(self.challengeCollectionDisplay);
-				 	}
-				 	else if(self.challengeCollectionDisplay != null)
-				 	{
-				 		
-				 		var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
-			    		//cc.log(bubbles);
-			    		var maxRow = 0;
-			    		var bubbleData = [];
-			    		for(var i=0; i<bubbles.length; i++)
-			    		{
-			    			if(bubbles[i].row > maxRow)
-			    				maxRow = bubbles[i].row;
+			    	/*
+			    	if(locationInNode.x > self.nextButton.x && locationInNode.x < self.nextButton.x+(self.nextButton.width*self.nextButton.scale)
+			    	&& locationInNode.y > self.nextButton.y && locationInNode.y < self.nextButton.y+(self.nextButton.height*self.nextButton.scale))
+			    	{
+			    	*/
+			    		if(self.winSummaryLayer != null)
+			    		{cc.log("win sum");
+			    			var returnObj = self.winSummaryLayer.onTouchEnd(locationInNode);
+			    			if(returnObj == "next")
+			    			{cc.log("NEXT");
+			    				self.removeChild(self.winSummaryLayer);
+			    				self.winSummaryLayer = null;
+			    				
+			    				if(DATA.streakStep>1 && DATA.challengeTries==0)
+									self.bonusRewardPicker = new ExtraBonusRewardPickerLayer(size.width, size.height-self.topUILayer.height);
+								else self.bonusRewardPicker = new BonusRewardPickerLayer(size.width, size.height-self.topUILayer.height);
+								
+								self.bonusRewardPicker.attr({
+									"x":size.width*.05,
+									"y":10,
+									"anchorX":0,
+									"anchorY":0
+								});
+			    				self.addChild(self.bonusRewardPicker);
+			    			}
 			    		}
-						cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
-				 	}
+					   	else if(self.bonusRewardPicker != null && !self.bonusRewardPicker.cardPicked)
+					   	{
+					   		self.bonusRewardPicker.onTouchEnd(locationInNode);
+					 	}
+					 	else if(self.bonusRewardPicker != null && self.bonusRewardPicker.cardPicked)
+					 	{
+					 		/*self.removeChild(self.bonusRewardPicker);
+					 		self.bonusRewardPicker = null;
+					 		*/
+					   		var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
+				    		//cc.log(bubbles);
+				    		var maxRow = 0;
+				    		var bubbleData = [];
+				    		for(var i=0; i<bubbles.length; i++)
+				    		{
+				    			if(bubbles[i].row > maxRow)
+				    				maxRow = bubbles[i].row;
+				    		}
+							cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
+					 	}
+					 	else if(self.challengeCollectionDisplay != null)
+					 	{
+					 		
+					 		/*var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
+				    		//cc.log(bubbles);
+				    		var maxRow = 0;
+				    		var bubbleData = [];
+				    		for(var i=0; i<bubbles.length; i++)
+				    		{
+				    			if(bubbles[i].row > maxRow)
+				    				maxRow = bubbles[i].row;
+				    		}
+							cc.director.runScene(new GameplayScene(bubbles, maxRow+1));*/
+					 	}
+					 //}
 				 	
 			    	return true;
 			    }

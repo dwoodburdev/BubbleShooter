@@ -29,7 +29,7 @@ var ChallengeMenuLayer = cc.Layer.extend({
 			anchorY:0
 		});
 		this.addChild(this.coreButtonsLayer, 9);
-		var maxYCoreUI = this.coreButtonsLayer.challengeButton.y + this.coreButtonsLayer.challengeButton.height;
+		var maxYCoreUI = this.coreButtonsLayer.storeButton.y + this.coreButtonsLayer.storeButton.height;
 		
 		this.topUILayer = new TopUILayer(size.height/15);
 		this.topUILayer.attr({

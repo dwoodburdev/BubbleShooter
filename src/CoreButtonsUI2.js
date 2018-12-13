@@ -12,6 +12,7 @@ var CoreButtonsUI = cc.Layer.extend({
 		
 		this.bubbleR=bubbleR;
 		
+		this.tutorialLayer = null;
 		
 		this.preLayer = null;
 		this.worldRewardsLayer = null;
@@ -21,14 +22,19 @@ var CoreButtonsUI = cc.Layer.extend({
 		
 		this.minorUIHidden = false;
 		
-		this.challengeButton={x:(size.width-60)/3+30,y:15,width:(size.width-60)/3,height:45};
+		this.challengeButton={x:(size.width-60)/3+30,y:15,width:(size.width-60)/3,height:32};
 		this.storeButton={x:15,y:15,width:(size.width-60)/3,height:45};
 		this.editorButton={x:this.challengeButton.x+(size.width-60)/3+15,y:15,width:(size.width-60)/3,height:45};
+		
+		this.challengeLightA={x:this.challengeButton.x,y:this.challengeButton.y+this.challengeButton.height,width:this.challengeButton.width/3,height:this.storeButton.height-this.challengeButton.height};
+		this.challengeLightB={x:this.challengeButton.x+this.challengeLightA.width,y:this.challengeButton.y+this.challengeButton.height,width:this.challengeButton.width/3,height:this.storeButton.height-this.challengeButton.height};
+		this.challengeLightC={x:this.challengeButton.x+this.challengeLightA.width*2,y:this.challengeButton.y+this.challengeButton.height,width:this.challengeButton.width/3,height:this.storeButton.height-this.challengeButton.height};
+		
 		this.levelAImg=null;
 		if(DATA.levelIndexA != null)
 		{
 			this.levelAImg=new cc.Sprite(res.star_emoji);
-			this.levelAImg.setScale(2*this.bubbleR/this.levelAImg.width);
+			this.levelAImg.setScale(1.5*this.bubbleR/this.levelAImg.width);
 			this.levelAImg.attr({
 				x:this.width/2-this.challengeButton.width/6,
 				y:this.challengeButton.y+this.challengeButton.height/2,
@@ -40,7 +46,7 @@ var CoreButtonsUI = cc.Layer.extend({
 		if(DATA.levelIndexB != null)
 		{
 			this.levelBImg=new cc.Sprite(res.star_emoji);
-			this.levelBImg.setScale(2*this.bubbleR/this.levelBImg.width);
+			this.levelBImg.setScale(1.5*this.bubbleR/this.levelBImg.width);
 			this.levelBImg.attr({x:this.width/2-this.challengeButton.width/6,
 				y:this.challengeButton.y+this.challengeButton.height/2,
 				anchorX:0.5,
@@ -71,7 +77,7 @@ var CoreButtonsUI = cc.Layer.extend({
 		if(DATA.levelIndexA == null)
 		{
 			this.levelAShadow=new cc.Sprite(res.star_shadow);
-			this.levelAShadow.setScale(2*this.bubbleR/this.levelAShadow.width);
+			this.levelAShadow.setScale(1.5*this.bubbleR/this.levelAShadow.width);
 			this.levelAShadow.attr({
 				x:this.width/2-this.challengeButton.width/5,
 				y:this.challengeButton.y+this.challengeButton.height/2,
@@ -85,7 +91,7 @@ var CoreButtonsUI = cc.Layer.extend({
 		if(DATA.levelIndexB == null)
 		{
 			this.levelBShadow=new cc.Sprite(res.star_shadow);
-			this.levelBShadow.setScale(2*this.bubbleR/this.levelBShadow.width);
+			this.levelBShadow.setScale(1.5*this.bubbleR/this.levelBShadow.width);
 			this.levelBShadow.attr({
 				x:this.width/2+this.challengeButton.width/5,
 				y:this.challengeButton.y+this.challengeButton.height/2,
@@ -144,7 +150,7 @@ var CoreButtonsUI = cc.Layer.extend({
 			}
 		}
 		else if(DATA.levelIndexA!=null
-			&& pos.y>this.challengeButton.y && pos.y<this.challengeButton.y+this.challengeButton.height
+			&& pos.y>this.challengeButton.y && pos.y<this.challengeButton.y+this.storeButton.height
 			&& pos.x>this.challengeButton.x && pos.x<this.challengeButton.x+this.challengeButton.width)
 		{
 			cc.log("DRAW PRECHALLENGE");
@@ -186,7 +192,7 @@ var CoreButtonsUI = cc.Layer.extend({
 		if(DATA.levelIndexA!=null && this.levelAImg==null)
 		{
 			this.levelAImg=new cc.Sprite(res.star_emoji);
-			this.levelAImg.setScale(2*this.bubbleR/this.levelAImg.width);
+			this.levelAImg.setScale(1.5*this.bubbleR/this.levelAImg.width);
 			this.levelAImg.attr({
 				x:this.width/2-this.challengeButton.width/5,
 				y:this.challengeButton.y+this.challengeButton.height/2,
@@ -205,6 +211,7 @@ var CoreButtonsUI = cc.Layer.extend({
 		else if(DATA.levelIndexB!=null && this.levelBImg==null)
 		{
 			this.levelBImg=new cc.Sprite(res.star_emoji);
+			this.levelBImg.setScale(1.5*this.bubbleR/this.levelBImg.width);
 			this.levelBImg.attr({
 				x:this.width/2-this.challengeButton.width/5,
 				y:this.challengeButton.y+this.challengeButton.height/2,
@@ -255,6 +262,32 @@ var CoreButtonsUI = cc.Layer.extend({
 		this.dn.drawRect(cc.p(this.storeButton.x,this.storeButton.y),cc.p(this.storeButton.x+this.storeButton.width,this.storeButton.y+this.storeButton.height),cc.color(255,255,0,255),5,cc.color(0,0,0,255));
 		this.dn.drawRect(cc.p(this.editorButton.x,this.editorButton.y),cc.p(this.editorButton.x+this.editorButton.width,this.editorButton.y+this.editorButton.height),cc.color(0,0,255,255),5,cc.color(0,0,0,255));
 	
+		var color = cc.color(0,0,0,255);
+		if(DATA.streakStep==0 && DATA.challengeTries==0)
+			color = cc.color(255,255,255,255);
+		else if(DATA.streakStep==DATA.challengeTries)
+			color = cc.color(255,0,0,255);
+		else if((DATA.streakStep==1 && DATA.challengeTries==0) || (DATA.streakStep==0 && DATA.challengeTries==1))
+			color = cc.color(255,255,0,255);
+		else if(DATA.streakStep == 2 && DATA.challengeTries==0)
+			color = cc.color(0,255,0,255);
+		this.dn.drawRect(cc.p(this.challengeLightA.x,this.challengeLightA.y),cc.p(this.challengeLightA.x+this.challengeLightA.width,this.challengeLightA.y+this.challengeLightA.height),color,5,cc.color(0,0,0,255));
+		
+		color = cc.color(0,0,0,255);
+		if(DATA.streakStep==1 && DATA.challengeTries==1)
+			color = cc.color(255,255,255,255);
+		else if(DATA.streakStep==1 && DATA.challengeTries==0)
+			color = cc.color(255,255,0,255);
+		else if(DATA.streakStep == 2 && DATA.challengeTries==0)
+			color = cc.color(0,255,0,255);
+		this.dn.drawRect(cc.p(this.challengeLightB.x,this.challengeLightB.y),cc.p(this.challengeLightB.x+this.challengeLightB.width,this.challengeLightB.y+this.challengeLightB.height),color,5,cc.color(0,0,0,255));
+		
+		color = cc.color(0,0,0,255);
+		if((DATA.streakStep==1 && DATA.challengeTries==1) || (DATA.streakStep==2 && DATA.challengeTries>0))
+			color = cc.color(255,255,255,255);
+		else if(DATA.streakStep == 2 && DATA.challengeTries==0)
+			color = cc.color(0,255,0,255);
+		this.dn.drawRect(cc.p(this.challengeLightC.x,this.challengeLightC.y),cc.p(this.challengeLightC.x+this.challengeLightC.width,this.challengeLightC.y+this.challengeLightC.height),color,5,cc.color(0,0,0,255));
 	},
 	drawChallengeButton:function(){
 		var buttonColor=cc.color(100,100,100,255);
@@ -262,5 +295,11 @@ var CoreButtonsUI = cc.Layer.extend({
 			buttonColor=cc.color(0,255,0,255);
 		this.dn.drawRect(cc.p(this.challengeButton.x,this.challengeButton.y),cc.p(this.challengeButton.x+this.challengeButton.width,this.challengeButton.y+this.challengeButton.height),buttonColor,5,cc.color(0,0,0,255));
 		
+	},
+	
+	
+	initTutorialScreen(num)
+	{
+		this.tutorialLayer = new TutorialLayer(num);
 	}
 });

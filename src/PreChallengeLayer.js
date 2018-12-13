@@ -146,7 +146,8 @@ var PreChallengeLayer = cc.Layer.extend({
 	{cc.log("touchend");cc.log(pos);cc.log(this.closeButton.x + " " + this.closeButton.y+ " " + this.closeButton.scale);
 		if(this.posWithin(pos, {"x":this.playButton.x,"y":this.playButton.y,"width":this.playButton.width*this.playButton.scale,"height":this.playButton.height*this.playButton.scale}))
     	{
-    		var bubbles = DATA.challenges[this.challengeIndex].bubbles;
+    		//var bubbles = DATA.challenges[this.challengeIndex].bubbles;
+    		var bubbles = DATA.getBubbles("challenge", this.challengeIndex);
     		var numMoves = DATA.challenges[this.challengeIndex].moves;
     		cc.log(numMoves);
     		var maxRow = 0;
@@ -156,7 +157,9 @@ var PreChallengeLayer = cc.Layer.extend({
     			if(bubbles[i].row > maxRow)
     				maxRow = bubbles[i].row;
     		}
-    		
+    		cc.log("SETTING QUEUE");cc.log(DATA.challenges[this.challengeIndex].queue);
+			DATA.setLevelQueue(DATA.challenges[this.challengeIndex].queue);
+		
     		cc.director.runScene(new ChallengeScene(bubbles, maxRow+1, numMoves));
     	}
     	else if(this.posWithin(pos, {"x":this.x+this.closeButton.x,"y":this.y+this.closeButton.y,"width":this.closeButton.width*this.closeButton.scale,"height":this.closeButton.height*this.closeButton.scale}))

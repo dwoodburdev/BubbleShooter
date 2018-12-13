@@ -84,12 +84,17 @@ var TopUILayer = cc.Layer.extend({
 		this.draw();
 	},
 	
+	setCoins:function()
+	{
+		this.coinLabel.setString(DATA.coins);
+	},
+	
 	draw:function(){
 		
 		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),1,cc.color(0,0,0,255));
 		
 		this.dn.drawRect(cc.p(this.rankBar.x, this.rankBar.y),cc.p(this.rankBar.x+this.rankBar.width, this.rankBar.y+this.rankBar.height), cc.color(255,255,255,255),2,cc.color(0,0,0,255));
-		this.dn.drawRect(cc.p(this.rankBar.x+2,this.rankBar.y+2),cc.p(this.rankBar.x+((this.rankBar.width-4)*DATA.rankProgress),this.rankBar.y+(this.rankBar.height-2)),cc.color(0,255,0,255),0,cc.color(0,255,0,255));
+		this.dn.drawRect(cc.p(this.rankBar.x+2,this.rankBar.y+2),cc.p(this.rankBar.x+Math.max(((this.rankBar.width-4)*DATA.rankProgress),2),this.rankBar.y+(this.rankBar.height-2)),cc.color(0,255,0,255),0,cc.color(0,255,0,255));
 		
 	},
 	

@@ -14,7 +14,7 @@ var ChallengeBottomUILayer = cc.Layer.extend({
 		this.buttonWidth = size.width/5;
 		this.buttonHeight = this.height;
 		
-		this.boosterAImg = new cc.Sprite(res.pre_booster_moves);
+		this.boosterAImg = new cc.Sprite(res.in_booster_bomb);
 		this.boosterAImg.setScale(this.height / this.boosterAImg.height);
 		this.boosterAImg.attr({
 			"x":0,
@@ -24,17 +24,17 @@ var ChallengeBottomUILayer = cc.Layer.extend({
 		});
 		this.addChild(this.boosterAImg);
 		
-		this.boosterBImg = new cc.Sprite(res.pre_booster_moves);
+		this.boosterBImg = new cc.Sprite(res.in_booster_beachball);
 		this.boosterBImg.setScale(this.height / this.boosterBImg.height);
 		this.boosterBImg.attr({
-			"x":0,
+			"x":this.boosterAImg.x + this.boosterBImg.width*this.boosterBImg.scale +1,
 			"y":0,
 			"anchorX":0,
 			"anchorY":0
 		});
 		this.addChild(this.boosterBImg);
 		
-		this.boosterCImg = new cc.Sprite(res.pre_booster_moves);
+		/*this.boosterCImg = new cc.Sprite(res.pre_booster_moves);
 		this.boosterCImg.setScale(this.height / this.boosterCImg.height);
 		this.boosterCImg.attr({
 			"x":0,
@@ -43,7 +43,7 @@ var ChallengeBottomUILayer = cc.Layer.extend({
 			"anchorY":0
 		});
 		this.addChild(this.boosterCImg);
-		
+		*/
 		
 		
 		
