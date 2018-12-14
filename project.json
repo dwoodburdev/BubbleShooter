@@ -27,6 +27,7 @@
         "src/ShopDisplayLayer.js","src/FriendsDisplayLayer.js","src/LeagueDisplayLayer.js","src/MeDisplayLayer.js","src/ChallengeMenuDisplayLayer.js",
         "src/ChallengeBottomUILayer.js","src/WorldRewardsLayer.js",
         "src/ProgressBar.js",
-        "src/ChallengeWinSummaryLayer.js"
+        "src/ChallengeWinSummaryLayer.js", "src/OpenLevelReminderLayer.js","src/ChallengeTopUILayer.js",
+        "src/NoLevelLayer.js"
     ]
 }

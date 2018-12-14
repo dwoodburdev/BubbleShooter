@@ -17,6 +17,10 @@ var CoreButtonsUI = cc.Layer.extend({
 		this.preLayer = null;
 		this.worldRewardsLayer = null;
 		this.buyBallsLayer = null;
+		this.openLevelReminderLayer = null;
+		this.noLevelLayer = null;
+		
+		this.shooterLabel = null;
 		
 		this.tabName = tabName;
 		
@@ -43,11 +47,12 @@ var CoreButtonsUI = cc.Layer.extend({
 			});
 			this.addChild(this.levelAImg);
 		}
+		this.levelBImg=null;
 		if(DATA.levelIndexB != null)
 		{
 			this.levelBImg=new cc.Sprite(res.star_emoji);
 			this.levelBImg.setScale(1.5*this.bubbleR/this.levelBImg.width);
-			this.levelBImg.attr({x:this.width/2-this.challengeButton.width/6,
+			this.levelBImg.attr({x:this.width/2+this.challengeButton.width/6,
 				y:this.challengeButton.y+this.challengeButton.height/2,
 				anchorX:0.5,
 				anchorY:0.5
@@ -140,23 +145,72 @@ var CoreButtonsUI = cc.Layer.extend({
 			}
 		}
 		else if(this.buyBallsLayer != null && this.posWithin(pos, this.buyBallsLayer))
-		{cc.log("a");
+		{
 			var returnCommand = this.buyBallsLayer.onTouchEnd(pos);
 			if(returnCommand == "close")
-			{cc.log("removing");
+			{
 				this.removeChild(this.buyBallsLayer);
 				this.buyBallsLayer = null;
 				return "close";
 			}
+			else if(returnCommand == "buy")
+			{
+				this.removeChild(this.buyBallsLayer);
+				this.buyBallsLayer = null;
+				return "buy";
+			}
+			else if(returnCommand == "watch")
+			{
+				this.removeChild(this.buyBallsLayer);
+				this.buyBallsLayer = null;
+				return "watch";
+			}
 		}
-		else if(DATA.levelIndexA!=null
-			&& pos.y>this.challengeButton.y && pos.y<this.challengeButton.y+this.storeButton.height
+		else if(this.openLevelReminderLayer != null && this.posWithin(pos, this.openLevelReminderLayer))
+		{
+			var returnCommand = this.openLevelReminderLayer.onTouchEnd(pos);
+			if(returnCommand == "close")
+			{
+				this.removeChild(this.openLevelReminderLayer);
+				this.openLevelReminderLayer = null;
+				return "close";
+			}
+			else if(returnCommand == "play-level")
+			{
+				this.removeChild(this.openLevelReminderLayer);
+				this.openLevelReminderLayer = null;
+				
+				this.preLayer = new PreChallengeLayer(DATA.levelIndexA,size.width-50,this.height-50);
+				this.preLayer.attr({x:25,y:25,anchorX:0,anchorY:0});
+				this.addChild(this.preLayer);
+				return "openPrelayer"
+			}
+		}
+		else if(this.noLevelLayer != null && this.posWithin(pos, this.noLevelLayer))
+		{
+			var returnCommand = this.noLevelLayer.onTouchEnd(pos);
+			if(returnCommand == "close")
+			{
+				this.removeChild(this.noLevelLayer);
+				this.noLevelLayer = null;
+				return "close";
+			}
+		}
+		else if(pos.y>this.challengeButton.y && pos.y<this.challengeButton.y+this.storeButton.height
 			&& pos.x>this.challengeButton.x && pos.x<this.challengeButton.x+this.challengeButton.width)
 		{
-			cc.log("DRAW PRECHALLENGE");
-			this.preLayer = new PreChallengeLayer(DATA.levelIndexA,size.width-50,this.height-50);
-			this.preLayer.attr({x:25,y:25,anchorX:0,anchorY:0});
-			this.addChild(this.preLayer);
+			if(DATA.levelIndexA!=null)
+			{
+				this.preLayer = new PreChallengeLayer(DATA.levelIndexA,size.width-50,this.height-50);
+				this.preLayer.attr({x:25,y:25,anchorX:0,anchorY:0});
+				this.addChild(this.preLayer);
+			}
+			else
+			{cc.log("NOLEVELLAYER");
+				this.noLevelLayer = new NoLevelLayer(size.width-50, this.height-50);
+				this.noLevelLayer.attr({x:25, y:25, anchorX:0, anchorY:0});
+				this.addChild(this.noLevelLayer);
+			}
 			
 			return "openPrelayer";
 		}
@@ -213,17 +267,19 @@ var CoreButtonsUI = cc.Layer.extend({
 			this.levelBImg=new cc.Sprite(res.star_emoji);
 			this.levelBImg.setScale(1.5*this.bubbleR/this.levelBImg.width);
 			this.levelBImg.attr({
-				x:this.width/2-this.challengeButton.width/5,
+				x:this.width/2+this.challengeButton.width/5,
 				y:this.challengeButton.y+this.challengeButton.height/2,
 				anchorX:0.5,
 				anchorY:0.5
 			});
 			this.addChild(this.levelBImg);
+			this.draw();
 		}
 		else if(DATA.levelIndexB==null && this.levelBImg!=null)
 		{
 			this.removeChild(this.levelBImg);
 			this.levelBImg=null;
+			this.draw();
 		}
 	},
 	
@@ -235,6 +291,46 @@ var CoreButtonsUI = cc.Layer.extend({
 			anchorX:0,anchorY:0
 		});
 		this.addChild(this.buyBallsLayer);
+	},
+	
+	openLevelReminder:function()
+	{
+		this.openLevelReminderLayer = new OpenLevelReminderLayer(this.width-50, this.height-50);
+		this.openLevelReminderLayer.attr({
+			x:25,y:25,
+			anchorX:0,anchorY:0
+		});
+		this.addChild(this.openLevelReminderLayer);
+	},
+	
+	openNoLevel:function()
+	{
+		this.noLevelLayer = new NoLevelLayer(this.width-50, this.height-50);
+		this.noLevelLayer.attr({
+			x:25,y:25,
+			anchorX:0,anchorY:0
+		});
+		this.addChild(noLevelLayer);
+	},
+	
+	setShooterLabel:function(text, color, shooterY)
+	{cc.log("label");
+		this.shooterLabel = new cc.LabelTTF(text,"Roboto",30);
+		this.shooterLabel.attr({
+			x:cc.winSize.width/2,
+			y:shooterY+this.bubbleR*2,
+			anchorX:0.5,
+			anchorY:0
+		});
+		this.shooterLabel.color=color;
+		this.addChild(this.shooterLabel);
+	},
+	
+	clearShooterLabel:function()
+	{
+		this.shooterLabel.clear();
+		this.removeChild(this.shooterLabel);
+		this.shooterLabel = null;
 	},
 	
 	hideMinorUI:function()
@@ -291,7 +387,9 @@ var CoreButtonsUI = cc.Layer.extend({
 	},
 	drawChallengeButton:function(){
 		var buttonColor=cc.color(100,100,100,255);
-		if(DATA.levelIndexA!=null)
+		if(DATA.levelIndexB!=null)
+			buttonColor=cc.color(255,0,0,255);
+		else if(DATA.levelIndexA!=null)
 			buttonColor=cc.color(0,255,0,255);
 		this.dn.drawRect(cc.p(this.challengeButton.x,this.challengeButton.y),cc.p(this.challengeButton.x+this.challengeButton.width,this.challengeButton.y+this.challengeButton.height),buttonColor,5,cc.color(0,0,0,255));
 		

@@ -116,7 +116,7 @@ DATA.setLevelQueue = function(queue)
 }
 
 DATA.levelIndexA = null;
-//DATA.levelIndexB = null;
+DATA.levelIndexB = null;
 
 DATA.bubbleR = 4;
 
@@ -230,6 +230,10 @@ DATA.swapBubbleColors = function(modeType)
 	}
 };
 
+DATA.preBoosterInventoryA = 1;
+DATA.boosterInventoryA = 1;
+//DATA.boosterInventoryB = 0;
+
 DATA.streakStep = 0;
 DATA.challengeTries = 0;
 
@@ -287,8 +291,8 @@ DATA.retrieveLevel = function()
 	{
 		DATA.levelIndexA = Math.floor(Math.random()*DATA.challenges.length);cc.log("NEW LEVEL INDEX "+DATA.levelIndexA);
 	}
-	//else if(DATA.levelIndexB == null)
-	//{
-	//	DATA.levelIndexB = Math.floor(Math.random()*DATA.challenges.length);
-	//}
+	else if(DATA.levelIndexB == null)
+	{
+		DATA.levelIndexB = Math.floor(Math.random()*DATA.challenges.length);
+	}
 };

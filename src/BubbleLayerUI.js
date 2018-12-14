@@ -1,4 +1,4 @@
-var CoreButtonsUI = cc.Layer.extend({
+/*var CoreButtonsUI = cc.Layer.extend({
 	ctor:function(bubbleR, height){
 		this._super();
 		cc.associateWithNative( this, cc.Sprite );
@@ -116,16 +116,7 @@ var CoreButtonsUI = cc.Layer.extend({
 			cc.director.runScene(new EditorScene());
 		}
 		//else if(this.posWithin(loc, this.challengeBut))
-		
-		/*if(this.levelAImg != null && loc.y > this.levelAImg.y-this.bubbleR && loc.y < this.levelAImg.y+this.bubbleR)
-	   	{
-		   if(this.levelAImg != null && loc.x > this.levelAImg.x-this.bubbleR && loc.x < this.levelAImg.x+this.bubbleR)
-		   {
-		   		cc.log("PLAY LEVEL CHALLENGE");
-		   		cc.director.runScene(new PreChallengeScene(DATA.levelIndexA));
-		   		
-		   }
-	   	}*/
+	
 	   	
 	},
 	
@@ -173,13 +164,14 @@ var CoreButtonsUI = cc.Layer.extend({
 				"anchorY":.5
 			});
 			this.addChild(this.levelBImg);
-			
+			this.draw();
 			//DATA.retrieveLevel();
 		}
 		else if(DATA.levelIndexB == null && this.levelBImg != null)
 		{
 			this.removeChild(this.levelBImg);
 			this.levelBImg = null;
+			this.draw();
 		}
 		
 		
@@ -201,4 +193,4 @@ var CoreButtonsUI = cc.Layer.extend({
 		
 	}
 	
-});
+});*/

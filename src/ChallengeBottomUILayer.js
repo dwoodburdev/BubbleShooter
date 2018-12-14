@@ -15,7 +15,7 @@ var ChallengeBottomUILayer = cc.Layer.extend({
 		this.buttonHeight = this.height;
 		
 		this.boosterAImg = new cc.Sprite(res.in_booster_bomb);
-		this.boosterAImg.setScale(this.height / this.boosterAImg.height);
+		this.boosterAImg.setScale(this.height*.75 / this.boosterAImg.height);
 		this.boosterAImg.attr({
 			"x":0,
 			"y":0,
@@ -23,6 +23,16 @@ var ChallengeBottomUILayer = cc.Layer.extend({
 			"anchorY":0
 		});
 		this.addChild(this.boosterAImg);
+		
+		this.boosterACounter = new cc.LabelTTF(""+DATA.boosterInventoryA, "Roboto", 15);
+		this.boosterACounter.attr({
+			"x":this.boosterAImg.x + this.boosterAImg.width*this.boosterAImg.scale/2,
+			"y":this.boosterAImg.y + this.boosterAImg.height*this.boosterAImg.scale-2,
+			"anchorX":.5,
+			"anchorY":0
+		});
+		this.boosterACounter.color = cc.color(0,0,0,255);
+		this.addChild(this.boosterACounter);
 		
 		this.boosterBImg = new cc.Sprite(res.in_booster_beachball);
 		this.boosterBImg.setScale(this.height / this.boosterBImg.height);
@@ -77,12 +87,29 @@ var ChallengeBottomUILayer = cc.Layer.extend({
 	
 	onTouchEnd:function(pos)
 	{
-		/*if(pos.x > this.meButton.x && pos.x < this.meButton.x+this.buttonWidth)
+		if(this.posWithinScaled(pos, this.boosterAImg))
 		{
-			cc.director.runScene(new MeScene());
-		}*/
+			if(DATA.boosterInventoryA > 0)
+			{
+				DATA.boosterInventoryA--;
+				return "bomb-booster";
+			}
+			else
+			{
+				
+			}
+		}
 		
-		
+	},
+	
+	posWithinScaled:function(pos, square)
+	{
+		if(pos.x > square.x && pos.x < square.x+square.width*square.scale &&
+			pos.y > square.y && pos.y < square.y+square.height*square.scale)
+		{
+			return true;
+		}
+		return false;
 	}
 	
 });

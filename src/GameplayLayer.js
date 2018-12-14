@@ -27,7 +27,7 @@ var GameplayLayer = cc.Layer.extend({
 		});
 		this.addChild(this.topUILayer,9);
 
-		this.bubbleLayer = new BubbleLayer(bubbles, numRows, DATA.worldBallsLeft, "world", size.width, size.height-this.bottomUILayer.height-this.topUILayer.height);	
+		this.bubbleLayer = new BubbleLayer(bubbles, numRows, DATA.worldBallsLeft, "world", size.width, size.height-this.bottomUILayer.height-this.topUILayer.height, []);	
 		this.bubbleLayer.attr({
 			x:0,
 			y:this.bottomUILayer.height,

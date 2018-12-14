@@ -15,6 +15,8 @@ var PreChallengeLayer = cc.Layer.extend({
 		cc.log(this.x + " " + this.y + "   " + this.width + " " + this.height);
 		this.addChild(this.dn);
 		
+		this.preBoosterABool = false;
+		
 		
 		this.playButton = new cc.Sprite(res.play_button_green);
 		this.playButton.setScale((this.width/3)/this.playButton.width);
@@ -50,7 +52,7 @@ var PreChallengeLayer = cc.Layer.extend({
    			if(bubbles[i].row > maxRow)
     			maxRow = bubbles[i].row;
     	}
-		this.bubblePreview = new BubbleLayer(bubbles,maxRow+1,10,"preview",(size.width-50)*.8,(this.height-50)*.5);
+		this.bubblePreview = new BubbleLayer(bubbles,maxRow+1,10,"preview",(size.width-50)*.8,(this.height-50)*.5, []);
 		this.bubblePreview.attr({
 			x:this.x + (this.width-this.bubblePreview.width)/2,
 			y:this.y + this.height-this.bubblePreview.height-35,
@@ -72,6 +74,16 @@ var PreChallengeLayer = cc.Layer.extend({
 			anchorY:0
 		});
 		this.addChild(this.preBoosterA);
+		cc.log("PRE INVENTORY");cc.log(DATA.preBoosterInventoryA);
+		this.preBoosterACounter = new cc.LabelTTF(""+DATA.preBoosterInventoryA, "Roboto", 15);
+		this.preBoosterACounter.attr({
+			"x":this.x+this.width/2,
+			"y":this.preBoosterA.y + this.preBoosterA.height*this.preBoosterA.scale,
+			"anchorX":.5,
+			"anchorY":0
+		});
+		this.preBoosterACounter.color = cc.color(0,0,0,255);
+		this.addChild(this.preBoosterACounter);
 		
 		this.tabTitleLabel = new cc.LabelTTF(DATA.challenges[this.challengeIndex].moves+" moves", "Roboto", 35);
 		this.tabTitleLabel.attr({
@@ -160,7 +172,11 @@ var PreChallengeLayer = cc.Layer.extend({
     		cc.log("SETTING QUEUE");cc.log(DATA.challenges[this.challengeIndex].queue);
 			DATA.setLevelQueue(DATA.challenges[this.challengeIndex].queue);
 		
-    		cc.director.runScene(new ChallengeScene(bubbles, maxRow+1, numMoves));
+			var preBoosterArray = [];
+			if(this.preBoosterABool)
+				preBoosterArray.push("plus_five")
+		
+    		cc.director.runScene(new ChallengeScene(bubbles, maxRow+1, numMoves, preBoosterArray));
     	}
     	else if(this.posWithin(pos, {"x":this.x+this.closeButton.x,"y":this.y+this.closeButton.y,"width":this.closeButton.width*this.closeButton.scale,"height":this.closeButton.height*this.closeButton.scale}))
     	{cc.log("close");
@@ -171,17 +187,50 @@ var PreChallengeLayer = cc.Layer.extend({
     		width:this.preBoosterA.width*this.preBoosterA.scale,
     		height:this.preBoosterA.height*this.preBoosterA.scale}))
     	{
-    		this.removeChild(this.preBoosterA);
-    		this.preBoosterA = new cc.Sprite(res.pre_booster_moves_selected);
-			this.preBoosterA.setScale(this.width/6 / this.preBoosterA.width);
-			this.preBoosterA.attr({
-				x:this.width/2 - (this.width/12),
-				y:this.playButton.y+(this.playButton.height*this.playButton.scale)+(this.width/6),
-				anchorX:0,
-				anchorY:0
-			});
-			this.addChild(this.preBoosterA);
-			return "prebooster";
+    		if(!this.preBoosterABool)
+    		{
+	    		if(DATA.preBoosterInventoryA > 0)
+	    		{
+	    			DATA.preBoosterInventoryA--;
+	    			this.preBoosterACounter.setString(DATA.preBoosterInventoryA);
+	    			
+		    		this.preBoosterABool = true;
+		    		
+		    		this.removeChild(this.preBoosterA);
+		    		this.preBoosterA = new cc.Sprite(res.pre_booster_moves_selected);
+					this.preBoosterA.setScale(this.width/6 / this.preBoosterA.width);
+					this.preBoosterA.attr({
+						x:this.width/2 - (this.width/12),
+						y:this.playButton.y+(this.playButton.height*this.playButton.scale)+(this.width/6),
+						anchorX:0,
+						anchorY:0
+					});
+					this.addChild(this.preBoosterA);
+					return "prebooster";
+				}
+				else
+				{
+					
+				}
+			}
+			else
+			{
+				DATA.preBoosterInventoryA++;
+	    		this.preBoosterACounter.setString(DATA.preBoosterInventoryA);
+	    			
+				this.preBoosterABool = false;
+				
+				this.removeChild(this.preBoosterA);
+	    		this.preBoosterA = new cc.Sprite(res.pre_booster_moves);
+				this.preBoosterA.setScale(this.width/6 / this.preBoosterA.width);
+				this.preBoosterA.attr({
+					x:this.width/2 - (this.width/12),
+					y:this.playButton.y+(this.playButton.height*this.playButton.scale)+(this.width/6),
+					anchorX:0,
+					anchorY:0
+				});
+				this.addChild(this.preBoosterA);
+			}
     	}
     	return null;
 	},

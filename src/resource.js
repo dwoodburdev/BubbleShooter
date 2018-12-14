@@ -187,7 +187,9 @@ var res = {
     get_button: "res/get-button.png",
     next_button: "res/next-button.png",
     
-    xp: "res/xp.png"
+    xp: "res/xp.png",
+    
+    plus_five_moves_icon: "res/plus_five_moves_icon.png"
 };
 
 var g_resources = [];
