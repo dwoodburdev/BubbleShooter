@@ -28,6 +28,6 @@
         "src/ChallengeBottomUILayer.js","src/WorldRewardsLayer.js",
         "src/ProgressBar.js",
         "src/ChallengeWinSummaryLayer.js", "src/OpenLevelReminderLayer.js","src/ChallengeTopUILayer.js",
-        "src/NoLevelLayer.js"
+        "src/NoLevelLayer.js", "src/SettingsLayer.js", "src/QuitConfirmLayer.js", "src/BuyBoosterLayer.js"
     ]
 }

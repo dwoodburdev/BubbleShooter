@@ -96,7 +96,7 @@ var ChallengeBottomUILayer = cc.Layer.extend({
 			}
 			else
 			{
-				
+				return "bomb-booster-empty";
 			}
 		}
 		

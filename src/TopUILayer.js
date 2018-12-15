@@ -51,7 +51,28 @@ var TopUILayer = cc.Layer.extend({
 		this.gemLabel.color = cc.color(0,0,0,255);
 		this.addChild(this.gemLabel);
 		
-		this.rankImg = new cc.Sprite(res.rank1);
+		this.rankImg = null;
+		if(DATA.rank == 1)
+			this.rankImg = new cc.Sprite(res.rank1);
+		else if(DATA.rank == 2)
+			this.rankImg = new cc.Sprite(res.rank2);
+		else if(DATA.rank == 3)
+			this.rankImg = new cc.Sprite(res.rank3);
+		else if(DATA.rank == 4)
+			this.rankImg = new cc.Sprite(res.rank4);
+		else if(DATA.rank == 5)
+			this.rankImg = new cc.Sprite(res.rank5);
+		else if(DATA.rank == 6)
+			this.rankImg = new cc.Sprite(res.rank6);
+		else if(DATA.rank == 7)
+			this.rankImg = new cc.Sprite(res.rank7);
+		else if(DATA.rank == 8)
+			this.rankImg = new cc.Sprite(res.rank8);
+		else if(DATA.rank == 9)
+			this.rankImg = new cc.Sprite(res.rank9);
+		else if(DATA.rank == 10)
+			this.rankImg = new cc.Sprite(res.rank10);
+		
 		this.rankImg.setScale((this.height-10)/this.rankImg.height);
 		this.rankImg.attr({
 			"x":5,
@@ -94,7 +115,7 @@ var TopUILayer = cc.Layer.extend({
 		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),1,cc.color(0,0,0,255));
 		
 		this.dn.drawRect(cc.p(this.rankBar.x, this.rankBar.y),cc.p(this.rankBar.x+this.rankBar.width, this.rankBar.y+this.rankBar.height), cc.color(255,255,255,255),2,cc.color(0,0,0,255));
-		this.dn.drawRect(cc.p(this.rankBar.x+2,this.rankBar.y+2),cc.p(this.rankBar.x+Math.max(((this.rankBar.width-4)*DATA.rankProgress),2),this.rankBar.y+(this.rankBar.height-2)),cc.color(0,255,0,255),0,cc.color(0,255,0,255));
+		this.dn.drawRect(cc.p(this.rankBar.x+2,this.rankBar.y+2),cc.p(this.rankBar.x+Math.max(((this.rankBar.width-4)*(DATA.rankProgress/DATA.rankThreshold)),2),this.rankBar.y+(this.rankBar.height-2)),cc.color(0,255,0,255),0,cc.color(0,255,0,255));
 		
 	},
 	

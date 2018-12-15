@@ -22,7 +22,7 @@ var ChallengeLayer = cc.Layer.extend({
 			anchorX:0,
 			anchorY:0
 		});
-		this.addChild(this.topUILayer,9);
+		this.addChild(this.topUILayer);
 
 		
 
@@ -35,15 +35,9 @@ var ChallengeLayer = cc.Layer.extend({
 		});
 		this.addChild(this.bubbleLayer);
 		
-		this.homeButton = new Button(0, 0, "Home", 32, cc.color(0,255,0,255), cc.color(255,255,255,255));
-        this.homeButton.attr({
-        	"x":size.width-this.homeButton.width/2,
-        	"y":this.homeButton.height/2,
-        	"anchorX":.5,
-        	"anchorY":.5
-        });
-		this.addChild(this.homeButton);
-		
+		this.settingsLayer = null;
+		this.quitConfirmLayer = null;
+		this.buyBoosterLayer = null;
 		
 		
 		var self = this;
@@ -54,51 +48,163 @@ var ChallengeLayer = cc.Layer.extend({
 			    event: cc.EventListener.TOUCH_ONE_BY_ONE,
 			    swallowTouches:true,
 			    onTouchBegan: function(touch, event){
-			   		var target = event.getCurrentTarget();
-			    	var locationInNode = self.bubbleLayer.convertToNodeSpace(touch.getLocation());
-
-			    	if(self.bubbleLayer.pointWithin(locationInNode))
+			    	
+			    	if(!self.isPopUp())
 			    	{
-			    		self.bubbleLayer.onTouchBegin(locationInNode);
+				   		var target = event.getCurrentTarget();
+				    	var locationInNode = self.bubbleLayer.convertToNodeSpace(touch.getLocation());
+	
+				    	if(self.bubbleLayer.pointWithin(locationInNode))
+				    	{
+				    		self.bubbleLayer.onTouchBegin(locationInNode);
+				    	}
 			    	}
 			    	
 			    	
 			    	return true;
 			    },
 			    onTouchMoved: function(touch, event){
+			    	
 			    	var target = event.getCurrentTarget();
-			    	var locationInNode = self.bubbleLayer.convertToNodeSpace(touch.getLocation());
-
-			    	if(self.bubbleLayer.pointWithin(locationInNode))
+				    	
+			    	if(!self.isPopUp())
 			    	{
-			    		self.bubbleLayer.onTouchMove(locationInNode);
+				    	var locationInNode = self.bubbleLayer.convertToNodeSpace(touch.getLocation());
+	
+				    	if(self.bubbleLayer.pointWithin(locationInNode))
+				    	{
+				    		self.bubbleLayer.onTouchMove(locationInNode);
+				    	}
 			    	}
 			    	
 			    	return true;
 			    },
 			    onTouchEnded: function(touch, event){
-				    var target = event.getCurrentTarget();
-				    var locationInNode = self.bubbleLayer.convertToNodeSpace(touch.getLocation());
-				    //cc.log(locationInNode);
-				    if(self.homeButton.pointWithin(touch.getLocation()))
-				    {
-				    	cc.director.runScene(new HelloWorldScene());
-				    }
-				    else if(locationInNode.y < 0)
-				    {
-				    	var loc = self.bottomUILayer.convertToNodeSpace(touch.getLocation());
-				    	var returnObj = self.bottomUILayer.onTouchEnd(loc);
-				    	if(returnObj == "bomb-booster")
-				    	{
-				    		self.bubbleLayer.changeShooter(1);
-				    	}
-				    }
-			    	/*else if(self.editButton.pointWithin(touch.getLocation()))
+			    	
+			    	if(!self.isPopUp())
 			    	{
-			    		cc.director.runScene(new EditorScene());
-			    	}*/
-			    	else self.bubbleLayer.onTouchEnd(locationInNode);
-				   	
+					    var target = event.getCurrentTarget();
+					    var locationInNode = self.topUILayer.convertToNodeSpace(touch.getLocation());
+					    
+					    if(locationInNode.y > 0)
+					    {cc.log("top layer touch");
+					    	var returnObj = self.topUILayer.onTouchEnd(locationInNode);cc.log(returnObj);
+					    	if(returnObj == "settings")
+					    	{
+					    		self.settingsLayer = new SettingsLayer(size.width-50, size.height-50);
+					    		self.settingsLayer.attr({
+					    			x:25,
+					    			y:25,
+					    			anchorX:0,
+					    			anchorY:0
+					    		});
+					    		self.addChild(self.settingsLayer);
+					    	}
+					    }
+					    else
+					    {
+					    
+						    locationInNode = self.bubbleLayer.convertToNodeSpace(touch.getLocation());
+						    //cc.log(locationInNode);
+						    if(locationInNode.y < 0)
+						    {
+						    	var loc = self.bottomUILayer.convertToNodeSpace(touch.getLocation());
+						    	var returnObj = self.bottomUILayer.onTouchEnd(loc);
+						    	if(returnObj == "bomb-booster")
+						    	{
+						    		self.bubbleLayer.changeShooter(1);
+						    	}
+						    	else if(returnObj == "bomb-booster-empty")
+						    	{
+						    		self.buyBoosterLayer = new BuyBoosterLayer(size.width-50, size.height-50, "bomb");
+						    		self.buyBoosterLayer.attr({
+						    			x:25,
+						    			y:25,
+						    			anchorX:0,
+						    			anchorY:0
+						    		});
+						    		self.addChild(self.buyBoosterLayer);
+						    	}
+						    }
+					    	/*else if(self.editButton.pointWithin(touch.getLocation()))
+					    	{
+					    		cc.director.runScene(new EditorScene());
+					    	}*/
+					    	else self.bubbleLayer.onTouchEnd(locationInNode);
+				   		}
+				   	}
+				   	else
+				   	{
+				   		if(self.settingsLayer != null)
+				   		{
+				   			var loc = self.settingsLayer.convertToNodeSpace(touch.getLocation());
+					    	var returnObj = self.settingsLayer.onTouchEnd(loc);
+					    	if(returnObj == "close" || returnObj == "continue")
+					    	{
+					    		self.removeChild(self.settingsLayer);
+					    		self.settingsLayer = null;
+					    	}
+					    	else if(returnObj == "quit")
+					    	{
+					    		self.removeChild(self.settingsLayer);
+					    		self.settingsLayer = null;
+					    		
+					    		self.quitConfirmLayer = new QuitConfirmLayer(size.width-50, size.height-50);
+					    		self.quitConfirmLayer.attr({
+					    			x:25,
+					    			y:25,
+					    			anchorX:0,
+					    			anchorY:0
+					    		});
+					    		self.addChild(self.quitConfirmLayer);
+					    	}
+					    	
+				   		}
+				   		else if(self.quitConfirmLayer != null)
+				   		{
+				   			var loc = self.quitConfirmLayer.convertToNodeSpace(touch.getLocation());
+					    	var returnObj = self.quitConfirmLayer.onTouchEnd(loc);cc.log(returnObj);
+					    	if(returnObj == "close" || returnObj == "continue")
+					    	{
+					    		self.removeChild(self.quitConfirmLayer);
+					    		self.quitConfirmLayer = null;
+					    	}
+					    	else if(returnObj == "quit")
+					    	{
+					    		self.removeChild(self.quitConfirmLayer);
+					    		self.quitConfirmLayer = null;
+					    		
+					    		if(DATA.challengeTries == DATA.streakStep)
+								{
+									DATA.levelIndexA = null;
+									DATA.challengeTries = 0;
+									DATA.streakStep = 0;
+								}
+								else DATA.challengeTries++;
+								cc.director.runScene(new ChallengeFailScene());
+					    	}
+				   		}
+				   		else if(self.buyBoosterLayer != null)
+				   		{
+				   			var loc = self.buyBoosterLayer.convertToNodeSpace(touch.getLocation());
+					    	var returnObj = self.buyBoosterLayer.onTouchEnd(loc);
+					    	if(returnObj == "close")
+					    	{
+					    		self.removeChild(self.buyBoosterLayer);
+					    		self.buyBoosterLayer = null;
+					    	}
+					    	else if(returnObj == "buy-bomb")
+					    	{
+					    		DATA.coins--;
+					    		DATA.boosterInventoryA++;
+					    		
+					    		self.removeChild(self.buyBoosterLayer);
+					    		self.buyBoosterLayer = null;
+					    		
+					    		self.bubbleLayer.changeShooter(1);
+					    	}
+				   		}
+				   	}
 			    	return true;
 			    }
 		    },this);
@@ -106,6 +212,15 @@ var ChallengeLayer = cc.Layer.extend({
 		
 		
         return true;
+	},
+	
+	isPopUp:function()
+	{
+		if(this.settingsLayer == null && 
+			this.quitConfirmLayer == null &&
+			this.buyBoosterLayer == null)
+			return false;
+		return true;
 	}
 	
 });

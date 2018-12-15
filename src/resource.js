@@ -186,10 +186,17 @@ var res = {
     buy_balls_button: "res/buy-moves-button.png",
     get_button: "res/get-button.png",
     next_button: "res/next-button.png",
+    settings_icon: "res/settings_button.png",
+    quit_button: "res/quit-button.png",
+    continue_button: "res/continue_button.png",
     
     xp: "res/xp.png",
     
-    plus_five_moves_icon: "res/plus_five_moves_icon.png"
+    plus_five_moves_icon: "res/plus_five_moves_icon.png",
+    
+    bronze_xp_reward: "res/bronze-xp-reward.png",
+    silver_xp_reward: "res/silver-xp-reward.png",
+    gold_xp_reward: "res/gold-xp-reward.png"
 };
 
 var g_resources = [];

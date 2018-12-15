@@ -152,6 +152,28 @@ var PreChallengeLayer = cc.Layer.extend({
 			});
 			this.addChild(this.tryAlert);
 		}
+		
+		this.xpRewardImg = null;
+		if(DATA.streakStep == 0)
+		{
+			this.xpRewardImg = new cc.Sprite(res.bronze_xp_reward);
+		}
+		else if(DATA.streakStep == 1)
+		{
+			this.xpRewardImg = new cc.Sprite(res.silver_xp_reward);
+		}
+		else if(DATA.streakStep == 2)
+		{
+			this.xpRewardImg = new cc.Sprite(res.gold_xp_reward);
+		}
+		this.xpRewardImg.setScale(this.tryAlert.width*this.tryAlert.scale / this.xpRewardImg.width);
+		this.xpRewardImg.attr({
+			x:(this.x+this.width/2+circleR*3+5)+((this.x+this.width)-(this.x+this.width/2+circleR*3+5))/2,
+			y:circleY,
+			anchorX:.5,
+			anchorY:.5
+		});
+		this.addChild(this.xpRewardImg);
 	},
 	
 	onTouchEnd:function(pos)

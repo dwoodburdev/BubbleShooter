@@ -12,7 +12,15 @@ var ChallengeTopUILayer = cc.Layer.extend({
 		this.height = height;
 		
 		
-		
+		this.settingsButton = new cc.Sprite(res.settings_icon);
+		this.settingsButton.setScale(this.height / this.settingsButton.height);
+		this.settingsButton.attr({
+			x: size.width,
+			y: this.y,
+			anchorX:1,
+			anchorY:0
+		});
+		this.addChild(this.settingsButton);
 		
 		this.draw();
 	},
@@ -25,10 +33,11 @@ var ChallengeTopUILayer = cc.Layer.extend({
 	
 	onTouchEnd:function(pos)
 	{
-		/*if(pos.x > this.meButton.x && pos.x < this.meButton.x+this.buttonWidth)
+		if(FUNCTIONS.posWithinScaled(pos, this.settingsButton))
 		{
-			cc.director.runScene(new MeScene());
-		}*/		
-	}
+			return "settings";
+		}	
+	},
+	
 	
 });

@@ -97,9 +97,12 @@ DATA.setWorldQueue = function(queue)
 	}
 };
 DATA.setLevelQueue = function(queue)
-{
+{cc.log("RIGHT HERE LALALALALA");
 	DATA.challengeQueue = [];
 	DATA.challengeActiveQueue = [];
+	
+	DATA.levelBallAColor = null;
+	DATA.levelBallBColor = null;
 	
 	var colors = ["red","yellow","green","blue","pink","purple"]
 	if(queue.type == "bucket")
@@ -122,7 +125,9 @@ DATA.bubbleR = 4;
 
 DATA.worldBubblesLeft = 0;
 
+DATA.rank = 1;
 DATA.rankProgress = 0;
+DATA.rankThreshold = 30;
 DATA.coins = 10;
 DATA.gems = 0;
 
@@ -295,4 +300,27 @@ DATA.retrieveLevel = function()
 	{
 		DATA.levelIndexB = Math.floor(Math.random()*DATA.challenges.length);
 	}
+};
+
+
+
+
+
+var FUNCTIONS = {};
+FUNCTIONS.posWithin = function(pos, square)
+{
+	if(pos.x > square.x && pos.x < square.x+square.width && pos.y > square.y && pos.y < square.y+square.height)
+		return true;
+	return false;
+};
+FUNCTIONS.posWithinScaled = function(pos, img)
+{
+	var imgX = img.x-(img.width*img.scale*img.anchorX);
+	var imgY = img.y-(img.height*img.scale*img.anchorY);
+	if(pos.x > imgX && pos.x < imgX+(img.width*img.scale) &&
+		pos.y > imgY && pos.y < imgY+(img.height*img.scale))
+	{
+		return true;
+	}
+	return false;
 };

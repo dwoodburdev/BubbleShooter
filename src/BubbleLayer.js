@@ -57,7 +57,7 @@ var BubbleLayer = cc.Layer.extend({
        	
        	this.shooterMod = null;
        	
-       	DATA.setQueueColors(this.possibleColors);
+       	//DATA.setQueueColors(this.possibleColors);
        	
        	this.bubbleLayerUI = null;
        	
@@ -1134,6 +1134,19 @@ var BubbleLayer = cc.Layer.extend({
 				{
 					DATA.levelIndexA = DATA.levelIndexB;
 					DATA.levelIndexB = null;
+				}
+				
+				var xp = 10;
+				if(DATA.streakStep == 2)
+					xp = 25;
+				else if(DATA.streakStep == 3)
+					xp = 50;
+				DATA.rankProgress += xp;
+				
+				if(DATA.rankProgress > DATA.rankThreshold)
+				{
+					DATA.rank++;
+					DATA.rankProgress = DATA.rankProgress - DATA.rankThreshold;
 				}
 				
 				DATA.streakStep = Math.min(DATA.streakStep+1, 2);
