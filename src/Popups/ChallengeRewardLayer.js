@@ -1,5 +1,5 @@
 var ChallengeRewardLayer = cc.Layer.extend({
-	ctor:function(){
+	ctor:function(rankUpBool){
 		this._super();
 		//cc.associateWithNative( this, cc.Sprite );
 		
@@ -8,6 +8,8 @@ var ChallengeRewardLayer = cc.Layer.extend({
 		this.dn = new cc.DrawNode();
 		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),0,cc.color(0,0,0,255));
 		this.addChild(this.dn);
+		
+		this.rankUpBool = rankUpBool;
 		
 		this.topUILayer = new TopUILayer(size.height/15);
 		this.topUILayer.attr({
@@ -22,7 +24,7 @@ var ChallengeRewardLayer = cc.Layer.extend({
 		this.winSummaryLayer = new ChallengeWinSummaryLayer(size.width, size.height-this.topUILayer.height);
 		this.addChild(this.winSummaryLayer);
 		
-		
+		this.rankUpLayer = null;
 		
 		
 		var self = this;
@@ -60,11 +62,46 @@ var ChallengeRewardLayer = cc.Layer.extend({
 			    		{cc.log("win sum");
 			    			var returnObj = self.winSummaryLayer.onTouchEnd(locationInNode);
 			    			if(returnObj == "next")
-			    			{cc.log("NEXT");
+			    			{
 			    				self.removeChild(self.winSummaryLayer);
 			    				self.winSummaryLayer = null;
+			    				if(!self.rankUpBool)
+			    				{
+				    				if(DATA.streakStep>1 && DATA.challengeTries==0)
+										self.bonusRewardPicker = new ExtraBonusRewardPickerLayer(size.width, size.height-self.topUILayer.height);
+									else self.bonusRewardPicker = new BonusRewardPickerLayer(size.width, size.height-self.topUILayer.height);
+									
+									self.bonusRewardPicker.attr({
+										"x":size.width*.05,
+										"y":10,
+										"anchorX":0,
+										"anchorY":0
+									});
+				    				self.addChild(self.bonusRewardPicker);
+			    				}
+			    				else if(self.rankUpBool)
+			    				{
+			    					self.rankUpLayer = new RankUpLayer(size.width, size.height-self.topUILayer.height);
+			    					self.addChild(self.rankUpLayer);
+			    					
+			    				}
+			    			}
+			    		}
+			    		else if(self.rankUpLayer != null)
+			    		{
+			    			if(!self.rankUpLayer.chestOpened)
+			    			{
+			    				self.rankUpLayer.onTouchEnd();
 			    				
-			    				if(DATA.streakStep>1 && DATA.challengeTries==0)
+			    				
+			    				
+			    			}	
+			    			else if(self.rankUpLayer.chestOpened)
+			    			{
+				    			self.removeChild(self.rankUpLayer);
+				    			self.rankUpLayer = null;
+				    			
+				    			if(DATA.streakStep>1 && DATA.challengeTries==0)
 									self.bonusRewardPicker = new ExtraBonusRewardPickerLayer(size.width, size.height-self.topUILayer.height);
 								else self.bonusRewardPicker = new BonusRewardPickerLayer(size.width, size.height-self.topUILayer.height);
 								
@@ -75,7 +112,7 @@ var ChallengeRewardLayer = cc.Layer.extend({
 									"anchorY":0
 								});
 			    				self.addChild(self.bonusRewardPicker);
-			    			}
+		    				}
 			    		}
 					   	else if(self.bonusRewardPicker != null && !self.bonusRewardPicker.cardPicked)
 					   	{
@@ -123,9 +160,13 @@ var ChallengeRewardLayer = cc.Layer.extend({
 	
 });
 var ChallengeRewardScene = cc.Scene.extend({
+	ctor:function(rankUpBool){
+		this._super();
+		this.rankUpBool = rankUpBool;
+	},
 	onEnter:function(){
 		this._super();
-		var layer = new ChallengeRewardLayer();
+		var layer = new ChallengeRewardLayer(this.rankUpBool);
 		this.addChild(layer);
 	}
 });

@@ -5,6 +5,36 @@ DATA.levels = [];
 
 DATA.worldNumber = 1;
 
+var email = "dwoodburdev@gmail.com";
+ var password = "marlin81=";
+ 
+ firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+  // Handle Errors here.
+  var errorCode = error.code;
+  var errorMessage = error.message;
+  console.log(errorMessage);
+  // ...
+}); 
+ 
+ 
+  var database = firebase.database();
+  
+  //database.ref("users/"+"nZkyOVbZpfJBgjd4rFGv").once("value").then(function(snapshot){
+  database.ref("worlds/levels").once("value").then(function(snapshot){
+  	
+  	var d = snapshot.val();
+  	console.log(d);
+  	for(var i=0; i<d.length; i++)
+  	{
+  		var bubbles = d[i].bubbles;
+  		var queue = d[i].queue;
+  		var level = {"queue":queue,"bubbles":bubbles};
+  		DATA.levels.push(level);
+  		console.log(level);
+  	}
+  });
+
+/*
 cc.loader.loadJson("res/levels.json",function(error, data){
     
     for(var i=0; i<data.levels.length; i++)
@@ -22,7 +52,7 @@ cc.loader.loadJson("res/levels.json",function(error, data){
     }
     //DATA.levels = data.levels;
 });
-
+*/
 DATA.challenges = [];
 cc.loader.loadJson("res/dummy-challenges.json",function(error, data){
     //DATA.challenges = data.challenges.dice;
@@ -302,6 +332,25 @@ DATA.retrieveLevel = function()
 	}
 };
 
+
+DATA.checkRankUp = function()
+{
+	var xp = 10;
+	if(DATA.streakStep == 2)
+		xp = 25;
+	else if(DATA.streakStep == 3)
+		xp = 50;
+	DATA.rankProgress += xp;
+	
+	if(DATA.rankProgress > DATA.rankThreshold)
+	{
+		DATA.rank++;
+		DATA.rankProgress = DATA.rankProgress - DATA.rankThreshold;
+		
+		return true;
+	}
+	return false;
+};
 
 
 

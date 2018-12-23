@@ -14,7 +14,7 @@ var BottomUILayer = cc.Layer.extend({
 		this.buttonWidth = size.width/5;
 		this.buttonHeight = this.height;
 		
-		this.meButton = new cc.Sprite(res.me_button);
+		this.meButton = new cc.Sprite(res.me_button_locked);
 		this.meButton.setScaleX(this.buttonWidth/this.meButton.width);
 		this.meButton.setScaleY(this.buttonHeight/this.meButton.height);
 		this.meButton.attr({
@@ -47,7 +47,7 @@ var BottomUILayer = cc.Layer.extend({
 		});
 		this.addChild(this.playButton);
 		
-		this.friendsButton = new cc.Sprite(res.friends_button);
+		this.friendsButton = new cc.Sprite(res.friends_button_locked);
 		this.friendsButton.setScaleX(this.buttonWidth/this.friendsButton.width);
 		this.friendsButton.setScaleY(this.buttonHeight/this.friendsButton.height);
 		this.friendsButton.attr({
@@ -58,7 +58,7 @@ var BottomUILayer = cc.Layer.extend({
 		});
 		this.addChild(this.friendsButton);
 		
-		this.leagueButton = new cc.Sprite(res.league_button);
+		this.leagueButton = new cc.Sprite(res.league_button_locked);
 		this.leagueButton.setScaleX(this.buttonWidth/this.leagueButton.width);
 		this.leagueButton.setScaleY(this.buttonHeight/this.leagueButton.height);
 		this.leagueButton.attr({
@@ -159,7 +159,8 @@ var BottomUILayer = cc.Layer.extend({
 	{
 		if(pos.x > this.meButton.x && pos.x < this.meButton.x+this.buttonWidth)
 		{
-			cc.director.runScene(new MeScene());
+			if(true==false)
+				cc.director.runScene(new MeScene());
 			//cc.director.pushScene(new MeScene());
 		}
 		else if(pos.x > this.challengeMenuButton.x && pos.x < this.challengeMenuButton.x+this.buttonWidth)
@@ -184,12 +185,14 @@ var BottomUILayer = cc.Layer.extend({
 		}
 		else if(pos.x > this.friendsButton.x && pos.x < this.friendsButton.x+this.buttonWidth)
 		{
-			cc.director.runScene(new FriendsScene());
+			if(true==false)
+				cc.director.runScene(new FriendsScene());
 			//cc.director.pushScene(new FriendsScene());
 		}
 		else if(pos.x > this.leagueButton.x && pos.x < this.leagueButton.x+this.buttonWidth)
 		{
-			cc.director.runScene(new LeagueScene());
+			if(true==false)
+				cc.director.runScene(new LeagueScene());
 			//cc.director.pushScene(new LeagueScene());
 		}
 		

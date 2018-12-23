@@ -19,6 +19,7 @@ var CoreButtonsUI = cc.Layer.extend({
 		this.buyBallsLayer = null;
 		this.openLevelReminderLayer = null;
 		this.noLevelLayer = null;
+		this.buyPreboosterLayer = null;
 		
 		this.shooterLabel = null;
 		
@@ -133,6 +134,20 @@ var CoreButtonsUI = cc.Layer.extend({
 				this.preLayer = null;
 				return "close";
 			}
+			else if(returnCommand == "buy-prebooster")
+			{
+				this.removeChild(this.preLayer);
+				this.preLayer = null;
+				
+				this.buyPreboosterLayer = new BuyBoosterLayer(size.width-50,this.height-50,"plus_five");
+				this.buyPreboosterLayer.attr({
+					x:25,
+					y:25,
+					anchorX:0,
+					anchorY:0
+				});
+				this.addChild(this.buyPreboosterLayer);
+			}
 		}
 		else if(this.worldRewardsLayer != null && this.posWithin(pos, this.worldRewardsLayer))
 		{
@@ -164,6 +179,28 @@ var CoreButtonsUI = cc.Layer.extend({
 				this.removeChild(this.buyBallsLayer);
 				this.buyBallsLayer = null;
 				return "watch";
+			}
+		}
+		else if(this.buyPreboosterLayer != null && this.posWithin(pos, this.buyPreboosterLayer))
+		{
+			var returnCommand = this.buyPreboosterLayer.onTouchEnd(pos);
+			if(returnCommand == "close")
+			{
+				this.removeChild(this.buyPreboosterLayer);
+				this.buyPreboosterLayer = null;
+				return "close";
+			}
+			else if(returnCommand == "buy-plus_five")
+			{
+				DATA.preBoosterInventoryA++;
+				
+				this.removeChild(this.buyPreboosterLayer);
+				this.buyPreboosterLayer = null;
+				
+				this.preLayer = new PreChallengeLayer(DATA.levelIndexA,size.width-50,this.height-50);
+				this.preLayer.attr({x:25,y:25,anchorX:0,anchorY:0});
+				this.addChild(this.preLayer);
+				return "openPrelayer"
 			}
 		}
 		else if(this.openLevelReminderLayer != null && this.posWithin(pos, this.openLevelReminderLayer))
@@ -396,7 +433,7 @@ var CoreButtonsUI = cc.Layer.extend({
 	},
 	
 	
-	initTutorialScreen(num)
+	initTutorialScreen:function(num)
 	{
 		this.tutorialLayer = new TutorialLayer(num);
 	}

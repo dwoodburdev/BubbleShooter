@@ -92,6 +92,107 @@ canvas {
 <img src="res/loading-dylan-presents.png">
 <!--<img id="cocos2d_loadJsImg" src="res/HelloWorld.png"> I put this here -->
 <canvas id="gameCanvas" width="480" height="720"></canvas>
+
+
+<!-- Firebase App is always required and must be first -->
+<script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-app.js"></script>
+
+<!-- Add additional services that you want to use -->
+<script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-messaging.js"></script>
+<script src="https://www.gstatic.com/firebasejs/5.7.0/firebase-functions.js"></script>
+
+
+
+<script src="https://www.gstatic.com/firebasejs/5.7.0/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyASHFTxdCzt-oMYnI9jieHfHHrjTCjoRlg",
+    authDomain: "emoji-pop.firebaseapp.com",
+    databaseURL: "https://emoji-pop.firebaseio.com",
+    projectId: "emoji-pop",
+    storageBucket: "emoji-pop.appspot.com",
+    messagingSenderId: "575715115797"
+  };
+  firebase.initializeApp(config);
+  console.log(firebase.auth());
+  
+  
+  
+  
+  
+  
+  
+  
+  //var provider = new firebase.auth.FacebookAuthProvider();
+  
+//  provider.setCustomParameters({
+//  'display': 'popup'
+//});
+  
+  
+  /*firebase.auth().signInWithPopup(provider).then(function(result) {
+  	console.log("success FB login");
+  // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+  var token = result.credential.accessToken;
+  // The signed-in user info.
+  var user = result.user;
+  // ...
+  
+  console.log(user);
+}).catch(function(error) {
+	console.log("error");
+  // Handle Errors here.
+  var errorCode = error.code;
+  var errorMessage = error.message;
+  // The email of the user's account used.
+  var email = error.email;
+  // The firebase.auth.AuthCredential type that was used.
+  var credential = error.credential;
+  // ...
+  
+  console.log(errorMessage);
+});*/
+
+//firebase.auth().signInWithRedirect(provider);
+
+/*firebase.auth().getRedirectResult().then(function(result) {
+  if (result.credential) {
+    // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+    var token = result.credential.accessToken;
+    // ...
+    console.log("SUCCESS");
+  }
+  // The signed-in user info.
+  var user = result.user;
+}).catch(function(error) {
+	console.log("error");
+  // Handle Errors here.
+  var errorCode = error.code;
+  var errorMessage = error.message;
+  // The email of the user's account used.
+  var email = error.email;
+  // The firebase.auth.AuthCredential type that was used.
+  var credential = error.credential;
+  console.log(errorMessage);
+  // ...
+});*/
+  
+  
+ 
+ 
+ 
+  
+  
+  /*firebase.auth().createUserWithEmailAndPassword("dwoodburdev@gmail.com", "marlin81=").catch(function(error) {
+  
+  });*/
+  
+</script>
+
 <script src="frameworks/cocos2d-html5/CCBoot.js"></script>
 <script cocos src="main.js"></script>
 </body>

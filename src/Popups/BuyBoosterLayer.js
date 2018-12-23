@@ -39,6 +39,10 @@ var BuyBoosterLayer = cc.Layer.extend({
 		{
 			this.boosterImg = new cc.Sprite(res.bomb_emoji);
 		}
+		else if(this.boosterType == "plus_five")
+		{
+			this.boosterImg = new cc.Sprite(res.plus_five_moves_icon);
+		}
 		this.boosterImg.setScale(this.width/2 / this.boosterImg.width);
 		this.boosterImg.attr({
 			x:this.x+this.width/2,

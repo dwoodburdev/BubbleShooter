@@ -26,10 +26,10 @@ var EditorLayer = cc.Layer.extend({
 			anchorY: 0
 		})
 		
-		this.bubbleLayer = new EditorBubbleLayer();	
+		this.bubbleLayer = new EditorBubbleLayer(size.width, size.height-this.editorUILayer.height-this.midUILayer.height);	
 		this.bubbleLayer.attr({
 			x:0,
-			y:0,
+			y:this.editorUILayer.height+this.midUILayer.height,
 			//width:size.width,
 			//height:size.height-this.editorUILayer.height-this.midUILayer.height,
 			anchorX:0,
@@ -84,6 +84,7 @@ var EditorLayer = cc.Layer.extend({
 			    	var uiData = null;
 			    	if(locationInNode.y < 0)
 			    	{cc.log("low");
+			    		
 			    		if(self.midUILayer.convertToNodeSpace(touch.getLocation()).y < 0)
 			    			returnData = self.editorUILayer.onTouchEnded(self.editorUILayer.convertToNodeSpace(touch.getLocation()));
 			    			//returnData = self.editorUILayer.onTouchEnded(touch.getLocation());

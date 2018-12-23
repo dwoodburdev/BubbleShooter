@@ -70,7 +70,7 @@ var BubbleLayer = cc.Layer.extend({
 				anchorX:0,
 				anchorY:0
 			});
-			this.addChild(this.bubbleLayerUI,10);
+			this.addChild(this.bubbleLayerUI,3);
 	       	
        		this.bubbleStartHeight = this.bubbleLayerUI.storeButton.y+this.bubbleLayerUI.storeButton.height+this.bubbleR*2;
        		if(DATA.worldBallAColor == null)
@@ -1127,7 +1127,6 @@ var BubbleLayer = cc.Layer.extend({
 		{
 			if(this.bubbles.length == 0)
 			{
-				var rewardScene = new ChallengeRewardScene();
 				
 				DATA.levelIndexA = null;
 				if(DATA.levelIndexB != null)
@@ -1136,18 +1135,10 @@ var BubbleLayer = cc.Layer.extend({
 					DATA.levelIndexB = null;
 				}
 				
-				var xp = 10;
-				if(DATA.streakStep == 2)
-					xp = 25;
-				else if(DATA.streakStep == 3)
-					xp = 50;
-				DATA.rankProgress += xp;
+				var rankReturn = DATA.checkRankUp();
 				
-				if(DATA.rankProgress > DATA.rankThreshold)
-				{
-					DATA.rank++;
-					DATA.rankProgress = DATA.rankProgress - DATA.rankThreshold;
-				}
+				var rewardScene = new ChallengeRewardScene(rankReturn);
+				
 				
 				DATA.streakStep = Math.min(DATA.streakStep+1, 2);
 				DATA.challengeTries = 0;

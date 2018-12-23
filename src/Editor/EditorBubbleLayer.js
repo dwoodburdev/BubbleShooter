@@ -7,12 +7,12 @@ var EditorBubbleLayer = cc.Layer.extend({
 //	-onEnter()
 //	-initLevel()
 	
-	ctor:function(){
+	ctor:function(width, height){
 		this._super();
-	},
-	
-	onEnter:function(){
-
+		
+		this.width = width;
+		this.height = height;
+		
 		var dn = new cc.DrawNode();
 		this.addChild(dn);
 		dn.drawRect(cc.p(0,0), cc.p(this.width,this.height), cc.color(255,255,255,255), 1, cc.color(0,0,0,255));
@@ -42,6 +42,11 @@ var EditorBubbleLayer = cc.Layer.extend({
 		this.topActiveRow = this.numRows - this.maxRows-1;
        	
 		this.initLevel();
+	},
+	
+	onEnter:function(){
+
+		
 	},
 	
 	getBubbles:function()

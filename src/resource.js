@@ -144,6 +144,10 @@ var res = {
     friends_selected_button: "res/friends-button-selected.png",
     league_selected_button: "res/league-button-selected.png",
     
+    me_button_locked: "res/me-button-locked.png",
+    friends_button_locked: "res/friends-button-locked.png",
+    league_button_locked: "res/league-button-locked.png",
+    
     creator_button: "res/level-creator-button.png",
     back_arrow_right: "res/back-arrow-right.png",
     back_arrow_left: "res/back-arrow-left.png",
@@ -196,7 +200,10 @@ var res = {
     
     bronze_xp_reward: "res/bronze-xp-reward.png",
     silver_xp_reward: "res/silver-xp-reward.png",
-    gold_xp_reward: "res/gold-xp-reward.png"
+    gold_xp_reward: "res/gold-xp-reward.png",
+    
+    bronze_silver_xp_upgrade: "res/xp-upgrade-a.png",
+    silver_gold_xp_upgrade: "res/xp-upgrade-b.png"
 };
 
 var g_resources = [];

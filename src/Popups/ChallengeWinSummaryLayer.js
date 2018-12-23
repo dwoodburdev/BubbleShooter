@@ -93,8 +93,24 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 		this.addChild(this.streakUpAlert);
 		
 		
-		
-		
+		var rightXPWidth = (this.x+size.width) - (this.x+size.width/2+circleR*3+5);
+		this.xpUpgradeImg = null;
+		if(DATA.streakStep == 1)
+		{
+			this.xpUpgradeImg = new cc.Sprite(res.bronze_silver_xp_upgrade);
+		}
+		else if(DATA.streakStep == 2)
+		{
+			this.xpUpgradeImg = new cc.Sprite(res.silver_gold_xp_upgrade);
+		}
+		this.xpUpgradeImg.setScale(rightXPWidth*.5 / this.xpUpgradeImg.width);
+		this.xpUpgradeImg.attr({
+			x:(this.x+size.width/2+circleR*3+5) + rightXPWidth/2,
+			y:circleY,
+			anchorX:.5,
+			anchorY:.5
+		});
+		this.addChild(this.xpUpgradeImg);
 		
 		var challengeBorder = 5;
 		var challengeWidth = size.width-10;

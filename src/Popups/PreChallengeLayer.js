@@ -232,7 +232,7 @@ var PreChallengeLayer = cc.Layer.extend({
 				}
 				else
 				{
-					
+					return "buy-prebooster";
 				}
 			}
 			else
