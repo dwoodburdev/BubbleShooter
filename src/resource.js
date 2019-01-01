@@ -193,6 +193,10 @@ var res = {
     settings_icon: "res/settings_button.png",
     quit_button: "res/quit-button.png",
     continue_button: "res/continue_button.png",
+    save_button: "res/button-save.png",
+    test_button: "res/test-button.png",
+    share_button: "res/share-button.png",
+    edit_button: "res/edit-button.png",
     
     xp: "res/xp.png",
     

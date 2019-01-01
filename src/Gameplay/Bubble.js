@@ -1,5 +1,5 @@
 var Bubble = cc.Sprite.extend({
-	ctor:function(r,color,type,orientation,row,col){
+	ctor:function(r,color,type,orientation,row,col){cc.log(""+color+" "+type+" "+row+"_"+col);
 		this._super();
 		cc.associateWithNative( this, cc.Sprite );
         

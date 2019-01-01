@@ -4,7 +4,8 @@ var GameplayLayer = cc.Layer.extend({
 		//cc.associateWithNative( this, cc.Sprite );
 		
         
-		 var size = cc.winSize;
+		var size = cc.winSize;
+		 
 		
 		this.bottomUILayer = new BottomUILayer(size.height/12);
 		this.bottomUILayer.attr({

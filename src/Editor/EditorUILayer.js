@@ -52,15 +52,27 @@ var EditorUILayer = cc.Layer.extend({
 		this.tabTitleLabel.color = cc.color(0,0,0,255);
 		this.addChild(this.tabTitleLabel);
 		
-		this.backHomeButton = new Button(size.width*.75, 25, "Back", 32, cc.color(0,255,0,255), cc.color(255,255,255,255));
-        /*this.backHomeButton.attr({
-        	"x":size.width*.75,
-        	"y":5,
-        	"anchorX":0,
-        	"anchorY":0
-        });*/
+		//this.backHomeButton = new Button(size.width*.75, 5, "Home", 28, cc.color(255,0,0,255), cc.color(255,255,255,255));
+        
+        this.backHomeButton = new cc.Sprite(res.quit_button);
+        this.backHomeButton.setScale((this.width*.25-6) / this.backHomeButton.width);
+        this.backHomeButton.attr({
+        	x: this.width*.75+1,
+        	y:5,
+        	anchorX:0,
+        	anchorY:0
+        });
 		this.addChild(this.backHomeButton);
 		
+		this.saveButton = new cc.Sprite(res.save_button);
+		this.saveButton.setScale((this.width*.25-6) / this.saveButton.width);
+		this.saveButton.attr({
+			x:this.width*.5+1,
+			y:5,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.saveButton);
 		
 		this.draw();
 	},
@@ -263,9 +275,9 @@ var EditorUILayer = cc.Layer.extend({
 				return drawData[drawIndex];
 			}
 			else
-			{cc.log("loop");
-				if(this.backHomeButton.pointWithin(pos))
-				{cc.log("back");
+			{
+				if(FUNCTIONS.posWithinScaled(pos, this.backHomeButton))
+				{
 					var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
 		    		//cc.log(bubbles);
 		    		var maxRow = 0;
@@ -277,6 +289,10 @@ var EditorUILayer = cc.Layer.extend({
 		    		}
 					cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
 					return null;
+				}
+				else if(FUNCTIONS.posWithinScaled(pos, this.saveButton))
+				{
+					return "save";
 				}
 				
 				var drawIndex = null;

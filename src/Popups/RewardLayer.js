@@ -78,6 +78,9 @@ var RewardLayer = cc.Layer.extend({
 				    	{
 				    	var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
 			    		//cc.log(bubbles);
+			    		
+						DATA.addBubblesToDatabase(bubbles);
+			    		
 			    		var maxRow = 0;
 			    		var bubbleData = [];
 			    		for(var i=0; i<bubbles.length; i++)
@@ -86,6 +89,7 @@ var RewardLayer = cc.Layer.extend({
 			    				maxRow = bubbles[i].row;
 			    		}
 						cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
+						
 					}  	
 				 
 			    	return true;

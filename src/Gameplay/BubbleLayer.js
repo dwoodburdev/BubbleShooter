@@ -10,7 +10,7 @@ var BubbleLayer = cc.Layer.extend({
 	ctor:function(bubbles, numRows, numMoves, modeType, width, height, preboosters){
 		this._super();
 
-		this.bubbles = bubbles;
+		this.bubbles = bubbles;cc.log(bubbles);
 		
 		this.modeType = modeType;
 		
@@ -20,17 +20,16 @@ var BubbleLayer = cc.Layer.extend({
 		
 		this.numRows = numRows;
 		this.numMoves = numMoves;
-		cc.log("NEW BUBBLE LAYER OF TYPE: " + this.modeType);cc.log("Moves: "+this.numMoves);
-		cc.log(this.width);cc.log(this.height);
 		
 		this.inputFrozen = false;
 		
-		var dn = new cc.DrawNode();
-		this.addChild(dn);
-		var bgColor = cc.color(255,255,255,255);
+		this.dn = new cc.DrawNode();
+		this.addChild(this.dn);
+		this.bgColor = cc.color(255,255,255,255);
 		if(this.modeType == "challenge")
-			bgColor = cc.color(220,220,220,255);
-		dn.drawRect(cc.p(0,0), cc.p(this.width,this.height), bgColor, 1, cc.color(0,0,0,255));
+			this.bgColor = cc.color(220,220,220,255);
+		this.draw = function(){cc.log("!!! - "+this.bgColor);this.dn.drawRect(cc.p(0,0), cc.p(this.width,this.height), this.bgColor, 1, cc.color(0,0,0,255));};
+		this.draw();
 		
 		this.evenRowAdjacents = [{"x":-1,"y":0}, {"x":1,"y":0}, {"x":0,"y":1}, {"x":-1,"y":1}, {"x":0,"y":-1}, {"x":-1,"y":-1}];
 		this.oddRowAdjacents = [{"x":-1,"y":0}, {"x":1,"y":0}, {"x":0,"y":1}, {"x":1,"y":1}, {"x":0,"y":-1}, {"x":1,"y":-1}];
@@ -61,6 +60,7 @@ var BubbleLayer = cc.Layer.extend({
        	
        	this.bubbleLayerUI = null;
        	
+       	
        	if(this.modeType == "world")
        	{
        		this.bubbleLayerUI = new CoreButtonsUI(this.bubbleR, this.height, "world");
@@ -83,7 +83,7 @@ var BubbleLayer = cc.Layer.extend({
 				this.bubbleLayerUI.setShooterLabel("Levels Full",cc.color(255,0,0,255),this.bubbleStartHeight);
 			}
        	}
-       	else if(this.modeType == "challenge")
+       	else if(this.modeType == "challenge" || this.modeType == "playtest")
        	{
        		this.bubbleStartHeight = this.bubbleR*3
        		
@@ -99,7 +99,7 @@ var BubbleLayer = cc.Layer.extend({
        	this.shooter = null;
        	
        	if(this.modeType != "preview")
-	       	{cc.log(DATA.getQueueColor(this.modeType));
+	    {cc.log(DATA.getQueueColor(this.modeType));
 	       	this.queueBubble = new Bubble(this.bubbleR, DATA.getQueueColor(this.modeType), 0, null, null, null);
 	       	this.queueBubble.attr({
 	       		x:this.width*.25,
@@ -135,6 +135,8 @@ var BubbleLayer = cc.Layer.extend({
        	
        	this.plusFivePreboosterIcon = null;
 		
+		if(this.modeType == "challenge" && preboosters != null)
+		{
 		for(var i=0; i<preboosters.length; i++)
 		{
 			if(preboosters[i] == "plus_five")
@@ -150,7 +152,7 @@ var BubbleLayer = cc.Layer.extend({
 				this.addChild(this.plusFivePreboosterIcon);
 			}
 		}
-       	
+       }
        	
        	
        	this.prevShooterColor = DATA.getShooterColor(this.modeType);
@@ -183,9 +185,9 @@ var BubbleLayer = cc.Layer.extend({
 				}
 				this.bubbleMap.push(bubbleRow);
 			}
-			
+			cc.log("ADD BUBBLES");cc.log(this.bubbles);
 			for(var i=0; i<this.bubbles.length; i++)
-			{
+			{cc.log(this.bubbles[i]);
 				//var bub = this.bubbles[i];cc.log(bub.row);cc.log(bub)
 				var bub = new Bubble(this.bubbleR, this.bubbles[i].colorCode, this.bubbles[i].type, null, this.bubbles[i].row, this.bubbles[i].col);
 				this.bubbles[i] = bub;
@@ -444,7 +446,7 @@ var BubbleLayer = cc.Layer.extend({
 			return;
 		
 		//if((this.bubbleLayerUI != null && this.bubbleLayerUI.preLayer == null && this.bubbleLayerUI.worldRewardsLayer == null && this.bubbleLayerUI.buyBallsLayer == null && this.bubbleLayerUI.openLevelReminderLayer == null ) || this.modeType == "challenge")
-		if(!this.isPopupLayer() || this.modeType == "challenge")
+		if(!this.isPopupLayer() || this.modeType == "challenge" || this.modeType == "playtest")
 		{
 			if(this.bubbleLayerUI != null && this.bubbleLayerUI.posWithin(loc, this.bubbleLayerUI.worldChestButton))
 			{
@@ -519,7 +521,7 @@ var BubbleLayer = cc.Layer.extend({
 			return;
 			
 		//if((this.bubbleLayerUI != null && this.bubbleLayerUI.preLayer == null && this.bubbleLayerUI.worldRewardsLayer == null && this.bubbleLayerUI.buyBallsLayer == null && this.bubbleLayerUI.openLevelReminderLayer == null) || this.modeType == "challenge")
-		if(!this.isPopupLayer() || this.modeType == "challenge")
+		if(!this.isPopupLayer() || this.modeType == "challenge" || this.modeType == "playtest")
 		{
 			if(this.bubbleLayerUI != null && this.bubbleLayerUI.posWithin(loc, this.bubbleLayerUI.worldChestButton))
 			{
@@ -629,7 +631,7 @@ var BubbleLayer = cc.Layer.extend({
 			   		//this.shooterColor = nextColor;
 			   		DATA.swapBubbleColors(this.modeType);
 			   		this.prevShooterColor = DATA.getShooterColor(this.modeType);
-			   		
+			   		cc.log("SHOOTER BUBBLE");
 			   		this.shooter = new Bubble(this.bubbleR, DATA.getShooterColor(this.modeType), 0, null, null, null);
 			       	this.shooter.attr({
 			       		x: this.width/2,
@@ -848,6 +850,7 @@ var BubbleLayer = cc.Layer.extend({
 	resetShooter:function()
 	{
 		DATA.colorNextTurn(this.modeType);
+		DATA.setDatabaseColors();
 		
        	this.shooter = new Bubble(this.bubbleR, DATA.getShooterColor(this.modeType), 0, null, null, null);
        	this.shooter.attr({
@@ -886,6 +889,14 @@ var BubbleLayer = cc.Layer.extend({
 	// Tracks chain of events after player makes a move.
 	triggerImpact:function(row, col)
 	{
+		if(this.modeType == "world")
+		{
+			var newBubbles = [{"y":row,"x":col,"type":this.shooter.type,"colorCode":this.shooter.colorCode}];
+			DATA.setAddDatabaseBubbles(newBubbles);
+			
+		}
+		
+		
 		if(this.shooterMod == null)
 			this.futureActionQueue = [ [{"type":"match", "position":{"x":col, "y":row} }, {"type":"hit", "position":{"x":col, "y":row} }], [] ];
 		else if(this.shooterMod == "bomb")
@@ -909,6 +920,8 @@ var BubbleLayer = cc.Layer.extend({
 		var trackIndex = 0;
 		
 		var destroyedHexes = [];
+		
+		var databasePositionsToDestroy = [];
 		
 		if(actionQueue.length > 0)
 		{
@@ -971,12 +984,16 @@ var BubbleLayer = cc.Layer.extend({
 					{
 						DATA.registerEvent({"type":"delete","progress":affectedIndices.destroyed.length});
 						
+						var destroyedBubPositions = [];
 						for(var i=0; i<affectedIndices.destroyed.length; i++)
 						{
 							//destroyedHexes[this.createKey(affectedIndices.destroyed[i])] = 0; // THIS IS WRONG!!
-							var bub = this.bubbles[affectedIndices.destroyed[i]]
+							var bub = this.bubbles[affectedIndices.destroyed[i]];
 							destroyedHexes[this.createKey({"x":bub.col,"y":bub.row})] = 0;
+							destroyedBubPositions.push({"x":bub.col,"y":bub.row});
 						}
+						databasePositionsToDestroy = databasePositionsToDestroy.concat(destroyedBubPositions);
+						
 						//curStepEvents.push({"type":"destroy", "positions":affectedIndices.destroyed});
 						this.destroyBubbles(affectedIndices.destroyed);
 					}
@@ -990,9 +1007,18 @@ var BubbleLayer = cc.Layer.extend({
 			this.futureActionQueue[0] = curStepEvents;	// push list of events to trigger that step
 			this.futureActionQueue.push([]);
 		
-			this.cullUnconnected();
+			databasePositionsToDestroy = databasePositionsToDestroy.concat(this.cullUnconnected());
+			
+			// Remove bubbles from database
+			if(this.modeType == "world")
+			{
+				DATA.removeBubblesFromDatabase(databasePositionsToDestroy);
+			}
 			
 			this.cullEmptyRows();
+			
+			
+			//DATA.updateWorldBubblesDatabase(this.bubbles);
 					
 			if(curStepEvents.length == 0)
 			{
@@ -1060,6 +1086,7 @@ var BubbleLayer = cc.Layer.extend({
 		if(this.modeType == "world")
 		{
 			DATA.worldBallsLeft--;
+			DATA.setDatabaseMoves(DATA.worldBallsLeft);
 			if(this.numMoves > 0)
 				this.ballsLeftLabel.setString(this.numMoves);
 			else
@@ -1167,6 +1194,10 @@ var BubbleLayer = cc.Layer.extend({
 					cc.director.runScene(new ChallengeFailScene());
 				}
 			}
+		}
+		else if(this.modeType == "playtest")
+		{cc.log("Playtest check game over")
+			
 		}
 	},
 	
@@ -1726,6 +1757,8 @@ var BubbleLayer = cc.Layer.extend({
 	{
 		var queue = [];
 		
+		var databasePositionsToDestroy = [];
+		
 		var explorationTable = [];
 		for(var i=0; i<this.bubbles.length; i++)
 		{
@@ -1762,15 +1795,17 @@ var BubbleLayer = cc.Layer.extend({
 		
 		var culledBubbleIndices = [];
 		var explorationKeys = Object.keys(explorationTable);
+		var culledBubblePositions = [];
 		for(var i=0; i<explorationKeys.length; i++)
 		{
 			if(explorationTable[explorationKeys[i]] == 0)
-			{
+			{console.log("CULLED BUBBLE... "+culledBubblePositions.length);
 				// cull this bubble
 				var splitKeys = explorationKeys[i].split("_");
 				var y = parseInt(splitKeys[0]);
 				var x = parseInt(splitKeys[1]);
 				culledBubbleIndices.push(this.bubbleMap[y][x]);
+				culledBubblePositions.push({"x":x,"y":y});
 			}
 		}
 		
@@ -1779,6 +1814,8 @@ var BubbleLayer = cc.Layer.extend({
 		DATA.registerEvent({"type":"delete","progress":culledBubbleIndices.length});
 		
 		DATA.registerEvent({type:"cull",progress:culledBubbleIndices.length});
+		
+		databasePositionsToDestroy = databasePositionsToDestroy.concat(culledBubblePositions);
 						
 		for(var i=0; i<culledBubbleIndices.length; i++)
 		{
@@ -1840,6 +1877,7 @@ var BubbleLayer = cc.Layer.extend({
 		}
 		
 		var culledAnchors = [];
+		var culledAnchorPositions = [];
 		for(var i=0; i<adjacentsFound.length; i++)
 		{
 			if(adjacentsFound[i] == false)
@@ -1847,6 +1885,7 @@ var BubbleLayer = cc.Layer.extend({
 				for(var j=0; j<anchorChains[i].length; j++)
 				{
 					culledAnchors.push(this.bubbleMap[anchorChains[i][j].y][anchorChains[i][j].x]);
+					culledAnchorPositions.push({"x":anchorChains[i][j].x,"y":anchorChains[i][j].y});
 				}
 			}
 		}
@@ -1856,6 +1895,8 @@ var BubbleLayer = cc.Layer.extend({
 		DATA.registerEvent({"type":"delete","progress":culledAnchors.length});
 						
 		DATA.registerEvent({type:"cull",progress:culledBubbleIndices.length});
+		
+		databasePositionsToDestroy = databasePositionsToDestroy.concat(culledAnchorPositions);
 		
 		for(var i=0; i<culledAnchors.length; i++)
 		{
@@ -1870,6 +1911,8 @@ var BubbleLayer = cc.Layer.extend({
 			
 		}
 		this.syncBubbleMap();
+		
+		return databasePositionsToDestroy;
 	},
 	
 	

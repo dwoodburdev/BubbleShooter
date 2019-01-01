@@ -105,8 +105,10 @@ cc.game.onStart = function(){
 
     //load resources
     cc.LoaderScene.preload(g_resources, function () {
-    	var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
-		cc.log(bubbles);
+    	//var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
+    	
+		var bubbles = DATA.worldLevel.bubbles;
+		
 		var maxRow = 0;
 		var bubbleData = [];
 		for(var i=0; i<bubbles.length; i++)
@@ -116,7 +118,7 @@ cc.game.onStart = function(){
 		}
 		
 		DATA.worldBubbles = bubbles;
-		DATA.setWorldQueue(DATA.levels[DATA.worldLevelIndex].queue);
+		//DATA.setWorldQueue(DATA.worldLevel.queue);
 		
 		cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
     	//cc.director.pushScene(DATA.scenes["world-gameplay"]);

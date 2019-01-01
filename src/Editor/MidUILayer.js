@@ -13,7 +13,7 @@ var MidUILayer = cc.Layer.extend({
 		this.imgButtons = [];
 		this.loadButtons();
 		
-		
+		this.mode = "create";
 		
 		/*this.homeButton = new Button(0, 0, "Home", 32, cc.color(255,0,0,255), cc.color(255,255,255,255));
         this.homeButton.attr({
@@ -54,7 +54,25 @@ var MidUILayer = cc.Layer.extend({
 		this.scrollDownImg.setScale((imgWidth)/this.scrollDownImg.width);
 		this.addChild(this.scrollDownImg);
 		
+		this.createLabel = new cc.LabelTTF("CREATE", "Roboto", Math.floor(this.height*.7));
+		this.createLabel.attr({
+			"x":5,
+			"y":this.height/2,
+			"anchorX":0,
+			"anchorY":.5
+		});
+		this.createLabel.color = cc.color(0,255,0,255);
+		this.addChild(this.createLabel);
 		
+		this.viewLabel = new cc.LabelTTF("VIEW", "Roboto", Math.floor(this.height*.7));
+		this.viewLabel.attr({
+			"x":this.createLabel.x+this.createLabel.width+12,
+			"y":this.height/2,
+			"anchorX":0,
+			"anchorY":.5
+		});
+		this.viewLabel.color = cc.color(0,0,0,255);
+		this.addChild(this.viewLabel);
 	},
 	
 	onTouchBegin:function(pos)
@@ -75,11 +93,26 @@ var MidUILayer = cc.Layer.extend({
 		{
 			return {"type":"scrolldown"};
 		}
+		else if(pos.x > this.createLabel.x && pos.x < this.createLabel.x+this.createLabel.width)
+		{
+			this.createLabel.color = cc.color(0,255,0,255);
+			this.viewLabel.color = cc.color(0,0,0,255);
+			this.mode = "create";
+			return {"type":"create"};
+		}
+		else if(pos.x > this.viewLabel.x && pos.x < this.viewLabel.x+this.viewLabel.width)
+		{
+			this.viewLabel.color = cc.color(0,255,0,255);
+			this.createLabel.color = cc.color(0,0,0,255);
+			this.mode = "view";
+			return {"type":"view"};
+		}
+		
 	},
 	
 	draw:function(){
 		
-		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),1,cc.color(0,0,0,255));
+		this.dn.drawRect(cc.p(0,0),cc.p(0+this.width, 0+this.height), cc.color(255,255,255,255),1,cc.color(0,0,0,255));
 		
 		
 	}

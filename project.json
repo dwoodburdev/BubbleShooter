@@ -36,6 +36,10 @@
     	"src/Editor/EditorLayer.js",
     	"src/Editor/EditorUILayer.js",
     	"src/Editor/MidUILayer.js",
+    	"src/Editor/LevelViewer.js",
+    	"src/Editor/LevelViewerUILayer.js",
+    	"src/Editor/PlaytestLayer.js",
+    	"src/Editor/PlaytestTopUILayer.js",
     	
     	"src/Gameplay/AimLine.js",
     	"src/Gameplay/Bubble.js",

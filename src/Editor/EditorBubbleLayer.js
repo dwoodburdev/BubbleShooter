@@ -7,7 +7,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 //	-onEnter()
 //	-initLevel()
 	
-	ctor:function(width, height){
+	ctor:function(width, height, bubbles, numRows){
 		this._super();
 		
 		this.width = width;
@@ -15,18 +15,20 @@ var EditorBubbleLayer = cc.Layer.extend({
 		
 		var dn = new cc.DrawNode();
 		this.addChild(dn);
-		dn.drawRect(cc.p(0,0), cc.p(this.width,this.height), cc.color(255,255,255,255), 1, cc.color(0,0,0,255));
+		this.draw = function(){dn.drawRect(cc.p(0,0), cc.p(this.width,this.height), cc.color(255,255,255,255), 1, cc.color(0,0,0,255));};
+		this.draw();
 		
 		this.evenRowAdjacents = [{"x":-1,"y":0}, {"x":1,"y":0}, {"x":0,"y":1}, {"x":-1,"y":1}, {"x":0,"y":-1}, {"x":-1,"y":-1}];
 		this.oddRowAdjacents = [{"x":-1,"y":0}, {"x":1,"y":0}, {"x":0,"y":1}, {"x":1,"y":1}, {"x":0,"y":-1}, {"x":1,"y":-1}];
 		
-		this.numRows = 20;
+		//this.numRows = 20;
 		this.numCols = 12;
 		//this.maxRows = Math.ceil(this.height/this.rowHeight);
 		//this.curRow = Math.max(this.numRows-this.maxRows, 0);
 		this.curRow = 0;
 		
 		this.bubbles = [];
+		this.numRows = numRows;
 		this.bubbleMap = [];
 		
 		this.hexes = [];
@@ -41,7 +43,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 		this.bottomActiveRow = this.numRows-1;
 		this.topActiveRow = this.numRows - this.maxRows-1;
        	
-		this.initLevel();
+		this.initLevel(bubbles);
 	},
 	
 	onEnter:function(){
@@ -65,9 +67,9 @@ var EditorBubbleLayer = cc.Layer.extend({
 		//return this.numRows;
 	},
 	
-	initLevel:function()
+	initLevel:function(bubbles)
 	{cc.log(this.numRows + "ROWS, ACTIVE FROM " + this.topActiveRow + " TO " + this.bottomActiveRow);
-		for(var i=0; i<this.numRows; i++)
+		for(var i=0; i<this.numRows+1; i++)
 		{
 			var bubbleRow = [];
 			var hexRow = [];
@@ -80,6 +82,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 			this.hexMap.push(hexRow);
 		}
 		
+		cc.log(this.bubbleMap);
 		for(var i=0; i<this.numRows; i++)
 		{
 	       	for(var j=0; j<this.numCols-(i%2); j++)
@@ -104,6 +107,38 @@ var EditorBubbleLayer = cc.Layer.extend({
 	       	}
        	}
        	
+       	var overflowOffset = this.getOverflowOffset();
+       	
+       	var hexIndicesToDelete = [];
+       	for(var i=0; i<bubbles.length; i++)
+       	{
+       		var bub = new Bubble(this.bubbleR, bubbles[i].colorCode, bubbles[i].type, null, bubbles[i].row, bubbles[i].col);
+			
+			bub.attr({
+       			x: this.bubbleR+bub.col*this.bubbleR*2 + (bub.row%2)*this.bubbleR,
+       			y: this.height - bub.row*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
+       			anchorX:.5,
+       			anchorY:.5
+       		});
+			this.bubbles.push(bub);cc.log(bub.row+" "+bub.col);
+			this.bubbleMap[bubbles[i].row][bubbles[i].col] = i;
+			if(bub.row >= this.topActiveRow && bub.row <= this.bottomActiveRow)
+			{
+				bub.active = true;
+				this.addChild(bub);
+			}
+			cc.log(this.hexMap[bub.row][bub.col]);
+			hexIndicesToDelete.push(this.hexMap[bub.row][bub.col]);
+       	}
+       	
+       	hexIndicesToDelete.sort(function(a,b){return b-a;});cc.log(hexIndicesToDelete);
+       	for(var i=0; i<hexIndicesToDelete.length; i++)
+       	{cc.log(this.hexes[hexIndicesToDelete[i]]);
+       		this.removeChild(this.hexes[hexIndicesToDelete[i]]);
+       		this.hexMap[this.hexes[hexIndicesToDelete[i]].row][this.hexes[hexIndicesToDelete[i]].col] = -1;
+       		this.hexes.splice(hexIndicesToDelete[i], 1);
+       	}
+       	this.syncHexMap();
 	},
 	
 	getOverflowOffset:function()
@@ -204,12 +239,12 @@ var EditorBubbleLayer = cc.Layer.extend({
 	{
 		if(this.topActiveRow >0)
 		{
-			this.topActiveRow -= 1;
+			this.topActiveRow -= 1;cc.log("bef");
 			this.activateRow(this.topActiveRow);
-			this.deactivateRow(this.bottomActiveRow);
+			this.deactivateRow(this.bottomActiveRow);cc.log("aft");
 			this.bottomActiveRow -= 1;
-			this.curRow  = Math.min(this.curRow+1, Math.max(this.numRows-this.maxRows, 0));
-			this.updateElementPositions();
+			this.curRow  = Math.min(this.curRow+1, Math.max(this.numRows-this.maxRows, 0));cc.log("pre-up");
+			this.updateElementPositions();cc.log("post-up");
 		}cc.log(this.numRows + " ROWS, ACTIVE FROM " + this.topActiveRow + " TO " + this.bottomActiveRow);
 	},
 	
@@ -231,7 +266,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 			for(var j=0; j<12-(i%2); j++)
 			{//cc.log(i + " " + j);
 				var hexIndex = this.hexMap[i][j];
-				var bubIndex = this.bubbleMap[i][j];
+				var bubIndex = this.bubbleMap[i][j];cc.log(bubIndex);
 				
 				if(hexIndex != -1)
 				{
@@ -244,7 +279,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 					});
 				}
 				else if(bubIndex != -1)
-				{
+				{cc.log("updatedPos");
 					var bub = this.bubbles[bubIndex];
 					bub.attr({
 						x: this.bubbleR+bub.col*this.bubbleR*2 + (bub.row%2)*this.bubbleR,
@@ -606,6 +641,29 @@ var EditorBubbleLayer = cc.Layer.extend({
 		return adjacents;
 	},
 	
+	addBubbles:function(bubbles)
+	{
+		var overflowOffset = this.getOverflowOffset();
+		
+		for(var i=0; i<bubbles.length; i++)
+		{cc.log(bubbles[i]);
+			var bubble = new Bubble(this.bubbleR,bubbles[i].colorCode,bubbles[i].type,null,bubbles[i].row, bubbles[i].col);
+			bubble.attr({
+       			x: this.bubbleR+bubbles[i].col*this.bubbleR*2 + (bubbles[i].row%2)*this.bubbleR,
+       			y: this.height - bubbles[i].row*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
+       			anchorX:.5,
+       			anchorY:.5
+       		});
+       		if(bubbles[i].row >= this.topActiveRow && bubbles[i].col <= this.bottomActiveRow)
+       		{
+       			bubble.active = true;
+       			this.addChild(bubble);
+       		}
+			this.bubbles.push(bubble);
+			this.bubbleMap[bubbles[i].row][bubbles[i].col] = this.bubbles.length-1;
+		}
+	},
+	
 	updateBubble:function(bubble, row, col)
 	{
 		this.bubbles.push(bubble);
@@ -656,6 +714,18 @@ var EditorBubbleLayer = cc.Layer.extend({
 			this.hexMap[hex.row][hex.col] = i;
 		}
 	},
+	
+	/*destroyAllBubbles:function()
+	{
+		for(var i=0; i<this.bubbles.length; i++)
+		{
+			var bub = this.bubbles[i];
+			this.bubbleMap[bub.row][bub.col] = -1;
+			this.removeChild(this.bubbles[i]);
+		}
+		this.bubbles = [];
+		this.syncBubbleMap();//?
+	},*/
 	
 	destroyBubbles:function(bubbleIndices)
 	{
