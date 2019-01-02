@@ -40,6 +40,9 @@ var BubbleLayer = cc.Layer.extend({
 		
 		this.collisionRatio = .8;
 		
+		this.timerMinutes = 0;
+		this.timerSeconds = 0;
+		
 		//this.bubbles = [];
 		this.bubbleMap = [];
 		
@@ -98,6 +101,9 @@ var BubbleLayer = cc.Layer.extend({
        	this.ballsLeftLabel = null;
        	this.shooter = null;
        	
+       	this.timerLabel = null;
+       	
+       	
        	if(this.modeType != "preview")
 	    {cc.log(DATA.getQueueColor(this.modeType));
 	       	this.queueBubble = new Bubble(this.bubbleR, DATA.getQueueColor(this.modeType), 0, null, null, null);
@@ -110,7 +116,7 @@ var BubbleLayer = cc.Layer.extend({
 	       	this.queueBubble.active = true;
 	       	this.addChild(this.queueBubble);
 	       	
-	       	this.ballsLeftLabel = new cc.LabelTTF(this.numMoves, "Roboto", 30);
+	       	this.ballsLeftLabel = new cc.LabelTTF(""+this.numMoves, "Roboto", 30);
 			this.ballsLeftLabel.attr({
 				"x":this.queueBubble.x-40,
 				"y":this.queueBubble.y,
@@ -132,6 +138,29 @@ var BubbleLayer = cc.Layer.extend({
 	    }
        	//this.outOfMovesWarningLabel = null;
        	
+       	if(this.modeType == "world" && this.numMoves < 5)
+       	{
+       		var timeTilMoveSpawn = DATA.timeLastMoveSpawned+(1000*60*5);
+       		var timeElapsed = timeTilMoveSpawn - (new Date()).getTime();
+       		var minutes = Math.floor(timeElapsed/(1000*60));
+       		var seconds = Math.floor((timeElapsed - (minutes*60*1000))/(1000));
+       		this.timerMinutes = minutes;
+       		this.timerSeconds = seconds;
+       		var secondsStr = ""+seconds;
+       		if(seconds <= 9)
+       			secondsStr = "0"+seconds
+       		this.timerLabel = new cc.LabelTTF(""+minutes+":"+secondsStr,"Roboto",30);
+			this.timerLabel.attr({
+				x:this.queueBubble.x,
+				y:this.queueBubble.y,
+				anchorX:0.5,
+				anchorY:0
+			});
+			this.timerLabel.color=cc.color(255,0,0,255);
+			this.addChild(this.timerLabel);
+			this.schedule(this.updateMoveTimer, 1);
+		   	cc.director.getScheduler().resumeTarget(this);
+       	}
        	
        	this.plusFivePreboosterIcon = null;
 		
@@ -208,6 +237,40 @@ var BubbleLayer = cc.Layer.extend({
 		
 		
 		DATA.registerEvent({"type":"init","progress":this.bubbles.length});
+	},
+	
+	updateMoveTimer:function()
+	{
+		this.timerSeconds--;
+		//this.timerMinutes;
+		if(this.timerSeconds < 0)
+		{
+			this.timerSeconds = 59;
+			this.timerMinutes--;
+			if(this.timerMinutes < 0)
+			{
+				this.timerMinutes = 4;
+			}
+		}
+		var secString = "";
+		if(this.timerSeconds > 9)
+			secString = ""+this.timerSeconds;
+		else secString = "0"+this.timerSeconds;
+		
+		this.timerLabel.setString(""+this.timerMinutes+":"+secString);
+		//this.unschedule(this.updateMoveTimer);
+		
+		//this.schedule(this.updateMoveTimer, 1.0);
+		if(this.numMoves == 5)
+		{
+			this.removeChild(this.timerLabel);
+			this.unschedule(this.updateMoveTimer);
+		}
+		else
+		{
+			//this.schedule(this.updateMoveTimer, 1.0);
+		   		//cc.director.getScheduler().resumeTarget(this);
+		}
 	},
 	
 	onEnter:function(){cc.log("enter");

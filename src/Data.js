@@ -45,6 +45,9 @@ DATA.boosterInventoryA = 1;
 DATA.streakStep = 0;
 DATA.challengeTries = 0;
 
+DATA.timeLastChestOpened = 0;
+DATA.timeLastMoveSpawned = 0;
+
 DATA.dailyChallenges = [];
 DATA.dailyChallenges.push({"type":"match-size","size":5,"number":100,"progress":0});
 //DATA.dailyChallenges.push({"type":"level","number":3,"progress":0});
@@ -101,6 +104,29 @@ var email = "dwoodburdev@gmail.com";
   	
   	// moves
   	DATA.worldBallsLeft = d.worldMoves;
+  	
+  	// time last move spawned; add moves, adjust time
+  	DATA.timeLastMoveSpawned = d.timeOfLastMoveSpawn;
+  	var curTime = (new Date()).getTime();
+  	var elapsedTime = curTime - DATA.timeLastMoveSpawned;cc.log(elapsedTime/(1000*60*5));
+  	var movesGained = false;
+  	var timeInc = 1000*60*5;
+  	var numMovesGained = Math.floor(elapsedTime / (timeInc));cc.log(numMovesGained);cc.log(DATA.worldBallsLeft);
+  	for(var i=0; i<numMovesGained && DATA.worldBallsLeft < 5; i++)
+  	{cc.log(i);
+  		elapsedTime -= (timeInc);
+  		DATA.worldBallsLeft++;
+  		movesGained = true;
+  	}
+  	if(movesGained)
+  	{cc.log(DATA.worldBallsLeft);
+  		DATA.timeLastMoveSpawned = curTime - elapsedTime;
+  		DATA.database.ref("users/000000000/timeOfLastMoveSpawn").set(DATA.timeLastMoveSpawned);
+  		DATA.database.ref("users/000000000/worldMoves").set(DATA.worldBallsLeft);
+  	}
+  	
+  	// time last opened daily chest
+  	DATA.timeLastChestOpened = d.timeOfLastDailyChest;
   	
   	// Queue: active
   	var activeQueueKeys = Object.keys(d.queue);
@@ -303,6 +329,10 @@ DATA.retrieveLevel = function()
   {
   	DATA.database.ref("users/000000000/worldMoves").set(num);
   	
+  	if(num == 4)
+  	{
+  		DATA.database.ref("users/000000000/timeOfLastMoveSpawn").set((new Date()).getTime());
+  	}
   };
   
   

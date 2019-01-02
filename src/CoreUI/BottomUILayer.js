@@ -170,7 +170,8 @@ var BottomUILayer = cc.Layer.extend({
 		}
 		else if(pos.x > this.playButton.x && pos.x < this.playButton.x+this.buttonWidth)
 		{
-			var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
+			//var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
+    		var bubbles = DATA.worldBubbles;
     		//cc.log(bubbles);
     		var maxRow = 0;
     		var bubbleData = [];
