@@ -107,20 +107,19 @@ var ExtraBonusRewardPickerLayer = cc.Layer.extend({
 				else if(cardRewards == 1)
 				{
 					this.cards[i] = new cc.Sprite(res.fifteen_coins_gold_card);
-					DATA.coins += 15;
+					DATA.setCurrencies(DATA.coins+15,DATA.gems);
 					DATA.worldBallsLeft += 5;
 				}
 				else if(cardRewards == 2)
 				{
 					this.cards[i] = new cc.Sprite(res.twentyfive_coins_gold_card);
-					DATA.coins += 15;
+					DATA.setCurrencies(DATA.coins+15,DATA.gems);
 					DATA.worldBallsLeft += 5;
 				}
 				else if(cardRewards == 3)
 				{
 					this.cards[i] = new cc.Sprite(res.gem_gold_card);
-					DATA.gems++;
-					DATA.coins += 5;
+					DATA.setCurrencies(DATA.coins+5,DATA.gems+1);
 				}
 					
 				//DATA.worldBallsLeft += cardRewards;

@@ -53,6 +53,7 @@ var BubbleLayer = cc.Layer.extend({
 		
        	this.aimLine = null;
        	
+       	this.bottomMostBubbleY = 0;
        	
        	//this.nextShooterColor = this.possibleColors[Math.floor(Math.random()*this.possibleColors.length)];
        	//this.shooterColor = this.possibleColors[Math.floor(Math.random()*this.possibleColors.length)];
@@ -140,26 +141,7 @@ var BubbleLayer = cc.Layer.extend({
        	
        	if(this.modeType == "world" && this.numMoves < 5)
        	{
-       		var timeTilMoveSpawn = DATA.timeLastMoveSpawned+(1000*60*5);
-       		var timeElapsed = timeTilMoveSpawn - (new Date()).getTime();
-       		var minutes = Math.floor(timeElapsed/(1000*60));
-       		var seconds = Math.floor((timeElapsed - (minutes*60*1000))/(1000));
-       		this.timerMinutes = minutes;
-       		this.timerSeconds = seconds;
-       		var secondsStr = ""+seconds;
-       		if(seconds <= 9)
-       			secondsStr = "0"+seconds
-       		this.timerLabel = new cc.LabelTTF(""+minutes+":"+secondsStr,"Roboto",30);
-			this.timerLabel.attr({
-				x:this.queueBubble.x,
-				y:this.queueBubble.y,
-				anchorX:0.5,
-				anchorY:0
-			});
-			this.timerLabel.color=cc.color(255,0,0,255);
-			this.addChild(this.timerLabel);
-			this.schedule(this.updateMoveTimer, 1);
-		   	cc.director.getScheduler().resumeTarget(this);
+       		this.initMoveTimer();
        	}
        	
        	this.plusFivePreboosterIcon = null;
@@ -214,9 +196,9 @@ var BubbleLayer = cc.Layer.extend({
 				}
 				this.bubbleMap.push(bubbleRow);
 			}
-			cc.log("ADD BUBBLES");cc.log(this.bubbles);
+			
 			for(var i=0; i<this.bubbles.length; i++)
-			{cc.log(this.bubbles[i]);
+			{
 				//var bub = this.bubbles[i];cc.log(bub.row);cc.log(bub)
 				var bub = new Bubble(this.bubbleR, this.bubbles[i].colorCode, this.bubbles[i].type, null, this.bubbles[i].row, this.bubbles[i].col);
 				this.bubbles[i] = bub;
@@ -232,11 +214,38 @@ var BubbleLayer = cc.Layer.extend({
 					bub.active = true;
 					this.addChild(bub);
 				}
+				
+				if(bub.y < this.bottomMostBubbleY)
+					this.bottomMostBubbleY = bub.y;
 			}
 		}
 		
 		
 		DATA.registerEvent({"type":"init","progress":this.bubbles.length});
+	},
+	
+	initMoveTimer:function()
+	{
+		var timeTilMoveSpawn = DATA.timeLastMoveSpawned+(1000*60*5);
+   		var timeElapsed = timeTilMoveSpawn - (new Date()).getTime();
+   		var minutes = Math.floor(timeElapsed/(1000*60));
+   		var seconds = Math.floor((timeElapsed - (minutes*60*1000))/(1000));
+   		this.timerMinutes = minutes;
+   		this.timerSeconds = seconds;
+   		var secondsStr = ""+seconds;
+   		if(seconds <= 9)
+   			secondsStr = "0"+seconds
+   		this.timerLabel = new cc.LabelTTF(""+minutes+":"+secondsStr,"Roboto",30);
+		this.timerLabel.attr({
+			x:this.queueBubble.x,
+			y:this.queueBubble.y,
+			anchorX:0.5,
+			anchorY:0
+		});
+		this.timerLabel.color=cc.color(255,0,0,255);
+		this.addChild(this.timerLabel);
+		this.schedule(this.updateMoveTimer, 1);
+	   	cc.director.getScheduler().resumeTarget(this);
 	},
 	
 	updateMoveTimer:function()
@@ -250,6 +259,11 @@ var BubbleLayer = cc.Layer.extend({
 			if(this.timerMinutes < 0)
 			{
 				this.timerMinutes = 4;
+				
+				this.numMoves++;
+				DATA.worldBallsLeft++;
+				DATA.setDatabaseMoves(DATA.worldBallsLeft);
+				this.ballsLeftLabel.setString(this.numMoves);
 			}
 		}
 		var secString = "";
@@ -264,7 +278,7 @@ var BubbleLayer = cc.Layer.extend({
 		if(this.numMoves == 5)
 		{
 			this.removeChild(this.timerLabel);
-			this.unschedule(this.updateMoveTimer);
+			this.unschedule(this.updateMoveTimer, 1.0);
 		}
 		else
 		{
@@ -466,6 +480,10 @@ var BubbleLayer = cc.Layer.extend({
 	       			bubble.active = true;
 	       			this.addChild(bubble);
 	       		}
+	       		
+	       		if(bubble.y < this.bottomMostBubbleY)
+					this.bottomMostBubbleY = bubble.y;
+	       		
 	       	}
        	}
        	
@@ -677,6 +695,7 @@ var BubbleLayer = cc.Layer.extend({
 		   		
 		   		// fire bubble
 		   		this.shooter.initShot(loc, this.targetHex);
+		   		this.shooter.initShotAnim(loc, this.targetHex, this.numRows, this.maxRows, this.rowHeight, this.bottomMostBubbleY);
 		   		this.schedule(this.moveShooter);
 		   		cc.director.getScheduler().resumeTarget(this);
 		   		
@@ -1074,7 +1093,7 @@ var BubbleLayer = cc.Layer.extend({
 			
 			// Remove bubbles from database
 			if(this.modeType == "world")
-			{
+			{cc.log("DELETEE BUBBLESSS FROOOMM DATABAAASE");cc.log(databasePositionsToDestroy);
 				DATA.removeBubblesFromDatabase(databasePositionsToDestroy);
 			}
 			
@@ -1150,6 +1169,11 @@ var BubbleLayer = cc.Layer.extend({
 		{
 			DATA.worldBallsLeft--;
 			DATA.setDatabaseMoves(DATA.worldBallsLeft);
+			if(this.timerLabel == null)
+			{
+				DATA.setLastTimeMoveSpawned();
+				this.initMoveTimer();
+			}
 			if(this.numMoves > 0)
 				this.ballsLeftLabel.setString(this.numMoves);
 			else
@@ -1195,7 +1219,7 @@ var BubbleLayer = cc.Layer.extend({
 		{
 			if(this.bubbles.length == 0)
 			{
-				DATA.worldLevelIndex++;
+				DATA.updateWorldIndexDatabase(DATA.worldIndex+1);
 				
 				cc.director.runScene(new RewardScene());
 			}
@@ -1217,13 +1241,15 @@ var BubbleLayer = cc.Layer.extend({
 		{
 			if(this.bubbles.length == 0)
 			{
-				
 				DATA.levelIndexA = null;
 				if(DATA.levelIndexB != null)
 				{
 					DATA.levelIndexA = DATA.levelIndexB;
 					DATA.levelIndexB = null;
 				}
+				
+				DATA.updateDatabaseLevelIndices();
+				
 				
 				var rankReturn = DATA.checkRankUp();
 				
@@ -1232,6 +1258,8 @@ var BubbleLayer = cc.Layer.extend({
 				
 				DATA.streakStep = Math.min(DATA.streakStep+1, 2);
 				DATA.challengeTries = 0;
+				
+				DATA.updateDatabaseStreak();
 				
 				DATA.registerEvent({"type":"level","progress":1});
 				
@@ -1250,10 +1278,19 @@ var BubbleLayer = cc.Layer.extend({
 					if(DATA.challengeTries == DATA.streakStep)
 					{
 						DATA.levelIndexA = null;
+						if(DATA.levelIndexB != null)
+						{
+							DATA.levelIndexA = DATA.levelIndexB;
+							DATA.levelIndexB = null;
+						}
 						DATA.challengeTries = 0;
 						DATA.streakStep = 0;
 					}
 					else DATA.challengeTries++;
+					
+					DATA.updateDatabaseLevelIndices();
+					DATA.updateDatabaseStreak();
+					
 					cc.director.runScene(new ChallengeFailScene());
 				}
 			}
@@ -2136,13 +2173,18 @@ var BubbleLayer = cc.Layer.extend({
 				for(var j=0; j<this.bubbleMap[i].length; j++)
 				{
 					if(this.bubbleMap[i][j] != -1)
-					{
-						this.bubbles[this.bubbleMap[i][j]].attr({
+					{cc.log(i + " " + j);
+						/*this.bubbles[this.bubbleMap[i][j]].attr({
 			       			x: this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
 			       			y: this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
 			       			anchorX:.5,
 			       			anchorY:.5
-			       		});
+			       		});*/
+			       		cc.log(this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR);
+			       		cc.log(this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset);
+						var actionMove = cc.MoveTo.create(1, cc.p(this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
+			       			this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset));
+			       		this.bubbles[this.bubbleMap[i][j]].runAction(actionMove);
 			       		
 			       		if(!this.bubbles[this.bubbleMap[i][j]].active)
 			       		{
@@ -2214,18 +2256,28 @@ var BubbleLayer = cc.Layer.extend({
 				{
 					if(this.bubbleMap[i][j] != -1)
 					{
-						this.bubbles[this.bubbleMap[i][j]].attr({
-			       			x: this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
-			       			y: this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
-			       			anchorX:.5,
-			       			anchorY:.5
-			       		});
+						if(!this.bubbles[this.bubbleMap[i][j]].active)
+						{
+							this.bubbles[this.bubbleMap[i][j]].attr({
+			       				x: 0,//this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
+			       				y: 0,//this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
+			       				anchorX:.5,
+			       				anchorY:.5
+			       			});
+			       		}
 			       		
 			       		if(!this.bubbles[this.bubbleMap[i][j]].active)
 			       		{
 			       			this.bubbles[this.bubbleMap[i][j]].active = true;
 			       			this.addChild(this.bubbles[this.bubbleMap[i][j]]);
 			       		}
+			       		
+			       		//var actionMove = cc.MoveTo.create(1, cc.p(this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
+			       		//	this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset));
+			       		var actionMove = cc.moveTo(1, this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
+			       			this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset);
+			       		this.bubbles[this.bubbleMap[i][j]].runAction(actionMove);
+			       		
 					}
 				}
 				rowNum++;

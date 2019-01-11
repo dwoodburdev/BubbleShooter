@@ -1,5 +1,5 @@
 var Bubble = cc.Sprite.extend({
-	ctor:function(r,color,type,orientation,row,col){cc.log(""+color+" "+type+" "+row+"_"+col);
+	ctor:function(r,color,type,orientation,row,col){
 		this._super();
 		cc.associateWithNative( this, cc.Sprite );
         
@@ -675,6 +675,73 @@ var Bubble = cc.Sprite.extend({
 		this.dx = ddx*this.v;
 		this.dy = ddy*this.v;
 	},
+	
+	initShotAnim:function(target, targetHex, numRows, maxRows, rowHeight, bottomMostY)
+	{
+		var segments = [];
+		
+		var leftWallX = 0;
+		var rightWallX = this.x*2;
+		
+		//var x = this.x;
+		//var y = this.y;
+		
+		var diffX = this.x - target.x;
+		var diffY = this.y - target.y;
+		var m = 999999;
+		if(diffX != 0)
+			m = diffY / diffX;
+		
+		//do
+		//{
+			cc.log("y");cc.log(this.y);
+			var leftCornerM = -999999;
+			if(leftWallX-this.x != 0)
+				leftCornerM = (numRows*rowHeight + (bottomMostY-this.y) )/(leftWallX-this.x);
+			var rightCornerM = 999999;
+			if(rightWallX != 0)
+				rightCornerM = (numRows*rowHeight + (bottomMostY-this.y) )/(rightWallX-this.x);
+			
+			cc.log("Corner Ms");cc.log(leftCornerM);cc.log(rightCornerM);
+			
+			
+			cc.log("M");cc.log(m);
+			
+			//var y = numRows*rowHeight + (bottomMostY-this.y);
+			var y = 0
+			
+			if(m > leftCornerM || m < rightCornerM)
+			{
+				// Segment points at wall.
+				// Add segment to point of collision, unless past targetHex.
+				if(m < 0)
+				{
+					var wallCollisionY = m*(leftWallX-this.x) + y;cc.log("y-collision");cc.log(wallCollisionY);
+				}
+				else
+				{
+					var wallCollisionY = m*(rightWallX-this.x) + y;cc.log("y-collision");cc.log(wallCollisionY);
+				}
+				
+				//segments.push({duration: , m: m });
+				
+				m *= -1;
+			}
+			else
+			{
+				// Segment points to ceililng, this will be last segment to targetHex.
+				
+				
+				//segments.push({duration: , m: m });
+			}
+			
+			
+			
+			
+		//} while();
+		
+	},
+	
 	
 	initShotPrediction:function(target){
 		var diffX = target.x - this.x;

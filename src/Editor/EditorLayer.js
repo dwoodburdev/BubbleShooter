@@ -28,7 +28,8 @@ var EditorLayer = cc.Layer.extend({
 			anchorY: 0
 		});
 		
-		this.bubbleLayer = new EditorBubbleLayer(size.width, size.height-this.editorUILayer.height-this.midUILayer.height, [], 20);	
+		this.bubbleLayer = new EditorBubbleLayer(size.width, size.height-this.editorUILayer.height-this.midUILayer.height, 
+			[], 100);	
 		this.bubbleLayer.attr({
 			x:0,
 			y:this.editorUILayer.height+this.midUILayer.height,

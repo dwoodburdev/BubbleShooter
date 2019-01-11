@@ -192,7 +192,7 @@ var CoreButtonsUI = cc.Layer.extend({
 			}
 			else if(returnCommand == "buy-plus_five")
 			{
-				DATA.preBoosterInventoryA++;
+				DATA.setPreBoosterInventories(DATA.preBoosterInventoryA+1);
 				
 				this.removeChild(this.buyPreboosterLayer);
 				this.buyPreboosterLayer = null;

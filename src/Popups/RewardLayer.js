@@ -69,14 +69,14 @@ var RewardLayer = cc.Layer.extend({
 			    	
 			    	if(!self.chestOpened)
 			    	{
-			    		DATA.coins += 50;
+			    		DATA.setCurrencies(DATA.coins+50,DATA.gems);
 			    		self.chestOpened = true;
 			    		//self.topUILayer = new TopUILayer(cc.winSize.height/15);
 			    		self.topUILayer.setCoins(DATA.coins);
 			    	}
 			    	else
 				    	{
-				    	var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
+				    	var bubbles = DATA.levels[DATA.worldIndex].bubbles;
 			    		//cc.log(bubbles);
 			    		
 						DATA.addBubblesToDatabase(bubbles);

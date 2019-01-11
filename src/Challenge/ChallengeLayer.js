@@ -177,10 +177,19 @@ var ChallengeLayer = cc.Layer.extend({
 					    		if(DATA.challengeTries == DATA.streakStep)
 								{
 									DATA.levelIndexA = null;
+									if(DATA.levelIndexB != null)
+									{
+										DATA.levelIndexA = DATA.levelIndexB;
+										DATA.levelIndexB = null;
+									}
 									DATA.challengeTries = 0;
 									DATA.streakStep = 0;
 								}
 								else DATA.challengeTries++;
+								
+								DATA.updateDatabaseLevelIndices();
+								DATA.updateDatabaseStreak();
+								
 								cc.director.runScene(new ChallengeFailScene());
 					    	}
 				   		}
@@ -195,8 +204,8 @@ var ChallengeLayer = cc.Layer.extend({
 					    	}
 					    	else if(returnObj == "buy-bomb")
 					    	{
-					    		DATA.coins--;
-					    		DATA.boosterInventoryA++;
+					    		DATA.setCurrencies(DATA.coins-1,DATA.gems);
+					    		DATA.setBoosterInventories(DATA.boosterInventoryA);
 					    		
 					    		self.removeChild(self.buyBoosterLayer);
 					    		self.buyBoosterLayer = null;

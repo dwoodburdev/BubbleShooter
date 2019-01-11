@@ -30,6 +30,7 @@
     	"src/CoreUI/ProgressBar.js",
     	"src/CoreUI/ShopDisplayLayer.js",
     	"src/CoreUI/ShopLayer.js",
+    	"src/CoreUI/SignInLayer.js",
     	"src/CoreUI/TopUILayer.js",
     	
     	"src/Editor/EditorBubbleLayer.js",

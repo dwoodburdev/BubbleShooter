@@ -47,6 +47,50 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
    		//this.addChild(this.challengeCollectionDisplay);
    		this.dn.drawRect(cc.p(this.cardSet.x,this.cardSet.y),cc.p(this.cardSet.x+this.cardSet.width, this.cardSet.y+this.cardSet.height), cc.color(255,0,0,255),0,cc.color(0,0,0,255));
    		
+   		this.cardSetTypeLabel = new cc.LabelTTF("One Pagers - Tier 1", "Arial", 20);
+		this.cardSetTypeLabel.attr({
+			"x":this.cardSet.x+2,
+			"y":this.cardSet.y+this.cardSet.height-2,
+			"anchorX":0,
+			"anchorY":1
+		});
+		this.cardSetTypeLabel.color = cc.color(255,255,255,255);
+		this.addChild(this.cardSetTypeLabel);
+		
+		var numCards = 5;
+		var cardProgress = 2;
+		var cardImgs = [];
+		for(var i=0; i<numCards; i++)
+		{
+			var cardImg = null;
+			if(i >= cardProgress)
+			{
+				cardImg = new cc.Sprite(res.card_outline);
+			}
+			else cardImg = new cc.Sprite(res.blank_card);
+			
+			cardImg.setScale((this.cardSetTypeLabel.y-this.cardSetTypeLabel.height - this.cardSet.y)/cardImg.height*.9);
+			cardImg.attr({
+				x: 5 + ((cardImg.width*cardImg.scale)/3)*i,
+				y:this.cardSet.y+5,
+				anchorX:0,
+				anchorY:0
+			})
+			this.addChild(cardImg);
+			cardImgs.push(cardImg);
+		}
+		
+		var setChestImg = new cc.Sprite(res.regular_chest);
+		setChestImg.setScale((this.cardSetTypeLabel.y-this.cardSetTypeLabel.height - this.cardSet.y) / setChestImg.height*.6);
+		setChestImg.attr({
+			x:this.cardSet.x+this.cardSet.width-12,
+			y:this.cardSet.y+(cardImgs[0].height*cardImgs[0].scale),
+			anchorX:1,
+			anchorY:1
+		});
+		this.addChild(setChestImg);
+		
+		
 		
 		
 		var circleR = (this.nextButton.y+(this.nextButton.height*this.nextButton.scale)+80 - (this.nextButton.y+(this.nextButton.height*this.nextButton.scale)) ) / 2;
@@ -121,7 +165,7 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 			width: challengeWidth,
 			height: challengeHeight
 		};
-		this.challengeBRect = {
+		/*this.challengeBRect = {
 			x: 5,
 			y: this.cardSet.y - 5*2 - challengeHeight*2,
 			width: challengeWidth,
@@ -132,7 +176,7 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 			y: this.cardSet.y - 5*3 - challengeHeight*3,
 			width: challengeWidth,
 			height: challengeHeight
-		};
+		};*/
 		this.draw();
 		
 		
@@ -210,7 +254,7 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 		
 		
 		
-		
+		/*
 		var challengeBText = new cc.LabelTTF("Beat levels.", "Arial", 24);
 		challengeBText.attr({
 			"x":this.challengeBRect.x+2,
@@ -280,9 +324,9 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 		this.addChild(this.challengeBProgBar);
 		this.challengeBProgBar.setProg(DATA.dailyChallenges[1].progress/DATA.dailyChallenges[1].number);
 		this.challengeBProgBar.setSubProg((DATA.dailyChallenges[1].progress-DATA.dailyBProgress)/DATA.dailyChallenges[1].number);
+		*/
 		
-		
-		
+		/*
 		var challengeCRemText = new cc.LabelTTF("[Come back tomorrow!]","Arial", 20);
 		challengeCRemText.attr({
 			x:this.challengeCRect.x+this.challengeCRect.width/2,
@@ -292,7 +336,7 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 		});
 		challengeCRemText.color = cc.color(0,0,0,255);
 		this.addChild(challengeCRemText);
-		
+		*/
 		
 		DATA.refreshProgress();
 	},
@@ -300,8 +344,8 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 	draw:function()
 	{
 		this.dn.drawRect(cc.p(this.challengeARect.x, this.challengeARect.y), cc.p(this.challengeARect.x+this.challengeARect.width, this.challengeARect.y+this.challengeARect.height),cc.color(0,255,0,255),2,cc.color(0,0,0,255));
-		this.dn.drawRect(cc.p(this.challengeBRect.x, this.challengeBRect.y), cc.p(this.challengeBRect.x+this.challengeBRect.width, this.challengeBRect.y+this.challengeBRect.height),cc.color(0,255,0,255),2,cc.color(0,0,0,255));
-		this.dn.drawRect(cc.p(this.challengeCRect.x, this.challengeCRect.y), cc.p(this.challengeCRect.x+this.challengeCRect.width, this.challengeCRect.y+this.challengeCRect.height),cc.color(0,255,0,255),2,cc.color(0,0,0,255));
+		//this.dn.drawRect(cc.p(this.challengeBRect.x, this.challengeBRect.y), cc.p(this.challengeBRect.x+this.challengeBRect.width, this.challengeBRect.y+this.challengeBRect.height),cc.color(0,255,0,255),2,cc.color(0,0,0,255));
+		//this.dn.drawRect(cc.p(this.challengeCRect.x, this.challengeCRect.y), cc.p(this.challengeCRect.x+this.challengeCRect.width, this.challengeCRect.y+this.challengeCRect.height),cc.color(0,255,0,255),2,cc.color(0,0,0,255));
 	
 	},
 	

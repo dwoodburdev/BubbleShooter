@@ -40,8 +40,12 @@ var EditorBubbleLayer = cc.Layer.extend({
 		
 		this.maxRows = Math.floor(this.height/this.rowHeight);
 		
-		this.bottomActiveRow = this.numRows-1;
-		this.topActiveRow = this.numRows - this.maxRows-1;
+		//this.bottomActiveRow = this.numRows-1;
+		//this.topActiveRow = this.numRows - this.maxRows-1;
+       	this.topActiveRow = 0;
+       	this.bottomActiveRow = this.maxRows;
+       	this.curRow = this.numRows-this.maxRows-1;
+       	
        	
 		this.initLevel(bubbles);
 	},
@@ -68,7 +72,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 	},
 	
 	initLevel:function(bubbles)
-	{cc.log(this.numRows + "ROWS, ACTIVE FROM " + this.topActiveRow + " TO " + this.bottomActiveRow);
+	{
 		for(var i=0; i<this.numRows+1; i++)
 		{
 			var bubbleRow = [];
@@ -82,7 +86,6 @@ var EditorBubbleLayer = cc.Layer.extend({
 			this.hexMap.push(hexRow);
 		}
 		
-		cc.log(this.bubbleMap);
 		for(var i=0; i<this.numRows; i++)
 		{
 	       	for(var j=0; j<this.numCols-(i%2); j++)
@@ -120,20 +123,19 @@ var EditorBubbleLayer = cc.Layer.extend({
        			anchorX:.5,
        			anchorY:.5
        		});
-			this.bubbles.push(bub);cc.log(bub.row+" "+bub.col);
+			this.bubbles.push(bub);
 			this.bubbleMap[bubbles[i].row][bubbles[i].col] = i;
 			if(bub.row >= this.topActiveRow && bub.row <= this.bottomActiveRow)
 			{
 				bub.active = true;
 				this.addChild(bub);
 			}
-			cc.log(this.hexMap[bub.row][bub.col]);
 			hexIndicesToDelete.push(this.hexMap[bub.row][bub.col]);
        	}
        	
-       	hexIndicesToDelete.sort(function(a,b){return b-a;});cc.log(hexIndicesToDelete);
+       	hexIndicesToDelete.sort(function(a,b){return b-a;});
        	for(var i=0; i<hexIndicesToDelete.length; i++)
-       	{cc.log(this.hexes[hexIndicesToDelete[i]]);
+       	{
        		this.removeChild(this.hexes[hexIndicesToDelete[i]]);
        		this.hexMap[this.hexes[hexIndicesToDelete[i]].row][this.hexes[hexIndicesToDelete[i]].col] = -1;
        		this.hexes.splice(hexIndicesToDelete[i], 1);
@@ -186,7 +188,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 	},
 	
 	activateRow:function(rowIndex)
-	{cc.log("Activating row " + rowIndex);
+	{
 		for(var i=0; i<this.numCols-(rowIndex%2); i++)
 		{
 			if(this.bubbleMap[rowIndex][i] != -1)
@@ -204,7 +206,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 		}
 	},
 	deactivateRow:function(rowIndex)
-	{cc.log("Deactivating row " + rowIndex);
+	{
 		for(var i=0; i<this.numCols-(rowIndex%2); i++)
 		{
 			if(this.bubbleMap[rowIndex][i] != -1)
@@ -223,7 +225,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 	},
 	
 	scrollDown:function()
-	{
+	{cc.log(this.bottomActiveRow + " " + (this.numRows-1));
 		if(this.bottomActiveRow < this.numRows-1)
 		{
 			this.bottomActiveRow += 1;
@@ -232,20 +234,20 @@ var EditorBubbleLayer = cc.Layer.extend({
 			this.topActiveRow += 1;
 			this.curRow = Math.max(this.curRow-1, 0);
 			this.updateElementPositions();
-		}cc.log(this.numRows + " ROWS, ACTIVE FROM " + this.topActiveRow + " TO " + this.bottomActiveRow);
+		}
 	},
 	
 	scrollUp:function()
 	{
 		if(this.topActiveRow >0)
 		{
-			this.topActiveRow -= 1;cc.log("bef");
+			this.topActiveRow -= 1;
 			this.activateRow(this.topActiveRow);
-			this.deactivateRow(this.bottomActiveRow);cc.log("aft");
+			this.deactivateRow(this.bottomActiveRow);
 			this.bottomActiveRow -= 1;
-			this.curRow  = Math.min(this.curRow+1, Math.max(this.numRows-this.maxRows, 0));cc.log("pre-up");
-			this.updateElementPositions();cc.log("post-up");
-		}cc.log(this.numRows + " ROWS, ACTIVE FROM " + this.topActiveRow + " TO " + this.bottomActiveRow);
+			this.curRow  = Math.min(this.curRow+1, Math.max(this.numRows-this.maxRows, 0));
+			this.updateElementPositions();
+		}
 	},
 	
 	updateElementPositions:function()
@@ -266,7 +268,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 			for(var j=0; j<12-(i%2); j++)
 			{//cc.log(i + " " + j);
 				var hexIndex = this.hexMap[i][j];
-				var bubIndex = this.bubbleMap[i][j];cc.log(bubIndex);
+				var bubIndex = this.bubbleMap[i][j];
 				
 				if(hexIndex != -1)
 				{
@@ -279,7 +281,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 					});
 				}
 				else if(bubIndex != -1)
-				{cc.log("updatedPos");
+				{
 					var bub = this.bubbles[bubIndex];
 					bub.attr({
 						x: this.bubbleR+bub.col*this.bubbleR*2 + (bub.row%2)*this.bubbleR,
@@ -646,7 +648,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 		var overflowOffset = this.getOverflowOffset();
 		
 		for(var i=0; i<bubbles.length; i++)
-		{cc.log(bubbles[i]);
+		{
 			var bubble = new Bubble(this.bubbleR,bubbles[i].colorCode,bubbles[i].type,null,bubbles[i].row, bubbles[i].col);
 			bubble.attr({
        			x: this.bubbleR+bubbles[i].col*this.bubbleR*2 + (bubbles[i].row%2)*this.bubbleR,

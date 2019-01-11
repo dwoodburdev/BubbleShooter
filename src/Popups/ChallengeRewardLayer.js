@@ -123,7 +123,8 @@ var ChallengeRewardLayer = cc.Layer.extend({
 					 		/*self.removeChild(self.bonusRewardPicker);
 					 		self.bonusRewardPicker = null;
 					 		*/
-					   		var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
+					   		//var bubbles = DATA.levels[DATA.worldIndex].bubbles;
+				    		var bubbles = DATA.worldBubbles;
 				    		//cc.log(bubbles);
 				    		var maxRow = 0;
 				    		var bubbleData = [];

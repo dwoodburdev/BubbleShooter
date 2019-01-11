@@ -44,7 +44,15 @@ var PreChallengeLayer = cc.Layer.extend({
         });
 		this.addChild(this.closeButton);
 		
-		var bubbles = DATA.challenges[0].bubbles;
+		var bubbles = [];
+		if(DATA.levelIndexAType == "normal")
+		{
+			bubbles = DATA.challenges[this.challengeIndex].bubbles;
+		}
+		else
+		{
+			bubbles = DATA.setChallenges["one-pager"][this.challengeIndex].bubbles;
+		}
 		var maxRow = 0;
     	var bubbleData = [];
     	for(var i=0; i<bubbles.length; i++)
@@ -55,7 +63,7 @@ var PreChallengeLayer = cc.Layer.extend({
 		this.bubblePreview = new BubbleLayer(bubbles,maxRow+1,10,"preview",(size.width-50)*.8,(this.height-50)*.5, []);
 		this.bubblePreview.attr({
 			x:this.x + (this.width-this.bubblePreview.width)/2,
-			y:this.y + this.height-this.bubblePreview.height-35,
+			y:this.y + this.height-this.bubblePreview.height-50,
 			anchorX:0,
 			anchorY:0
 		});
@@ -64,6 +72,16 @@ var PreChallengeLayer = cc.Layer.extend({
 		this.previewDraw = new cc.DrawNode();
 		this.previewDraw.drawRect(cc.p(this.bubblePreview.x,this.bubblePreview.y+this.bubblePreview.height),cc.p(this.bubblePreview.x+this.bubblePreview.width,this.bubblePreview.y+this.bubblePreview.height+DATA.bubbleR),cc.color(255,255,255,255),0,cc.color(255,255,255,255));
 		this.addChild(this.previewDraw,11);
+		
+		this.levelNameLabel = new cc.LabelTTF("One-Pagers, Tier 1, 3/5", "Roboto", 25);
+		this.levelNameLabel.attr({
+			"x":this.x+this.width/2,
+			"y":this.bubblePreview.y+this.bubblePreview.height+1,
+			"anchorX":.5,
+			"anchorY":0
+		});
+		this.levelNameLabel.color = cc.color(0,0,0,255);
+		this.addChild(this.levelNameLabel,12);
 	
 		this.preBoosterA = new cc.Sprite(res.pre_booster_moves);
 		this.preBoosterA.setScale(this.width/6 / this.preBoosterA.width);
@@ -85,7 +103,16 @@ var PreChallengeLayer = cc.Layer.extend({
 		this.preBoosterACounter.color = cc.color(0,0,0,255);
 		this.addChild(this.preBoosterACounter);
 		
-		this.tabTitleLabel = new cc.LabelTTF(DATA.challenges[this.challengeIndex].moves+" moves", "Roboto", 35);
+		var numMoves = 0;
+		if(DATA.levelIndexAType == "normal")
+		{cc.log("normal");
+			numMoves = DATA.challenges[this.challengeIndex].moves;
+		}
+		else if(DATA.levelIndexAType == "one-pager")
+		{cc.log("one-pager");
+			numMoves = DATA.setChallenges["one-pager"][this.challengeIndex].moves;
+		}
+		this.tabTitleLabel = new cc.LabelTTF(numMoves+" moves", "Roboto", 35);
 		this.tabTitleLabel.attr({
 			"x":this.x+this.width/2,
 			"y":this.bubblePreview.y-2,
@@ -126,14 +153,16 @@ var PreChallengeLayer = cc.Layer.extend({
 			this.dn.drawDot({x:this.x+this.width/2 + circleR*2 + 5, y:circleY}, circleR, cc.color(100,100,100,255));
 		else this.dn.drawDot({x:this.x+this.width/2 + circleR*2 + 5, y:circleY}, circleR, cc.color(0,0,0,255));
 		
-		var playX = (this.playButton.x-(this.playButton.width*this.playButton.scale));
+		var playX = ((this.x+this.width/2 - circleR*2 - 5)-circleR);
+		
+		
 		this.tryAlert = null;
 		if(DATA.streakStep==DATA.challengeTries)
 		{
-			this.tryAlert = new cc.Sprite(res.last_try_alert);
-			this.tryAlert.setScale((playX-this.x-4) / this.tryAlert.width);
+			this.tryAlert = new cc.Sprite(res.last_try_card);
+			this.tryAlert.setScale((playX*.8) / this.tryAlert.width);
 			this.tryAlert.attr({
-				x:(playX-this.x)/2 + this.x,
+				x:playX*.1,
 				y:circleY,
 				anchorX:0,
 				anchorY:.5
@@ -142,10 +171,22 @@ var PreChallengeLayer = cc.Layer.extend({
 		}
 		else if(DATA.challengeTries == 0)
 		{
-			this.tryAlert = new cc.Sprite(res.first_try_alert);
-			this.tryAlert.setScale((playX-this.x-4) / this.tryAlert.width);
+			this.tryAlert = new cc.Sprite(res.first_try_card);
+			this.tryAlert.setScale((playX*.8) / this.tryAlert.width);
 			this.tryAlert.attr({
-				x:(playX-this.x)/2 + this.x,
+				x:playX*.1,
+				y:circleY,
+				anchorX:0,
+				anchorY:.5
+			});
+			this.addChild(this.tryAlert);
+		}
+		else
+		{
+			this.tryAlert = new cc.Sprite(res.card_back);
+			this.tryAlert.setScale((playX*.8) / this.tryAlert.width);
+			this.tryAlert.attr({
+				x:playX*.1,
 				y:circleY,
 				anchorX:0,
 				anchorY:.5
@@ -180,10 +221,20 @@ var PreChallengeLayer = cc.Layer.extend({
 	{cc.log("touchend");cc.log(pos);cc.log(this.closeButton.x + " " + this.closeButton.y+ " " + this.closeButton.scale);
 		if(this.posWithin(pos, {"x":this.playButton.x,"y":this.playButton.y,"width":this.playButton.width*this.playButton.scale,"height":this.playButton.height*this.playButton.scale}))
     	{
-    		//var bubbles = DATA.challenges[this.challengeIndex].bubbles;
-    		var bubbles = DATA.getBubbles("challenge", this.challengeIndex);
-    		var numMoves = DATA.challenges[this.challengeIndex].moves;
-    		cc.log(numMoves);
+    		//var bubbles = DATA.getBubbles("challenge", this.challengeIndex);
+    		var bubbles = [];
+    		var numMoves = 0;
+    		if(DATA.levelIndexAType == "normal")
+    		{
+    			bubbles = DATA.challenges[this.challengeIndex].bubbles;
+    			numMoves = DATA.challenges[this.challengeIndex].moves;
+    		}
+    		else
+    		{
+    			bubbles = DATA.setChallenges["one-pager"][this.challengeIndex].bubbles;
+    			numMoves = DATA.setChallenges["one-pager"][this.challengeIndex].moves;
+    		}
+    		
     		var maxRow = 0;
     		var bubbleData = [];
     		for(var i=0; i<bubbles.length; i++)
@@ -191,8 +242,15 @@ var PreChallengeLayer = cc.Layer.extend({
     			if(bubbles[i].row > maxRow)
     				maxRow = bubbles[i].row;
     		}
-    		cc.log("SETTING QUEUE");cc.log(DATA.challenges[this.challengeIndex].queue);
-			DATA.setLevelQueue(DATA.challenges[this.challengeIndex].queue);
+			
+			if(DATA.levelIndexAType == "normal")
+			{
+				DATA.setLevelQueue(DATA.challenges[this.challengeIndex].queue);
+			}
+			else
+			{
+				DATA.setLevelQueue(DATA.setChallenges["one-pager"][this.challengeIndex].queue);
+			}
 		
 			var preBoosterArray = [];
 			if(this.preBoosterABool)
@@ -213,7 +271,7 @@ var PreChallengeLayer = cc.Layer.extend({
     		{
 	    		if(DATA.preBoosterInventoryA > 0)
 	    		{
-	    			DATA.preBoosterInventoryA--;
+	    			DATA.setPreBoosterInventories(DATA.preBoosterInventoryA-1);
 	    			this.preBoosterACounter.setString(DATA.preBoosterInventoryA);
 	    			
 		    		this.preBoosterABool = true;

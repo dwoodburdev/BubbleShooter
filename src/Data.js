@@ -3,9 +3,10 @@ var DATA = {};
 DATA.levels = [];
 DATA.challenges = [];
 DATA.createdLevels = [];
+DATA.setChallenges = {};
+DATA.setChallenges["one-pager"] = [];
 
 DATA.worldNum = 0;
-DATA.worldLevelIndex = 0;
 DATA.worldBallsLeft = 99;
 DATA.worldLevel = null;
 
@@ -13,13 +14,20 @@ DATA.worldBubbles = [];
 DATA.challengeBubbles = [];
 DATA.bubblesToAdd = [];
 
+DATA.worldIndex = 0;
+
 DATA.worldQueue = [];
 DATA.challengeQueue = [];
 DATA.worldActiveQueue = [];
 DATA.challengeActiveQueue = [];
 
+//cc.sys.localStorage.setItem("userID", "000000000");
+
 DATA.levelIndexA = null;
 DATA.levelIndexB = null;
+
+DATA.levelIndexAType = "normal";
+DATA.levelIndexBType = "normal";
 
 DATA.bubbleR = 4;
 
@@ -49,15 +57,16 @@ DATA.timeLastChestOpened = 0;
 DATA.timeLastMoveSpawned = 0;
 
 DATA.dailyChallenges = [];
-DATA.dailyChallenges.push({"type":"match-size","size":5,"number":100,"progress":0});
-//DATA.dailyChallenges.push({"type":"level","number":3,"progress":0});
-DATA.dailyChallenges.push({type:"cull",number:50,progress:0});
 
 DATA.dailyAProgress = 0;
-DATA.dailyBProgress = 0;
+DATA.dailyBProgress = 0;// do I need these still?
+
+DATA.questChestNumber = 0;
+DATA.questChestProgress = 0;
 
 DATA.colorCodes = ["red","yellow","green","blue","pink","purple"];
 
+DATA.levelsComplete = {"normal":[], "one-pager":{"tier":0,"completed":[]}};
 
 DATA.userID = "000000000";
 var email = "dwoodburdev@gmail.com";
@@ -72,22 +81,123 @@ var email = "dwoodburdev@gmail.com";
 }); 
  */
  
+ 
   DATA.database = firebase.database();
+ 
+DATA.initUserData = function()
+{ 
   
   /*
    * SET LOCAL DATA FROM DATABASE
    */
+  
+  
+  
+  // Sets local list of world levels.
+  // Phase out eventually?
+  DATA.database.ref("worlds/levels").once("value").then(function(snapshot){
+  	var d = snapshot.val();
+  	for(var i=0; i<d.length; i++)
+  	{
+  		var bubbles = [];
+  		for(var j=0; j<d[i].bubbles.length; j++)
+  		{
+  			var dBub = d[i].bubbles[j];
+  			var bubble = {row:dBub.row, col:dBub.col, type:dBub.type};
+  			if(dBub.colorCode != null)
+  				bubble["colorCode"] = dBub.colorCode;
+    		bubbles.push(bubble); 
+  		}
+  		var queue = {type:d[i].queue.type, colors:d[i].queue.colors};
+    	var level = {"queue":queue,"bubbles":bubbles};
+  		DATA.levels.push(level);
+  	}
+  });
+  
+  // Sets local data for challenge-levels.
+  DATA.database.ref("levels/normal/0").once("value").then(function(snapshot){
+  	var d = snapshot.val();
+  	var challengeKeys = Object.keys(d);
+  	for(var i=0; i<challengeKeys.length; i++)
+  	{
+  		var bubbles = [];
+  		for(var j=0; j<d[challengeKeys[i]].bubbles.length; j++)
+  		{
+  			var dBub = d[challengeKeys[i]].bubbles[j];
+  			var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:dBub.colorCode};
+    		bubbles.push(bubble);
+  		}
+  		var queue = {type:d[challengeKeys[i]].queue.type, colors:d[challengeKeys[i]].queue.colors};
+    	var moves = d[challengeKeys[i]].moves;
+  		var level = {"queue":queue,"bubbles":bubbles,"moves":moves};
+  		DATA.challenges.push(level);
+  	}
+  });
+  
+  DATA.database.ref("levels/sets/one-pager/0").once("value").then(function(snapshot){
+  	var d = snapshot.val();
+  	var challengeKeys = Object.keys(d);
+  	for(var i=0; i<challengeKeys.length; i++)
+  	{
+  		var bubbles = [];
+  		for(var j=0; j<d[challengeKeys[i]].bubbles.length; j++)
+  		{
+  			var dBub = d[challengeKeys[i]].bubbles[j];
+  			var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:dBub.colorCode};
+  			bubbles.push(bubble);
+  		}
+  		var queue = {type:d[challengeKeys[i]].queue.type, colors:d[challengeKeys[i]].queue.colors};
+  		var moves = d[challengeKeys[i]].moves;
+  		var level = {"queue":queue,"bubbles":bubbles,"moves":moves};
+  		DATA.setChallenges["one-pager"].push(level);
+  	}
+  });
+  
+  // Created levels.
+  DATA.database.ref("levels/userLevels/"+DATA.userID).once("value").then(function(snapshot){
+  	var d = snapshot.val();
+  	// Created levels
+  	
+  	if(d["0"] != 0)
+  	{
+		var createdKeys = Object.keys(d);
+		for(var i=0; i<createdKeys.length; i++)
+		{
+			var dLevel = d[createdKeys[i]];
+			
+			var bubbles = [];
+			var bubbleKeys = Object.keys(dLevel.bubbles);
+			for(var j=0; j<bubbleKeys.length; j++)
+			{
+				var bub = dLevel.bubbles[bubbleKeys[j]];
+				var newBub = {"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":bub.colorCode}
+				//if(bub.colorCode != null)
+				//	newBub.colorCode = bub.colorCode;
+				bubbles.push(newBub);
+			}
+			
+			var queue = {};
+			queue.type = dLevel.queue.type;
+			queue.colors = [dLevel.queue.colors["0"], dLevel.queue.colors["1"], dLevel.queue.colors["2"], 
+				dLevel.queue.colors["3"], dLevel.queue.colors["4"], dLevel.queue.colors["5"]];
+			
+			DATA.createdLevels.push({"bubbles":bubbles, "queue":queue});
+		}
+	}
+  });
+  
+  
   
   // Sets local user/world data from Database.
   // -worldLevel (bubbles, queue)
   // -coins, gems
   // -world active queue
   // -world queue
-  DATA.database.ref("users/000000000").once("value").then(function(snapshot){
+  DATA.database.ref("users/"+DATA.userID).once("value").then(function(snapshot){
   	var d = snapshot.val();
 
 	// World Level (bubbles, queue)
-  	var bubbles = [];
+  	/*var bubbles = [];
   	var bubKeys = Object.keys(d.world.bubbles);
   	for(var i=0; i<bubKeys.length; i++)
   	{
@@ -96,7 +206,7 @@ var email = "dwoodburdev@gmail.com";
     	bubbles.push(bubble);
   	}
   	var queue = {type:d.world.queue.type, colors:d.world.queue.colors};
-  	DATA.worldLevel = {"bubbles":bubbles, "queue":queue};cc.log(DATA.worldLevel);
+  	DATA.worldLevel = {"bubbles":bubbles, "queue":queue};*/
   	
   	// coins, gems
   	DATA.coins = d.coins;
@@ -121,8 +231,8 @@ var email = "dwoodburdev@gmail.com";
   	if(movesGained)
   	{cc.log(DATA.worldBallsLeft);
   		DATA.timeLastMoveSpawned = curTime - elapsedTime;
-  		DATA.database.ref("users/000000000/timeOfLastMoveSpawn").set(DATA.timeLastMoveSpawned);
-  		DATA.database.ref("users/000000000/worldMoves").set(DATA.worldBallsLeft);
+  		DATA.database.ref("users/"+DATA.userID+"/timeOfLastMoveSpawn").set(DATA.timeLastMoveSpawned);
+  		DATA.database.ref("users/"+DATA.userID+"/worldMoves").set(DATA.worldBallsLeft);
   	}
   	
   	// time last opened daily chest
@@ -135,6 +245,9 @@ var email = "dwoodburdev@gmail.com";
 		DATA.worldActiveQueue.push(d.queue[activeQueueKeys[i]]);
 	}
 	
+	// World index
+	DATA.worldIndex = d.worldIndex
+	
 	// Queue: world
 	var queueKeys = Object.keys(d.world.queue.colors);
 	for(var i=0; i<queueKeys.length; i++)
@@ -146,74 +259,108 @@ var email = "dwoodburdev@gmail.com";
 	DATA.worldBallAColor = d.ballColorA;
 	DATA.worldBallBColor = d.ballColorB;
 	
-	// Created levels
-	var createdKeys = Object.keys(d.createdLevels);
-	for(var i=0; i<createdKeys.length; i++)
+	// Levels in Hold, Streak Info
+	if(d.levelIndexA != -1)
+		DATA.levelIndexA = d.levelIndexA;
+	if(d.levelIndexB != -1)
+		DATA.levelIndexB = d.levelIndexB;
+	DATA.streakStep = d.streakStep;
+	DATA.challengeTries = d.challengeTries;
+	
+	DATA.levelIndexAType = d.levelIndexAType;
+	DATA.levelIndexBType = d.levelIndexBType;
+	
+	//xp
+	DATA.rankProgress = d.xp;
+	
+	// Daily Chest
+	DATA.questChestNumber = 7;
+	DATA.questChestProgress = d.questChestProgress;
+	
+	// Daily Challenges
+	var challengeKeys = Object.keys(d.dailyChallenges);
+	for(var i=0; i<challengeKeys.length; i++)
 	{
-		var dLevel = d.createdLevels[createdKeys[i]];
-		
-		var bubbles = [];
-		var bubbleKeys = Object.keys(dLevel.bubbles);
-		for(var j=0; j<bubbleKeys.length; j++)
+		var dChallenge = d.dailyChallenges[challengeKeys[i]];
+		var newChallenge = {};
+		newChallenge.type = dChallenge.type;
+		newChallenge.progress = dChallenge.progress;
+		newChallenge.number = dChallenge.number;
+		newChallenge.xp = dChallenge.xp;
+		newChallenge.coins = dChallenge.coins;
+		if(dChallenge.type == "match-size")
 		{
-			var bub = dLevel.bubbles[bubbleKeys[j]];cc.log(bub);
-			var newBub = {"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":bub.colorCode}
-			//if(bub.colorCode != null)
-			//	newBub.colorCode = bub.colorCode;
-			bubbles.push(newBub);
+			newChallenge.size = dChallenge.size;
 		}
+		DATA.dailyChallenges.push(newChallenge);
+	}
+	
+	// Booster Inventories
+	DATA.preBoosterInventoryA = d.preBoosterInventories["0"];
+	DATA.boosterInventoryA = d.boosterInventories["0"];
+	
+	// Completed Levels (will take reworking depending on levels needed)
+	var normalLevels = d.levelsComplete.normal["0"];
+	for(var i=0; i<normalLevels.length; i++)
+	{
+		DATA.levelsComplete["normal"].push(normalLevels[i]);
+	}
+	var setLevels = d.levelsComplete.sets;
+	var setKeys = Object.keys(setLevels);
+	for(var i=0; i<setKeys.length; i++)
+	{
+		DATA.levelsComplete[setKeys[i]].tier = setLevels[setKeys[i]].tier;
 		
-		var queue = {};
-		queue.type = dLevel.queue.type;
-		queue.colors = [dLevel.queue.colors["0"], dLevel.queue.colors["1"], dLevel.queue.colors["2"], 
-			dLevel.queue.colors["3"], dLevel.queue.colors["4"], dLevel.queue.colors["5"]];
-		
-		DATA.createdLevels.push({"bubbles":bubbles, "queue":queue});
-	}cc.log(DATA.createdLevels);
+		for(var j=0; j<setLevels[setKeys[i]].completed.length; j++)
+		{
+			DATA.levelsComplete[setKeys[i]].completed.push(setLevels[setKeys[i]].completed[j]);
+		}
+	}cc.log(DATA.levelsComplete);
+	
+	
+	//var bubbles = [ {  "col" : 0,  "colorCode" : "green",  "row" : 0,  "type" : 0}, {  "col" : 1,  "colorCode" : "green",  "row" : 0,  "type" : 0}, {  "col" : 2,  "colorCode" : "red",  "row" : 0,  "type" : 0}, {  "col" : 3,  "colorCode" : "red",  "row" : 0,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 0,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 0,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 0,  "type" : 0}, {  "col" : 7,  "colorCode" : "red",  "row" : 0,  "type" : 0}, {  "col" : 8,  "colorCode" : "blue",  "row" : 0,  "type" : 0}, {  "col" : 9,  "colorCode" : "blue",  "row" : 0,  "type" : 0}, {  "col" : 10,  "colorCode" : "yellow",  "row" : 0,  "type" : 0}, {  "col" : 11,  "colorCode" : "yellow",  "row" : 0,  "type" : 0}, {  "col" : 0,  "colorCode" : "yellow",  "row" : 1,  "type" : 0}, {  "col" : 1,  "colorCode" : "yellow",  "row" : 1,  "type" : 0}, {  "col" : 2,  "colorCode" : "blue",  "row" : 1,  "type" : 0}, {  "col" : 3,  "colorCode" : "blue",  "row" : 1,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 1,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 1,  "type" : 0}, {  "col" : 7,  "colorCode" : "green",  "row" : 1,  "type" : 0}, {  "col" : 8,  "colorCode" : "green",  "row" : 1,  "type" : 0}, {  "col" : 9,  "colorCode" : "red",  "row" : 1,  "type" : 0}, {  "col" : 10,  "colorCode" : "red",  "row" : 1,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 2,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 2,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 3,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 3,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 4,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 5,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 4,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 5,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 6,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 7,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 6,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 7,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 8,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 9,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 8,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 9,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 10,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 10,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 11,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 11,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 12,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 13,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 12,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 13,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 14,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 14,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 15,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 15,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 16,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 16,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 17,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 18,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 17,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 18,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 19,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 20,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 19,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 20,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 21,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 22,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 23,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 24,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 24,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 23,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 22,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 21,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 25,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 26,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 27,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 28,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 29,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 30,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 31,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 32,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 33,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 34,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 35,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 36,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 25,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 26,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 27,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 28,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 29,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 30,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 31,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 32,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 33,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 34,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 35,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 36,  "type" : 0}, {  "col" : 7,  "colorCode" : "green",  "row" : 13,  "type" : 0}, {  "col" : 8,  "colorCode" : "green",  "row" : 13,  "type" : 0}, {  "col" : 9,  "colorCode" : "yellow",  "row" : 13,  "type" : 0}, {  "col" : 10,  "colorCode" : "yellow",  "row" : 13,  "type" : 0}, {  "col" : 3,  "colorCode" : "red",  "row" : 13,  "type" : 0}, {  "col" : 2,  "colorCode" : "red",  "row" : 13,  "type" : 0}, {  "col" : 1,  "colorCode" : "blue",  "row" : 13,  "type" : 0}, {  "col" : 0,  "colorCode" : "blue",  "row" : 13,  "type" : 0}, {  "col" : 0,  "colorCode" : "green",  "row" : 12,  "type" : 0}, {  "col" : 1,  "colorCode" : "green",  "row" : 12,  "type" : 0}, {  "col" : 2,  "colorCode" : "yellow",  "row" : 12,  "type" : 0}, {  "col" : 3,  "colorCode" : "yellow",  "row" : 12,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 12,  "type" : 0}, {  "col" : 7,  "colorCode" : "yellow",  "row" : 12,  "type" : 0}, {  "col" : 8,  "colorCode" : "red",  "row" : 12,  "type" : 0}, {  "col" : 9,  "colorCode" : "red",  "row" : 12,  "type" : 0}, {  "col" : 10,  "colorCode" : "green",  "row" : 12,  "type" : 0}, {  "col" : 11,  "colorCode" : "green",  "row" : 12,  "type" : 0}, {  "col" : 7,  "colorCode" : "green",  "row" : 26,  "type" : 0}, {  "col" : 8,  "colorCode" : "blue",  "row" : 26,  "type" : 0}, {  "col" : 9,  "colorCode" : "blue",  "row" : 26,  "type" : 0}, {  "col" : 10,  "colorCode" : "red",  "row" : 26,  "type" : 0}, {  "col" : 11,  "colorCode" : "red",  "row" : 26,  "type" : 0}, {  "col" : 7,  "colorCode" : "yellow",  "row" : 27,  "type" : 0}, {  "col" : 8,  "colorCode" : "yellow",  "row" : 27,  "type" : 0}, {  "col" : 9,  "colorCode" : "green",  "row" : 27,  "type" : 0}, {  "col" : 10,  "colorCode" : "green",  "row" : 27,  "type" : 0}, {  "col" : 3,  "colorCode" : "red",  "row" : 27,  "type" : 0}, {  "col" : 2,  "colorCode" : "red",  "row" : 27,  "type" : 0}, {  "col" : 1,  "colorCode" : "blue",  "row" : 27,  "type" : 0}, {  "col" : 0,  "colorCode" : "blue",  "row" : 27,  "type" : 0}, {  "col" : 1,  "colorCode" : "red",  "row" : 26,  "type" : 0}, {  "col" : 2,  "colorCode" : "green",  "row" : 26,  "type" : 0}, {  "col" : 3,  "colorCode" : "green",  "row" : 26,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 26,  "type" : 0}, {  "col" : 0,  "colorCode" : "red",  "row" : 26,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 37,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 38,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 37,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 38,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 39,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 39,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 38,  "type" : 0}, {  "col" : 3,  "colorCode" : "blue",  "row" : 38,  "type" : 0}, {  "col" : 2,  "colorCode" : "blue",  "row" : 38,  "type" : 0}, {  "col" : 1,  "colorCode" : "green",  "row" : 38,  "type" : 0}, {  "col" : 0,  "colorCode" : "green",  "row" : 38,  "type" : 0}, {  "col" : 0,  "colorCode" : "red",  "row" : 39,  "type" : 0}, {  "col" : 1,  "colorCode" : "red",  "row" : 39,  "type" : 0}, {  "col" : 2,  "colorCode" : "yellow",  "row" : 39,  "type" : 0}, {  "col" : 3,  "colorCode" : "yellow",  "row" : 39,  "type" : 0}, {  "col" : 7,  "colorCode" : "blue",  "row" : 39,  "type" : 0}, {  "col" : 8,  "colorCode" : "blue",  "row" : 39,  "type" : 0}, {  "col" : 9,  "colorCode" : "green",  "row" : 39,  "type" : 0}, {  "col" : 10,  "colorCode" : "green",  "row" : 39,  "type" : 0}, {  "col" : 11,  "colorCode" : "red",  "row" : 38,  "type" : 0}, {  "col" : 10,  "colorCode" : "red",  "row" : 38,  "type" : 0}, {  "col" : 9,  "colorCode" : "yellow",  "row" : 38,  "type" : 0}, {  "col" : 8,  "colorCode" : "yellow",  "row" : 38,  "type" : 0}, {  "col" : 7,  "colorCode" : "green",  "row" : 38,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 40,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 40,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 41,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 41,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 42,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 42,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 43,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 44,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 44,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 43,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 45,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 46,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 45,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 46,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 47,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 48,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 47,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 48,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 49,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 50,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 49,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 50,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 51,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 52,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 52,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 51,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 28,  "type" : 0}, {  "col" : 7,  "colorCode" : "blue",  "row" : 28,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 14,  "type" : 0}, {  "col" : 7,  "colorCode" : "red",  "row" : 14,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 2,  "type" : 0}, {  "col" : 7,  "colorCode" : "blue",  "row" : 2,  "type" : 0}, {  "col" : 5,  "row" : 49,  "type" : 20}, {  "col" : 5,  "row" : 45,  "type" : 20}, {  "col" : 5,  "row" : 35,  "type" : 20}, {  "col" : 5,  "row" : 31,  "type" : 20}, {  "col" : 5,  "row" : 25,  "type" : 20}, {  "col" : 5,  "row" : 19,  "type" : 20}, {  "col" : 5,  "row" : 13,  "type" : 20}, {  "col" : 5,  "row" : 7,  "type" : 20}, {  "col" : 5,  "row" : 1,  "type" : 20} ];
+	var maxRow = 0;
+	for(var i=0; i<DATA.worldBubbles.length; i++)
+	{
+		if(DATA.worldBubbles[i].row > maxRow)
+			maxRow = DATA.worldBubbles[i].row;
+	}
+  
+  cc.director.runScene(new GameplayScene(DATA.worldBubbles, maxRow+1));
   });
   
-  // Sets local list of world levels.
-  // Phase out eventually?
-  DATA.database.ref("worlds/levels").once("value").then(function(snapshot){
-  	var d = snapshot.val();
-  	for(var i=0; i<d.length; i++)
-  	{
-  		var bubbles = [];
-  		for(var j=0; j<d[i].bubbles.length; j++)
-  		{
-  			var dBub = d[i].bubbles[j];
-  			var bubble = {row:dBub.row, col:dBub.col, type:dBub.type};
-  			if(dBub.colorCode != null)
-  				bubble["colorCode"] = dBub.colorCode;
-    		bubbles.push(bubble); 
-  		}
-  		var queue = {type:d[i].queue.type, colors:d[i].queue.colors};
-    	var level = {"queue":queue,"bubbles":bubbles};
-  		DATA.levels.push(level);
-  	}
-  });
   
-  // Sets local data for challenge-levels.
-  DATA.database.ref("levels").once("value").then(function(snapshot){
-  	var d = snapshot.val();
-  	var challengeKeys = Object.keys(d);
-  	for(var i=0; i<challengeKeys.length; i++)
-  	{
-  		var bubbles = [];
-  		for(var j=0; j<d[challengeKeys[i]].bubbles.length; j++)
-  		{
-  			var dBub = d[challengeKeys[i]].bubbles[j];
-  			var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:dBub.colorCode};
-    		bubbles.push(bubble);
-  		}
-  		var queue = {type:d[challengeKeys[i]].queue.type, colors:d[challengeKeys[i]].queue.colors};
-    	var moves = d[challengeKeys[i]].moves;
-  		var level = {"queue":queue,"bubbles":bubbles,"moves":moves};
-  		DATA.challenges.push(level);
-  	}
-  });
+	/*var bubbles = [ {  "col" : 0,  "colorCode" : "green",  "row" : 0,  "type" : 0}, {  "col" : 1,  "colorCode" : "green",  "row" : 0,  "type" : 0}, {  "col" : 2,  "colorCode" : "red",  "row" : 0,  "type" : 0}, {  "col" : 3,  "colorCode" : "red",  "row" : 0,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 0,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 0,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 0,  "type" : 0}, {  "col" : 7,  "colorCode" : "red",  "row" : 0,  "type" : 0}, {  "col" : 8,  "colorCode" : "blue",  "row" : 0,  "type" : 0}, {  "col" : 9,  "colorCode" : "blue",  "row" : 0,  "type" : 0}, {  "col" : 10,  "colorCode" : "yellow",  "row" : 0,  "type" : 0}, {  "col" : 11,  "colorCode" : "yellow",  "row" : 0,  "type" : 0}, {  "col" : 0,  "colorCode" : "yellow",  "row" : 1,  "type" : 0}, {  "col" : 1,  "colorCode" : "yellow",  "row" : 1,  "type" : 0}, {  "col" : 2,  "colorCode" : "blue",  "row" : 1,  "type" : 0}, {  "col" : 3,  "colorCode" : "blue",  "row" : 1,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 1,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 1,  "type" : 0}, {  "col" : 7,  "colorCode" : "green",  "row" : 1,  "type" : 0}, {  "col" : 8,  "colorCode" : "green",  "row" : 1,  "type" : 0}, {  "col" : 9,  "colorCode" : "red",  "row" : 1,  "type" : 0}, {  "col" : 10,  "colorCode" : "red",  "row" : 1,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 2,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 2,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 3,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 3,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 4,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 5,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 4,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 5,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 6,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 7,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 6,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 7,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 8,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 9,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 8,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 9,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 10,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 10,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 11,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 11,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 12,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 13,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 12,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 13,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 14,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 14,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 15,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 15,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 16,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 16,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 17,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 18,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 17,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 18,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 19,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 20,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 19,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 20,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 21,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 22,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 23,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 24,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 24,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 23,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 22,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 21,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 25,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 26,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 27,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 28,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 29,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 30,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 31,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 32,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 33,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 34,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 35,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 36,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 25,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 26,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 27,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 28,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 29,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 30,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 31,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 32,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 33,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 34,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 35,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 36,  "type" : 0}, {  "col" : 7,  "colorCode" : "green",  "row" : 13,  "type" : 0}, {  "col" : 8,  "colorCode" : "green",  "row" : 13,  "type" : 0}, {  "col" : 9,  "colorCode" : "yellow",  "row" : 13,  "type" : 0}, {  "col" : 10,  "colorCode" : "yellow",  "row" : 13,  "type" : 0}, {  "col" : 3,  "colorCode" : "red",  "row" : 13,  "type" : 0}, {  "col" : 2,  "colorCode" : "red",  "row" : 13,  "type" : 0}, {  "col" : 1,  "colorCode" : "blue",  "row" : 13,  "type" : 0}, {  "col" : 0,  "colorCode" : "blue",  "row" : 13,  "type" : 0}, {  "col" : 0,  "colorCode" : "green",  "row" : 12,  "type" : 0}, {  "col" : 1,  "colorCode" : "green",  "row" : 12,  "type" : 0}, {  "col" : 2,  "colorCode" : "yellow",  "row" : 12,  "type" : 0}, {  "col" : 3,  "colorCode" : "yellow",  "row" : 12,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 12,  "type" : 0}, {  "col" : 7,  "colorCode" : "yellow",  "row" : 12,  "type" : 0}, {  "col" : 8,  "colorCode" : "red",  "row" : 12,  "type" : 0}, {  "col" : 9,  "colorCode" : "red",  "row" : 12,  "type" : 0}, {  "col" : 10,  "colorCode" : "green",  "row" : 12,  "type" : 0}, {  "col" : 11,  "colorCode" : "green",  "row" : 12,  "type" : 0}, {  "col" : 7,  "colorCode" : "green",  "row" : 26,  "type" : 0}, {  "col" : 8,  "colorCode" : "blue",  "row" : 26,  "type" : 0}, {  "col" : 9,  "colorCode" : "blue",  "row" : 26,  "type" : 0}, {  "col" : 10,  "colorCode" : "red",  "row" : 26,  "type" : 0}, {  "col" : 11,  "colorCode" : "red",  "row" : 26,  "type" : 0}, {  "col" : 7,  "colorCode" : "yellow",  "row" : 27,  "type" : 0}, {  "col" : 8,  "colorCode" : "yellow",  "row" : 27,  "type" : 0}, {  "col" : 9,  "colorCode" : "green",  "row" : 27,  "type" : 0}, {  "col" : 10,  "colorCode" : "green",  "row" : 27,  "type" : 0}, {  "col" : 3,  "colorCode" : "red",  "row" : 27,  "type" : 0}, {  "col" : 2,  "colorCode" : "red",  "row" : 27,  "type" : 0}, {  "col" : 1,  "colorCode" : "blue",  "row" : 27,  "type" : 0}, {  "col" : 0,  "colorCode" : "blue",  "row" : 27,  "type" : 0}, {  "col" : 1,  "colorCode" : "red",  "row" : 26,  "type" : 0}, {  "col" : 2,  "colorCode" : "green",  "row" : 26,  "type" : 0}, {  "col" : 3,  "colorCode" : "green",  "row" : 26,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 26,  "type" : 0}, {  "col" : 0,  "colorCode" : "red",  "row" : 26,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 37,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 38,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 37,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 38,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 39,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 39,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 38,  "type" : 0}, {  "col" : 3,  "colorCode" : "blue",  "row" : 38,  "type" : 0}, {  "col" : 2,  "colorCode" : "blue",  "row" : 38,  "type" : 0}, {  "col" : 1,  "colorCode" : "green",  "row" : 38,  "type" : 0}, {  "col" : 0,  "colorCode" : "green",  "row" : 38,  "type" : 0}, {  "col" : 0,  "colorCode" : "red",  "row" : 39,  "type" : 0}, {  "col" : 1,  "colorCode" : "red",  "row" : 39,  "type" : 0}, {  "col" : 2,  "colorCode" : "yellow",  "row" : 39,  "type" : 0}, {  "col" : 3,  "colorCode" : "yellow",  "row" : 39,  "type" : 0}, {  "col" : 7,  "colorCode" : "blue",  "row" : 39,  "type" : 0}, {  "col" : 8,  "colorCode" : "blue",  "row" : 39,  "type" : 0}, {  "col" : 9,  "colorCode" : "green",  "row" : 39,  "type" : 0}, {  "col" : 10,  "colorCode" : "green",  "row" : 39,  "type" : 0}, {  "col" : 11,  "colorCode" : "red",  "row" : 38,  "type" : 0}, {  "col" : 10,  "colorCode" : "red",  "row" : 38,  "type" : 0}, {  "col" : 9,  "colorCode" : "yellow",  "row" : 38,  "type" : 0}, {  "col" : 8,  "colorCode" : "yellow",  "row" : 38,  "type" : 0}, {  "col" : 7,  "colorCode" : "green",  "row" : 38,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 40,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 40,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 41,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 41,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 42,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 42,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 43,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 44,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 44,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 43,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 45,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 46,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 45,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 46,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 47,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 48,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 47,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 48,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 49,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 50,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 49,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 50,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 51,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 52,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 52,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 51,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 28,  "type" : 0}, {  "col" : 7,  "colorCode" : "blue",  "row" : 28,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 14,  "type" : 0}, {  "col" : 7,  "colorCode" : "red",  "row" : 14,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 2,  "type" : 0}, {  "col" : 7,  "colorCode" : "blue",  "row" : 2,  "type" : 0}, {  "col" : 5,  "row" : 49,  "type" : 20}, {  "col" : 5,  "row" : 45,  "type" : 20}, {  "col" : 5,  "row" : 35,  "type" : 20}, {  "col" : 5,  "row" : 31,  "type" : 20}, {  "col" : 5,  "row" : 25,  "type" : 20}, {  "col" : 5,  "row" : 19,  "type" : 20}, {  "col" : 5,  "row" : 13,  "type" : 20}, {  "col" : 5,  "row" : 7,  "type" : 20}, {  "col" : 5,  "row" : 1,  "type" : 20} ];
+	var maxRow = 0;
+	for(var i=0; i<bubbles.length; i++)
+	{
+		if(bubbles[i].row > maxRow)
+			maxRow = bubbles[i].row;
+	}
+  
+  cc.director.runScene(new GameplayScene(bubbles, maxRow+1));*/
+  
+}
+  
+  DATA.setLastTimeMoveSpawned = function()
+  {
+  	DATA.timeLastMoveSpawned = (new Date()).getTime();
+  	DATA.database.ref("users/"+DATA.userID+"/timeOfLastMoveSpawn").set(DATA.timeLastMoveSpawned);
+  	
+  };
 
   
+  DATA.getChallengeText = function(challenge)
+  {
+  	if(challenge.type == "match-size")
+  	{
+  		return "Make matches sized "+challenge.size+"+.";
+  	}
+  	else if(challenge.type == "level")
+  	{
+  		return "Beat "+challenge.number+" levels.";
+  	}
+  };
   /*
    * World Bubbles
    */
@@ -221,7 +368,7 @@ var email = "dwoodburdev@gmail.com";
   // Removes world bubbles from database.
   DATA.removeBubblesFromDatabase = function(delPositions)
   {
-  	DATA.database.ref("users/000000000/world").once("value").then(function(snapshot){
+  	DATA.database.ref("users/"+DATA.userID+"/world").once("value").then(function(snapshot){
   		var d = snapshot.val();
 	  	var capturedBubbles = d.bubbles;
 	  	
@@ -238,7 +385,7 @@ var email = "dwoodburdev@gmail.com";
 	  		delete capturedBubbles[key];
 	  	}
 	  	
-	  	DATA.database.ref("users/000000000/world").set({bubbles:capturedBubbles, queue:d.queue});
+	  	DATA.database.ref("users/"+DATA.userID+"/world").set({bubbles:capturedBubbles, queue:d.queue});
   	});
   };
   // Sets bubbles to add to world in database.
@@ -253,7 +400,7 @@ var email = "dwoodburdev@gmail.com";
   // Directly adds bubbles to world in database.
   DATA.addBubblesToDatabase = function(newBubbles)
   {
-  	DATA.database.ref("users/000000000/world").once("value").then(function(snapshot){
+  	DATA.database.ref("users/"+DATA.userID+"/world").once("value").then(function(snapshot){
   		var d = snapshot.val();
   		var capturedBubbles = d.bubbles;
   		if(capturedBubbles==null)
@@ -267,7 +414,7 @@ var email = "dwoodburdev@gmail.com";
   			if(newBubbles[i].colorCode != null)
   				capturedBubbles[key]["colorCode"] = newBubbles[i].colorCode;
   		}
-  		DATA.database.ref("users/000000000/world").set({bubbles:capturedBubbles, queue:d.queue});
+  		DATA.database.ref("users/"+DATA.userID+"/world").set({bubbles:capturedBubbles, queue:d.queue});
   	});
   };
   
@@ -277,7 +424,7 @@ var email = "dwoodburdev@gmail.com";
   
   DATA.saveNewLevelToDatabase = function(newBubbles)
   {
-  	DATA.database.ref("users/000000000/createdLevels").once("value").then(function(snapshot){
+  	DATA.database.ref("levels/userLevels/"+DATA.userID).once("value").then(function(snapshot){
   		var d = snapshot.val();
   		
   		var bubbleContainer = {};
@@ -299,7 +446,7 @@ var email = "dwoodburdev@gmail.com";
   			d[""+dKeys.length] = newLevel;
   		}
   		
-  		DATA.database.ref("users/000000000/createdLevels").set(d);
+  		DATA.database.ref("levels/userLevels/"+DATA.userID).set(d);
   	});
   }
   
@@ -311,12 +458,50 @@ DATA.retrieveLevel = function()
 {
 	if(DATA.levelIndexA == null)
 	{
-		DATA.levelIndexA = Math.floor(Math.random()*DATA.challenges.length);
+		if(Math.random() > .6667)
+		{
+			DATA.levelIndexA = Math.floor(Math.random()*DATA.challenges.length);
+			DATA.levelIndexAType = "normal";
+		}
+		else
+		{
+			DATA.levelIndexAType = "one-pager";
+			DATA.levelIndexA = Math.floor(Math.random()*DATA.setChallenges[DATA.levelIndexAType].length);
+		}
+		DATA.database.ref("users/"+DATA.userID+"/levelIndexAType").set(DATA.levelIndexAType);
+		DATA.database.ref("users/"+DATA.userID+"/levelIndexA").set(DATA.levelIndexA);
 	}
 	else if(DATA.levelIndexB == null)
 	{
-		DATA.levelIndexB = Math.floor(Math.random()*DATA.challenges.length);
+		if(Math.random() > .333)
+		{
+			DATA.levelIndexB = Math.floor(Math.random()*DATA.challenges.length);
+			DATA.levelIndexBType = "normal";
+		}
+		else
+		{
+			DATA.levelIndexBType = "one-pager";
+			DATA.levelIndexB = Math.floor(Math.random()*DATA.setChallenges[DATA.levelIndexBType].length);
+		}
+		DATA.database.ref("users/"+DATA.userID+"/levelIndexB").set(DATA.levelIndexB);
 	}
+};
+
+DATA.updateDatabaseLevelIndices = function()
+{
+	if(DATA.levelIndexA == null)
+		DATA.database.ref("users/"+DATA.userID+"/levelIndexA").set(-1);
+	else DATA.database.ref("users/"+DATA.userID+"/levelIndexA").set(DATA.levelIndexA);
+	
+	if(DATA.levelIndexB == null)
+		DATA.database.ref("users/"+DATA.userID+"/levelIndexB").set(-1);
+	else DATA.database.ref("users/"+DATA.userID+"/levelIndexB").set(DATA.levelIndexB);
+};
+
+DATA.updateDatabaseStreak = function()
+{
+	DATA.database.ref("users/"+DATA.userID+"/streakStep").set(DATA.streakStep);
+	DATA.database.ref("users/"+DATA.userID+"/challengeTries").set(DATA.challengeTries);
 };
   
   
@@ -327,11 +512,11 @@ DATA.retrieveLevel = function()
   // Sets world moves in database.
   DATA.setDatabaseMoves = function(num)
   {
-  	DATA.database.ref("users/000000000/worldMoves").set(num);
+  	DATA.database.ref("users/"+DATA.userID+"/worldMoves").set(num);
   	
   	if(num == 4)
   	{
-  		DATA.database.ref("users/000000000/timeOfLastMoveSpawn").set((new Date()).getTime());
+  		DATA.database.ref("users/"+DATA.userID+"/timeOfLastMoveSpawn").set((new Date()).getTime());
   	}
   };
   
@@ -411,7 +596,7 @@ DATA.setLevelQueue = function(queue)
 
 DATA.setQueue = function(queue)
 {
-	DATA.database.ref("users/000000000/queue").set({"0":DATA.worldActiveQueue[0],"1":DATA.worldActiveQueue[1],"2":DATA.worldActiveQueue[2],"3":DATA.worldActiveQueue[3],"4":DATA.worldActiveQueue[4],"5":DATA.worldActiveQueue[5]});
+	DATA.database.ref("users/"+DATA.userID+"/queue").set({"0":DATA.worldActiveQueue[0],"1":DATA.worldActiveQueue[1],"2":DATA.worldActiveQueue[2],"3":DATA.worldActiveQueue[3],"4":DATA.worldActiveQueue[4],"5":DATA.worldActiveQueue[5]});
 };
 
 DATA.getPossibleColors = function(queue)
@@ -542,10 +727,32 @@ DATA.setCurrencies = function(coins, gems)
   	DATA.coins = coins;
   	DATA.gems = gems;
   	if(coins != null)
-  		DATA.database.ref("users/000000000/coins").set(coins);
+  		DATA.database.ref("users/"+DATA.userID+"/coins").set(coins);
  	if(gems != null)
- 		DATA.database.ref("users/000000000/gems").set(gems);
+ 		DATA.database.ref("users/"+DATA.userID+"/gems").set(gems);
   };
+  
+ /*
+  * INVENTORIES
+  */
+ DATA.setBoosterInventories = function(invA)
+ {
+ 	DATA.boosterInventoryA = invA;
+ 	DATA.database.ref("users/"+DATA.userID+"/boosterInventories").set({"0":DATA.boosterInventoryA});
+ };
+ DATA.setPreBoosterInventories = function(invA)
+ {
+ 	DATA.preBoosterInventoryA = invA;
+ 	DATA.database.ref("users/"+DATA.userID+"/preBoosterInventories").set({"0":DATA.preBoosterInventoryA});
+ };
+ 
+ 
+ // World Index (Ref)
+ DATA.updateWorldIndexDatabase = function(index)
+ {
+ 	DATA.worldIndex = index;
+ 	DATA.database.ref("users/"+DATA.userID+"/worldIndex").set(DATA.worldIndex);
+ };
 
 /*
  * BALL COLORS
@@ -560,12 +767,12 @@ DATA.setDatabaseColors = function()
 DATA.setBallADatabase = function(color)
 {
 	DATA.worldBallAColor = color;
-	DATA.database.ref("users/000000000/ballColorA").set(color);
+	DATA.database.ref("users/"+DATA.userID+"/ballColorA").set(color);
 };
 DATA.setBallBDatabase = function(color)
 {
 	DATA.worldBallBColor = color;
-	DATA.database.ref("users/000000000/ballColorB").set(color);
+	DATA.database.ref("users/"+DATA.userID+"/ballColorB").set(color);
 };
 
 /*
@@ -606,6 +813,9 @@ DATA.registerEvent = function(obj)
 			{
 				DATA.dailyChallenges[i].progress = Math.min(DATA.dailyChallenges[i].progress+obj.progress, DATA.dailyChallenges[i].number);
 			}
+			
+			DATA.database.ref("users/"+DATA.userID+"/dailyChallenges/"+i+"/progress").set(DATA.dailyChallenges[i].progress);
+			
 		}
 		
 	}
@@ -623,6 +833,8 @@ DATA.checkRankUp = function()
 	else if(DATA.streakStep == 3)
 		xp = 50;
 	DATA.rankProgress += xp;
+	
+	DATA.database.ref("users/"+DATA.userID+"/xp").set(xp);
 	
 	if(DATA.rankProgress > DATA.rankThreshold)
 	{
@@ -657,3 +869,972 @@ FUNCTIONS.posWithinScaled = function(pos, img)
 	}
 	return false;
 };
+
+/*
+var demBubs = [ {
+  "col" : 0,
+  "colorCode" : "green",
+  "row" : 0,
+  "type" : 0
+}, {
+  "col" : 1,
+  "colorCode" : "green",
+  "row" : 0,
+  "type" : 0
+}, {
+  "col" : 2,
+  "colorCode" : "red",
+  "row" : 0,
+  "type" : 0
+}, {
+  "col" : 3,
+  "colorCode" : "red",
+  "row" : 0,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "yellow",
+  "row" : 0,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "yellow",
+  "row" : 0,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "red",
+  "row" : 0,
+  "type" : 0
+}, {
+  "col" : 7,
+  "colorCode" : "red",
+  "row" : 0,
+  "type" : 0
+}, {
+  "col" : 8,
+  "colorCode" : "blue",
+  "row" : 0,
+  "type" : 0
+}, {
+  "col" : 9,
+  "colorCode" : "blue",
+  "row" : 0,
+  "type" : 0
+}, {
+  "col" : 10,
+  "colorCode" : "yellow",
+  "row" : 0,
+  "type" : 0
+}, {
+  "col" : 11,
+  "colorCode" : "yellow",
+  "row" : 0,
+  "type" : 0
+}, {
+  "col" : 0,
+  "colorCode" : "yellow",
+  "row" : 1,
+  "type" : 0
+}, {
+  "col" : 1,
+  "colorCode" : "yellow",
+  "row" : 1,
+  "type" : 0
+}, {
+  "col" : 2,
+  "colorCode" : "blue",
+  "row" : 1,
+  "type" : 0
+}, {
+  "col" : 3,
+  "colorCode" : "blue",
+  "row" : 1,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "red",
+  "row" : 1,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "yellow",
+  "row" : 1,
+  "type" : 0
+}, {
+  "col" : 7,
+  "colorCode" : "green",
+  "row" : 1,
+  "type" : 0
+}, {
+  "col" : 8,
+  "colorCode" : "green",
+  "row" : 1,
+  "type" : 0
+}, {
+  "col" : 9,
+  "colorCode" : "red",
+  "row" : 1,
+  "type" : 0
+}, {
+  "col" : 10,
+  "colorCode" : "red",
+  "row" : 1,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "yellow",
+  "row" : 2,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "red",
+  "row" : 2,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "green",
+  "row" : 3,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "blue",
+  "row" : 3,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "blue",
+  "row" : 4,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "blue",
+  "row" : 5,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "red",
+  "row" : 4,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "red",
+  "row" : 5,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "yellow",
+  "row" : 6,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "yellow",
+  "row" : 7,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "green",
+  "row" : 6,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "green",
+  "row" : 7,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "red",
+  "row" : 8,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "red",
+  "row" : 9,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "yellow",
+  "row" : 8,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "yellow",
+  "row" : 9,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "green",
+  "row" : 10,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "blue",
+  "row" : 10,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "blue",
+  "row" : 11,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "green",
+  "row" : 11,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "blue",
+  "row" : 12,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "yellow",
+  "row" : 13,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "yellow",
+  "row" : 12,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "blue",
+  "row" : 13,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "blue",
+  "row" : 14,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "yellow",
+  "row" : 14,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "green",
+  "row" : 15,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "red",
+  "row" : 15,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "blue",
+  "row" : 16,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "yellow",
+  "row" : 16,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "blue",
+  "row" : 17,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "green",
+  "row" : 18,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "yellow",
+  "row" : 17,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "yellow",
+  "row" : 18,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "yellow",
+  "row" : 19,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "red",
+  "row" : 20,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "green",
+  "row" : 19,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "blue",
+  "row" : 20,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "red",
+  "row" : 21,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "green",
+  "row" : 22,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "green",
+  "row" : 23,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "blue",
+  "row" : 24,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "yellow",
+  "row" : 24,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "red",
+  "row" : 23,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "red",
+  "row" : 22,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "blue",
+  "row" : 21,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "yellow",
+  "row" : 25,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "green",
+  "row" : 26,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "red",
+  "row" : 27,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "red",
+  "row" : 28,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "blue",
+  "row" : 29,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "green",
+  "row" : 30,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "green",
+  "row" : 31,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "yellow",
+  "row" : 32,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "yellow",
+  "row" : 33,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "red",
+  "row" : 34,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "red",
+  "row" : 35,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "blue",
+  "row" : 36,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "blue",
+  "row" : 25,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "yellow",
+  "row" : 26,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "green",
+  "row" : 27,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "green",
+  "row" : 28,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "yellow",
+  "row" : 29,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "blue",
+  "row" : 30,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "blue",
+  "row" : 31,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "red",
+  "row" : 32,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "red",
+  "row" : 33,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "green",
+  "row" : 34,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "green",
+  "row" : 35,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "yellow",
+  "row" : 36,
+  "type" : 0
+}, {
+  "col" : 7,
+  "colorCode" : "green",
+  "row" : 13,
+  "type" : 0
+}, {
+  "col" : 8,
+  "colorCode" : "green",
+  "row" : 13,
+  "type" : 0
+}, {
+  "col" : 9,
+  "colorCode" : "yellow",
+  "row" : 13,
+  "type" : 0
+}, {
+  "col" : 10,
+  "colorCode" : "yellow",
+  "row" : 13,
+  "type" : 0
+}, {
+  "col" : 3,
+  "colorCode" : "red",
+  "row" : 13,
+  "type" : 0
+}, {
+  "col" : 2,
+  "colorCode" : "red",
+  "row" : 13,
+  "type" : 0
+}, {
+  "col" : 1,
+  "colorCode" : "blue",
+  "row" : 13,
+  "type" : 0
+}, {
+  "col" : 0,
+  "colorCode" : "blue",
+  "row" : 13,
+  "type" : 0
+}, {
+  "col" : 0,
+  "colorCode" : "green",
+  "row" : 12,
+  "type" : 0
+}, {
+  "col" : 1,
+  "colorCode" : "green",
+  "row" : 12,
+  "type" : 0
+}, {
+  "col" : 2,
+  "colorCode" : "yellow",
+  "row" : 12,
+  "type" : 0
+}, {
+  "col" : 3,
+  "colorCode" : "yellow",
+  "row" : 12,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "blue",
+  "row" : 12,
+  "type" : 0
+}, {
+  "col" : 7,
+  "colorCode" : "yellow",
+  "row" : 12,
+  "type" : 0
+}, {
+  "col" : 8,
+  "colorCode" : "red",
+  "row" : 12,
+  "type" : 0
+}, {
+  "col" : 9,
+  "colorCode" : "red",
+  "row" : 12,
+  "type" : 0
+}, {
+  "col" : 10,
+  "colorCode" : "green",
+  "row" : 12,
+  "type" : 0
+}, {
+  "col" : 11,
+  "colorCode" : "green",
+  "row" : 12,
+  "type" : 0
+}, {
+  "col" : 7,
+  "colorCode" : "green",
+  "row" : 26,
+  "type" : 0
+}, {
+  "col" : 8,
+  "colorCode" : "blue",
+  "row" : 26,
+  "type" : 0
+}, {
+  "col" : 9,
+  "colorCode" : "blue",
+  "row" : 26,
+  "type" : 0
+}, {
+  "col" : 10,
+  "colorCode" : "red",
+  "row" : 26,
+  "type" : 0
+}, {
+  "col" : 11,
+  "colorCode" : "red",
+  "row" : 26,
+  "type" : 0
+}, {
+  "col" : 7,
+  "colorCode" : "yellow",
+  "row" : 27,
+  "type" : 0
+}, {
+  "col" : 8,
+  "colorCode" : "yellow",
+  "row" : 27,
+  "type" : 0
+}, {
+  "col" : 9,
+  "colorCode" : "green",
+  "row" : 27,
+  "type" : 0
+}, {
+  "col" : 10,
+  "colorCode" : "green",
+  "row" : 27,
+  "type" : 0
+}, {
+  "col" : 3,
+  "colorCode" : "red",
+  "row" : 27,
+  "type" : 0
+}, {
+  "col" : 2,
+  "colorCode" : "red",
+  "row" : 27,
+  "type" : 0
+}, {
+  "col" : 1,
+  "colorCode" : "blue",
+  "row" : 27,
+  "type" : 0
+}, {
+  "col" : 0,
+  "colorCode" : "blue",
+  "row" : 27,
+  "type" : 0
+}, {
+  "col" : 1,
+  "colorCode" : "red",
+  "row" : 26,
+  "type" : 0
+}, {
+  "col" : 2,
+  "colorCode" : "green",
+  "row" : 26,
+  "type" : 0
+}, {
+  "col" : 3,
+  "colorCode" : "green",
+  "row" : 26,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "yellow",
+  "row" : 26,
+  "type" : 0
+}, {
+  "col" : 0,
+  "colorCode" : "red",
+  "row" : 26,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "yellow",
+  "row" : 37,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "red",
+  "row" : 38,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "blue",
+  "row" : 37,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "green",
+  "row" : 38,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "red",
+  "row" : 39,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "green",
+  "row" : 39,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "red",
+  "row" : 38,
+  "type" : 0
+}, {
+  "col" : 3,
+  "colorCode" : "blue",
+  "row" : 38,
+  "type" : 0
+}, {
+  "col" : 2,
+  "colorCode" : "blue",
+  "row" : 38,
+  "type" : 0
+}, {
+  "col" : 1,
+  "colorCode" : "green",
+  "row" : 38,
+  "type" : 0
+}, {
+  "col" : 0,
+  "colorCode" : "green",
+  "row" : 38,
+  "type" : 0
+}, {
+  "col" : 0,
+  "colorCode" : "red",
+  "row" : 39,
+  "type" : 0
+}, {
+  "col" : 1,
+  "colorCode" : "red",
+  "row" : 39,
+  "type" : 0
+}, {
+  "col" : 2,
+  "colorCode" : "yellow",
+  "row" : 39,
+  "type" : 0
+}, {
+  "col" : 3,
+  "colorCode" : "yellow",
+  "row" : 39,
+  "type" : 0
+}, {
+  "col" : 7,
+  "colorCode" : "blue",
+  "row" : 39,
+  "type" : 0
+}, {
+  "col" : 8,
+  "colorCode" : "blue",
+  "row" : 39,
+  "type" : 0
+}, {
+  "col" : 9,
+  "colorCode" : "green",
+  "row" : 39,
+  "type" : 0
+}, {
+  "col" : 10,
+  "colorCode" : "green",
+  "row" : 39,
+  "type" : 0
+}, {
+  "col" : 11,
+  "colorCode" : "red",
+  "row" : 38,
+  "type" : 0
+}, {
+  "col" : 10,
+  "colorCode" : "red",
+  "row" : 38,
+  "type" : 0
+}, {
+  "col" : 9,
+  "colorCode" : "yellow",
+  "row" : 38,
+  "type" : 0
+}, {
+  "col" : 8,
+  "colorCode" : "yellow",
+  "row" : 38,
+  "type" : 0
+}, {
+  "col" : 7,
+  "colorCode" : "green",
+  "row" : 38,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "red",
+  "row" : 40,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "green",
+  "row" : 40,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "blue",
+  "row" : 41,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "green",
+  "row" : 41,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "blue",
+  "row" : 42,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "green",
+  "row" : 42,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "red",
+  "row" : 43,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "red",
+  "row" : 44,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "yellow",
+  "row" : 44,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "yellow",
+  "row" : 43,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "yellow",
+  "row" : 45,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "yellow",
+  "row" : 46,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "blue",
+  "row" : 45,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "blue",
+  "row" : 46,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "green",
+  "row" : 47,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "green",
+  "row" : 48,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "red",
+  "row" : 47,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "red",
+  "row" : 48,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "blue",
+  "row" : 49,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "blue",
+  "row" : 50,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "green",
+  "row" : 49,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "green",
+  "row" : 50,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "red",
+  "row" : 51,
+  "type" : 0
+}, {
+  "col" : 5,
+  "colorCode" : "red",
+  "row" : 52,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "yellow",
+  "row" : 52,
+  "type" : 0
+}, {
+  "col" : 6,
+  "colorCode" : "yellow",
+  "row" : 51,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "yellow",
+  "row" : 28,
+  "type" : 0
+}, {
+  "col" : 7,
+  "colorCode" : "blue",
+  "row" : 28,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "green",
+  "row" : 14,
+  "type" : 0
+}, {
+  "col" : 7,
+  "colorCode" : "red",
+  "row" : 14,
+  "type" : 0
+}, {
+  "col" : 4,
+  "colorCode" : "green",
+  "row" : 2,
+  "type" : 0
+}, {
+  "col" : 7,
+  "colorCode" : "blue",
+  "row" : 2,
+  "type" : 0
+}, {
+  "col" : 5,
+  "row" : 49,
+  "type" : 20
+}, {
+  "col" : 5,
+  "row" : 45,
+  "type" : 20
+}, {
+  "col" : 5,
+  "row" : 35,
+  "type" : 20
+}, {
+  "col" : 5,
+  "row" : 31,
+  "type" : 20
+}, {
+  "col" : 5,
+  "row" : 25,
+  "type" : 20
+}, {
+  "col" : 5,
+  "row" : 19,
+  "type" : 20
+}, {
+  "col" : 5,
+  "row" : 13,
+  "type" : 20
+}, {
+  "col" : 5,
+  "row" : 7,
+  "type" : 20
+}, {
+  "col" : 5,
+  "row" : 1,
+  "type" : 20
+} ];
+
+var demBubsObj = {};
+for(var i=0; i<demBubs.length; i++)
+{
+	var bub = demBubs[i];
+	demBubsObj[""+bub.row+"_"+bub.col] = bub;
+}
+//DATA.database.ref("users/"+DATA.userID+"/world/bubbles").set(demBubsObj);
+*/
+ 

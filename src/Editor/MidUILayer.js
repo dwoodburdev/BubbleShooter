@@ -86,7 +86,7 @@ var MidUILayer = cc.Layer.extend({
 	onTouchEnded:function(pos)
 	{
 		if(pos.x > this.scrollUpImg.x && pos.x < this.scrollUpImg.x+this.scrollUpImg.width)
-		{cc.log("up");
+		{
 			return {"type":"scrollup"};
 		}
 		else if(pos.x > this.scrollDownImg.x && pos.x < this.scrollDownImg.x+this.scrollDownImg.width)

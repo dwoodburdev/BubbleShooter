@@ -107,20 +107,68 @@ cc.game.onStart = function(){
     cc.LoaderScene.preload(g_resources, function () {
     	//var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
     	
-		var bubbles = DATA.worldLevel.bubbles;
-		
-		var maxRow = 0;
-		var bubbleData = [];
-		for(var i=0; i<bubbles.length; i++)
+    	
+		//cc.sys.localStorage.setItem("userID", null);
+		cc.log("hi");
+		cc.log(cc.sys.localStorage.getItem("userID"));
+		if(cc.sys.localStorage.getItem("userID") != null)
 		{
-			if(bubbles[i].row > maxRow)
-				maxRow = bubbles[i].row;
+			/*var bubbles = DATA.worldLevel.bubbles;
+			
+			var maxRow = 0;
+			var bubbleData = [];
+			for(var i=0; i<bubbles.length; i++)
+			{
+				if(bubbles[i].row > maxRow)
+					maxRow = bubbles[i].row;
+			}
+			
+			DATA.worldBubbles = bubbles;
+			//DATA.setWorldQueue(DATA.worldLevel.queue);
+			
+			cc.director.runScene(new GameplayScene(bubbles, maxRow+1));*/
+			
+			DATA.userID = cc.sys.localStorage.getItem("userID");
+			
+			DATA.database.ref("users/"+DATA.userID+"/world").once("value").then(function(snapshot){
+				var d = snapshot.val();
+				var bubbles = [];
+			  	var bubKeys = Object.keys(d.bubbles);
+			  	for(var i=0; i<bubKeys.length; i++)
+			  	{
+			  		var dBub = d.bubbles[bubKeys[i]];
+			  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:dBub.colorCode};
+			    	bubbles.push(bubble);
+			  	}
+			  	var queue = {type:d.queue.type, colors:d.queue.colors};
+			  	DATA.worldLevel = {"bubbles":bubbles, "queue":queue};
+			  	
+			  	//var bubbles = DATA.worldLevel.bubbles;
+			
+				var maxRow = 0;
+				for(var i=0; i<bubbles.length; i++)
+				{
+					if(bubbles[i].row > maxRow)
+						maxRow = bubbles[i].row;
+				}
+				
+				DATA.worldBubbles = bubbles;
+				//DATA.setWorldQueue(DATA.worldLevel.queue);
+				
+				//cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
+			  	DATA.initUserData();
+			});
+			
 		}
-		
-		DATA.worldBubbles = bubbles;
-		//DATA.setWorldQueue(DATA.worldLevel.queue);
-		
-		cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
+		else
+		{
+			//var email = prompt("Please enter email.", "");
+			//var password = prompt("Password","");
+			
+			
+			//cc.director.runScene(new SignInScene(email, password));
+			cc.director.runScene(new SignInScene());
+		}
     	//cc.director.pushScene(DATA.scenes["world-gameplay"]);
     }, this);
 };

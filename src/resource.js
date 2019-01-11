@@ -126,6 +126,9 @@ var res = {
     gem_gold_card: "res/card-gold-gem.png",
     ten_moves_gold_card: "res/card-gold-10-balls.png",
     
+    card_outline: "res/card-outline.png",
+    blank_card: "res/card-blank.png",
+    
     shop_button: "res/shop-button.png",
     editor_button: "res/editor-button.png",
     
@@ -179,6 +182,9 @@ var res = {
     last_try_alert: "res/last-try-alert.png",
     streak_up_alert: "res/streak-up-alert.png",
     
+    first_try_card: "res/first-try-gold.png",
+    last_try_card: "res/last-try-blue.png",
+    
     world_rewards_button: "res/world-rewards-button.png",
     buy_button: "res/buy-button.png",
     
@@ -197,6 +203,8 @@ var res = {
     test_button: "res/test-button.png",
     share_button: "res/share-button.png",
     edit_button: "res/edit-button.png",
+    login_button: "res/log-in-button.png",
+    newuser_button: "res/new-user-button.png",
     
     xp: "res/xp.png",
     
@@ -207,8 +215,15 @@ var res = {
     gold_xp_reward: "res/gold-xp-reward.png",
     
     bronze_silver_xp_upgrade: "res/xp-upgrade-a.png",
-    silver_gold_xp_upgrade: "res/xp-upgrade-b.png"
+    silver_gold_xp_upgrade: "res/xp-upgrade-b.png",
+    
+    emoji_pop_title: "res/emojipoptitle.png",
+    
+    sunglass_face: "res/sunglass-face.png",
+    concerned_face: "res/concerned-face.png"
 };
+
+
 
 var g_resources = [];
 for (var i in res) {
