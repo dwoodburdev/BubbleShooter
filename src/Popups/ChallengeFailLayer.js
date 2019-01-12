@@ -47,7 +47,8 @@ var ChallengeFailLayer = cc.Layer.extend({
 				    var target = event.getCurrentTarget();
 				    var locationInNode = self.convertToNodeSpace(touch.getLocation());
 			    	
-			    	var bubbles = DATA.levels[DATA.worldIndex].bubbles;
+			    	//var bubbles = DATA.levels[DATA.worldIndex].bubbles;
+		    		var bubbles = DATA.worldBubbles;
 		    		//cc.log(bubbles);
 		    		var maxRow = 0;
 		    		var bubbleData = [];

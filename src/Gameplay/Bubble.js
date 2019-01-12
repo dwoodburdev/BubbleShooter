@@ -465,6 +465,11 @@ var Bubble = cc.Sprite.extend({
 		//this.draw();
 	},
 	
+	onEnter:function()
+	{
+		this._super();
+	},
+	
 	triggerOnTurn:function(turnNumber){
 		this.removeChild(this.bubbleImg);
 		if(this.type == 7)

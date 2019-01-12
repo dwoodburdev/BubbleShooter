@@ -68,7 +68,7 @@ DATA.colorCodes = ["red","yellow","green","blue","pink","purple"];
 
 DATA.levelsComplete = {"normal":[], "one-pager":{"tier":0,"completed":[]}};
 
-DATA.userID = "000000000";
+DATA.userID = "JksVjAgr68PFKhwEyVzGKBr3hGW2";
 var email = "dwoodburdev@gmail.com";
  var password = "marlin81=";
  /*
@@ -870,7 +870,7 @@ FUNCTIONS.posWithinScaled = function(pos, img)
 	return false;
 };
 
-/*
+
 var demBubs = [ {
   "col" : 0,
   "colorCode" : "green",
@@ -1835,6 +1835,6 @@ for(var i=0; i<demBubs.length; i++)
 	var bub = demBubs[i];
 	demBubsObj[""+bub.row+"_"+bub.col] = bub;
 }
-//DATA.database.ref("users/"+DATA.userID+"/world/bubbles").set(demBubsObj);
-*/
+DATA.database.ref("users/"+DATA.userID+"/world/bubbles").set(demBubsObj);
+
  

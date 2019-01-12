@@ -141,7 +141,8 @@ var BubbleLayer = cc.Layer.extend({
        	
        	if(this.modeType == "world" && this.numMoves < 5)
        	{
-       		this.initMoveTimer();
+       		//DATA.setLastTimeMoveSpawned();
+			this.initMoveTimer();
        	}
        	
        	this.plusFivePreboosterIcon = null;
@@ -288,7 +289,7 @@ var BubbleLayer = cc.Layer.extend({
 	},
 	
 	onEnter:function(){cc.log("enter");
-
+		this._super();
 		
 	},
 	
@@ -695,9 +696,10 @@ var BubbleLayer = cc.Layer.extend({
 		   		
 		   		// fire bubble
 		   		this.shooter.initShot(loc, this.targetHex);
-		   		this.shooter.initShotAnim(loc, this.targetHex, this.numRows, this.maxRows, this.rowHeight, this.bottomMostBubbleY);
+		   		//this.shooter.initShotAnim(loc, this.targetHex, this.numRows, this.maxRows, this.rowHeight, this.bottomMostBubbleY);
 		   		this.schedule(this.moveShooter);
 		   		cc.director.getScheduler().resumeTarget(this);
+		   		
 		   		
 		   		this.removeChild(this.targetBubble);
 		   }
@@ -934,6 +936,8 @@ var BubbleLayer = cc.Layer.extend({
 		DATA.colorNextTurn(this.modeType);
 		DATA.setDatabaseColors();
 		
+		//this.removeChild(this.shooter);
+		this.shooter = null;
        	this.shooter = new Bubble(this.bubbleR, DATA.getShooterColor(this.modeType), 0, null, null, null);
        	this.shooter.attr({
        		x: this.width/2,
@@ -1169,7 +1173,7 @@ var BubbleLayer = cc.Layer.extend({
 		{
 			DATA.worldBallsLeft--;
 			DATA.setDatabaseMoves(DATA.worldBallsLeft);
-			if(this.timerLabel == null)
+			if(this.timerLabel == null && this.numMoves == 4)
 			{
 				DATA.setLastTimeMoveSpawned();
 				this.initMoveTimer();
@@ -2145,6 +2149,11 @@ var BubbleLayer = cc.Layer.extend({
 	
 	updateBubble:function(bubble, row, col)
 	{
+		//this.bubbles.push(new Bubble(bubble.r,bubble.colorCode,bubble.type,bubble.orientation,bubble.row,bubble.col));
+		//this.bubbles[this.bubbles.length-1].active = true;
+		//this.bubbles[this.bubbles.length-1].x = bubble.x;
+		//this.bubbles[this.bubbles.length-1].y = bubble.y;
+		//this.addChild(this.bubbles[this.bubbles.length-1]);
 		this.bubbles.push(bubble);
 		var rowsAdded = 0;
 		
@@ -2173,24 +2182,32 @@ var BubbleLayer = cc.Layer.extend({
 				for(var j=0; j<this.bubbleMap[i].length; j++)
 				{
 					if(this.bubbleMap[i][j] != -1)
-					{cc.log(i + " " + j);
+					{
 						/*this.bubbles[this.bubbleMap[i][j]].attr({
 			       			x: this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
 			       			y: this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
 			       			anchorX:.5,
 			       			anchorY:.5
 			       		});*/
-			       		cc.log(this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR);
-			       		cc.log(this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset);
-						var actionMove = cc.MoveTo.create(1, cc.p(this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
-			       			this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset));
-			       		this.bubbles[this.bubbleMap[i][j]].runAction(actionMove);
+			       		//cc.log(this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR);
+			       		//cc.log(this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset);
+						//cc.director.getScheduler().unscheduleAllCallbacks();
+			       		
+						//cc.director.getScheduler().resumeTarget(this);
 			       		
 			       		if(!this.bubbles[this.bubbleMap[i][j]].active)
 			       		{
 			       			this.bubbles[this.bubbleMap[i][j]].active = true;
-			       			this.addChild(this.bubbles[this.bubbleMap[i][j]]);
+			       			//this.addChild(this.bubbles[this.bubbleMap[i][j]]);
 			       		}
+			       		
+			       		var actionMove = cc.MoveTo.create(1, cc.p(this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
+			       			this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset));
+			       		this.bubbles[this.bubbleMap[i][j]].runAction(actionMove);
+			       		
+		   		cc.director.getScheduler().resumeTarget(this);
+			       		//cc.director.getScheduler().resumeTarget(this);
+			       		//cc.log(cc.director.getScheduler());
 					}
 				}
 				rowNum++;
@@ -2257,27 +2274,61 @@ var BubbleLayer = cc.Layer.extend({
 					if(this.bubbleMap[i][j] != -1)
 					{
 						if(!this.bubbles[this.bubbleMap[i][j]].active)
-						{
-							this.bubbles[this.bubbleMap[i][j]].attr({
-			       				x: 0,//this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
-			       				y: 0,//this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
+						{cc.log("inactive");
+							//this.bubbles[this.bubbleMap[i][j]] = new Bubble(this.bubbleR, this.bubbles[this.bubbleMap[i][j]].colorCode, this.bubbles[this.bubbleMap[i][j]].type, null, this.bubbles[this.bubbleMap[i][j]].row, this.bubbles[this.bubbleMap[i][j]].col);
+							
+							//this.bubbles[this.bubbleMap[i][j]].active = true;
+			       			this.bubbles[this.bubbleMap[i][j]].active = true;
+			       			
+			       			/*this.bubbles[this.bubbleMap[i][j]].attr({
+			       				x: this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
+			       				y: this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
 			       				anchorX:.5,
 			       				anchorY:.5
-			       			});
-			       		}
-			       		
-			       		if(!this.bubbles[this.bubbleMap[i][j]].active)
-			       		{
-			       			this.bubbles[this.bubbleMap[i][j]].active = true;
+			       			});*/
+			       			this.bubbles[this.bubbleMap[i][j]].x = this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR;
+			       			this.bubbles[this.bubbleMap[i][j]].y = rowsCulled*this.rowHeight + this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset
+			       			
+			       			//cc.log(this.bubbles[this.bubbleMap[i][j]]);
+			       			
+			       			//this.bubbles[this.bubbleMap[i][j]].actionManager.removeAllActions();
+			       			
 			       			this.addChild(this.bubbles[this.bubbleMap[i][j]]);
 			       		}
+			       			//this.bubbles[this.bubbleMap[i][j]].x = this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR;
+			       			//this.bubbles[this.bubbleMap[i][j]].y = /*rowsCulled*this.rowHeight +*/ this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset
+			       			
+			       		//if(!this.bubbles[this.bubbleMap[i][j]].active)
+			       		//{
+			       			
+				       		//this.removeChild(this.bubbles[this.bubbleMap[i][j]]);
+			       			//this.addChild(this.bubbles[this.bubbleMap[i][j]]);
+			       			
+			       		//	cc.director.getScheduler().resumeTarget(this.bubbles[this.bubbleMap[i][j]]);
+			       			//cc.log(this.bubbles[this.bubbleMap[i][j]].actionManager);
+			       			
+			       			//var actionRot = cc.rotateBy(1,180);
+			       			//this.bubbles[this.bubbleMap[i][j]].runAction(actionRot);
+			       			
+			       			//this.bubbles[this.bubbleMap[i][j]].actionManager.resumeTarget(this);
+			       			
+			       			//cc.log(this.bubbles[this.bubbleMap[i][j]].actionManager);
+			       			//cc.director.getScheduler().resumeTarget(this.bubbles[this.bubbleMap[i][j]]);
+			       		//}
+			       		//else
+			       		//{
+				       		var actionMove = cc.moveTo(1, cc.p(this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
+				       			this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset));
+				       		this.bubbles[this.bubbleMap[i][j]].runAction(actionMove);
+				       		
+			       		//}
+			       		/*var actionMove = cc.moveTo(.5, cc.p(this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
+			       			this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset));
+			       		var actionMoveBy = cc.moveBy(.5, cc.p(0,this.bubbleR));
 			       		
-			       		//var actionMove = cc.MoveTo.create(1, cc.p(this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
-			       		//	this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset));
-			       		var actionMove = cc.moveTo(1, this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
-			       			this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset);
-			       		this.bubbles[this.bubbleMap[i][j]].runAction(actionMove);
-			       		
+			       		var seq = new cc.Sequence([actionMoveBy, actionMove]);
+			       		this.bubbles[this.bubbleMap[i][j]].runAction(seq);
+			       		*/
 					}
 				}
 				rowNum++;
