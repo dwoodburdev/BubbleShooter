@@ -14,6 +14,8 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 		
 		this.dailyChallengePopup = null;
 		
+		DATA.refreshTimeUntilNextChallenge();
+		
 		
 		this.tabTitleLabel = new cc.LabelTTF("Rewards", "Arial", 40);
 		this.tabTitleLabel.attr({
@@ -168,28 +170,54 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 			height: challengeHeight
 		};
 		
+		
+		this.collectRewardAButton = null;
+		this.collectRewardBButton = null;
+		this.collectRewardCButton = null;
+		
+		this.challengeARemText = null;
+		this.challengeBRemText = null;
+		this.challengeCRemText = null;
+		
 		if(DATA.dailyChallenges.length >= 1)
 		{
 			var challenge = DATA.dailyChallenges[0];
-			var challengeAText = new cc.LabelTTF(DATA.getChallengeText(challenge), "Arial", 24);
-			challengeAText.attr({
-				"x":this.challengeARect.x+2,
-				"y":this.challengeARect.y + this.challengeARect.height-2,
-				"anchorX":0,
-				"anchorY":1
-			});
-			challengeAText.color = cc.color(0,0,0,255);
-			this.addChild(challengeAText);
 			
-			var challengeARemText = new cc.LabelTTF(""+(challenge.number-challenge.progress)+" left","Arial", 20);
-			challengeARemText.attr({
-				x:this.challengeARect.x+2,
-				y:this.challengeARect.y + 2,
-				anchorX:0,
-				anchorY:0
-			});
-			challengeARemText.color = cc.color(0,0,0,255);
-			this.addChild(challengeARemText);
+			if(challenge.progress!=challenge.number)
+			{
+				var challengeAText = new cc.LabelTTF(DATA.getChallengeText(challenge), "Arial", 24);
+				challengeAText.attr({
+					"x":this.challengeARect.x+2,
+					"y":this.challengeARect.y + this.challengeARect.height-2,
+					"anchorX":0,
+					"anchorY":1
+				});
+				challengeAText.color = cc.color(0,0,0,255);
+				this.addChild(challengeAText);
+				
+				var challengeARemText = new cc.LabelTTF(""+(challenge.number-challenge.progress)+" left","Arial", 20);
+				challengeARemText.attr({
+					x:this.challengeARect.x+2,
+					y:this.challengeARect.y + 2,
+					anchorX:0,
+					anchorY:0
+				});
+				challengeARemText.color = cc.color(0,0,0,255);
+				this.addChild(challengeARemText);
+			}
+			else
+			{
+				this.collectRewardAButton = new cc.Sprite(res.get_button);
+				this.collectRewardAButton.setScale(challengeHeight*.8 / this.collectRewardAButton.height);
+				this.collectRewardAButton.attr({
+					x:cc.winSize.width/2,
+					y:this.challengeARect.y+this.challengeARect.height/2,
+					anchorX:.5,
+					anchorY:.5
+				});
+				this.addChild(this.collectRewardAButton);
+			}
+			
 			
 			 
 			var challengeAXPImage = new cc.Sprite(res.xp);
@@ -232,50 +260,76 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 			challengeABonusLabel.color = cc.color(0,0,0,255);
 			this.addChild(challengeABonusLabel);
 			
-			this.challengeAProgBar = new ProgressBar(challengeARemText.x + challengeARemText.width + 5, challengeARemText.y+2, (challengeABonusLabel.x-challengeABonusLabel.width)-10 - (challengeARemText.x+challengeARemText.width), 20);
+			/*this.challengeAProgBar = new ProgressBar(challengeARemText.x + challengeARemText.width + 5, challengeARemText.y+2, (challengeABonusLabel.x-challengeABonusLabel.width)-10 - (challengeARemText.x+challengeARemText.width), 20);
 			this.challengeAProgBar.attr({
 				x:challengeARemText.x + challengeARemText.width + 5,
 				y:challengeARemText.y+2,
 				anchorX:0,anchorY:0
 			});
 			this.addChild(this.challengeAProgBar);
-			this.challengeAProgBar.setProg(DATA.dailyChallenges[0].progress/DATA.dailyChallenges[0].number);
+			this.challengeAProgBar.setProg(DATA.dailyChallenges[0].progress/DATA.dailyChallenges[0].number);*/
 		}
 		else
 		{
-			var challengeARemText = new cc.LabelTTF("[Come back tomorrow!]","Arial", 20);
-			challengeARemText.attr({
+			var timeRem = DATA.timeUntilNextChallenge;
+			var minText = timeRem.minutes;
+			if(timeRem.minutes < 10)
+				minText = "0"+timeRem.minutes;
+			var secText = timeRem.seconds;
+			if(timeRem.seconds < 10)
+				secText = "0"+timeRem.seconds;
+			this.challengeARemText = new cc.LabelTTF("[ Come back in "+timeRem.hours+":"+minText+":"+secText+" ]","Arial", 20);
+			this.challengeARemText.attr({
 				x:this.challengeARect.x+this.challengeARect.width/2,
 				y:this.challengeARect.y+this.challengeARect.height/2,
 				anchorX:.5,
 				anchorY:.5
 			});
-			challengeARemText.color = cc.color(0,0,0,255);
-			this.addChild(challengeARemText);
+			this.challengeARemText.color = cc.color(0,0,0,255);
+			this.addChild(this.challengeARemText);
+			
 		}
+		
+		
 		
 		if(DATA.dailyChallenges.length >= 2)
 		{
 			var challenge = DATA.dailyChallenges[1];
-			var challengeBText = new cc.LabelTTF(DATA.getChallengeText(challenge), "Arial", 24);
-			challengeBText.attr({
-				"x":this.challengeBRect.x+2,
-				"y":this.challengeBRect.y + this.challengeBRect.height-2,
-				"anchorX":0,
-				"anchorY":1
-			});
-			challengeBText.color = cc.color(0,0,0,255);
-			this.addChild(challengeBText);
 			
-			var challengeBRemText = new cc.LabelTTF(""+(challenge.number-challenge.progress)+" left","Arial", 20);
-			challengeBRemText.attr({
-				x:this.challengeBRect.x+2,
-				y:this.challengeBRect.y + 2,
-				anchorX:0,
-				anchorY:0
-			});
-			challengeBRemText.color = cc.color(0,0,0,255);
-			this.addChild(challengeBRemText);
+			if(challenge.progress!=challenge.number)
+			{
+				var challengeBText = new cc.LabelTTF(DATA.getChallengeText(challenge), "Arial", 24);
+				challengeBText.attr({
+					"x":this.challengeBRect.x+2,
+					"y":this.challengeBRect.y + this.challengeBRect.height-2,
+					"anchorX":0,
+					"anchorY":1
+				});
+				challengeBText.color = cc.color(0,0,0,255);
+				this.addChild(challengeBText);
+				
+				var challengeBRemText = new cc.LabelTTF(""+(challenge.number-challenge.progress)+" left","Arial", 20);
+				challengeBRemText.attr({
+					x:this.challengeBRect.x+2,
+					y:this.challengeBRect.y + 2,
+					anchorX:0,
+					anchorY:0
+				});
+				challengeBRemText.color = cc.color(0,0,0,255);
+				this.addChild(challengeBRemText);
+			}
+			else
+			{
+				this.collectRewardBButton = new cc.Sprite(res.get_button);
+				this.collectRewardBButton.setScale(challengeHeight*.8 / this.collectRewardBButton.height);
+				this.collectRewardBButton.attr({
+					x:cc.winSize.width/2,
+					y:this.challengeBRect.y+this.challengeBRect.height/2,
+					anchorX:.5,
+					anchorY:.5
+				});
+				this.addChild(this.collectRewardBButton);
+			}
 			 
 			var challengeBXPImage = new cc.Sprite(res.xp);
 			challengeBXPImage.setScale((this.challengeBRect.height-6)/2 / challengeBXPImage.height);
@@ -317,51 +371,73 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 			challengeBBonusLabel.color = cc.color(0,0,0,255);
 			this.addChild(challengeBBonusLabel);
 			
-			this.challengeBProgBar = new ProgressBar(challengeBRemText.x + challengeBRemText.width + 5, challengeBRemText.y+2, (challengeBBonusLabel.x-challengeBBonusLabel.width)-10 - (challengeBRemText.x+challengeBRemText.width), 20);
+			/*this.challengeBProgBar = new ProgressBar(challengeBRemText.x + challengeBRemText.width + 5, challengeBRemText.y+2, (challengeBBonusLabel.x-challengeBBonusLabel.width)-10 - (challengeBRemText.x+challengeBRemText.width), 20);
 			this.challengeBProgBar.attr({
 				x:challengeBRemText.x + challengeBRemText.width + 5,
 				y:challengeBRemText.y+2,
 				anchorX:0,anchorY:0
 			});
 			this.addChild(this.challengeBProgBar);
-			this.challengeBProgBar.setProg(DATA.dailyChallenges[1].progress/DATA.dailyChallenges[1].number);
+			this.challengeBProgBar.setProg(DATA.dailyChallenges[1].progress/DATA.dailyChallenges[1].number);*/
 		}
 		else
 		{
-			var challengeBRemText = new cc.LabelTTF("[Come back tomorrow!]","Arial", 20);
-			challengeBRemText.attr({
+			var timeRem = DATA.timeUntilNextChallenge;
+			var minText = timeRem.minutes;
+			if(timeRem.minutes < 10)
+				minText = "0"+timeRem.minutes;
+			var secText = timeRem.seconds;
+			if(timeRem.seconds < 10)
+				secText = "0"+timeRem.seconds;
+			this.challengeBRemText = new cc.LabelTTF("[ Come back in "+timeRem.hours+":"+minText+":"+secText+" ]","Arial", 20);
+			this.challengeBRemText.attr({
 				x:this.challengeBRect.x+this.challengeBRect.width/2,
 				y:this.challengeBRect.y+this.challengeBRect.height/2,
 				anchorX:.5,
 				anchorY:.5
 			});
-			challengeBRemText.color = cc.color(0,0,0,255);
-			this.addChild(challengeBRemText);
+			this.challengeBRemText.color = cc.color(0,0,0,255);
+			this.addChild(this.challengeBRemText);
 		}
 		
 		
 		if(DATA.dailyChallenges.length >= 3)
 		{
 			var challenge = DATA.dailyChallenges[2];
-			var challengeCText = new cc.LabelTTF(DATA.getChallengeText(challenge), "Arial", 24);
-			challengeCText.attr({
-				"x":this.challengeCRect.x+2,
-				"y":this.challengeCRect.y + this.challengeCRect.height-2,
-				"anchorX":0,
-				"anchorY":1
-			});
-			challengeCText.color = cc.color(0,0,0,255);
-			this.addChild(challengeCText);
-			
-			var challengeCRemText = new cc.LabelTTF(""+(challenge.num-challenge.progress)+" left","Arial", 20);
-			challengeCRemText.attr({
-				x:this.challengeCRect.x+2,
-				y:this.challengeCRect.y + 2,
-				anchorX:0,
-				anchorY:0
-			});
-			challengeCRemText.color = cc.color(0,0,0,255);
-			this.addChild(challengeCRemText);
+			if(challenge.progress!=challenge.number)
+			{
+				var challengeCText = new cc.LabelTTF(DATA.getChallengeText(challenge), "Arial", 24);
+				challengeCText.attr({
+					"x":this.challengeCRect.x+2,
+					"y":this.challengeCRect.y + this.challengeCRect.height-2,
+					"anchorX":0,
+					"anchorY":1
+				});
+				challengeCText.color = cc.color(0,0,0,255);
+				this.addChild(challengeCText);
+				
+				var challengeCRemText = new cc.LabelTTF(""+(challenge.num-challenge.progress)+" left","Arial", 20);
+				challengeCRemText.attr({
+					x:this.challengeCRect.x+2,
+					y:this.challengeCRect.y + 2,
+					anchorX:0,
+					anchorY:0
+				});
+				challengeCRemText.color = cc.color(0,0,0,255);
+				this.addChild(challengeCRemText);
+			}
+			else
+			{
+				this.collectRewardCButton = new cc.Sprite(res.get_button);
+				this.collectRewardCButton.setScale(challengeHeight*.8 / this.collectRewardCButton.height);
+				this.collectRewardCButton.attr({
+					x:cc.winSize.width/2,
+					y:this.challengeCRect.y+this.challengeCRect.height/2,
+					anchorX:.5,
+					anchorY:.5
+				});
+				this.addChild(this.collectRewardCButton);
+			}	
 			 
 			var challengeCXPImage = new cc.Sprite(res.xp);
 			challengeCXPImage.setScale((this.challengeCRect.height-6)/2 / challengeCXPImage.height);
@@ -403,26 +479,33 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 			challengeCBonusLabel.color = cc.color(0,0,0,255);
 			this.addChild(challengeCBonusLabel);
 			
-			this.challengeCProgBar = new ProgressBar(challengeCRemText.x + challengeCRemText.width + 5, challengeCRemText.y+2, (challengeCBonusLabel.x-challengeCBonusLabel.width)-10 - (challengeCRemText.x+challengeCRemText.width), 20);
+			/*this.challengeCProgBar = new ProgressBar(challengeCRemText.x + challengeCRemText.width + 5, challengeCRemText.y+2, (challengeCBonusLabel.x-challengeCBonusLabel.width)-10 - (challengeCRemText.x+challengeCRemText.width), 20);
 			this.challengeCProgBar.attr({
 				x:challengeCRemText.x + challengeCRemText.width + 5,
 				y:challengeCRemText.y+2,
 				anchorX:0,anchorY:0
 			});
 			this.addChild(this.challengeCProgBar);
-			this.challengeCProgBar.setProg(DATA.dailyChallenges[2].progress/DATA.dailyChallenges[2].number);
+			this.challengeCProgBar.setProg(DATA.dailyChallenges[2].progress/DATA.dailyChallenges[2].number);*/
 		}
 		else
 		{
-			var challengeCRemText = new cc.LabelTTF("[Come back tomorrow!]","Arial", 20);
-			challengeCRemText.attr({
+			var timeRem = DATA.timeUntilNextChallenge;
+			var minText = timeRem.minutes;
+			if(timeRem.minutes < 10)
+				minText = "0"+timeRem.minutes;
+			var secText = timeRem.seconds;
+			if(timeRem.seconds < 10)
+				secText = "0"+timeRem.seconds;
+			this.challengeCRemText = new cc.LabelTTF("[ Come back in "+timeRem.hours+":"+minText+":"+secText+" ]","Arial", 20);
+			this.challengeCRemText.attr({
 				x:this.challengeCRect.x+this.challengeCRect.width/2,
 				y:this.challengeCRect.y+this.challengeCRect.height/2,
 				anchorX:.5,
 				anchorY:.5
 			});
-			challengeCRemText.color = cc.color(0,0,0,255);
-			this.addChild(challengeCRemText);
+			this.challengeCRemText.color = cc.color(0,0,0,255);
+			this.addChild(this.challengeCRemText);
 		}
 
 
@@ -447,8 +530,52 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 		})
 		this.addChild(starImage);*/
 		
+		this.schedule(this.updateChallengeTimers, 1);
+			
 		this.draw();	
 
+	},
+	
+	updateChallengeTimers:function()
+	{
+		var timeRem = DATA.timeUntilNextChallenge;
+		timeRem.seconds--;
+		if(timeRem.seconds < 0)
+		{
+			timeRem.minutes--;
+			timeRem.seconds = 59;
+		}
+		if(timeRem.minutes < 0)
+		{
+			timeRem.hours--;
+			timeRem.minutes = 59;
+		}
+		if(timeRem.hours < 0)
+		{
+			DATA.spawnNewDailyChallenge();
+			DATA.refreshTimeUntilNextChallenge();
+		}
+		
+		var minText = timeRem.minutes;
+		if(timeRem.minutes < 10)
+			minText = "0"+timeRem.minutes;
+		var secText = timeRem.seconds;
+		if(timeRem.seconds < 10)
+			secText = "0"+timeRem.seconds;
+		
+		if(this.challengeARemText != null)
+		{
+			this.challengeARemText.setString("[ Come back in "+timeRem.hours+":"+minText+":"+secText+" ]");
+		}
+		if(this.challengeBRemText != null)
+		{
+			this.challengeBRemText.setString("[ Come back in "+timeRem.hours+":"+minText+":"+secText+" ]");
+		}
+		if(this.challengeCRemText != null)
+		{
+			this.challengeCRemText.setString("[ Come back in "+timeRem.hours+":"+minText+":"+secText+" ]");
+		}
+		
 	},
 	
 	isPopup:function()
@@ -486,6 +613,64 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 				});
 				this.addChild(this.dailyChallengePopup);
 			}
+			else if(FUNCTIONS.posWithin(pos, this.challengeARect) && this.collectRewardAButton != null)
+			{
+				var rankReturn = DATA.checkRankUp(DATA.dailyChallenges[0].xp);
+				DATA.setCurrencies(DATA.coins+DATA.dailyChallenges[0].coins, DATA.gems);
+				
+				this.removeChild(this.collectRewardAButton);
+				this.collectRewardAButton = null;
+				var challengeARemText = new cc.LabelTTF("[Come back tomorrow!]","Arial", 20);
+				challengeARemText.attr({
+					x:this.challengeARect.x+this.challengeARect.width/2,
+					y:this.challengeARect.y+this.challengeARect.height/2,
+					anchorX:.5,
+					anchorY:.5
+				});
+				challengeARemText.color = cc.color(0,0,0,255);
+				this.addChild(challengeARemText);
+				
+				DATA.deleteChallenge(0);
+			}
+			else if(FUNCTIONS.posWithin(pos, this.challengeBRect) && this.collectRewardBButton != null)
+			{
+				var rankReturn = DATA.checkRankUp(DATA.dailyChallenges[1].xp);
+				DATA.setCurrencies(DATA.coins+DATA.dailyChallenges[1].coins, DATA.gems);
+				
+				this.removeChild(this.collectRewardBButton);
+				this.collectRewardBButton = null;
+				var challengeBRemText = new cc.LabelTTF("[Come back tomorrow!]","Arial", 20);
+				challengeBRemText.attr({
+					x:this.challengeBRect.x+this.challengeBRect.width/2,
+					y:this.challengeBRect.y+this.challengeBRect.height/2,
+					anchorX:.5,
+					anchorY:.5
+				});
+				challengeBRemText.color = cc.color(0,0,0,255);
+				this.addChild(challengeBRemText);
+				
+				DATA.deleteChallenge(1);
+			}
+			else if(FUNCTIONS.posWithin(pos, this.challengeCRect) && this.collectRewardCButton != null)
+			{
+				var rankReturn = DATA.checkRankUp(DATA.dailyChallenges[2].xp);
+				DATA.setCurrencies(DATA.coins+DATA.dailyChallenges[2].coins, DATA.gems);
+				
+				this.removeChild(this.collectRewardCButton);
+				this.collectRewardCButton = null;
+				var challengeCRemText = new cc.LabelTTF("[Come back tomorrow!]","Arial", 20);
+				challengeCRemText.attr({
+					x:this.challengeCRect.x+this.challengeCRect.width/2,
+					y:this.challengeCRect.y+this.challengeCRect.height/2,
+					anchorX:.5,
+					anchorY:.5
+				});
+				challengeCRemText.color = cc.color(0,0,0,255);
+				this.addChild(challengeCRemText);
+				
+				DATA.deleteChallenge(2);
+			}
+			
 		}
 		else if(this.dailyChallengePopup != null)
 		{cc.log("popup");

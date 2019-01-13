@@ -35,7 +35,8 @@ DATA.worldBubblesLeft = 0;
 
 DATA.rank = 1;
 DATA.rankProgress = 0;
-DATA.rankThreshold = 30;
+DATA.rankThresholds = [30,40,55,65,100,65,75,85,95,120];
+DATA.xp = 0;
 
 DATA.gems = 0;
 DATA.coins = 0;
@@ -55,6 +56,8 @@ DATA.challengeTries = 0;
 
 DATA.timeLastChestOpened = 0;
 DATA.timeLastMoveSpawned = 0;
+
+DATA.timeUntilNextChallenge = {"hours":-1,"minutes":-1,"seconds":-1};
 
 DATA.dailyChallenges = [];
 
@@ -238,6 +241,7 @@ DATA.initUserData = function()
   	// time last opened daily chest
   	DATA.timeLastChestOpened = d.timeOfLastDailyChest;
   	
+  	
   	// Queue: active
   	var activeQueueKeys = Object.keys(d.queue);
 	for(var i=0; i<activeQueueKeys.length; i++)
@@ -271,7 +275,25 @@ DATA.initUserData = function()
 	DATA.levelIndexBType = d.levelIndexBType;
 	
 	//xp
-	DATA.rankProgress = d.xp;
+	DATA.xp = d.xp;
+	var xpCounter = d.xp;
+	var thresholdStep = 0;
+	var rankFound = false;
+	
+	for(var i=0; i<DATA.rankThresholds.length && !rankFound; i++)
+	{
+		xpCounter -= DATA.rankThresholds[thresholdStep];
+		if(xpCounter > 0)
+		{
+			thresholdStep++;
+			DATA.rank++;
+		}
+		else
+		{
+			DATA.rankProgress = xpCounter;
+		}
+		
+	}
 	
 	// Daily Chest
 	DATA.questChestNumber = 7;
@@ -295,6 +317,29 @@ DATA.initUserData = function()
 		DATA.dailyChallenges.push(newChallenge);
 	}
 	
+	// time last received Daily Challenge
+	// spawn new Challenge if necessary
+  	DATA.timeLastChallengeReceived = d.timeOfLastChallenge;
+  	curTime = (new Date()).getTime();
+  	elapsedTime = curTime - DATA.timeLastChallengeReceived;
+  	if(elapsedTime >= 1000*60*60*24 && DATA.dailyChallenges.length < 3)
+  	{
+  		var newChallenge = {"coins":5,"number":5,"progress":0,"type":"level","xp":50};
+  		DATA.dailyChallenges.push(newChallenge);
+  		DATA.timeLastChallengeReceived = curTime;
+  		
+  		DATA.database.ref("users/"+DATA.userID+"/dailyChallenges").set(DATA.dailyChallenges);
+  		DATA.database.ref("users/"+DATA.userID+"/timeOfLastChallenge").set(DATA.timeLastChallengeReceived);
+  	}
+  	else
+  	{
+  		var hours = Math.floor(elapsedTime / (1000*60*60));
+  		var minutes = Math.floor( (elapsedTime-(hours*1000*60*60)) / (1000*60) );
+  		var seconds = Math.floor( (elapsedTime-(hours*1000*60*60)-(minutes*1000*60)) / (1000) );
+  		DATA.timeUntilNextChallenge = {"hours":hours,"minutes":minutes,"seconds":seconds};
+  	}
+  	
+  	
 	// Booster Inventories
 	DATA.preBoosterInventoryA = d.preBoosterInventories["0"];
 	DATA.boosterInventoryA = d.boosterInventories["0"];
@@ -341,6 +386,26 @@ DATA.initUserData = function()
   cc.director.runScene(new GameplayScene(bubbles, maxRow+1));*/
   
 }
+
+DATA.refreshTimeUntilNextChallenge = function()
+  	{
+  		var elapsedTime = (new Date()).getTime() - DATA.timeLastChallengeReceived;
+  		var elapsedTime = Math.max((1000*60*60*24) - elapsedTime, 0);
+  		var hours = Math.floor(elapsedTime / (1000*60*60));
+  		var minutes = Math.floor( (elapsedTime-(hours*1000*60*60)) / (1000*60) );
+  		var seconds = Math.floor( (elapsedTime-(hours*1000*60*60)-(minutes*1000*60)) / (1000) );
+  		DATA.timeUntilNextChallenge = {"hours":hours,"minutes":minutes,"seconds":seconds};
+  	};
+	
+DATA.spawnNewDailyChallenge = function()
+{
+	var newChallenge = {"coins":5,"number":5,"progress":0,"type":"level","xp":50};
+	DATA.dailyChallenges.push(newChallenge);
+	DATA.timeLastChallengeReceived = (new Date()).getTime();
+	
+	DATA.database.ref("users/"+DATA.userID+"/dailyChallenges").set(DATA.dailyChallenges);
+	DATA.database.ref("users/"+DATA.userID+"/timeOfLastChallenge").set(DATA.timeLastChallengeReceived);
+};
   
   DATA.setLastTimeMoveSpawned = function()
   {
@@ -381,7 +446,7 @@ DATA.initUserData = function()
 	  	
 	  	for(var i=0; i<delPositions.length; i++)
 	  	{
-	  		var key = ""+delPositions[i].y+"_"+delPositions[i].x;console.log(key);
+	  		var key = ""+delPositions[i].y+"_"+delPositions[i].x;
 	  		delete capturedBubbles[key];
 	  	}
 	  	
@@ -785,6 +850,20 @@ DATA.refreshProgress = function()
 	DATA.dailyBProgress = DATA.dailyChallenges[1].progress;
 };
 
+DATA.deleteChallenge = function(num)
+{
+	if(num < DATA.dailyChallenges.length)
+	{
+		DATA.dailyChallenges.splice(num, 1);
+	}
+	var challengeObject = {};
+	for(var i=0; i<DATA.dailyChallenges.length; i++)
+	{
+		challengeObject[""+i] = DATA.dailyChallenges[i];
+	}
+	DATA.database.ref("users/"+DATA.userID+"/dailyChallenges").set(challengeObject);
+};
+
 DATA.registerEvent = function(obj)
 {	
 	if(obj.type == "init")
@@ -833,18 +912,25 @@ DATA.checkRankUp = function()
 	else if(DATA.streakStep == 3)
 		xp = 50;
 	DATA.rankProgress += xp;
+	DATA.xp += xp;
 	
-	DATA.database.ref("users/"+DATA.userID+"/xp").set(xp);
+	DATA.database.ref("users/"+DATA.userID+"/xp").set(DATA.xp);
 	
-	if(DATA.rankProgress > DATA.rankThreshold)
+	if(DATA.rankProgress > DATA.rankThresholds[DATA.rank-1])
 	{
 		DATA.rank++;
-		DATA.rankProgress = DATA.rankProgress - DATA.rankThreshold;
+		DATA.rankProgress = DATA.rankProgress - DATA.rankThresholds[DATA.rank-1];
 		
 		return true;
 	}
 	return false;
 };
+
+DATA.addXP = function(num)
+{
+	DATA.rankProgress += num;
+};
+
 
 
 /*
