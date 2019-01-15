@@ -75,7 +75,7 @@ var RewardLayer = cc.Layer.extend({
 			    		self.topUILayer.setCoins(DATA.coins);
 			    	}
 			    	else
-				    	{
+				    	{cc.log(DATA.worldIndex);cc.log(DATA.levels);
 				    	var bubbles = DATA.levels[DATA.worldIndex].bubbles;
 			    		//cc.log(bubbles);
 			    		

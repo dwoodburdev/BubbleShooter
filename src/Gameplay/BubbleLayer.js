@@ -1100,7 +1100,7 @@ var BubbleLayer = cc.Layer.extend({
 			
 			// Remove bubbles from database
 			if(this.modeType == "world")
-			{cc.log("DELETEE BUBBLESSS FROOOMM DATABAAASE");cc.log(databasePositionsToDestroy);
+			{
 				DATA.removeBubblesFromDatabase(databasePositionsToDestroy);
 			}
 			
@@ -1119,6 +1119,7 @@ var BubbleLayer = cc.Layer.extend({
 				this.unschedule(this.actionStep);
 				
 				this.checkLevelOver();
+				this.checkColorElimination();
 				this.initNextTurn();
 				
 				if(this.rowsAdded > 0 && this.rowsCulled == 0)
@@ -1285,7 +1286,7 @@ var BubbleLayer = cc.Layer.extend({
 	},
 	
 	checkLevelOver:function()
-	{cc.log("Check level over");cc.log(this.modeType);
+	{
 		if(this.modeType == "world")
 		{
 			if(this.bubbles.length == 0)
@@ -1369,6 +1370,61 @@ var BubbleLayer = cc.Layer.extend({
 		else if(this.modeType == "playtest")
 		{cc.log("Playtest check game over")
 			
+		}
+	},
+	
+	checkColorElimination:function()
+	{
+		if(this.modeType == "world")
+		{
+			var colors = ["red","yellow","green","blue","pink","purple"];
+			var colorsFound = [];
+			
+			// Get colors that were active last turn
+			var curColors = [];
+			for(var i=0; i<DATA.worldQueue.length; i++)
+			{
+				var queueSlot = DATA.worldQueue[i];
+				if(queueSlot > 0 && DATA.worldColorsEliminated.indexOf(colors[i]) == -1)
+					curColors.push(colors[i]);
+			}
+			
+			// Get the colors present this turn
+			for(var i=0; i<this.bubbles.length && colorsFound.length<curColors.length; i++)
+			{
+				var bub = this.bubbles[i];
+				if(bub.colorCode != null)
+				{
+					if(colorsFound.indexOf(bub.colorCode) == -1)
+					{
+						colorsFound.push(bub.colorCode);
+					}
+				}
+			}
+			
+			// eliminate colors no longer in puzzle
+			if(colorsFound.length != curColors.length)
+			{
+				// eliminate colors, replace queue bubbles
+				for(var i=0; i<curColors.length; i++)
+				{cc.log(DATA.worldColorsEliminated.length);cc.log(DATA.numColors-1);
+					if(colorsFound.indexOf(curColors[i]) == -1 && DATA.worldColorsEliminated.length < DATA.numColors-1)
+					{
+						DATA.worldColorsEliminated.push(curColors[i]);
+						DATA.worldQueue[colors.indexOf(curColors[i])] = 0;
+						DATA.worldActiveQueue[colors.indexOf(curColors[i])] = 0;
+						
+						if(colorsFound.indexOf(DATA.worldBallAColor) == -1)
+						{
+							DATA.setWorldShooterColor();
+						}
+						if(colorsFound.indexOf(DATA.worldBallBColor) == -1)
+						{
+							DATA.setWorldQueueColor();
+						}
+					}
+				}
+			}
 		}
 	},
 	
@@ -1990,7 +2046,16 @@ var BubbleLayer = cc.Layer.extend({
 						
 		for(var i=0; i<culledBubbleIndices.length; i++)
 		{
-			this.removeChild(this.bubbles[culledBubbleIndices[i]]);
+			//this.removeChild(this.bubbles[culledBubbleIndices[i]]);
+			var moveByAction = cc.moveBy(.5, cc.p(0,-100));
+			var fadeoutAction = cc.FadeOut.create(.5);
+			//var fadeoutAction = cc.rotateBy(1,180);
+			var spawn = cc.spawn(moveByAction,fadeoutAction);
+			this.bubbles[culledBubbleIndices[i]].setCascadeOpacityEnabled(true);
+			var seq = new cc.Sequence(spawn, cc.callFunc( this.bubbles[culledBubbleIndices[i]].removeFromParent, this.bubbles[culledBubbleIndices[i]] ) );
+			this.bubbles[culledBubbleIndices[i]].runAction(seq);
+			//this.bubbles[culledBubbleIndices[i]].runAction(fadeoutAction);
+			
 			var bub = this.bubbles[culledBubbleIndices[i]];
 			if(bub == null)
 			{

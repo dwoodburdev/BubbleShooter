@@ -276,6 +276,8 @@ var Bubble = cc.Sprite.extend({
         	this.onTurn = null;
         	
         	this.isAnchor = false;
+        	
+        	
         }
         
         
@@ -447,7 +449,17 @@ var Bubble = cc.Sprite.extend({
 			}
 			else if(this.type == 20)
 			{
+				var self = this;
 				this.bubbleImg = new cc.Sprite(res.star_emoji);
+				
+				var spinAction = cc.rotateBy(1.5,360);
+	        	var repeatAction = new cc.CallFunc(function()
+	        	{
+	        		var rotAction = new cc.RepeatForever(new cc.RotateBy(1.5,360));
+	        		self.runAction(rotAction);
+	        	});
+	        	var seq = new cc.Sequence(spinAction, repeatAction);
+	        	this.runAction(seq);
 			}
 		}
 		else cc.log("WTF");
@@ -461,7 +473,7 @@ var Bubble = cc.Sprite.extend({
 		});
 		this.bubbleImg.setScale((this.r*2)/this.bubbleImg.width);
 		this.addChild(this.bubbleImg);
-		
+		//this.sprite=this.bubbleImg;
 		//this.draw();
 	},
 	

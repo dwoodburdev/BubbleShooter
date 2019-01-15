@@ -58,6 +58,7 @@ DATA.timeLastChestOpened = 0;
 DATA.timeLastMoveSpawned = 0;
 
 DATA.timeUntilNextChallenge = {"hours":-1,"minutes":-1,"seconds":-1};
+DATA.timeUntilNextDailyChest = {"hours":-1,"minutes":-1,"seconds":-1};
 
 DATA.dailyChallenges = [];
 
@@ -68,6 +69,11 @@ DATA.questChestNumber = 0;
 DATA.questChestProgress = 0;
 
 DATA.colorCodes = ["red","yellow","green","blue","pink","purple"];
+
+DATA.worldColorsEliminated = [];
+DATA.challengeColorsEliminated = [];
+
+DATA.numColors = 0;
 
 DATA.levelsComplete = {"normal":[], "one-pager":{"tier":0,"completed":[]}};
 
@@ -161,8 +167,8 @@ DATA.initUserData = function()
   	var d = snapshot.val();
   	// Created levels
   	
-  	if(d["0"] != 0)
-  	{
+  	//if(d["0"] != 0)
+  	//{
 		var createdKeys = Object.keys(d);
 		for(var i=0; i<createdKeys.length; i++)
 		{
@@ -185,7 +191,7 @@ DATA.initUserData = function()
 				dLevel.queue.colors["3"], dLevel.queue.colors["4"], dLevel.queue.colors["5"]];
 			
 			DATA.createdLevels.push({"bubbles":bubbles, "queue":queue});
-		}
+		//}
 	}
   });
   
@@ -240,6 +246,23 @@ DATA.initUserData = function()
   	
   	// time last opened daily chest
   	DATA.timeLastChestOpened = d.timeOfLastDailyChest;
+  	DATA.dailyChestAvailable = d.dailyChestAvailable
+  	curTime = (new Date()).getTime();
+  	elapsedTime = curTime - DATA.timeLastChestOpened;
+  	if(elapsedTime >= 1000*60*60*24 && !DATA.dailyChestAvailable)
+  	{
+  		DATA.dailyChestAvailable = true;
+  		
+  		DATA.database.ref("users/"+DATA.userID+"/dailyChestAvailable").set(DATA.dailyChestAvailable);
+  		DATA.database.ref("users/"+DATA.userID+"/timeOfLastDailyChest").set((new Date()).getTime());
+  	}
+  	else
+  	{
+  		var hours = Math.floor(elapsedTime / (1000*60*60));
+  		var minutes = Math.floor( (elapsedTime-(hours*1000*60*60)) / (1000*60) );
+  		var seconds = Math.floor( (elapsedTime-(hours*1000*60*60)-(minutes*1000*60)) / (1000) );
+  		DATA.timeUntilNextDailyChest = {"hours":hours,"minutes":minutes,"seconds":seconds};
+  	}
   	
   	
   	// Queue: active
@@ -248,7 +271,7 @@ DATA.initUserData = function()
 	{
 		DATA.worldActiveQueue.push(d.queue[activeQueueKeys[i]]);
 	}
-	
+	cc.log(DATA.worldActiveQueue);
 	// World index
 	DATA.worldIndex = d.worldIndex
 	
@@ -257,7 +280,10 @@ DATA.initUserData = function()
 	for(var i=0; i<queueKeys.length; i++)
 	{
 		DATA.worldQueue.push(d.world.queue.colors[queueKeys[i]]);
+		if(d.world.queue.colors[queueKeys[i]] > 0)
+			DATA.numColors++;
 	}
+	cc.log(DATA.worldQueue);
 	
 	// Queue: current bubble colors
 	DATA.worldBallAColor = d.ballColorA;
@@ -396,6 +422,22 @@ DATA.refreshTimeUntilNextChallenge = function()
   		var seconds = Math.floor( (elapsedTime-(hours*1000*60*60)-(minutes*1000*60)) / (1000) );
   		DATA.timeUntilNextChallenge = {"hours":hours,"minutes":minutes,"seconds":seconds};
   	};
+  	
+DATA.refreshTimeUntilNextDailyChest = function()
+{
+	var elapsedTime = (new Date()).getTime() - DATA.timeLastChestOpened;
+	var elapsedTime = Math.max((1000*60*60*24) - elapsedTime, 0);
+	var hours = Math.floor(elapsedTime / (100*60*60));
+	var minutes = Maht.floor( (elapsedTime-(hours*1000*60*60)) / (1000*60) );
+	var seconds = Math.floor( (elapsedTime-(hours*1000*60*60)-(minutes*1000*60)) / (1000) );
+	DATA.timeUntilNextDailyChest = {"hours":hours,"minutes":minutes,"seconds":seconds};
+};
+  	
+DATA.setLastTimeDailyChestOpened = function()
+{
+	DATA.timeLastChestOpened = (new Date()).getTime();
+	DATA.database.ref("users/"+DATA.userID+"/timeOfLastDailyChest").set(DATA.timeLastChestOpened);
+};
 	
 DATA.spawnNewDailyChallenge = function()
 {
@@ -957,963 +999,661 @@ FUNCTIONS.posWithinScaled = function(pos, img)
 };
 
 
-var demBubs = [ {
-  "col" : 0,
-  "colorCode" : "green",
-  "row" : 0,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "green",
-  "row" : 0,
-  "type" : 0
-}, {
-  "col" : 2,
-  "colorCode" : "red",
-  "row" : 0,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "red",
-  "row" : 0,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "yellow",
-  "row" : 0,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "yellow",
-  "row" : 0,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 0,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "red",
-  "row" : 0,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "blue",
-  "row" : 0,
-  "type" : 0
-}, {
-  "col" : 9,
-  "colorCode" : "blue",
-  "row" : 0,
-  "type" : 0
-}, {
-  "col" : 10,
-  "colorCode" : "yellow",
-  "row" : 0,
-  "type" : 0
-}, {
-  "col" : 11,
-  "colorCode" : "yellow",
-  "row" : 0,
-  "type" : 0
-}, {
-  "col" : 0,
-  "colorCode" : "yellow",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "yellow",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 2,
-  "colorCode" : "blue",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "blue",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "red",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "green",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "green",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 9,
-  "colorCode" : "red",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 10,
-  "colorCode" : "red",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 2,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "red",
-  "row" : 2,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "green",
-  "row" : 3,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "blue",
-  "row" : 3,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "blue",
-  "row" : 4,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "blue",
-  "row" : 5,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 4,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 5,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "yellow",
-  "row" : 6,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "yellow",
-  "row" : 7,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "green",
-  "row" : 6,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "green",
-  "row" : 7,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "red",
-  "row" : 8,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "red",
-  "row" : 9,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 8,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 9,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "green",
-  "row" : 10,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "blue",
-  "row" : 10,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "blue",
-  "row" : 11,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "green",
-  "row" : 11,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "blue",
-  "row" : 12,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "yellow",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 12,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "blue",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "blue",
-  "row" : 14,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "yellow",
-  "row" : 14,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "green",
-  "row" : 15,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 15,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "blue",
-  "row" : 16,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 16,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "blue",
-  "row" : 17,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "green",
-  "row" : 18,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 17,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "yellow",
-  "row" : 18,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "yellow",
-  "row" : 19,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "red",
-  "row" : 20,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "green",
-  "row" : 19,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "blue",
-  "row" : 20,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "red",
-  "row" : 21,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "green",
-  "row" : 22,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "green",
-  "row" : 23,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "blue",
-  "row" : 24,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 24,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 23,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 22,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "blue",
-  "row" : 21,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 25,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "green",
-  "row" : 26,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 27,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 28,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "blue",
-  "row" : 29,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "green",
-  "row" : 30,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "green",
-  "row" : 31,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 32,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 33,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 34,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 35,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "blue",
-  "row" : 36,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "blue",
-  "row" : 25,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "yellow",
-  "row" : 26,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "green",
-  "row" : 27,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "green",
-  "row" : 28,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "yellow",
-  "row" : 29,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "blue",
-  "row" : 30,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "blue",
-  "row" : 31,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "red",
-  "row" : 32,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "red",
-  "row" : 33,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "green",
-  "row" : 34,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "green",
-  "row" : 35,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "yellow",
-  "row" : 36,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "green",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "green",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 9,
-  "colorCode" : "yellow",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 10,
-  "colorCode" : "yellow",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "red",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 2,
-  "colorCode" : "red",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "blue",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 0,
-  "colorCode" : "blue",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 0,
-  "colorCode" : "green",
-  "row" : 12,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "green",
-  "row" : 12,
-  "type" : 0
-}, {
-  "col" : 2,
-  "colorCode" : "yellow",
-  "row" : 12,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "yellow",
-  "row" : 12,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "blue",
-  "row" : 12,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "yellow",
-  "row" : 12,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "red",
-  "row" : 12,
-  "type" : 0
-}, {
-  "col" : 9,
-  "colorCode" : "red",
-  "row" : 12,
-  "type" : 0
-}, {
-  "col" : 10,
-  "colorCode" : "green",
-  "row" : 12,
-  "type" : 0
-}, {
-  "col" : 11,
-  "colorCode" : "green",
-  "row" : 12,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "green",
-  "row" : 26,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "blue",
-  "row" : 26,
-  "type" : 0
-}, {
-  "col" : 9,
-  "colorCode" : "blue",
-  "row" : 26,
-  "type" : 0
-}, {
-  "col" : 10,
-  "colorCode" : "red",
-  "row" : 26,
-  "type" : 0
-}, {
-  "col" : 11,
-  "colorCode" : "red",
-  "row" : 26,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "yellow",
-  "row" : 27,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "yellow",
-  "row" : 27,
-  "type" : 0
-}, {
-  "col" : 9,
-  "colorCode" : "green",
-  "row" : 27,
-  "type" : 0
-}, {
-  "col" : 10,
-  "colorCode" : "green",
-  "row" : 27,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "red",
-  "row" : 27,
-  "type" : 0
-}, {
-  "col" : 2,
-  "colorCode" : "red",
-  "row" : 27,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "blue",
-  "row" : 27,
-  "type" : 0
-}, {
-  "col" : 0,
-  "colorCode" : "blue",
-  "row" : 27,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "red",
-  "row" : 26,
-  "type" : 0
-}, {
-  "col" : 2,
-  "colorCode" : "green",
-  "row" : 26,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "green",
-  "row" : 26,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "yellow",
-  "row" : 26,
-  "type" : 0
-}, {
-  "col" : 0,
-  "colorCode" : "red",
-  "row" : 26,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "yellow",
-  "row" : 37,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "red",
-  "row" : 38,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "blue",
-  "row" : 37,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "green",
-  "row" : 38,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 39,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "green",
-  "row" : 39,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "red",
-  "row" : 38,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "blue",
-  "row" : 38,
-  "type" : 0
-}, {
-  "col" : 2,
-  "colorCode" : "blue",
-  "row" : 38,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "green",
-  "row" : 38,
-  "type" : 0
-}, {
-  "col" : 0,
-  "colorCode" : "green",
-  "row" : 38,
-  "type" : 0
-}, {
-  "col" : 0,
-  "colorCode" : "red",
-  "row" : 39,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "red",
-  "row" : 39,
-  "type" : 0
-}, {
-  "col" : 2,
-  "colorCode" : "yellow",
-  "row" : 39,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "yellow",
-  "row" : 39,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "blue",
-  "row" : 39,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "blue",
-  "row" : 39,
-  "type" : 0
-}, {
-  "col" : 9,
-  "colorCode" : "green",
-  "row" : 39,
-  "type" : 0
-}, {
-  "col" : 10,
-  "colorCode" : "green",
-  "row" : 39,
-  "type" : 0
-}, {
-  "col" : 11,
-  "colorCode" : "red",
-  "row" : 38,
-  "type" : 0
-}, {
-  "col" : 10,
-  "colorCode" : "red",
-  "row" : 38,
-  "type" : 0
-}, {
-  "col" : 9,
-  "colorCode" : "yellow",
-  "row" : 38,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "yellow",
-  "row" : 38,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "green",
-  "row" : 38,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 40,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "green",
-  "row" : 40,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "blue",
-  "row" : 41,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "green",
-  "row" : 41,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "blue",
-  "row" : 42,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "green",
-  "row" : 42,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "red",
-  "row" : 43,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "red",
-  "row" : 44,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 44,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 43,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "yellow",
-  "row" : 45,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "yellow",
-  "row" : 46,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "blue",
-  "row" : 45,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "blue",
-  "row" : 46,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "green",
-  "row" : 47,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "green",
-  "row" : 48,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 47,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 48,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "blue",
-  "row" : 49,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "blue",
-  "row" : 50,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "green",
-  "row" : 49,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "green",
-  "row" : 50,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "red",
-  "row" : 51,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "red",
-  "row" : 52,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 52,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 51,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "yellow",
-  "row" : 28,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "blue",
-  "row" : 28,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "green",
-  "row" : 14,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "red",
-  "row" : 14,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "green",
-  "row" : 2,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "blue",
-  "row" : 2,
-  "type" : 0
-}, {
-  "col" : 5,
-  "row" : 49,
-  "type" : 20
-}, {
-  "col" : 5,
-  "row" : 45,
-  "type" : 20
-}, {
-  "col" : 5,
-  "row" : 35,
-  "type" : 20
-}, {
-  "col" : 5,
-  "row" : 31,
-  "type" : 20
-}, {
-  "col" : 5,
-  "row" : 25,
-  "type" : 20
-}, {
-  "col" : 5,
-  "row" : 19,
-  "type" : 20
-}, {
-  "col" : 5,
-  "row" : 13,
-  "type" : 20
-}, {
-  "col" : 5,
-  "row" : 7,
-  "type" : 20
-}, {
-  "col" : 5,
-  "row" : 1,
-  "type" : 20
-} ];
+var demBubs =  [ {
+    "col" : 0,
+    "colorCode" : "red",
+    "row" : 11,
+    "type" : 0
+  }, {
+    "col" : 1,
+    "colorCode" : "red",
+    "row" : 11,
+    "type" : 0
+  }, {
+    "col" : 0,
+    "row" : 9,
+    "type" : 5
+  }, {
+    "col" : 1,
+    "row" : 9,
+    "type" : 5
+  }, {
+    "col" : 2,
+    "row" : 9,
+    "type" : 5
+  }, {
+    "col" : 3,
+    "row" : 9,
+    "type" : 5
+  }, {
+    "col" : 4,
+    "row" : 9,
+    "type" : 5
+  }, {
+    "col" : 5,
+    "row" : 9,
+    "type" : 5
+  }, {
+    "col" : 6,
+    "row" : 9,
+    "type" : 5
+  }, {
+    "col" : 7,
+    "row" : 9,
+    "type" : 5
+  }, {
+    "col" : 8,
+    "row" : 9,
+    "type" : 5
+  }, {
+    "col" : 9,
+    "row" : 9,
+    "type" : 5
+  }, {
+    "col" : 10,
+    "row" : 9,
+    "type" : 5
+  }, {
+    "col" : 0,
+    "row" : 5,
+    "type" : 5
+  }, {
+    "col" : 1,
+    "row" : 5,
+    "type" : 5
+  }, {
+    "col" : 2,
+    "row" : 5,
+    "type" : 5
+  }, {
+    "col" : 3,
+    "row" : 5,
+    "type" : 5
+  }, {
+    "col" : 4,
+    "row" : 5,
+    "type" : 5
+  }, {
+    "col" : 5,
+    "row" : 5,
+    "type" : 5
+  }, {
+    "col" : 6,
+    "row" : 5,
+    "type" : 5
+  }, {
+    "col" : 7,
+    "row" : 5,
+    "type" : 5
+  }, {
+    "col" : 8,
+    "row" : 5,
+    "type" : 5
+  }, {
+    "col" : 9,
+    "row" : 5,
+    "type" : 5
+  }, {
+    "col" : 10,
+    "row" : 5,
+    "type" : 5
+  }, {
+    "col" : 0,
+    "row" : 0,
+    "type" : 5
+  }, {
+    "col" : 1,
+    "row" : 0,
+    "type" : 5
+  }, {
+    "col" : 2,
+    "row" : 0,
+    "type" : 5
+  }, {
+    "col" : 3,
+    "row" : 0,
+    "type" : 5
+  }, {
+    "col" : 4,
+    "row" : 0,
+    "type" : 5
+  }, {
+    "col" : 5,
+    "row" : 0,
+    "type" : 5
+  }, {
+    "col" : 6,
+    "row" : 0,
+    "type" : 5
+  }, {
+    "col" : 7,
+    "row" : 0,
+    "type" : 5
+  }, {
+    "col" : 8,
+    "row" : 0,
+    "type" : 5
+  }, {
+    "col" : 9,
+    "row" : 0,
+    "type" : 5
+  }, {
+    "col" : 10,
+    "row" : 0,
+    "type" : 5
+  }, {
+    "col" : 11,
+    "row" : 0,
+    "type" : 5
+  }, {
+    "col" : 2,
+    "colorCode" : "red",
+    "row" : 11,
+    "type" : 0
+  }, {
+    "col" : 3,
+    "colorCode" : "red",
+    "row" : 11,
+    "type" : 0
+  }, {
+    "col" : 4,
+    "colorCode" : "yellow",
+    "row" : 11,
+    "type" : 0
+  }, {
+    "col" : 5,
+    "colorCode" : "yellow",
+    "row" : 11,
+    "type" : 0
+  }, {
+    "col" : 6,
+    "colorCode" : "yellow",
+    "row" : 11,
+    "type" : 0
+  }, {
+    "col" : 7,
+    "colorCode" : "blue",
+    "row" : 11,
+    "type" : 0
+  }, {
+    "col" : 8,
+    "colorCode" : "blue",
+    "row" : 11,
+    "type" : 0
+  }, {
+    "col" : 9,
+    "colorCode" : "blue",
+    "row" : 11,
+    "type" : 0
+  }, {
+    "col" : 10,
+    "colorCode" : "blue",
+    "row" : 11,
+    "type" : 0
+  }, {
+    "col" : 1,
+    "colorCode" : "yellow",
+    "row" : 10,
+    "type" : 0
+  }, {
+    "col" : 2,
+    "colorCode" : "yellow",
+    "row" : 10,
+    "type" : 0
+  }, {
+    "col" : 0,
+    "colorCode" : "yellow",
+    "row" : 10,
+    "type" : 0
+  }, {
+    "col" : 3,
+    "colorCode" : "blue",
+    "row" : 10,
+    "type" : 0
+  }, {
+    "col" : 4,
+    "colorCode" : "blue",
+    "row" : 10,
+    "type" : 0
+  }, {
+    "col" : 5,
+    "colorCode" : "blue",
+    "row" : 10,
+    "type" : 0
+  }, {
+    "col" : 6,
+    "colorCode" : "red",
+    "row" : 10,
+    "type" : 0
+  }, {
+    "col" : 7,
+    "colorCode" : "red",
+    "row" : 10,
+    "type" : 0
+  }, {
+    "col" : 8,
+    "colorCode" : "red",
+    "row" : 10,
+    "type" : 0
+  }, {
+    "col" : 9,
+    "colorCode" : "yellow",
+    "row" : 10,
+    "type" : 0
+  }, {
+    "col" : 11,
+    "colorCode" : "yellow",
+    "row" : 10,
+    "type" : 0
+  }, {
+    "col" : 10,
+    "colorCode" : "yellow",
+    "row" : 10,
+    "type" : 0
+  }, {
+    "col" : 5,
+    "colorCode" : "yellow",
+    "row" : 8,
+    "type" : 0
+  }, {
+    "col" : 4,
+    "colorCode" : "yellow",
+    "row" : 8,
+    "type" : 0
+  }, {
+    "col" : 3,
+    "colorCode" : "yellow",
+    "row" : 8,
+    "type" : 0
+  }, {
+    "col" : 2,
+    "colorCode" : "blue",
+    "row" : 8,
+    "type" : 0
+  }, {
+    "col" : 1,
+    "colorCode" : "blue",
+    "row" : 8,
+    "type" : 0
+  }, {
+    "col" : 0,
+    "colorCode" : "blue",
+    "row" : 8,
+    "type" : 0
+  }, {
+    "col" : 8,
+    "colorCode" : "red",
+    "row" : 8,
+    "type" : 0
+  }, {
+    "col" : 7,
+    "colorCode" : "red",
+    "row" : 8,
+    "type" : 0
+  }, {
+    "col" : 6,
+    "row" : 8,
+    "type" : 20
+  }, {
+    "col" : 9,
+    "colorCode" : "blue",
+    "row" : 8,
+    "type" : 0
+  }, {
+    "col" : 10,
+    "colorCode" : "blue",
+    "row" : 8,
+    "type" : 0
+  }, {
+    "col" : 11,
+    "colorCode" : "blue",
+    "row" : 8,
+    "type" : 0
+  }, {
+    "col" : 10,
+    "colorCode" : "red",
+    "row" : 7,
+    "type" : 0
+  }, {
+    "col" : 9,
+    "colorCode" : "red",
+    "row" : 7,
+    "type" : 0
+  }, {
+    "col" : 8,
+    "colorCode" : "yellow",
+    "row" : 7,
+    "type" : 0
+  }, {
+    "col" : 7,
+    "colorCode" : "yellow",
+    "row" : 7,
+    "type" : 0
+  }, {
+    "col" : 6,
+    "colorCode" : "blue",
+    "row" : 7,
+    "type" : 0
+  }, {
+    "col" : 5,
+    "colorCode" : "blue",
+    "row" : 7,
+    "type" : 0
+  }, {
+    "col" : 4,
+    "colorCode" : "blue",
+    "row" : 7,
+    "type" : 0
+  }, {
+    "col" : 3,
+    "colorCode" : "red",
+    "row" : 7,
+    "type" : 0
+  }, {
+    "col" : 2,
+    "colorCode" : "red",
+    "row" : 7,
+    "type" : 0
+  }, {
+    "col" : 1,
+    "colorCode" : "yellow",
+    "row" : 7,
+    "type" : 0
+  }, {
+    "col" : 0,
+    "colorCode" : "yellow",
+    "row" : 7,
+    "type" : 0
+  }, {
+    "col" : 1,
+    "colorCode" : "red",
+    "row" : 6,
+    "type" : 0
+  }, {
+    "col" : 0,
+    "colorCode" : "red",
+    "row" : 6,
+    "type" : 0
+  }, {
+    "col" : 2,
+    "colorCode" : "blue",
+    "row" : 6,
+    "type" : 0
+  }, {
+    "col" : 3,
+    "colorCode" : "blue",
+    "row" : 6,
+    "type" : 0
+  }, {
+    "col" : 4,
+    "colorCode" : "yellow",
+    "row" : 6,
+    "type" : 0
+  }, {
+    "col" : 5,
+    "colorCode" : "yellow",
+    "row" : 6,
+    "type" : 0
+  }, {
+    "col" : 6,
+    "colorCode" : "red",
+    "row" : 6,
+    "type" : 0
+  }, {
+    "col" : 7,
+    "colorCode" : "red",
+    "row" : 6,
+    "type" : 0
+  }, {
+    "col" : 8,
+    "colorCode" : "blue",
+    "row" : 6,
+    "type" : 0
+  }, {
+    "col" : 9,
+    "colorCode" : "blue",
+    "row" : 6,
+    "type" : 0
+  }, {
+    "col" : 10,
+    "colorCode" : "yellow",
+    "row" : 6,
+    "type" : 0
+  }, {
+    "col" : 11,
+    "colorCode" : "yellow",
+    "row" : 6,
+    "type" : 0
+  }, {
+    "col" : 1,
+    "colorCode" : "yellow",
+    "row" : 4,
+    "type" : 0
+  }, {
+    "col" : 0,
+    "colorCode" : "yellow",
+    "row" : 4,
+    "type" : 0
+  }, {
+    "col" : 3,
+    "colorCode" : "red",
+    "row" : 4,
+    "type" : 0
+  }, {
+    "col" : 2,
+    "colorCode" : "red",
+    "row" : 4,
+    "type" : 0
+  }, {
+    "col" : 4,
+    "colorCode" : "blue",
+    "row" : 4,
+    "type" : 0
+  }, {
+    "col" : 5,
+    "colorCode" : "blue",
+    "row" : 4,
+    "type" : 0
+  }, {
+    "col" : 6,
+    "colorCode" : "yellow",
+    "row" : 4,
+    "type" : 0
+  }, {
+    "col" : 7,
+    "colorCode" : "yellow",
+    "row" : 4,
+    "type" : 0
+  }, {
+    "col" : 10,
+    "colorCode" : "blue",
+    "row" : 4,
+    "type" : 0
+  }, {
+    "col" : 11,
+    "colorCode" : "blue",
+    "row" : 4,
+    "type" : 0
+  }, {
+    "col" : 9,
+    "colorCode" : "red",
+    "row" : 4,
+    "type" : 0
+  }, {
+    "col" : 8,
+    "colorCode" : "red",
+    "row" : 4,
+    "type" : 0
+  }, {
+    "col" : 10,
+    "colorCode" : "yellow",
+    "row" : 3,
+    "type" : 0
+  }, {
+    "col" : 9,
+    "colorCode" : "yellow",
+    "row" : 3,
+    "type" : 0
+  }, {
+    "col" : 8,
+    "colorCode" : "blue",
+    "row" : 3,
+    "type" : 0
+  }, {
+    "col" : 7,
+    "colorCode" : "blue",
+    "row" : 3,
+    "type" : 0
+  }, {
+    "col" : 6,
+    "colorCode" : "red",
+    "row" : 3,
+    "type" : 0
+  }, {
+    "col" : 5,
+    "colorCode" : "red",
+    "row" : 3,
+    "type" : 0
+  }, {
+    "col" : 4,
+    "colorCode" : "red",
+    "row" : 3,
+    "type" : 0
+  }, {
+    "col" : 3,
+    "colorCode" : "yellow",
+    "row" : 3,
+    "type" : 0
+  }, {
+    "col" : 2,
+    "colorCode" : "yellow",
+    "row" : 3,
+    "type" : 0
+  }, {
+    "col" : 1,
+    "colorCode" : "blue",
+    "row" : 3,
+    "type" : 0
+  }, {
+    "col" : 0,
+    "colorCode" : "blue",
+    "row" : 3,
+    "type" : 0
+  }, {
+    "col" : 2,
+    "colorCode" : "red",
+    "row" : 2,
+    "type" : 0
+  }, {
+    "col" : 3,
+    "colorCode" : "blue",
+    "row" : 2,
+    "type" : 0
+  }, {
+    "col" : 1,
+    "colorCode" : "red",
+    "row" : 2,
+    "type" : 0
+  }, {
+    "col" : 0,
+    "colorCode" : "red",
+    "row" : 2,
+    "type" : 0
+  }, {
+    "col" : 4,
+    "colorCode" : "blue",
+    "row" : 2,
+    "type" : 0
+  }, {
+    "col" : 5,
+    "colorCode" : "blue",
+    "row" : 2,
+    "type" : 0
+  }, {
+    "col" : 6,
+    "colorCode" : "yellow",
+    "row" : 2,
+    "type" : 0
+  }, {
+    "col" : 7,
+    "colorCode" : "yellow",
+    "row" : 2,
+    "type" : 0
+  }, {
+    "col" : 8,
+    "colorCode" : "yellow",
+    "row" : 2,
+    "type" : 0
+  }, {
+    "col" : 9,
+    "row" : 2,
+    "type" : 20
+  }, {
+    "col" : 10,
+    "colorCode" : "red",
+    "row" : 2,
+    "type" : 0
+  }, {
+    "col" : 11,
+    "colorCode" : "red",
+    "row" : 2,
+    "type" : 0
+  }, {
+    "col" : 6,
+    "colorCode" : "red",
+    "row" : 1,
+    "type" : 0
+  }, {
+    "col" : 5,
+    "colorCode" : "red",
+    "row" : 1,
+    "type" : 0
+  }, {
+    "col" : 4,
+    "colorCode" : "red",
+    "row" : 1,
+    "type" : 0
+  }, {
+    "col" : 8,
+    "colorCode" : "blue",
+    "row" : 1,
+    "type" : 0
+  }, {
+    "col" : 7,
+    "colorCode" : "blue",
+    "row" : 1,
+    "type" : 0
+  }, {
+    "col" : 10,
+    "colorCode" : "yellow",
+    "row" : 1,
+    "type" : 0
+  }, {
+    "col" : 9,
+    "colorCode" : "yellow",
+    "row" : 1,
+    "type" : 0
+  }, {
+    "col" : 3,
+    "colorCode" : "yellow",
+    "row" : 1,
+    "type" : 0
+  }, {
+    "col" : 2,
+    "colorCode" : "yellow",
+    "row" : 1,
+    "type" : 0
+  }, {
+    "col" : 1,
+    "colorCode" : "blue",
+    "row" : 1,
+    "type" : 0
+  }, {
+    "col" : 0,
+    "colorCode" : "blue",
+    "row" : 1,
+    "type" : 0
+  } ];
 
 var demBubsObj = {};
 for(var i=0; i<demBubs.length; i++)

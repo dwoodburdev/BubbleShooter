@@ -34,7 +34,8 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 			x: chestBorder,
 			y: this.tabTitleLabel.y-this.tabTitleLabel.height - 5 - chestHeight,
 			width: chestWidth,
-			height: chestHeight
+			height: chestHeight,
+			color: cc.color(255,0,0,255)
 		};
 		this.chestBSquare = {
 			x: chestBorder*2 + chestWidth,
@@ -68,16 +69,46 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 		});
 		chestALabel.color = cc.color(0,0,0,255);
 		this.addChild(chestALabel);
-		
-		this.chestAButton = new cc.Sprite(res.get_button);
-		this.chestAButton.setScale( (chestALabel.y-(chestALabel.height*chestALabel.scale)-10-this.chestASquare.y) / this.chestAButton.height);
-		this.chestAButton.attr({
-			x:chestAImage.x,
-			y:this.chestASquare.y+5,
-			anchorX:.5,
-			anchorY:0
-		});
-		this.addChild(this.chestAButton);
+		cc.log(((new Date()).getTime() - DATA.timeLastChestOpened) - (24*60*60*1000));
+		if((new Date()).getTime() - DATA.timeLastChestOpened >= (24*60*60*1000))
+		{	
+			this.chestAButton = new cc.Sprite(res.get_button);
+			this.chestAButton.setScale( (chestALabel.y-(chestALabel.height*chestALabel.scale)-10-this.chestASquare.y) / this.chestAButton.height);
+			this.chestAButton.attr({
+				x:chestAImage.x,
+				y:this.chestASquare.y+5,
+				anchorX:.5,
+				anchorY:0
+			});
+			this.addChild(this.chestAButton);
+			this.chestASquare.color = cc.color(255,255,0,255);
+		}
+		else
+		{
+			var timeTilChestSpawn = DATA.timeLastChestOpened+(1000*60*60*24);
+			var timeElapsed = timeTilChestSpawn - (new Date()).getTime();
+			var hours = Math.floor(timeElapsed / (1000*60*60));
+			var minutes = Math.floor((timeElapsed - hours*60*60*1000)/(1000*60));
+			var minutesStr = ""+minutes;
+			if(minutes <= 9)
+				minutesStr = "0"+minutes;
+   			var seconds = Math.floor((timeElapsed - (hours*60*60*1000) - (minutes*60*1000))/(1000));
+   			var secondsStr = ""+seconds;
+	   		if(seconds <= 9)
+	   			secondsStr = "0"+seconds
+	   		
+			this.chestATimer = new cc.LabelTTF(""+hours+":"+minutesStr+":"+secondsStr, "Roboto", 35);
+			this.chestATimer.attr({
+				"x":chestAImage.x,
+				"y":this.chestASquare.y+5,
+				"anchorX":.5,
+				"anchorY":0
+			});
+			this.chestATimer.color = cc.color(255,255,255,255);
+			this.addChild(this.chestATimer);
+			
+			this.schedule(this.updateChestTimers, 1);
+		}
 		
 		var chestBImage = new cc.Sprite(res.regular_silver_chest);
 		chestBImage.setScale(this.chestBSquare.width*.7 / chestBImage.width);
@@ -536,6 +567,52 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 
 	},
 	
+	updateChestTimers:function()
+	{
+		var timeRem = DATA.timeUntilNextDailyChest;
+		timeRem.seconds--;
+		if(timeRem.seconds < 0)
+		{
+			timeRem.minutes--;
+			timeRem.seconds = 59;
+		}
+		if(timeRem.minutes < 0)
+		{
+			timeRem.hours--;
+			timeRem.minutes = 59;
+		}
+		if(timeRem.hours < 0)
+		{
+			this.chestAButton = new cc.Sprite(res.get_button);
+			this.chestAButton.setScale( (chestALabel.y-(chestALabel.height*chestALabel.scale)-10-this.chestASquare.y) / this.chestAButton.height);
+			this.chestAButton.attr({
+				x:chestAImage.x,
+				y:this.chestASquare.y+5,
+				anchorX:.5,
+				anchorY:0
+			});
+			this.removeChild(this.chestATimer);
+			this.chestATimer = null;
+			this.addChild(this.chestAButton);
+			this.chestASquare.color = cc.color(255,255,0,255);
+			DATA.dailyChestAvailable = true;
+			DATA.database.ref("users/"+DATA.userID+"/dailyChestAvailable").set(DATA.dailyChestAvailable);
+		}
+		else
+		{
+			var minText = timeRem.minutes;
+			if(timeRem.minutes < 10)
+				minText = "0"+timeRem.minutes;
+			var secText = timeRem.seconds;
+			if(timeRem.seconds < 10)
+				secText = "0"+timeRem.seconds;
+				
+			if(this.chestATimer != null)
+			{
+				this.chestATimer.setString(""+timeRem.hours+":"+minText+":"+secText);
+			}
+		}
+	},
 	updateChallengeTimers:function()
 	{
 		var timeRem = DATA.timeUntilNextChallenge;
@@ -587,7 +664,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 	
 	draw:function()
 	{
-		this.dn.drawRect(cc.p(this.chestASquare.x, this.chestASquare.y),cc.p(this.chestASquare.x+this.chestASquare.width,this.chestASquare.y+this.chestASquare.height),cc.color(255,255,0,255),2,cc.color(0,0,0,255));
+		this.dn.drawRect(cc.p(this.chestASquare.x, this.chestASquare.y),cc.p(this.chestASquare.x+this.chestASquare.width,this.chestASquare.y+this.chestASquare.height),this.chestASquare.color,2,cc.color(0,0,0,255));
 		this.dn.drawRect(cc.p(this.chestBSquare.x, this.chestBSquare.y),cc.p(this.chestBSquare.x+this.chestBSquare.width,this.chestBSquare.y+this.chestBSquare.height),cc.color(255,0,0,255),2,cc.color(0,0,0,255));
 		this.dn.drawRect(cc.p(this.chestCSquare.x, this.chestCSquare.y),cc.p(this.chestCSquare.x+this.chestCSquare.width,this.chestCSquare.y+this.chestCSquare.height),cc.color(255,0,0,255),2,cc.color(0,0,0,255));
 		
@@ -601,17 +678,22 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 	onTouchEnd:function(pos)
 	{cc.log(pos);
 		if(!this.isPopup())
-		{cc.log("no popup");
+		{
 			if(FUNCTIONS.posWithin(pos, this.chestASquare))
-			{cc.log("chest clicked");
-				this.dailyChallengePopup = new WorldRewardsLayer(cc.winSize.width-50,this.height-50);
-				this.dailyChallengePopup.attr({
-					x:25,
-					y:25,
-					anchorX:0,
-					anchorY:0
-				});
-				this.addChild(this.dailyChallengePopup);
+			{
+				if((new Date()).getTime() - DATA.lastTimeChestOpened >= (24*60*60*1000))
+				{
+					this.dailyChallengePopup = new WorldRewardsLayer(cc.winSize.width-50,this.height-50);
+					this.dailyChallengePopup.attr({
+						x:25,
+						y:25,
+						anchorX:0,
+						anchorY:0
+					});
+					this.addChild(this.dailyChallengePopup);
+					
+					DATA.setLastTimeDailyChestOpened();
+				}
 			}
 			else if(FUNCTIONS.posWithin(pos, this.challengeARect) && this.collectRewardAButton != null)
 			{
