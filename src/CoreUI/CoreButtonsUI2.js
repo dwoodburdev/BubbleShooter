@@ -239,8 +239,13 @@ var CoreButtonsUI = cc.Layer.extend({
 			if(DATA.levelIndexA!=null)
 			{
 				this.preLayer = new PreChallengeLayer(DATA.levelIndexA,size.width-50,this.height-50);
-				this.preLayer.attr({x:25,y:25,anchorX:0,anchorY:0});
+				this.preLayer.attr({x:cc.winSize.width*.5,y:25,anchorX:0,anchorY:0});
 				this.addChild(this.preLayer);
+				this.preLayer.setScale(0);
+				var scaleAction = cc.scaleTo(.5, 1, 1);
+				var moveToAction = cc.moveTo(.5, cc.p(25, 25));
+				var spawn = cc.spawn(scaleAction, moveToAction);
+				this.preLayer.runAction(spawn);
 			}
 			else
 			{cc.log("NOLEVELLAYER");

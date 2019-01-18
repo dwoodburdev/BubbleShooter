@@ -25,6 +25,7 @@
     	"src/CoreUI/FriendsLayer.js",
     	"src/CoreUI/LeagueDisplayLayer.js",
     	"src/CoreUI/LeagueLayer.js",
+    	"src/CoreUI/MainContainerLayer.js",
     	"src/CoreUI/MeDisplayLayer.js",
     	"src/CoreUI/MeLayer.js",
     	"src/CoreUI/ProgressBar.js",

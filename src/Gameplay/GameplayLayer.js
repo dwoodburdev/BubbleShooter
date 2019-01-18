@@ -7,7 +7,7 @@ var GameplayLayer = cc.Layer.extend({
 		var size = cc.winSize;
 		 
 		
-		this.bottomUILayer = new BottomUILayer(size.height/12);
+		/*this.bottomUILayer = new BottomUILayer(size.height/12);
 		this.bottomUILayer.attr({
 			x: 0,
 			y: 0,
@@ -26,12 +26,12 @@ var GameplayLayer = cc.Layer.extend({
 			anchorX:0,
 			anchorY:0
 		});
-		this.addChild(this.topUILayer, 1);
+		this.addChild(this.topUILayer, 1);*/
 
-		this.bubbleLayer = new BubbleLayer(bubbles, numRows, DATA.worldBallsLeft, "world", size.width, size.height-this.bottomUILayer.height-this.topUILayer.height, []);	
+		this.bubbleLayer = new BubbleLayer(bubbles, numRows, DATA.worldBallsLeft, "world", size.width, size.height-DATA.bottomUIHeight-DATA.topUIHeight/*-this.bottomUILayer.height-this.topUILayer.height*/, []);	
 		this.bubbleLayer.attr({
 			x:0,
-			y:this.bottomUILayer.height,
+			y:0,
 			anchorX:0,
 			anchorY:0
 		});
@@ -40,7 +40,7 @@ var GameplayLayer = cc.Layer.extend({
 		
 		var self = this;
 		
-		
+		/*
 		if (cc.sys.capabilities.hasOwnProperty('touches')) {
 			cc.eventManager.addListener({
 			    event: cc.EventListener.TOUCH_ONE_BY_ONE,
@@ -84,13 +84,33 @@ var GameplayLayer = cc.Layer.extend({
 			    	return true;
 			    }
 		    },this);
-		}
+		}*/
 		
 		
         return true;
+	},
+	onTouchBegan:function(pos)
+	{
+		if(this.bubbleLayer.pointWithin(pos))
+    	{
+    		this.bubbleLayer.onTouchBegin(pos);
+    	}
+	},
+	onTouchMoved:function(pos)
+	{
+		if(this.bubbleLayer.pointWithin(pos))
+    	{
+    		this.bubbleLayer.onTouchMove(pos);
+    	}
+	},
+	onTouchEnded:function(pos)
+	{
+		
+	   	this.bubbleLayer.onTouchEnd(pos);
+	   	
 	}
 });
-var GameplayScene = cc.Scene.extend({
+/*var GameplayScene = cc.Scene.extend({
 	ctor:function(bubbles, numRows){
 		this._super();
 		this.bubbles = bubbles;
@@ -101,4 +121,4 @@ var GameplayScene = cc.Scene.extend({
 		var layer = new GameplayLayer(this.bubbles, this.numRows);
 		this.addChild(layer);
 	}
-});
+});*/
