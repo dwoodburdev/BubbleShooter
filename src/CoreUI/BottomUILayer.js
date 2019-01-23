@@ -14,58 +14,60 @@ var BottomUILayer = cc.Layer.extend({
 		this.buttonWidth = size.width/5;
 		this.buttonHeight = this.height;
 		
+		this.appWidth = this.buttonHeight*.7;
+		
 		this.meButton = new cc.Sprite(res.me_button);
-		this.meButton.setScaleX(this.buttonWidth/this.meButton.width);
-		this.meButton.setScaleY(this.buttonHeight/this.meButton.height);
+		this.meButton.setScaleX(this.appWidth/this.meButton.width);
+		this.meButton.setScaleY(this.appWidth/this.meButton.height);
 		this.meButton.attr({
-			"x":0,
-			"y":0,
-			"anchorX":0,
-			"anchorY":0
+			"x":this.buttonWidth/2,
+			"y":this.height/2,
+			"anchorX":.5,
+			"anchorY":.5
 		});
 		this.addChild(this.meButton);
 		
 		this.challengeMenuButton = new cc.Sprite(res.challenge_button);
-		this.challengeMenuButton.setScaleX(this.buttonWidth/this.challengeMenuButton.width);
-		this.challengeMenuButton.setScaleY(this.buttonHeight/this.challengeMenuButton.height);
+		this.challengeMenuButton.setScaleX(this.appWidth/this.challengeMenuButton.width);
+		this.challengeMenuButton.setScaleY(this.appWidth/this.challengeMenuButton.height);
 		this.challengeMenuButton.attr({
-			"x":this.buttonWidth,
-			"y":0,
-			"anchorX":0,
-			"anchorY":0
+			"x":this.buttonWidth*3/2,
+			"y":this.height/2,
+			"anchorX":.5,
+			"anchorY":.5
 		});
 		this.addChild(this.challengeMenuButton);
 		
 		this.playButton = new cc.Sprite(res.play_button);
-		this.playButton.setScaleX(this.buttonWidth/this.playButton.width);
-		this.playButton.setScaleY(this.buttonHeight/this.playButton.height);
+		this.playButton.setScaleX(this.appWidth/this.playButton.width);
+		this.playButton.setScaleY(this.appWidth/this.playButton.height);
 		this.playButton.attr({
-			"x":this.buttonWidth*2,
-			"y":0,
-			"anchorX":0,
-			"anchorY":0
+			"x":this.buttonWidth*5/2,
+			"y":this.height/2,
+			"anchorX":.5,
+			"anchorY":.5
 		});
 		this.addChild(this.playButton);
 		
 		this.friendsButton = new cc.Sprite(res.friends_button);
-		this.friendsButton.setScaleX(this.buttonWidth/this.friendsButton.width);
-		this.friendsButton.setScaleY(this.buttonHeight/this.friendsButton.height);
+		this.friendsButton.setScaleX(this.appWidth/this.friendsButton.width);
+		this.friendsButton.setScaleY(this.appWidth/this.friendsButton.height);
 		this.friendsButton.attr({
-			"x":this.buttonWidth*3,
-			"y":0,
-			"anchorX":0,
-			"anchorY":0
+			"x":this.buttonWidth*7/2,
+			"y":this.height/2,
+			"anchorX":.5,
+			"anchorY":.5
 		});
 		this.addChild(this.friendsButton);
 		
 		this.leagueButton = new cc.Sprite(res.league_button);
-		this.leagueButton.setScaleX(this.buttonWidth/this.leagueButton.width);
-		this.leagueButton.setScaleY(this.buttonHeight/this.leagueButton.height);
+		this.leagueButton.setScaleX(this.appWidth/this.leagueButton.width);
+		this.leagueButton.setScaleY(this.appWidth/this.leagueButton.height);
 		this.leagueButton.attr({
-			"x":this.buttonWidth*4,
-			"y":0,
-			"anchorX":0,
-			"anchorY":0
+			"x":this.buttonWidth*9/2,
+			"y":this.height/2,
+			"anchorX":.5,
+			"anchorY":.5
 		});
 		this.addChild(this.leagueButton);
 		
@@ -77,154 +79,167 @@ var BottomUILayer = cc.Layer.extend({
 	
 	draw:function(){
 		
-		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),1,cc.color(0,0,0,255));
+		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(220,220,220,255),0,cc.color(0,0,0,255));
 		
 	},
 	
 	selectButton:function(code)
 	{
+		var shrinkAction = cc.scaleTo(.5, this.appWidth/this.meButton.width, this.appWidth/this.meButton.height);
+		var growAction = cc.scaleTo(.5, (this.buttonHeight*.95)/this.meButton.width, (this.buttonHeight*.95)/this.meButton.height);
+		
 		if(this.curTabName == "me")
 		{
-			this.removeChild(this.meButton);
+			this.meButton.runAction(shrinkAction);
+			/*this.removeChild(this.meButton);
 			this.meButton = new cc.Sprite(res.me_button);
-			this.meButton.setScaleX(this.buttonWidth/this.meButton.width);
-			this.meButton.setScaleY(this.buttonHeight/this.meButton.height);
+			this.meButton.setScaleX(this.appWidth/this.meButton.width);
+			this.meButton.setScaleY(this.appWidth/this.meButton.height);
 			this.meButton.attr({
-				"x":0,
-				"y":0,
-				"anchorX":0,
-				"anchorY":0
+				"x":this.buttonWidth/2,
+				"y":this.height/2,
+				"anchorX":.5,
+				"anchorY":.5
 			});
-			this.addChild(this.meButton);
+			this.addChild(this.meButton);*/
 		}
 		else if(this.curTabName == "challenge")
 		{
-			this.removeChild(this.challengeButton);
+			this.challengeMenuButton.runAction(shrinkAction);
+			/*this.removeChild(this.challengeButton);
 			this.challengeButton = new cc.Sprite(res.challenge_button);
-			this.challengeButton.setScaleX(this.buttonWidth/this.challengeButton.width);
-			this.challengeButton.setScaleY(this.buttonHeight/this.challengeButton.height);
+			this.challengeButton.setScaleX(this.appWidth/this.challengeButton.width);
+			this.challengeButton.setScaleY(this.appWidth/this.challengeButton.height);
 			this.challengeButton.attr({
-				"x":this.buttonWidth,
-				"y":0,
-				"anchorX":0,
-				"anchorY":0
+				"x":this.buttonWidth*3/2,
+				"y":this.height/2,
+				"anchorX":.5,
+				"anchorY":.5
 			});
-			this.addChild(this.challengeButton);
+			this.addChild(this.challengeButton);*/
 		}
 		else if(this.curTabName == "gameplay")
 		{
-			this.removeChild(this.gameplayButton);
+			this.playButton.runAction(shrinkAction);
+			/*this.removeChild(this.gameplayButton);
 			this.gameplayButton = new cc.Sprite(res.play_button);
-			this.gameplayButton.setScaleX(this.buttonWidth/this.gameplayButton.width);
-			this.gameplayButton.setScaleY(this.buttonHeight/this.gameplayButton.height);
+			this.gameplayButton.setScaleX(this.appWidth/this.gameplayButton.width);
+			this.gameplayButton.setScaleY(this.appWidth/this.gameplayButton.height);
 			this.gameplayButton.attr({
-				"x":this.buttonWidth*2,
-				"y":0,
-				"anchorX":0,
-				"anchorY":0
+				"x":this.buttonWidth*5/2,
+				"y":this.height/2,
+				"anchorX":.5,
+				"anchorY":.5
 			});
-			this.addChild(this.gameplayButton);
+			this.addChild(this.gameplayButton);*/
 		}
 		else if(this.curTabName == "friends")
 		{
-			this.removeChild(this.friendsButton);
+			this.friendsButton.runAction(shrinkAction);
+			/*this.removeChild(this.friendsButton);
 			this.friendsButton = new cc.Sprite(res.friends_button);
-			this.friendsButton.setScaleX(this.buttonWidth/this.friendsButton.width);
-			this.friendsButton.setScaleY(this.buttonHeight/this.friendsButton.height);
+			this.friendsButton.setScaleX(this.appWidth/this.friendsButton.width);
+			this.friendsButton.setScaleY(this.appWidth/this.friendsButton.height);
 			this.friendsButton.attr({
-				"x":this.buttonWidth*3,
-				"y":0,
-				"anchorX":0,
-				"anchorY":0
+				"x":this.buttonWidth*7/2,
+				"y":this.height/2,
+				"anchorX":.5,
+				"anchorY":.5
 			});
-			this.addChild(this.friendsButton);
+			this.addChild(this.friendsButton);*/
 		}
 		else if(this.curTabName == "league")
 		{
-			this.removeChild(this.leagueButton);
+			this.leagueButton.runAction(shrinkAction);
+			/*this.removeChild(this.leagueButton);
 			this.leagueButton = new cc.Sprite(res.league_button);
-			this.leagueButton.setScaleX(this.buttonWidth/this.leagueButton.width);
-			this.leagueButton.setScaleY(this.buttonHeight/this.leagueButton.height);
+			this.leagueButton.setScaleX(this.appWidth/this.leagueButton.width);
+			this.leagueButton.setScaleY(this.appWidth/this.leagueButton.height);
 			this.leagueButton.attr({
-				"x":this.buttonWidth*4,
-				"y":0,
-				"anchorX":0,
-				"anchorY":0
+				"x":this.buttonWidth*9/2,
+				"y":this.height/2,
+				"anchorX":.5,
+				"anchorY":.5
 			});
-			this.addChild(this.leagueButton);
+			this.addChild(this.leagueButton);*/
 		}
 		
 		
 		
 		if(code == "me")
 		{
-			this.removeChild(this.meButton);
+			this.meButton.runAction(growAction);
+			/*this.removeChild(this.meButton);
 			this.meButton = new cc.Sprite(res.me_selected_button);
-			this.meButton.setScaleX(this.buttonWidth/this.meButton.width);
-			this.meButton.setScaleY(this.buttonHeight/this.meButton.height);
+			this.meButton.setScaleX(this.appWidth/this.meButton.width);
+			this.meButton.setScaleY(this.appWidth/this.meButton.height);
 			this.meButton.attr({
-				"x":0,
-				"y":0,
-				"anchorX":0,
-				"anchorY":0
+				"x":this.buttonWidth/2,
+				"y":this.height/2,
+				"anchorX":.5,
+				"anchorY":.5
 			});
-			this.addChild(this.meButton);
+			this.addChild(this.meButton);*/
 		}
 		else if(code == "challenge")
 		{
-			this.removeChild(this.challengeMenuButton);
+			this.challengeMenuButton.runAction(growAction);
+			/*this.removeChild(this.challengeMenuButton);
 			this.challengeMenuButton = new cc.Sprite(res.challenge_selected_button);
-			this.challengeMenuButton.setScaleX(this.buttonWidth/this.challengeMenuButton.width);
-			this.challengeMenuButton.setScaleY(this.buttonHeight/this.challengeMenuButton.height);
+			this.challengeMenuButton.setScaleX(this.appWidth/this.challengeMenuButton.width);
+			this.challengeMenuButton.setScaleY(this.appWidth/this.challengeMenuButton.height);
 			this.challengeMenuButton.attr({
-				"x":this.buttonWidth,
-				"y":0,
-				"anchorX":0,
-				"anchorY":0
+				"x":this.buttonWidth*3/2,
+				"y":this.height/2,
+				"anchorX":.5,
+				"anchorY":.5
 			});
-			this.addChild(this.challengeMenuButton);
+			this.addChild(this.challengeMenuButton);*/
 		}
 		else if(code == "gameplay")
 		{
-			this.removeChild(this.playButton);
+			this.playButton.runAction(growAction);
+			/*this.removeChild(this.playButton);
 			this.playButton = new cc.Sprite(res.play_selected_button);
-			this.playButton.setScaleX(this.buttonWidth/this.playButton.width);
-			this.playButton.setScaleY(this.buttonHeight/this.playButton.height);
+			this.playButton.setScaleX(this.appWidth/this.playButton.width);
+			this.playButton.setScaleY(this.appWidth/this.playButton.height);
 			this.playButton.attr({
-				"x":this.buttonWidth*2,
-				"y":0,
-				"anchorX":0,
-				"anchorY":0
+				"x":this.buttonWidth*5/2,
+				"y":this.height/2,
+				"anchorX":.5,
+				"anchorY":.5
 			});
-			this.addChild(this.playButton);
+			this.addChild(this.playButton);*/
 		}
 		else if(code == "friends")
 		{
-			this.removeChild(this.friendsButton);
+			this.friendsButton.runAction(growAction);
+			/*this.removeChild(this.friendsButton);
 			this.friendsButton = new cc.Sprite(res.friends_selected_button);
-			this.friendsButton.setScaleX(this.buttonWidth/this.friendsButton.width);
-			this.friendsButton.setScaleY(this.buttonHeight/this.friendsButton.height);
+			this.friendsButton.setScaleX(this.appWidth/this.friendsButton.width);
+			this.friendsButton.setScaleY(this.appWidth/this.friendsButton.height);
 			this.friendsButton.attr({
-				"x":this.buttonWidth*3,
-				"y":0,
-				"anchorX":0,
-				"anchorY":0
+				"x":this.buttonWidth*7/2,
+				"y":this.height/2,
+				"anchorX":.5,
+				"anchorY":.5
 			});
-			this.addChild(this.friendsButton);
+			this.addChild(this.friendsButton);*/
 		}
 		else if(code == "league")
 		{
-			this.removeChild(this.leagueButton);
+			this.leagueButton.runAction(growAction);
+			/*this.removeChild(this.leagueButton);
 			this.leagueButton = new cc.Sprite(res.league_selected_button);
-			this.leagueButton.setScaleX(this.buttonWidth/this.leagueButton.width);
-			this.leagueButton.setScaleY(this.buttonHeight/this.leagueButton.height);
+			this.leagueButton.setScaleX(this.appWidth/this.leagueButton.width);
+			this.leagueButton.setScaleY(this.appWidth/this.leagueButton.height);
 			this.leagueButton.attr({
-				"x":this.buttonWidth*4,
-				"y":0,
-				"anchorX":0,
-				"anchorY":0
+				"x":this.buttonWidth*9/2,
+				"y":this.height/2,
+				"anchorX":.5,
+				"anchorY":.5
 			});
-			this.addChild(this.leagueButton);
+			this.addChild(this.leagueButton);*/
 		}
 		
 		this.curTabName = code;
@@ -232,51 +247,25 @@ var BottomUILayer = cc.Layer.extend({
 	
 	onTouchEnd:function(pos)
 	{
-		if(pos.x > this.meButton.x && pos.x < this.meButton.x+this.buttonWidth)
+		if(pos.x > 0 && pos.x < this.buttonWidth)
 		{
-			//if(true==false)
-			//	cc.director.runScene(new MeScene());
 			return "me";
-			//cc.director.pushScene(new MeScene());
 		}
-		else if(pos.x > this.challengeMenuButton.x && pos.x < this.challengeMenuButton.x+this.buttonWidth)
+		else if(pos.x > this.buttonWidth && pos.x < this.buttonWidth*2)
 		{
-			//cc.director.runScene(new ChallengeMenuScene());
-			
-			
 			return "challenge";
-			
-			//cc.director.pushScene(new ChallengeMenuScene());
 		}
-		else if(pos.x > this.playButton.x && pos.x < this.playButton.x+this.buttonWidth)
+		else if(pos.x > this.buttonWidth*2 && pos.x < this.buttonWidth*3)
 		{
-			//var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
-    		/*var bubbles = DATA.worldBubbles;
-    		//cc.log(bubbles);
-    		var maxRow = 0;
-    		var bubbleData = [];
-    		for(var i=0; i<bubbles.length; i++)
-    		{
-    			if(bubbles[i].row > maxRow)
-    				maxRow = bubbles[i].row;
-    		}*/
-			//cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
-			//cc.director.runScene(new MainContainerScene(new GameplayLayer(bubbles, maxRow+1)));
 			return "gameplay";
 		}
-		else if(pos.x > this.friendsButton.x && pos.x < this.friendsButton.x+this.buttonWidth)
+		else if(pos.x > this.buttonWidth*3 && pos.x < this.buttonWidth*4)
 		{
 			return "friends";
-			//if(true==false)
-			//	cc.director.runScene(new FriendsScene());
-			//cc.director.pushScene(new FriendsScene());
 		}
-		else if(pos.x > this.leagueButton.x && pos.x < this.leagueButton.x+this.buttonWidth)
+		else if(pos.x > this.buttonWidth*4 && pos.x < this.buttonWidth*5)
 		{
 			return "league";
-			//if(true==false)
-			//	cc.director.runScene(new LeagueScene());
-			//cc.director.pushScene(new LeagueScene());
 		}
 		
 	}

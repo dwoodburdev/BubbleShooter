@@ -20,17 +20,6 @@ var MainContainerLayer = cc.Layer.extend({
 		this.addChild(this.bottomUILayer);
 		this.bottomUILayer.selectButton("gameplay");
 		
-		
-		/*this.coreButtonsLayer = new CoreButtonsUI(DATA.bubbleR, size.height-this.bottomUILayer.height, "challengeMenu");
-		this.coreButtonsLayer.attr({
-			x:0,
-			y:this.bottomUILayer.height,
-			anchorX:0,
-			anchorY:0
-		});
-		this.addChild(this.coreButtonsLayer, 9);
-		var maxYCoreUI = this.coreButtonsLayer.storeButton.y + this.coreButtonsLayer.storeButton.height;*/
-		
 		DATA.topUIHeight = size.height/15;
 		this.topUILayer = new TopUILayer(size.height/15);
 		this.topUILayer.attr({
@@ -46,7 +35,7 @@ var MainContainerLayer = cc.Layer.extend({
 		this.bubbles = bubbles;
 		this.maxRow = maxRow;
 		
-		this.gameplayLayer = new GameplayLayer(bubbles, maxRow);
+		this.gameplayLayer = new GameplayLayer(bubbles, maxRow, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight);
 		this.gameplayLayer.attr({
 			x:0,
 			y:DATA.bottomUIHeight,
@@ -93,6 +82,9 @@ var MainContainerLayer = cc.Layer.extend({
 		});
 		this.addChild(this.leagueLayer);
 		
+		this.settingsLayer = null;
+		this.worldMapLayer = null;
+		
 		var self = this;
 		
 		if (cc.sys.capabilities.hasOwnProperty('touches')) {
@@ -103,11 +95,13 @@ var MainContainerLayer = cc.Layer.extend({
 			   		var target = event.getCurrentTarget();
 			    	var locationInNode = self.curMainLayer.convertToNodeSpace(touch.getLocation());
 
-			    	if(FUNCTIONS.posWithin(locationInNode, self.curMainLayer))
-			    	{
-			    		self.curMainLayer.onTouchBegan(locationInNode);
-			    		
-			    		
+					if(!self.isPopup())
+					{
+				    	if(FUNCTIONS.posWithin(locationInNode, self.curMainLayer))
+				    	{
+				    		self.curMainLayer.onTouchBegan(touch.getLocation());
+				    		
+				    	}
 			    	}
 			    	
 			    	return true;
@@ -116,166 +110,216 @@ var MainContainerLayer = cc.Layer.extend({
 			    	var target = event.getCurrentTarget();
 			    	var locationInNode = self.curMainLayer.convertToNodeSpace(touch.getLocation());
 
-			    	if(FUNCTIONS.posWithin(locationInNode, self.curMainLayer))
-			    	{
-			    		self.curMainLayer.onTouchMoved(locationInNode);
+					if(!self.isPopup())
+					{
+				    	if(FUNCTIONS.posWithin(locationInNode, self.curMainLayer))
+				    	{
+				    		self.curMainLayer.onTouchMoved(touch.getLocation());
+				    	}
 			    	}
-			    	
 			    	return true;
 			    },
-			    onTouchEnded: function(touch, event){
+			    onTouchEnded: function(touch, event){cc.log("touchend main");
 				    var target = event.getCurrentTarget();
 				    var locationInNode = self.bottomUILayer.convertToNodeSpace(touch.getLocation());
 			    	
-			    	if(FUNCTIONS.posWithin(locationInNode, self.bottomUILayer))
-			    	{
-			    		var botReturn = null;
-			    		botReturn = self.bottomUILayer.onTouchEnd(locationInNode);
-			    		if(botReturn == "challenge")
-			    		{
-			    			var moveDistance = 0;
-			    			if(self.curTabName == "me")
-			    			{
-			    				moveDistance = cc.winSize.width*-1;
-			    			}
-			    			else if(self.curTabName == "gameplay")
-			    			{
-			    				moveDistance = cc.winSize.width*1;
-			    			}
-			    			else if(self.curTabName == "friends")
-			    			{
-			    				moveDistance = cc.winSize.width*2;
-			    			}
-			    			else if(self.curTabName == "league")
-			    			{
-			    				moveDistance = cc.winSize.width*3;
-			    			}
-			    			
-		    				self.slideTabs(moveDistance);
-		    				
-		    				self.curMainLayer = self.challengeLayer;
-		    				self.curTabName = "challenge";
-			    			self.bottomUILayer.selectButton(self.curTabName);
-			    		}
-			    		else if(botReturn == "gameplay")
-			    		{
-			    			var moveDistance = 0;
-			    			if(self.curTabName == "me")
-			    			{
-			    				moveDistance = cc.winSize.width*-2;
-			    			}
-			    			else if(self.curTabName == "challenge")
-			    			{
-			    				moveDistance = cc.winSize.width*-1;
-			    			}
-			    			else if(self.curTabName == "friends")
-			    			{
-			    				moveDistance = cc.winSize.width;
-			    			}
-			    			else if(self.curTabName == "league")
-			    			{
-			    				moveDistance = cc.winSize.width*2;
-			    			}
-			    			
-			    			self.slideTabs(moveDistance);
-			    			
-		    				//var seq = new cc.Sequence(moveLeftAction, cc.callFunc( self.challengeLayer.removeFromParent, self.challengeLayer ) );
-
-		    				self.curMainLayer = self.gameplayLayer;
-		    				self.curTabName = "gameplay";
-			    			self.bottomUILayer.selectButton(self.curTabName);
-			    		}
-			    		else if(botReturn == "me")
-			    		{
-			    			var moveDistance = 0;
-			    			if(self.curTabName == "challenge")
-			    			{
-			    				moveDistance = cc.winSize.width;
-			    			}
-			    			else if(self.curTabName == "gameplay")
-			    			{
-			    				moveDistance = cc.winSize.width*2;
-			    			}
-			    			else if(self.curTabName == "friends")
-			    			{
-			    				moveDistance = cc.winSize.width*3;
-			    			}
-			    			else if(self.curTabName == "league")
-			    			{
-			    				moveDistance = cc.winSize.width*4;
-			    			}
-			    			
-			    			self.slideTabs(moveDistance);
-			    			
-			    			self.curMainLayer = self.meLayer;
-			    			self.curTabName = "me";
-			    			self.bottomUILayer.selectButton(self.curTabName);
-			    		}
-			    		else if(botReturn == "friends")
-			    		{
-			    			var moveDistance = 0;
-			    			if(self.curTabName == "me")
-			    			{
-			    				moveDistance = cc.winSize.width*-3;
-			    			}
-			    			else if(self.curTabName == "challenge")
-			    			{
-			    				moveDistance = cc.winSize.width*-2;
-			    			}
-			    			else if(self.curTabName == "gameplay")
-			    			{
-			    				moveDistance = cc.winSize.width*-1;
-			    			}
-			    			else if(self.curTabName == "league")
-			    			{
-			    				moveDistance = cc.winSize.width;
-			    			}
-			    			
-			    			self.slideTabs(moveDistance);
-			    			
-			    			self.curMainLayer = self.friendsLayer;
-			    			self.curTabName = "friends";
-			    			self.bottomUILayer.selectButton(self.curTabName);
-			    		}
-			    		else if(botReturn == "league")
-			    		{
-			    			var moveDistance = 0;
-			    			if(self.curTabName == "me")
-			    			{
-			    				moveDistance = cc.winSize.width*-4;
-			    			}
-			    			else if(self.curTabName == "challenge")
-			    			{
-			    				moveDistance = cc.winSize.width*-3;
-			    			}
-			    			else if(self.curTabName == "gameplay")
-			    			{
-			    				moveDistance = cc.winSize.width*-2;
-			    			}
-			    			else if(self.curTabName == "friends")
-			    			{
-			    				moveDistance = cc.winSize.width*-1;
-			    			}
-			    			
-			    			self.slideTabs(moveDistance);
-			    			
-			    			self.curMainLayer = self.leagueLayer;
-			    			self.curTabName = "league";
-			    			self.bottomUILayer.selectButton(self.curTabName);
-			    		}
-			    	}
-			    	else if(FUNCTIONS.posWithin(self.curMainLayer.convertToNodeSpace(touch.getLocation()), self.curMainLayer))
-			    	{
-			    		self.curMainLayer.onTouchEnded(self.curMainLayer.convertToNodeSpace(touch.getLocation()));
-			    	}
-				   	
-				 
+			    	if(!self.isPopup())
+					{
+				    	if(FUNCTIONS.posWithin(locationInNode, self.bottomUILayer))
+				    	{cc.log("bottom");
+				    		var botReturn = null;
+				    		botReturn = self.bottomUILayer.onTouchEnd(locationInNode);
+				    		if(botReturn == "challenge")
+				    		{
+				    			var moveDistance = 0;
+				    			if(self.curTabName == "me")
+				    			{
+				    				moveDistance = cc.winSize.width*-1;
+				    			}
+				    			else if(self.curTabName == "gameplay")
+				    			{
+				    				moveDistance = cc.winSize.width*1;
+				    			}
+				    			else if(self.curTabName == "friends")
+				    			{
+				    				moveDistance = cc.winSize.width*2;
+				    			}
+				    			else if(self.curTabName == "league")
+				    			{
+				    				moveDistance = cc.winSize.width*3;
+				    			}
+				    			
+			    				self.slideTabs(moveDistance);
+			    				
+			    				self.curMainLayer = self.challengeLayer;
+			    				self.curTabName = "challenge";
+				    			self.bottomUILayer.selectButton(self.curTabName);
+				    		}
+				    		else if(botReturn == "gameplay")
+				    		{
+				    			var moveDistance = 0;
+				    			if(self.curTabName == "me")
+				    			{
+				    				moveDistance = cc.winSize.width*-2;
+				    			}
+				    			else if(self.curTabName == "challenge")
+				    			{
+				    				moveDistance = cc.winSize.width*-1;
+				    			}
+				    			else if(self.curTabName == "friends")
+				    			{
+				    				moveDistance = cc.winSize.width;
+				    			}
+				    			else if(self.curTabName == "league")
+				    			{
+				    				moveDistance = cc.winSize.width*2;
+				    			}
+				    			
+				    			self.slideTabs(moveDistance);
+				    			
+			    				//var seq = new cc.Sequence(moveLeftAction, cc.callFunc( self.challengeLayer.removeFromParent, self.challengeLayer ) );
+		
+			    				self.curMainLayer = self.gameplayLayer;
+			    				self.curTabName = "gameplay";
+				    			self.bottomUILayer.selectButton(self.curTabName);
+				    		}
+				    		else if(botReturn == "me")
+				    		{
+				    			var moveDistance = 0;
+				    			if(self.curTabName == "challenge")
+				    			{
+				    				moveDistance = cc.winSize.width;
+				    			}
+				    			else if(self.curTabName == "gameplay")
+				    			{
+				    				moveDistance = cc.winSize.width*2;
+				    			}
+				    			else if(self.curTabName == "friends")
+				    			{
+				    				moveDistance = cc.winSize.width*3;
+				    			}
+				    			else if(self.curTabName == "league")
+				    			{
+				    				moveDistance = cc.winSize.width*4;
+				    			}
+				    			
+				    			self.slideTabs(moveDistance);
+				    			
+				    			self.curMainLayer = self.meLayer;
+				    			self.curTabName = "me";
+				    			self.bottomUILayer.selectButton(self.curTabName);
+				    		}
+				    		else if(botReturn == "friends")
+				    		{
+				    			var moveDistance = 0;
+				    			if(self.curTabName == "me")
+				    			{
+				    				moveDistance = cc.winSize.width*-3;
+				    			}
+				    			else if(self.curTabName == "challenge")
+				    			{
+				    				moveDistance = cc.winSize.width*-2;
+				    			}
+				    			else if(self.curTabName == "gameplay")
+				    			{
+				    				moveDistance = cc.winSize.width*-1;
+				    			}
+				    			else if(self.curTabName == "league")
+				    			{
+				    				moveDistance = cc.winSize.width;
+				    			}
+				    			
+				    			self.slideTabs(moveDistance);
+				    			
+				    			self.curMainLayer = self.friendsLayer;
+				    			self.curTabName = "friends";
+				    			self.bottomUILayer.selectButton(self.curTabName);
+				    		}
+				    		else if(botReturn == "league")
+				    		{
+				    			var moveDistance = 0;
+				    			if(self.curTabName == "me")
+				    			{
+				    				moveDistance = cc.winSize.width*-4;
+				    			}
+				    			else if(self.curTabName == "challenge")
+				    			{
+				    				moveDistance = cc.winSize.width*-3;
+				    			}
+				    			else if(self.curTabName == "gameplay")
+				    			{
+				    				moveDistance = cc.winSize.width*-2;
+				    			}
+				    			else if(self.curTabName == "friends")
+				    			{
+				    				moveDistance = cc.winSize.width*-1;
+				    			}
+				    			
+				    			self.slideTabs(moveDistance);
+				    			
+				    			self.curMainLayer = self.leagueLayer;
+				    			self.curTabName = "league";
+				    			self.bottomUILayer.selectButton(self.curTabName);
+				    		}
+				    	}
+				    	else if(FUNCTIONS.posWithin(touch.getLocation(), self.topUILayer))
+				    	{cc.log("topUI");
+				    		//self.openWorldMapLayer();
+				    		self.topUILayer.onTouchEnd(touch.getLocation());
+				    	}
+				    	else if(FUNCTIONS.posWithin(/*self.curMainLayer.convertToNodeSpace(touch.getLocation())*/touch.getLocation(), self.curMainLayer))
+				    	{cc.log("curLayerrrrrr");
+				    		self.curMainLayer.onTouchEnded(touch.getLocation());
+				    	}
+					 	
+					 	cc.log(self.curMainLayer.x+" "+
+					 			self.curMainLayer.y+" "+
+					 			self.curMainLayer.width+" "+
+					 			self.curMainLayer.height);
+					}
+					else
+					{
+						if(self.worldMapLayer != null)
+						{
+							var returnObj = self.worldMapLayer.onTouchEnd(touch.getLocation());
+							if(returnObj == "close")
+							{
+								self.removeChild(self.worldMapLayer);
+								self.worldMapLayer = null;
+							}
+						}
+					}
+					
 			    	return true;
 			    }
 		    },this);
 		}
 		
         //return true;
+	},
+	
+	isPopup:function()
+	{
+		if(this.settingsLayer != null || this.worldMapLayer != null)
+			return true;
+		return false;
+	},
+	
+	openSettingsLayer:function()
+	{
+		
+	},
+	
+	openWorldMapLayer:function()
+	{
+		this.worldMapLayer = new WorldMapLayer(cc.winSize.width-50,cc.winSize.height-50);
+		this.worldMapLayer.attr({
+			x:25,
+			y:25,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.worldMapLayer, 9);
 	},
 	
 	slideTabs:function(moveDistance)

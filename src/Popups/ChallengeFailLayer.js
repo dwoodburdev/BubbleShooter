@@ -47,17 +47,14 @@ var ChallengeFailLayer = cc.Layer.extend({
 				    var target = event.getCurrentTarget();
 				    var locationInNode = self.convertToNodeSpace(touch.getLocation());
 			    	
-			    	//var bubbles = DATA.levels[DATA.worldIndex].bubbles;
-		    		var bubbles = DATA.worldBubbles;
-		    		//cc.log(bubbles);
-		    		var maxRow = 0;
-		    		var bubbleData = [];
-		    		for(var i=0; i<bubbles.length; i++)
-		    		{
-		    			if(bubbles[i].row > maxRow)
-		    				maxRow = bubbles[i].row;
-		    		}
-					cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
+			    	var maxRow = 0;
+					for(var i=0; i<DATA.worldBubbles.length; i++)
+					{
+						if(DATA.worldBubbles[i].row > maxRow)
+							maxRow = DATA.worldBubbles[i].row;
+					}
+				  
+				  cc.director.runScene(new MainContainerScene(DATA.worldBubbles, maxRow+1));
 				   	
 				 
 			    	return true;

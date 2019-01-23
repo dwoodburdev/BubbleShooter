@@ -56,7 +56,7 @@ var PreChallengeLayer = cc.Layer.extend({
 		var maxRow = 0;
     	var bubbleData = [];
     	for(var i=0; i<bubbles.length; i++)
-    	{cc.log(bubbles[i].row);
+    	{
    			if(bubbles[i].row > maxRow)
     			maxRow = bubbles[i].row;
     	}

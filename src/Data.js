@@ -397,7 +397,6 @@ DATA.initUserData = function()
 			maxRow = DATA.worldBubbles[i].row;
 	}
   
-  //cc.director.runScene(new GameplayScene(DATA.worldBubbles, maxRow+1));
   cc.director.runScene(new MainContainerScene(DATA.worldBubbles, maxRow+1));
   });
   

@@ -10,7 +10,7 @@ var BubbleLayer = cc.Layer.extend({
 	ctor:function(bubbles, numRows, numMoves, modeType, width, height, preboosters){
 		this._super();
 
-		this.bubbles = bubbles;cc.log(bubbles);
+		this.bubbles = bubbles;
 		
 		this.modeType = modeType;
 		
@@ -28,8 +28,11 @@ var BubbleLayer = cc.Layer.extend({
 		this.bgColor = cc.color(255,255,255,255);
 		if(this.modeType == "challenge")
 			this.bgColor = cc.color(220,220,220,255);
-		this.draw = function(){cc.log("!!! - "+this.bgColor);this.dn.drawRect(cc.p(0,0), cc.p(this.width,this.height), this.bgColor, 1, cc.color(0,0,0,255));};
+		this.draw = function(){this.dn.drawRect(cc.p(this.x,this.y), cc.p(this.width,this.height), this.bgColor, 0, cc.color(0,0,0,255));};
 		this.draw();
+		
+		this.aimDN = new cc.DrawNode();
+		this.addChild(this.aimDN);
 		
 		this.evenRowAdjacents = [{"x":-1,"y":0}, {"x":1,"y":0}, {"x":0,"y":1}, {"x":-1,"y":1}, {"x":0,"y":-1}, {"x":-1,"y":-1}];
 		this.oddRowAdjacents = [{"x":-1,"y":0}, {"x":1,"y":0}, {"x":0,"y":1}, {"x":1,"y":1}, {"x":0,"y":-1}, {"x":1,"y":-1}];
@@ -62,7 +65,7 @@ var BubbleLayer = cc.Layer.extend({
        	
        	//DATA.setQueueColors(this.possibleColors);
        	
-       	this.bubbleLayerUI = null;
+       	//this.bubbleLayerUI = null;
        	
        	this.rowsAdded = 0;
        	this.rowsCulled = 0;
@@ -70,16 +73,18 @@ var BubbleLayer = cc.Layer.extend({
        	
        	if(this.modeType == "world")
        	{
-       		this.bubbleLayerUI = new CoreButtonsUI(this.bubbleR, this.height, "world");
+       		/*this.bubbleLayerUI = new CoreButtonsUI(this.bubbleR, this.height, "world");
 			this.bubbleLayerUI.attr({
 				x:0,
 				y:0,
 				anchorX:0,
 				anchorY:0
 			});
-			this.addChild(this.bubbleLayerUI,3);
+			this.addChild(this.bubbleLayerUI,3);*/
 	       	
-       		this.bubbleStartHeight = this.bubbleLayerUI.storeButton.y+this.bubbleLayerUI.storeButton.height+this.bubbleR*2;
+       		//this.bubbleStartHeight = this.bubbleLayerUI.storeButton.y+this.bubbleLayerUI.storeButton.height+this.bubbleR*2;
+       		this.bubbleStartHeight = this.y+this.bubbleR*2;
+       		
        		if(DATA.worldBallAColor == null)
        			DATA.setWorldShooterColor();
        		if(DATA.worldBallBColor == null)
@@ -87,7 +92,7 @@ var BubbleLayer = cc.Layer.extend({
        			
        		if(DATA.levelIndexB != null)
 			{
-				this.bubbleLayerUI.setShooterLabel("Levels Full",cc.color(255,0,0,255),this.bubbleStartHeight);
+				//this.bubbleLayerUI.setShooterLabel("Levels Full",cc.color(255,0,0,255),this.bubbleStartHeight);
 			}
        	}
        	else if(this.modeType == "challenge" || this.modeType == "playtest")
@@ -139,7 +144,10 @@ var BubbleLayer = cc.Layer.extend({
 	       	});
 	       	this.shooter.active = true;
 	       	this.addChild(this.shooter);
-	    }
+	       	
+	       	this.aimIndicator = {x:0, y:this.shooter.y+this.bubbleR*2, width:cc.winSize.width, height:(this.height-(this.bubbleR*21)) - (this.shooter.y+this.bubbleR*2) };
+		    this.drawAimIndicator();
+		}
        	//this.outOfMovesWarningLabel = null;
        	
        	if(this.modeType == "world" && this.numMoves < 5)
@@ -228,6 +236,22 @@ var BubbleLayer = cc.Layer.extend({
 		DATA.registerEvent({"type":"init","progress":this.bubbles.length});
 	},
 	
+	drawAimIndicator:function()
+	{
+		this.aimDN.clear();
+		if(this.modeType == "challenge" || (this.modeType == "world" && DATA.levelIndexB == null && this.numMoves > 0))
+		{
+			if(this.aimLine == null)
+				this.aimDN.drawRect(cc.p(this.aimIndicator.x+5, this.aimIndicator.y), cc.p(this.aimIndicator.x+this.aimIndicator.width-5, this.aimIndicator.y+this.aimIndicator.height), cc.color(0,0,0,100),1,cc.color(0,0,0,255));
+			else
+				this.aimDN.drawRect(cc.p(this.aimIndicator.x+5, this.aimIndicator.y), cc.p(this.aimIndicator.x+this.aimIndicator.width-5, this.aimIndicator.y+this.aimIndicator.height), cc.color(0,0,0,50),5,cc.color(0,0,0,255));
+		}
+	},
+	clearAimIndicator:function()
+	{
+		this.aimDN.clear();
+	},
+	
 	initMoveTimer:function()
 	{
 		var timeTilMoveSpawn = DATA.timeLastMoveSpawned+(1000*60*5);
@@ -268,6 +292,10 @@ var BubbleLayer = cc.Layer.extend({
 				DATA.worldBallsLeft++;
 				DATA.setDatabaseMoves(DATA.worldBallsLeft);
 				this.ballsLeftLabel.setString(this.numMoves);
+				if(this.numMoves == 1)
+				{
+					this.parent.removeBuyMovesLabel();
+				}
 			}
 		}
 		var secString = "";
@@ -289,6 +317,14 @@ var BubbleLayer = cc.Layer.extend({
 			//this.schedule(this.updateMoveTimer, 1.0);
 		   		//cc.director.getScheduler().resumeTarget(this);
 		}
+	},
+	
+	addMoves:function(num)
+	{
+		this.numMoves += num;
+		this.ballsLeftLabel.setString(this.numMoves);
+		//this.removeChild(this.ballsLeftLabel);
+		//this.addChild(this.ballsLeftLabel);
 	},
 	
 	onEnter:function(){cc.log("enter");
@@ -514,15 +550,15 @@ var BubbleLayer = cc.Layer.extend({
 	
 	isPopupLayer:function()
 	{
-		if(this.bubbleLayerUI != null &&
+		/*if(this.bubbleLayerUI != null &&
 			this.bubbleLayerUI.preLayer == null &&
 			this.bubbleLayerUI.worldRewardsLayer == null &&
 			this.bubbleLayerUI.buyBallsLayer == null &&
 			this.bubbleLayerUI.openLevelReminderLayer == null &&
 			this.bubbleLayerUI.noLevelLayer == null)
-		{
+		{*/
 			return false;
-		}
+		//}
 		return true;
 	},
 
@@ -530,40 +566,15 @@ var BubbleLayer = cc.Layer.extend({
 		if(this.inputFrozen)
 			return;
 		
-		//if((this.bubbleLayerUI != null && this.bubbleLayerUI.preLayer == null && this.bubbleLayerUI.worldRewardsLayer == null && this.bubbleLayerUI.buyBallsLayer == null && this.bubbleLayerUI.openLevelReminderLayer == null ) || this.modeType == "challenge")
 		if(!this.isPopupLayer() || this.modeType == "challenge" || this.modeType == "playtest")
 		{
-			if(this.bubbleLayerUI != null && this.bubbleLayerUI.posWithin(loc, this.bubbleLayerUI.worldChestButton))
-			{
-				//
-			}
-			else if(loc.y > this.shooter.y+this.bubbleR)
+			if(loc.y > this.shooter.y+this.bubbleR)
 			{
 				if(this.numMoves <= 0 && this.outOfMovesWarningLabel == null)
 				{cc.log("OUT OF MOVES");
-					/*this.outOfMovesWarningLabel = new cc.LabelTTF("Out Of Moves", 50);
-					this.outOfMovesWarningLabel.attr({
-						"x":this.width/2,
-						"y":this.height*2/3,
-						"anchorX":.5,
-						"anchorY":.5
-					});
-					this.outOfMovesWarningLabel.color = cc.color(0,0,0,255);
-					this.addChild(this.outOfMovesWarningLabel);
 					
-					this.schedule(this.removeWarningLabel, 1);	// THIS ISNT WORKING
-					*/
 					return;
 				}
-				else if(this.bubbleLayerUI != null && DATA.levelIndexB != null)
-				{
-					this.bubbleLayerUI.openLevelReminder();
-					return;
-				}
-				
-				if(this.bubbleLayerUI != null)
-					this.bubbleLayerUI.hideMinorUI();
-				
 				
 				this.aimLine = new AimLine({"x":this.shooter.x, "y":this.shooter.y},{"x":loc.x, "y":loc.y}, cc.color(122,0,122,255));
 		    	this.aimLine.attr({
@@ -599,20 +610,29 @@ var BubbleLayer = cc.Layer.extend({
 		   		this.addChild(this.targetBubble);
 		   	}
 		 }
+		 
+		 if(FUNCTIONS.posWithin(loc, this.aimIndicator))
+		 	this.drawAimIndicator();
+		 else
+		{
+			this.aimLine.clear();
+	   		this.removeChild(this.aimLine);
+	   		this.aimLine = null;
+	   		
+	   		this.removeChild(this.targetBubble);
+	   		this.targetBubble = null;
+			
+			this.drawAimIndicator();
+		}
     	
    	},
 	onTouchMove:function(loc){
 		if(this.inputFrozen)
 			return;
 			
-		//if((this.bubbleLayerUI != null && this.bubbleLayerUI.preLayer == null && this.bubbleLayerUI.worldRewardsLayer == null && this.bubbleLayerUI.buyBallsLayer == null && this.bubbleLayerUI.openLevelReminderLayer == null) || this.modeType == "challenge")
 		if(!this.isPopupLayer() || this.modeType == "challenge" || this.modeType == "playtest")
 		{
-			if(this.bubbleLayerUI != null && this.bubbleLayerUI.posWithin(loc, this.bubbleLayerUI.worldChestButton))
-			{
-				//
-			}
-			else if(loc.y > this.shooter.y+this.bubbleR)
+			if(loc.y > this.shooter.y+this.bubbleR)
 			{
 				if(this.numMoves <= 0 && this.outOfMovesWarningLabel == null)
 				{
@@ -626,16 +646,6 @@ var BubbleLayer = cc.Layer.extend({
 				else
 				{
 					this.aimLine.moveTargetTo(loc);
-					/*this.aimLine.clear();
-					this.removeChild(this.aimLine);
-					this.aimLine = new AimLine({"x":this.shooter.x, "y":this.shooter.y},{"x":this.targetBubble.x, "y":this.targetBubble.y}, cc.color(122,0,122,255));
-			    	this.aimLine.attr({
-			    		x:0,
-			    		y:0,
-			    		anchorX:0,
-			    		anchorY:0
-			    	});
-			    	this.addChild(this.aimLine);*/
 					
 			    	var overflowOffset = this.getOverflowOffset();
 			    	var trajectory = this.shooter.initShotPrediction(loc);
@@ -659,127 +669,86 @@ var BubbleLayer = cc.Layer.extend({
 		   		this.targetBubble = null;
 	   		}
 	   	}
+	   	
+	   	if(FUNCTIONS.posWithin(loc, this.aimIndicator))
+		 	this.drawAimIndicator();
+		else if(this.aimLine != null)
+		{
+			this.aimLine.clear();
+	   		this.removeChild(this.aimLine);
+	   		this.aimLine = null;
+	   		
+	   		this.removeChild(this.targetBubble);
+	   		this.targetBubble = null;
+			
+			this.drawAimIndicator();
+		}
 	},
 	onTouchEnd:function(loc){cc.log("touchEnd");
-		/*if(this.bubbleLayerUI != null && this.bubbleLayerUI.buyBallsLayer == null && this.numMoves == 0)
+		if(this.aimLine != null)
 		{
+			this.inputFrozen = true;
 			
-			this.bubbleLayerUI.openBuyBalls();
-			return;
-		}
-		*/
-		
-		var returnUIAction = null;
-		if(this.bubbleLayerUI != null)
-			returnUIAction = this.bubbleLayerUI.onTouchEnd(loc);
-		
-		if(returnUIAction == null)
-		{
-			if(this.numMoves == 0)
-			{
-				this.bubbleLayerUI.openBuyBalls();
-				return;
-			}
-			/*else if(DATA.levelIndexB != null)
-			{
-				this.bubbleLayerUI.openLevelReminder();
-				return;
-			}*/
-			else if(this.aimLine != null)
-			{
-				this.inputFrozen = true;
+			if(this.bubbleLayerUI != null)
+				this.bubbleLayerUI.showMinorUI();
+			
+			// remove aim line
+	   		this.aimLine.clear();
+	   		this.removeChild(this.aimLine);
+	   		this.aimLine = null;
+	   		
+	   		// fire bubble
+	   		this.shooter.initShot(loc, this.targetHex);
+	   		//this.shooter.initShotAnim(loc, this.targetHex, this.numRows, this.maxRows, this.rowHeight, this.bottomMostBubbleY);
+	   		this.schedule(this.moveShooter);
+	   		cc.director.getScheduler().resumeTarget(this);
+	   		
+	   		
+	   		this.removeChild(this.targetBubble);
+	   }
+	   else if(loc.y > this.queueBubble.y-this.bubbleR && loc.y < this.queueBubble.y+this.bubbleR)
+	   {cc.log("queue");
+		   if(loc.x > this.queueBubble.x-this.bubbleR && loc.x < this.queueBubble.x+this.bubbleR)
+		   {
+		   		this.removeChild(this.shooter);
+		   		this.removeChild(this.queueBubble);
+		   		
+		   		//var nextColor = this.nextShooterColor;
+		   		//this.nextShooterColor = this.shooterColor;
+		   		//this.shooterColor = nextColor;
+		   		DATA.swapBubbleColors(this.modeType);
+		   		this.prevShooterColor = DATA.getShooterColor(this.modeType);
+		   		cc.log("SHOOTER BUBBLE");
+		   		this.shooter = new Bubble(this.bubbleR, DATA.getShooterColor(this.modeType), 0, null, null, null);
+		       	this.shooter.attr({
+		       		x: this.width/2,
+		       		y: this.bubbleStartHeight,
+		       		anchorX:.5,
+		       		anchorY:.5
+		       	});
+		       	this.shooter.active = true;
+		       	this.addChild(this.shooter);
 				
-				if(this.bubbleLayerUI != null)
-					this.bubbleLayerUI.showMinorUI();
-				
-				// remove aim line
-		   		this.aimLine.clear();
-		   		this.removeChild(this.aimLine);
-		   		this.aimLine = null;
-		   		
-		   		// fire bubble
-		   		this.shooter.initShot(loc, this.targetHex);
-		   		//this.shooter.initShotAnim(loc, this.targetHex, this.numRows, this.maxRows, this.rowHeight, this.bottomMostBubbleY);
-		   		this.schedule(this.moveShooter);
-		   		cc.director.getScheduler().resumeTarget(this);
-		   		
-		   		
-		   		this.removeChild(this.targetBubble);
+		       	this.queueBubble = new Bubble(this.bubbleR, DATA.getQueueColor(this.modeType), 0, null, null, null);
+		       	this.queueBubble.attr({
+		       		x:this.width/4,
+		       		y:this.bubbleStartHeight,
+		       		anchorX:.5,
+		       		anchorY:.5
+		       	});
+		       	this.queueBubble.active = true;
+		       	this.addChild(this.queueBubble);
 		   }
-		   else if(loc.y > this.queueBubble.y-this.bubbleR && loc.y < this.queueBubble.y+this.bubbleR)
-		   {cc.log("queue");
-			   if(loc.x > this.queueBubble.x-this.bubbleR && loc.x < this.queueBubble.x+this.bubbleR)
-			   {
-			   		this.removeChild(this.shooter);
-			   		this.removeChild(this.queueBubble);
-			   		
-			   		//var nextColor = this.nextShooterColor;
-			   		//this.nextShooterColor = this.shooterColor;
-			   		//this.shooterColor = nextColor;
-			   		DATA.swapBubbleColors(this.modeType);
-			   		this.prevShooterColor = DATA.getShooterColor(this.modeType);
-			   		cc.log("SHOOTER BUBBLE");
-			   		this.shooter = new Bubble(this.bubbleR, DATA.getShooterColor(this.modeType), 0, null, null, null);
-			       	this.shooter.attr({
-			       		x: this.width/2,
-			       		y: this.bubbleStartHeight,
-			       		anchorX:.5,
-			       		anchorY:.5
-			       	});
-			       	this.shooter.active = true;
-			       	this.addChild(this.shooter);
-					
-			       	this.queueBubble = new Bubble(this.bubbleR, DATA.getQueueColor(this.modeType), 0, null, null, null);
-			       	this.queueBubble.attr({
-			       		x:this.width/4,
-			       		y:this.bubbleStartHeight,
-			       		anchorX:.5,
-			       		anchorY:.5
-			       	});
-			       	this.queueBubble.active = true;
-			       	this.addChild(this.queueBubble);
-			   }
-			   /*else if(this.levelAImg != null && loc.x > this.levelAImg.x-this.bubbleR && loc.x < this.levelAImg.x+this.bubbleR)
-			   {
-			   		cc.log("PLAY LEVEL CHALLENGE");
-			   		cc.director.runScene(new PreChallengeScene(DATA.levelIndexA));
-			   }*/
-		   }
-		}
-		else if(returnUIAction == "close")
-		{
-			/*this.numMoves = DATA.worldBallsLeft;
-			this.removeChild(this.ballsLeftLabel);
-			this.ballsLeftLabel = new cc.LabelTTF(this.numMoves, "Roboto", 30);
-			this.ballsLeftLabel.attr({
-				"x":this.queueBubble.x-40,
-				"y":this.queueBubble.y,
-				"anchorX":.5,
-				"anchorY":.5
-			});
-			this.ballsLeftLabel.color = cc.color(0,0,0,255);
-			this.addChild(this.ballsLeftLabel);*/
-			
-			
-		}
-		else if(returnUIAction == "buy" || returnUIAction == "watch")
-		{
-			this.numMoves = DATA.worldBallsLeft;
-			this.removeChild(this.ballsLeftLabel);
-			this.ballsLeftLabel = new cc.LabelTTF(this.numMoves, "Roboto", 30);
-			this.ballsLeftLabel.attr({
-				"x":this.queueBubble.x-40,
-				"y":this.queueBubble.y,
-				"anchorX":.5,
-				"anchorY":.5
-			});
-			this.ballsLeftLabel.color = cc.color(0,0,0,255);
-			this.addChild(this.ballsLeftLabel);
-			
-			this.removeChild(this.buyMovesButton);
-			this.buyMovesButton = null;
-			
-		}
+		   /*else if(this.levelAImg != null && loc.x > this.levelAImg.x-this.bubbleR && loc.x < this.levelAImg.x+this.bubbleR)
+		   {
+		   		cc.log("PLAY LEVEL CHALLENGE");
+		   		cc.director.runScene(new PreChallengeScene(DATA.levelIndexA));
+		   }*/
+	   }
+	
+		if(FUNCTIONS.posWithin(loc, this.aimIndicator))
+		 	this.clearAimIndicator();
+		
 	},
 	
 	predictTarget:function(trajectory)
@@ -1252,7 +1221,8 @@ var BubbleLayer = cc.Layer.extend({
 			{
 				//this.buyMovesButton = ;
 				//this.
-				this.removeChild(this.ballsLeftLabel);
+				//this.removeChild(this.ballsLeftLabel);
+				this.ballsLeftLabel.setString(this.numMoves);
 				
 				this.buyMovesButton = new cc.Sprite(res.buy_button);
 				this.buyMovesButton.setScale(this.bubbleR*3 / this.buyMovesButton.width);
@@ -1263,6 +1233,9 @@ var BubbleLayer = cc.Layer.extend({
 					anchorY: 0
 				});
 				this.addChild(this.buyMovesButton);
+				
+				if(DATA.levelIndexB == null)
+					this.parent.triggerBuyMovesLabel();
 				
 			}
 		}
@@ -1283,6 +1256,7 @@ var BubbleLayer = cc.Layer.extend({
 		}
 		
 		this.inputFrozen = false;
+		this.drawAimIndicator();
 	},
 	
 	checkLevelOver:function()
@@ -1437,10 +1411,11 @@ var BubbleLayer = cc.Layer.extend({
 			DATA.retrieveLevel();
 			if(DATA.levelIndexB != null)
 			{
-				this.bubbleLayerUI.setShooterLabel("Levels Full",cc.color(255,0,0,255),this.bubbleStartHeight);
+				this.parent.triggerLevelsFullLabel();
 			}
 			
-			this.bubbleLayerUI.refreshLevelsUI();
+			this.parent.refreshLevelsUI();
+			this.parent.openPreLayer();
 			//this.updateChallengeUIFunction();
 			
 			
@@ -1448,51 +1423,6 @@ var BubbleLayer = cc.Layer.extend({
 		}
 		// return {} indices of deleted bubbles
 	},
-	
-	/*refreshLevelsUI:function()
-	{
-		var size = cc.winSize;
-		
-		if(DATA.levelIndexA != null && this.levelAImg == null)
-		{
-			this.levelAImg = new cc.Sprite(res.star_emoji);
-			this.levelAImg.attr({
-				"x": this.width*3/4,
-				"y": this.bubbleR*2,
-				"anchorX":.5,
-				"anchorY":.5
-			});
-			this.levelAImg.setScale((this.bubbleR*2)/this.levelAImg.width);
-			this.addChild(this.levelAImg);
-			
-			//DATA.retrieveLevel();
-		}
-		else if(DATA.levelIndexA == null && this.levelAImg != null)
-		{
-			this.removeChild(this.levelAImg);
-			this.levelAImg = null;
-		}
-		else if(DATA.levelIndexB != null && this.levelBImg == null)
-		{
-			this.levelBImg = new cc.Sprite(res.star_emoji);
-			this.levelBImg.attr({
-				"x": size.width/2,
-				"y": size.height/2,
-				"anchorX":.5,
-				"anchorY":.5
-			});
-			this.addChild(this.levelBImg);
-			
-			//DATA.retrieveLevel();
-		}
-		else if(DATA.levelIndexB == null && this.levelBImg != null)
-		{
-			this.removeChild(this.levelBImg);
-			this.levelBImg = null;
-		}
-		
-		
-	},*/
 	
 	executeMatch:function(row, col)
 	{
@@ -2046,15 +1976,12 @@ var BubbleLayer = cc.Layer.extend({
 						
 		for(var i=0; i<culledBubbleIndices.length; i++)
 		{
-			//this.removeChild(this.bubbles[culledBubbleIndices[i]]);
 			var moveByAction = cc.moveBy(.5, cc.p(0,-100));
 			var fadeoutAction = cc.FadeOut.create(.5);
-			//var fadeoutAction = cc.rotateBy(1,180);
 			var spawn = cc.spawn(moveByAction,fadeoutAction);
 			this.bubbles[culledBubbleIndices[i]].setCascadeOpacityEnabled(true);
 			var seq = new cc.Sequence(spawn, cc.callFunc( this.bubbles[culledBubbleIndices[i]].removeFromParent, this.bubbles[culledBubbleIndices[i]] ) );
 			this.bubbles[culledBubbleIndices[i]].runAction(seq);
-			//this.bubbles[culledBubbleIndices[i]].runAction(fadeoutAction);
 			
 			var bub = this.bubbles[culledBubbleIndices[i]];
 			if(bub == null)
@@ -2367,61 +2294,21 @@ var BubbleLayer = cc.Layer.extend({
 					if(this.bubbleMap[i][j] != -1)
 					{
 						if(!this.bubbles[this.bubbleMap[i][j]].active)
-						{cc.log("inactive");
-							//this.bubbles[this.bubbleMap[i][j]] = new Bubble(this.bubbleR, this.bubbles[this.bubbleMap[i][j]].colorCode, this.bubbles[this.bubbleMap[i][j]].type, null, this.bubbles[this.bubbleMap[i][j]].row, this.bubbles[this.bubbleMap[i][j]].col);
-							
-							//this.bubbles[this.bubbleMap[i][j]].active = true;
+						{
 			       			this.bubbles[this.bubbleMap[i][j]].active = true;
 			       			
-			       			/*this.bubbles[this.bubbleMap[i][j]].attr({
-			       				x: this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
-			       				y: this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
-			       				anchorX:.5,
-			       				anchorY:.5
-			       			});*/
+			       			
 			       			this.bubbles[this.bubbleMap[i][j]].x = this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR;
 			       			this.bubbles[this.bubbleMap[i][j]].y = rowsCulled*this.rowHeight + this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset
 			       			
-			       			//cc.log(this.bubbles[this.bubbleMap[i][j]]);
-			       			
-			       			//this.bubbles[this.bubbleMap[i][j]].actionManager.removeAllActions();
 			       			
 			       			this.addChild(this.bubbles[this.bubbleMap[i][j]]);
 			       		}
-			       			//this.bubbles[this.bubbleMap[i][j]].x = this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR;
-			       			//this.bubbles[this.bubbleMap[i][j]].y = /*rowsCulled*this.rowHeight +*/ this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset
 			       			
-			       		//if(!this.bubbles[this.bubbleMap[i][j]].active)
-			       		//{
-			       			
-				       		//this.removeChild(this.bubbles[this.bubbleMap[i][j]]);
-			       			//this.addChild(this.bubbles[this.bubbleMap[i][j]]);
-			       			
-			       		//	cc.director.getScheduler().resumeTarget(this.bubbles[this.bubbleMap[i][j]]);
-			       			//cc.log(this.bubbles[this.bubbleMap[i][j]].actionManager);
-			       			
-			       			//var actionRot = cc.rotateBy(1,180);
-			       			//this.bubbles[this.bubbleMap[i][j]].runAction(actionRot);
-			       			
-			       			//this.bubbles[this.bubbleMap[i][j]].actionManager.resumeTarget(this);
-			       			
-			       			//cc.log(this.bubbles[this.bubbleMap[i][j]].actionManager);
-			       			//cc.director.getScheduler().resumeTarget(this.bubbles[this.bubbleMap[i][j]]);
-			       		//}
-			       		//else
-			       		//{
 				       		var actionMove = cc.moveTo(.1*rowsCulled, cc.p(this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
 				       			this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset));
 				       		this.bubbles[this.bubbleMap[i][j]].runAction(actionMove);
-				       		
-			       		//}
-			       		/*var actionMove = cc.moveTo(.5, cc.p(this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
-			       			this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset));
-			       		var actionMoveBy = cc.moveBy(.5, cc.p(0,this.bubbleR));
-			       		
-			       		var seq = new cc.Sequence([actionMoveBy, actionMove]);
-			       		this.bubbles[this.bubbleMap[i][j]].runAction(seq);
-			       		*/
+				       
 					}
 				}
 				rowNum++;

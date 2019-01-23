@@ -251,7 +251,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 			
 			
 			 
-			var challengeAXPImage = new cc.Sprite(res.xp);
+			var challengeAXPImage = new cc.Sprite(res.smile_emoji);
 			challengeAXPImage.setScale((this.challengeARect.height-6)/2 / challengeAXPImage.height);
 			challengeAXPImage.attr({
 				x:this.challengeARect.x+this.challengeARect.width - 2 - (challengeAXPImage.width*challengeAXPImage.scale),
@@ -362,7 +362,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 				this.addChild(this.collectRewardBButton);
 			}
 			 
-			var challengeBXPImage = new cc.Sprite(res.xp);
+			var challengeBXPImage = new cc.Sprite(res.smile_emoji);
 			challengeBXPImage.setScale((this.challengeBRect.height-6)/2 / challengeBXPImage.height);
 			challengeBXPImage.attr({
 				x:this.challengeBRect.x+this.challengeBRect.width - 2 - (challengeBXPImage.width*challengeBXPImage.scale),
@@ -470,7 +470,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 				this.addChild(this.collectRewardCButton);
 			}	
 			 
-			var challengeCXPImage = new cc.Sprite(res.xp);
+			var challengeCXPImage = new cc.Sprite(res.smile_emoji);
 			challengeCXPImage.setScale((this.challengeCRect.height-6)/2 / challengeCXPImage.height);
 			challengeCXPImage.attr({
 				x:this.challengeCRect.x+this.challengeCRect.width - 2 - (challengeCXPImage.width*challengeCXPImage.scale),

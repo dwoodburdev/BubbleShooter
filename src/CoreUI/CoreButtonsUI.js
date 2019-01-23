@@ -3,7 +3,7 @@ var CoreButtonsUI = cc.Layer.extend({
 		this._super();
 		cc.associateWithNative(this,cc.Sprite);
 		
-		this.height=height;
+		//this.height=height;
 		
 		var size=cc.winSize;
 		
@@ -14,26 +14,23 @@ var CoreButtonsUI = cc.Layer.extend({
 		
 		this.tutorialLayer = null;
 		
-		this.preLayer = null;
-		this.worldRewardsLayer = null;
-		this.buyBallsLayer = null;
-		this.openLevelReminderLayer = null;
-		this.noLevelLayer = null;
-		this.buyPreboosterLayer = null;
 		
-		this.shooterLabel = null;
+		
+		
 		
 		this.tabName = tabName;
 		
 		this.minorUIHidden = false;
 		
-		this.challengeButton={x:(size.width-60)/3+30,y:15,width:(size.width-60)/3,height:32};
-		this.storeButton={x:15,y:15,width:(size.width-60)/3,height:45};
-		this.editorButton={x:this.challengeButton.x+(size.width-60)/3+15,y:15,width:(size.width-60)/3,height:45};
+		this.challengeButton={x:(size.width-60)/3+30,y:7,width:(size.width-60)/3,height:32};
+		this.storeButton={x:15,y:7,width:(size.width-60)/3,height:45};
+		this.editorButton={x:this.challengeButton.x+(size.width-60)/3+15,y:7,width:(size.width-60)/3,height:45};
 		
 		this.challengeLightA={x:this.challengeButton.x,y:this.challengeButton.y+this.challengeButton.height,width:this.challengeButton.width/3,height:this.storeButton.height-this.challengeButton.height};
 		this.challengeLightB={x:this.challengeButton.x+this.challengeLightA.width,y:this.challengeButton.y+this.challengeButton.height,width:this.challengeButton.width/3,height:this.storeButton.height-this.challengeButton.height};
 		this.challengeLightC={x:this.challengeButton.x+this.challengeLightA.width*2,y:this.challengeButton.y+this.challengeButton.height,width:this.challengeButton.width/3,height:this.storeButton.height-this.challengeButton.height};
+		
+		this.height = this.challengeLightA.y+this.challengeLightA.height+5; // 5=border
 		
 		this.levelAImg=null;
 		if(DATA.levelIndexA != null)
@@ -108,7 +105,7 @@ var CoreButtonsUI = cc.Layer.extend({
 		}
 		this.draw();
 		
-		if(this.tabName == "world")
+		/*if(this.tabName == "world")
 		{
 			this.worldChestButton = new cc.Sprite(res.world_rewards_button);
 			this.worldChestButton.setScale((this.editorButton.width/2 - 2) / this.worldChestButton.width);
@@ -119,156 +116,25 @@ var CoreButtonsUI = cc.Layer.extend({
 				anchorY:0
 			});
 			this.addChild(this.worldChestButton);
-		}
+		}*/
 		
 	},
 	onTouchEnd:function(pos){
 		cc.log("onTouchEnd");
 		var size = cc.winSize;
-		if(this.preLayer != null && this.posWithin(pos, this.preLayer))
-		{
-			var returnCommand = this.preLayer.onTouchEnd(pos);
-			if(returnCommand == "close")
-			{
-				this.removeChild(this.preLayer);
-				this.preLayer = null;
-				return "close";
-			}
-			else if(returnCommand == "buy-prebooster")
-			{
-				this.removeChild(this.preLayer);
-				this.preLayer = null;
-				
-				this.buyPreboosterLayer = new BuyBoosterLayer(size.width-50,this.height-50,"plus_five");
-				this.buyPreboosterLayer.attr({
-					x:25,
-					y:25,
-					anchorX:0,
-					anchorY:0
-				});
-				this.addChild(this.buyPreboosterLayer);
-			}
-		}
-		else if(this.worldRewardsLayer != null && this.posWithin(pos, this.worldRewardsLayer))
-		{
-			var returnCommand = this.worldRewardsLayer.onTouchEnd(pos);
-			if(returnCommand == "close")
-			{
-				this.removeChild(this.worldRewardsLayer);
-				this.worldRewardsLayer = null;
-				return "close";
-			}
-		}
-		else if(this.buyBallsLayer != null && this.posWithin(pos, this.buyBallsLayer))
-		{
-			var returnCommand = this.buyBallsLayer.onTouchEnd(pos);
-			if(returnCommand == "close")
-			{
-				this.removeChild(this.buyBallsLayer);
-				this.buyBallsLayer = null;
-				return "close";
-			}
-			else if(returnCommand == "buy")
-			{
-				this.removeChild(this.buyBallsLayer);
-				this.buyBallsLayer = null;
-				return "buy";
-			}
-			else if(returnCommand == "watch")
-			{
-				this.removeChild(this.buyBallsLayer);
-				this.buyBallsLayer = null;
-				return "watch";
-			}
-		}
-		else if(this.buyPreboosterLayer != null && this.posWithin(pos, this.buyPreboosterLayer))
-		{
-			var returnCommand = this.buyPreboosterLayer.onTouchEnd(pos);
-			if(returnCommand == "close")
-			{
-				this.removeChild(this.buyPreboosterLayer);
-				this.buyPreboosterLayer = null;
-				return "close";
-			}
-			else if(returnCommand == "buy-plus_five")
-			{
-				DATA.setPreBoosterInventories(DATA.preBoosterInventoryA+1);
-				
-				this.removeChild(this.buyPreboosterLayer);
-				this.buyPreboosterLayer = null;
-				
-				this.preLayer = new PreChallengeLayer(DATA.levelIndexA,size.width-50,this.height-50);
-				this.preLayer.attr({x:25,y:25,anchorX:0,anchorY:0});
-				this.addChild(this.preLayer);
-				return "openPrelayer"
-			}
-		}
-		else if(this.openLevelReminderLayer != null && this.posWithin(pos, this.openLevelReminderLayer))
-		{
-			var returnCommand = this.openLevelReminderLayer.onTouchEnd(pos);
-			if(returnCommand == "close")
-			{
-				this.removeChild(this.openLevelReminderLayer);
-				this.openLevelReminderLayer = null;
-				return "close";
-			}
-			else if(returnCommand == "play-level")
-			{
-				this.removeChild(this.openLevelReminderLayer);
-				this.openLevelReminderLayer = null;
-				
-				this.preLayer = new PreChallengeLayer(DATA.levelIndexA,size.width-50,this.height-50);
-				this.preLayer.attr({x:25,y:25,anchorX:0,anchorY:0});
-				this.addChild(this.preLayer);
-				return "openPrelayer"
-			}
-		}
-		else if(this.noLevelLayer != null && this.posWithin(pos, this.noLevelLayer))
-		{
-			var returnCommand = this.noLevelLayer.onTouchEnd(pos);
-			if(returnCommand == "close")
-			{
-				this.removeChild(this.noLevelLayer);
-				this.noLevelLayer = null;
-				return "close";
-			}
-		}
-		else if(pos.y>this.challengeButton.y && pos.y<this.challengeButton.y+this.storeButton.height
+		if(pos.y>this.challengeButton.y && pos.y<this.challengeButton.y+this.storeButton.height
 			&& pos.x>this.challengeButton.x && pos.x<this.challengeButton.x+this.challengeButton.width)
 		{
-			if(DATA.levelIndexA!=null)
-			{
-				this.preLayer = new PreChallengeLayer(DATA.levelIndexA,size.width-50,this.height-50);
-				this.preLayer.attr({x:cc.winSize.width*.5,y:25,anchorX:0,anchorY:0});
-				this.addChild(this.preLayer);
-				this.preLayer.setScale(0);
-				var scaleAction = cc.scaleTo(.5, 1, 1);
-				var moveToAction = cc.moveTo(.5, cc.p(25, 25));
-				var spawn = cc.spawn(scaleAction, moveToAction);
-				this.preLayer.runAction(spawn);
-			}
-			else
-			{cc.log("NOLEVELLAYER");
-				this.noLevelLayer = new NoLevelLayer(size.width-50, this.height-50);
-				this.noLevelLayer.attr({x:25, y:25, anchorX:0, anchorY:0});
-				this.addChild(this.noLevelLayer);
-			}
+			return "challengeButton";
 			
-			return "openPrelayer";
 		}
 		else if(this.posWithin(pos,this.storeButton))
 		{
-			cc.director.runScene(new ShopScene);
+			cc.director.runScene(new cc.TransitionFade(1, new ShopScene()));
 		}
 		else if(this.posWithin(pos,this.editorButton))
 		{
-			cc.director.runScene(new EditorScene);
-		}
-		else if(this.posWithin(pos,{x:this.worldChestButton.x,y:this.worldChestButton.y,width:this.worldChestButton.width*this.worldChestButton.scale,height:this.worldChestButton.height*this.worldChestButton.scale}))
-		{
-			this.worldRewardsLayer = new WorldRewardsLayer(size.width-50,this.height-50);
-			this.worldRewardsLayer.attr({x:25,y:25,anchorX:0,anchorY:0});
-			this.addChild(this.worldRewardsLayer);
+			cc.director.runScene(new cc.TransitionFade(1, new EditorScene()));
 		}
 	},
 	posWithin:function(a,b)
@@ -283,6 +149,7 @@ var CoreButtonsUI = cc.Layer.extend({
 			return true;
 		return false;
 	},
+	
 	refreshLevelsUI:function()
 	{
 		if(DATA.levelIndexA!=null && this.levelAImg==null)
@@ -325,55 +192,6 @@ var CoreButtonsUI = cc.Layer.extend({
 		}
 	},
 	
-	openBuyBalls:function()
-	{
-		this.buyBallsLayer = new BuyBallsLayer(this.width-50,this.height-50);
-		this.buyBallsLayer.attr({
-			x:25,y:25,
-			anchorX:0,anchorY:0
-		});
-		this.addChild(this.buyBallsLayer);
-	},
-	
-	openLevelReminder:function()
-	{
-		this.openLevelReminderLayer = new OpenLevelReminderLayer(this.width-50, this.height-50);
-		this.openLevelReminderLayer.attr({
-			x:25,y:25,
-			anchorX:0,anchorY:0
-		});
-		this.addChild(this.openLevelReminderLayer);
-	},
-	
-	openNoLevel:function()
-	{
-		this.noLevelLayer = new NoLevelLayer(this.width-50, this.height-50);
-		this.noLevelLayer.attr({
-			x:25,y:25,
-			anchorX:0,anchorY:0
-		});
-		this.addChild(noLevelLayer);
-	},
-	
-	setShooterLabel:function(text, color, shooterY)
-	{cc.log("label");
-		this.shooterLabel = new cc.LabelTTF(text,"Roboto",30);
-		this.shooterLabel.attr({
-			x:cc.winSize.width/2,
-			y:shooterY+this.bubbleR*2,
-			anchorX:0.5,
-			anchorY:0
-		});
-		this.shooterLabel.color=color;
-		this.addChild(this.shooterLabel);
-	},
-	
-	clearShooterLabel:function()
-	{
-		this.shooterLabel.clear();
-		this.removeChild(this.shooterLabel);
-		this.shooterLabel = null;
-	},
 	
 	hideMinorUI:function()
 	{

@@ -20,7 +20,7 @@
     	"src/CoreUI/Button.js",
     	"src/CoreUI/ChallengeMenuDisplayLayer.js",
     	"src/CoreUI/ChallengeMenuLayer.js",
-    	"src/CoreUI/CoreButtonsUI2.js",
+    	"src/CoreUI/CoreButtonsUI.js",
     	"src/CoreUI/FriendsDisplayLayer.js",
     	"src/CoreUI/FriendsLayer.js",
     	"src/CoreUI/LeagueDisplayLayer.js",
@@ -46,7 +46,6 @@
     	"src/Gameplay/AimLine.js",
     	"src/Gameplay/Bubble.js",
     	"src/Gameplay/BubbleLayer.js",
-    	"src/Gameplay/BubbleLayerUI.js",
     	"src/Gameplay/GameplayLayer.js",
     	
     	"src/Popups/BonusRewardPickerLayer.js",
@@ -64,6 +63,7 @@
     	"src/Popups/RankUpLayer.js",
     	"src/Popups/RewardLayer.js",
     	"src/Popups/SettingsLayer.js",
+    	"src/Popups/WorldMapLayer.js",
     	"src/Popups/WorldRewardsLayer.js",
     	
     	

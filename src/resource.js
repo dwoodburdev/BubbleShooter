@@ -44,7 +44,7 @@ var res = {
     poop_emoji : "res/poop.png",
     right_fist_emoji : "res/right-fist.png",
     left_fist_emoji : "res/left-fist.png",
-    star_emoji : "res/star.png",
+    star_emoji : "res/star-1.png",
     star_shadow : "res/star-shadow.png",
     orb_emoji : "res/orb.png",
     blank_bulb_emoji : "res/blank-bulb.png",
@@ -132,20 +132,20 @@ var res = {
     shop_button: "res/shop-button.png",
     editor_button: "res/editor-button.png",
     
-    me_button: "res/me-button.png",
-    challenge_button: "res/challenge-button.png",
-    play_button: "res/play-button.png",
-    friends_button: "res/friends-button.png",
-    league_button: "res/league-button.png",
+    me_button: "res/me-button-selected-1.png",
+    challenge_button: "res/challenge-button-selected-1.png",
+    play_button: "res/play-button-selected-1.png",
+    friends_button: "res/friends-button-selected-1.png",
+    league_button: "res/league-button-selected-1.png",
     
     shop_selected_button: "res/shop-button-selected.png",
     editor_selected_button: "res/editor-button-selected.png",
     
-    me_selected_button: "res/me-button-selected.png",
-    challenge_selected_button: "res/challenge-button-selected.png",
-    play_selected_button: "res/play-button-selected.png",
-    friends_selected_button: "res/friends-button-selected.png",
-    league_selected_button: "res/league-button-selected.png",
+    me_selected_button: "res/me-button-selected-1.png",
+    challenge_selected_button: "res/challenge-button-selected-1.png",
+    play_selected_button: "res/play-button-selected-1.png",
+    friends_selected_button: "res/friends-button-selected-1.png",
+    league_selected_button: "res/league-button-selected-1.png",
     
     me_button_locked: "res/me-button-locked.png",
     friends_button_locked: "res/friends-button-locked.png",
@@ -188,15 +188,19 @@ var res = {
     world_rewards_button: "res/world-rewards-button.png",
     buy_button: "res/buy-button.png",
     
-    regular_chest: "res/plain-chest.png",
-    regular_silver_chest: "res/plain-silver-chest.png",
-    regular_gold_chest: "res/plain-gold-chest.png",
+    //regular_chest: "res/plain-chest.png",
+    regular_chest: "res/gift.png",
+    //regular_silver_chest: "res/plain-silver-chest.png",
+    regular_silver_chest: "res/gift.png",
+    //regular_gold_chest: "res/plain-gold-chest.png",
+    regular_gold_chest: "res/gift.png",
     
     watch_ad_button: "res/watch-ad-button.png",
     buy_balls_button: "res/buy-moves-button.png",
     get_button: "res/get-button.png",
     next_button: "res/next-button.png",
-    settings_icon: "res/settings_button.png",
+    //settings_icon: "res/settings_button.png",
+    settings_icon: "res/settings_emoji.png",
     quit_button: "res/quit-button.png",
     continue_button: "res/continue_button.png",
     save_button: "res/button-save.png",
@@ -220,7 +224,10 @@ var res = {
     emoji_pop_title: "res/emojipoptitle.png",
     
     sunglass_face: "res/sunglass-face.png",
-    concerned_face: "res/concerned-face.png"
+    concerned_face: "res/concerned-face.png",
+    
+    world_node: "res/node.png",
+    map_icon: "res/map.png"
 };
 
 

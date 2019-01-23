@@ -22,26 +22,6 @@ var EditorUILayer = cc.Layer.extend({
 		this.loadButtons();
 		
 		
-		
-		/*this.homeButton = new Button(0, 0, "Home", 32, cc.color(255,0,0,255), cc.color(255,255,255,255));
-        this.homeButton.attr({
-        	"x":size.width-this.homeButton.width/2,
-        	"y":this.homeButton.height/2,
-        	"anchorX":.5,
-        	"anchorY":.5
-        });
-		this.addChild(this.homeButton);
-		
-		this.testButton = new Button(0, 0, "Test", 32, cc.color(0,255,0,255), cc.color(255,255,255,255));
-        this.testButton.attr({
-        	"x":this.homeButton.x-this.testButton.width,
-        	"y":this.testButton.height/2,
-        	"anchorX":.5,
-        	"anchorY":.5
-        });
-		this.addChild(this.testButton);*/
-		
-		
 		this.tabTitleLabel = new cc.LabelTTF(""+this.tabTitle, "Arial", 20);
 		this.tabTitleLabel.attr({
 			"x":size.width/4,
@@ -279,7 +259,7 @@ var EditorUILayer = cc.Layer.extend({
 				if(FUNCTIONS.posWithinScaled(pos, this.backHomeButton))
 				{
 					//var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
-		    		var bubbles = DATA.worldBubbles;
+		    		/*var bubbles = DATA.worldBubbles;
 		    		//cc.log(bubbles);
 		    		var maxRow = 0;
 		    		var bubbleData = [];
@@ -288,7 +268,17 @@ var EditorUILayer = cc.Layer.extend({
 		    			if(bubbles[i].row > maxRow)
 		    				maxRow = bubbles[i].row;
 		    		}
-					cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
+					cc.director.runScene(new GameplayScene(bubbles, maxRow+1));*/
+					
+					var maxRow = 0;
+					for(var i=0; i<DATA.worldBubbles.length; i++)
+					{
+						if(DATA.worldBubbles[i].row > maxRow)
+							maxRow = DATA.worldBubbles[i].row;
+					}
+					
+					cc.director.runScene(new cc.TransitionFade(1, new MainContainerScene(DATA.worldBubbles, maxRow+1)));
+					
 					return null;
 				}
 				else if(FUNCTIONS.posWithinScaled(pos, this.saveButton))

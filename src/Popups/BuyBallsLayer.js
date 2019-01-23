@@ -65,50 +65,16 @@ var BuyBallsLayer = cc.Layer.extend({
     cc.log(pos);cc.log(this.closeButton.x + " " + this.closeButton.y + " " + (this.closeButton.width*this.closeButton.scale));
     	//if(this.posWithinScaled(pos, this.closeButton))
     	if(this.posWithin(pos, {"x":this.x+this.closeButton.x,"y":this.y+this.closeButton.y,"width":this.closeButton.width*this.closeButton.scale,"height":this.closeButton.height*this.closeButton.scale}))
-    	{cc.log("closing");
-	    	/*var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
-    		//cc.log(bubbles);
-    		var maxRow = 0;
-    		var bubbleData = [];
-    		for(var i=0; i<bubbles.length; i++)
-    		{
-    			if(bubbles[i].row > maxRow)
-    				maxRow = bubbles[i].row;
-    		}
-			cc.director.runScene(new GameplayScene(bubbles, maxRow+1));*/
+    	{
 			return "close";
 		}
 		else if(this.posWithin(pos, {"x":this.x+this.buyBallsButton.x,"y":this.y+this.buyBallsButton.y,"width":this.buyBallsButton.width*this.buyBallsButton.scale,"height":this.buyBallsButton.height*this.buyBallsButton.scale}))
-    	{cc.log("buy");
-			DATA.worldBallsLeft += 10;
-			/*
-			var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
-    		//cc.log(bubbles);
-    		var maxRow = 0;
-    		var bubbleData = [];
-    		for(var i=0; i<bubbles.length; i++)
-    		{
-    			if(bubbles[i].row > maxRow)
-    				maxRow = bubbles[i].row;
-    		}*/
+    	{
     		return "buy";
-			//cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
 		}
 		else if(this.posWithin(pos, {"x":this.x+this.watchAdButton.x,"y":this.y+this.watchAdButton.y,"width":this.watchAdButton.width*this.watchAdButton.scale,"height":this.watchAdButton.height*this.watchAdButton.scale}))
-    	{cc.log("watch");
-			DATA.worldBallsLeft++;
-			
-			/*var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
-    		//cc.log(bubbles);
-    		var maxRow = 0;
-    		var bubbleData = [];
-    		for(var i=0; i<bubbles.length; i++)
-    		{
-    			if(bubbles[i].row > maxRow)
-    				maxRow = bubbles[i].row;
-    		}
-			cc.director.runScene(new GameplayScene(bubbles, maxRow+1));*/
-			return "buy";
+    	{
+			return "watch";
 		}
 	},
 	

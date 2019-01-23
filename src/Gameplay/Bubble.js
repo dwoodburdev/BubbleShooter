@@ -452,10 +452,10 @@ var Bubble = cc.Sprite.extend({
 				var self = this;
 				this.bubbleImg = new cc.Sprite(res.star_emoji);
 				
-				var spinAction = cc.rotateBy(1.5,360);
+				var spinAction = cc.rotateBy(3,360);
 	        	var repeatAction = new cc.CallFunc(function()
 	        	{
-	        		var rotAction = new cc.RepeatForever(new cc.RotateBy(1.5,360));
+	        		var rotAction = new cc.RepeatForever(new cc.RotateBy(3,360));
 	        		self.runAction(rotAction);
 	        	});
 	        	var seq = new cc.Sequence(spinAction, repeatAction);
