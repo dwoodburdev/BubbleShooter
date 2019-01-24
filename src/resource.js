@@ -85,6 +85,13 @@ var res = {
     pink_soapbar_emoji: "res/pink-soapbar.png",
     purple_soapbar_emoji: "res/purple-soapbar.png",
     
+    spiderweb_emoji: "res/spiderweb_emoji.png",
+    red_bulb_emoji: "res/red-bulb.png",
+    dagger_top_right_emoji:"res/dagger-top-right.png",
+    red_tv_emoji: "res/red-tv.png",
+    pallette: "res/pallette.png",
+    beachball_emoji: "res/beachball.png",
+    
     neutral_flowerpot_emoji : "res/empty-pot.png",
     red_flowerpot_emoji : "res/red-flowerpot.png",
     yellow_flowerpot_emoji : "res/yellow-flowerpot.png",
@@ -108,7 +115,8 @@ var res = {
     thick_black_circle: "res/thick-black-circle.png",
     red_x: "res/red-x-icon.png",
     
-    dynamite_1_emoji: "res/double-rocket-1.png",
+    //dynamite_1_emoji: "res/double-rocket-1.png",
+    dynamite_1_emoji: "res/horiz_dual_swords.png",
     dynamite_2_emoji: "res/double-rocket-2.png",
     dynamite_3_emoji: "res/double-rocket-3.png",
     
@@ -227,7 +235,9 @@ var res = {
     concerned_face: "res/concerned-face.png",
     
     world_node: "res/node.png",
-    map_icon: "res/map.png"
+    world_node_gray: "res/node-gray.png",
+    map_icon: "res/map.png",
+    puzzle_piece: "res/puzzle-piece.png"
 };
 
 

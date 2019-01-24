@@ -73,7 +73,7 @@ var PreChallengeLayer = cc.Layer.extend({
 		this.previewDraw.drawRect(cc.p(this.bubblePreview.x,this.bubblePreview.y+this.bubblePreview.height),cc.p(this.bubblePreview.x+this.bubblePreview.width,this.bubblePreview.y+this.bubblePreview.height+DATA.bubbleR),cc.color(255,255,255,255),0,cc.color(255,255,255,255));
 		this.addChild(this.previewDraw,11);
 		
-		this.levelNameLabel = new cc.LabelTTF("One-Pagers, Tier 1, 3/5", "Roboto", 25);
+		this.levelNameLabel = new cc.LabelTTF("One-Pagers (Tier 1)", "Roboto", 25);
 		this.levelNameLabel.attr({
 			"x":this.x+this.width/2,
 			"y":this.bubblePreview.y+this.bubblePreview.height+1,
@@ -194,7 +194,43 @@ var PreChallengeLayer = cc.Layer.extend({
 			this.addChild(this.tryAlert);
 		}
 		
-		this.xpRewardImg = null;
+		this.puzzlePieceImg = null;
+		this.puzzleNumberLabel = null;
+		this.puzzleRewardImg = null;
+		if(DATA.levelIndexAType != "normal")
+		{
+			this.puzzlePieceImg = new cc.Sprite(res.puzzle_piece);
+			this.puzzlePieceImg.setScale(this.tryAlert.width*this.tryAlert.scale / this.puzzlePieceImg.width);
+			this.puzzlePieceImg.attr({
+				x:(this.x+this.width/2+circleR*3+5)+((this.x+this.width)-(this.x+this.width/2+circleR*3+5))/2,
+				y:circleY,
+				anchorX:.5,
+				anchorY:.5
+			});
+			this.addChild(this.puzzlePieceImg);
+			
+			this.puzzleNumberLabel = new cc.LabelTTF("3/5","Roboto",24);
+			this.puzzleNumberLabel.attr({
+				x:this.puzzlePieceImg.x,
+				y:this.puzzlePieceImg.y-(this.puzzlePieceImg.y-(this.puzzlePieceImg.height*this.puzzlePieceImg.scale*this.puzzlePieceImg.anchorY)),
+				anchorX:.5,
+				anchorY:1
+			});
+			this.puzzleNumberLabel.color = cc.color(0,0,0,255);
+			this.addChild(this.puzzleNumberLabel);
+			
+			this.puzzleRewardImg = new cc.Sprite(res.regular_chest);
+			this.puzzleRewardImg.setScale(this.puzzlePieceImg.width*this.puzzlePieceImg.scale/2 / this.puzzleRewardImg.width);
+			this.puzzleRewardImg.attr({
+				x:this.puzzlePieceImg.x,
+				y:this.puzzlePieceImg.y,
+				anchorX:.5,
+				anchorY:.5
+			});
+			this.addChild(this.puzzleRewardImg);
+		}
+		
+		/*this.xpRewardImg = null;
 		if(DATA.streakStep == 0)
 		{
 			this.xpRewardImg = new cc.Sprite(res.bronze_xp_reward);
@@ -214,7 +250,7 @@ var PreChallengeLayer = cc.Layer.extend({
 			anchorX:.5,
 			anchorY:.5
 		});
-		this.addChild(this.xpRewardImg);
+		this.addChild(this.xpRewardImg);*/
 	},
 	
 	onTouchEnd:function(pos)

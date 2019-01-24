@@ -103,6 +103,14 @@ var MainContainerLayer = cc.Layer.extend({
 				    		
 				    	}
 			    	}
+			    	else
+			    	{
+			    		if(self.worldMapLayer != null)
+						{	
+							var returnObj = self.worldMapLayer.onTouchStarted(touch.getLocation());
+							
+						}
+			    	}
 			    	
 			    	return true;
 			    },
@@ -116,6 +124,14 @@ var MainContainerLayer = cc.Layer.extend({
 				    	{
 				    		self.curMainLayer.onTouchMoved(touch.getLocation());
 				    	}
+			    	}
+			    	else
+			    	{
+			    		if(self.worldMapLayer != null)
+						{	
+							var returnObj = self.worldMapLayer.onTouchMoved(touch.getLocation());
+							
+						}
 			    	}
 			    	return true;
 			    },
@@ -280,8 +296,8 @@ var MainContainerLayer = cc.Layer.extend({
 					else
 					{
 						if(self.worldMapLayer != null)
-						{
-							var returnObj = self.worldMapLayer.onTouchEnd(touch.getLocation());
+						{	
+							var returnObj = self.worldMapLayer.onTouchEnded(touch.getLocation());
 							if(returnObj == "close")
 							{
 								self.removeChild(self.worldMapLayer);
@@ -320,6 +336,8 @@ var MainContainerLayer = cc.Layer.extend({
 			anchorY:0
 		});
 		this.addChild(this.worldMapLayer, 9);
+		
+		
 	},
 	
 	slideTabs:function(moveDistance)

@@ -33,10 +33,10 @@ DATA.bubbleR = 4;
 
 DATA.worldBubblesLeft = 0;
 
-DATA.rank = 1;
-DATA.rankProgress = 0;
-DATA.rankThresholds = [30,40,55,65,100,65,75,85,95,120];
-DATA.xp = 0;
+//DATA.rank = 1;
+//DATA.rankProgress = 0;
+//DATA.rankThresholds = [30,40,55,65,100,65,75,85,95,120];
+//DATA.xp = 0;
 
 DATA.gems = 0;
 DATA.coins = 0;
@@ -301,7 +301,7 @@ DATA.initUserData = function()
 	DATA.levelIndexBType = d.levelIndexBType;
 	
 	//xp
-	DATA.xp = d.xp;
+	/*DATA.xp = d.xp;
 	var xpCounter = d.xp;
 	var thresholdStep = 0;
 	var rankFound = false;
@@ -319,7 +319,7 @@ DATA.initUserData = function()
 			DATA.rankProgress = xpCounter;
 		}
 		
-	}
+	}*/
 	
 	// Daily Chest
 	DATA.questChestNumber = 7;
@@ -334,7 +334,7 @@ DATA.initUserData = function()
 		newChallenge.type = dChallenge.type;
 		newChallenge.progress = dChallenge.progress;
 		newChallenge.number = dChallenge.number;
-		newChallenge.xp = dChallenge.xp;
+		newChallenge.balls = dChallenge.balls;
 		newChallenge.coins = dChallenge.coins;
 		if(dChallenge.type == "match-size")
 		{
@@ -350,7 +350,7 @@ DATA.initUserData = function()
   	elapsedTime = curTime - DATA.timeLastChallengeReceived;
   	if(elapsedTime >= 1000*60*60*24 && DATA.dailyChallenges.length < 3)
   	{
-  		var newChallenge = {"coins":5,"number":5,"progress":0,"type":"level","xp":50};
+  		var newChallenge = {"coins":5,"number":5,"progress":0,"type":"level","balls":5};
   		DATA.dailyChallenges.push(newChallenge);
   		DATA.timeLastChallengeReceived = curTime;
   		
@@ -441,7 +441,7 @@ DATA.setLastTimeDailyChestOpened = function()
 	
 DATA.spawnNewDailyChallenge = function()
 {
-	var newChallenge = {"coins":5,"number":5,"progress":0,"type":"level","xp":50};
+	var newChallenge = {"coins":5,"number":5,"progress":0,"type":"level","balls":5};
 	DATA.dailyChallenges.push(newChallenge);
 	DATA.timeLastChallengeReceived = (new Date()).getTime();
 	
@@ -946,7 +946,7 @@ DATA.registerEvent = function(obj)
  * XP
  */
 
-DATA.checkRankUp = function()
+/*DATA.checkRankUp = function()
 {
 	var xp = 10;
 	if(DATA.streakStep == 2)
@@ -966,12 +966,12 @@ DATA.checkRankUp = function()
 		return true;
 	}
 	return false;
-};
+};*/
 
-DATA.addXP = function(num)
+/*DATA.addXP = function(num)
 {
 	DATA.rankProgress += num;
-};
+};*/
 
 
 

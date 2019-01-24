@@ -613,7 +613,7 @@ var BubbleLayer = cc.Layer.extend({
 		 
 		 if(FUNCTIONS.posWithin(loc, this.aimIndicator))
 		 	this.drawAimIndicator();
-		 else
+		 else if(this.aimLine != null)
 		{
 			this.aimLine.clear();
 	   		this.removeChild(this.aimLine);
@@ -1414,10 +1414,27 @@ var BubbleLayer = cc.Layer.extend({
 				this.parent.triggerLevelsFullLabel();
 			}
 			
-			this.parent.refreshLevelsUI();
-			this.parent.openPreLayer();
-			//this.updateChallengeUIFunction();
+			//this.parent.refreshLevelsUI();
+			//this.parent.openPreLayer();
 			
+			var starImg = new cc.Sprite(res.star_emoji);
+			starImg.setScale(this.bubbleR*2 / starImg.width);
+			starImg.attr({
+				x:bubble.x,
+				y:bubble.y,
+				anchorX:.5,
+				anchorY:.5
+			});
+			this.addChild(starImg);
+			
+			var challengeButton = this.parent.coreButtonsUI.challengeButton;
+			var growAction = cc.scaleTo(.75, starImg.scale*2, starImg.scale*2);
+			var moveAction = cc.moveTo(.5, challengeButton.x+challengeButton.width/2, challengeButton.y);
+			
+			var spawn = cc.spawn(cc.callFunc(starImg.removeFromParent, starImg), cc.callFunc(this.parent.refreshLevelsUI, this.parent), cc.callFunc(this.parent.openPreLayer, this.parent));
+			var seq = new cc.Sequence(growAction, moveAction, spawn);
+			
+			starImg.runAction(seq);
 			
 			// Delete shooter, itself
 		}

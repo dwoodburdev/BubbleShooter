@@ -81,7 +81,7 @@ var TopUILayer = cc.Layer.extend({
 		});
 		this.addChild(this.mapButton);
 		
-		this.rankImg = null;
+		/*this.rankImg = null;
 		if(DATA.rank == 1)
 			this.rankImg = new cc.Sprite(res.rank1);
 		else if(DATA.rank == 2)
@@ -110,9 +110,10 @@ var TopUILayer = cc.Layer.extend({
 			"anchorX":0,
 			"anchorY":.5
 		});
-		//this.addChild(this.rankImg);
+		this.addChild(this.rankImg);
 		
 		this.rankBar = {"x":this.rankImg.x+(this.height-10),"y":this.rankImg.y-(this.height-10)/2,"width":(size.width-15)/3 - (this.height-10), "height":this.height-10};
+		*/
 		
 		//this.buttonWidth = size.width/5;
 		//this.buttonHeight = this.height;

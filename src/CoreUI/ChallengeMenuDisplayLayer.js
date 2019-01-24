@@ -60,7 +60,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 		});
 		this.addChild(chestAImage);
 		
-		var chestALabel = new cc.LabelTTF("Daily Chest", "Arial", 20);
+		var chestALabel = new cc.LabelTTF("Daily Gift", "Arial", 20);
 		chestALabel.attr({
 			"x":chestAImage.x,
 			"y":chestAImage.y-(chestAImage.height*chestAImage.scale) - 10,
@@ -251,25 +251,25 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 			
 			
 			 
-			var challengeAXPImage = new cc.Sprite(res.smile_emoji);
-			challengeAXPImage.setScale((this.challengeARect.height-6)/2 / challengeAXPImage.height);
-			challengeAXPImage.attr({
-				x:this.challengeARect.x+this.challengeARect.width - 2 - (challengeAXPImage.width*challengeAXPImage.scale),
-				y:this.challengeARect.y+this.challengeARect.height - 2 - (challengeAXPImage.height*challengeAXPImage.scale),
+			var challengeABallsImage = new cc.Sprite(res.smile_emoji);
+			challengeABallsImage.setScale((this.challengeARect.height-6)/2 / challengeABallsImage.height);
+			challengeABallsImage.attr({
+				x:this.challengeARect.x+this.challengeARect.width - 2 - (challengeABallsImage.width*challengeABallsImage.scale),
+				y:this.challengeARect.y+this.challengeARect.height - 2 - (challengeABallsImage.height*challengeABallsImage.scale),
 				anchorX:0,
 				anchorY:0
 			});
-			this.addChild(challengeAXPImage);
+			this.addChild(challengeABallsImage);
 			
-			var challengeAXPLabel = new cc.LabelTTF("+"+challenge.xp, "Arial", 20);
-			challengeAXPLabel.attr({
-				"x":challengeAXPImage.x-2,
-				"y":challengeAXPImage.y+(challengeAXPImage.height*challengeAXPImage.scale)/2,
+			var challengeABallsLabel = new cc.LabelTTF("+"+challenge.balls, "Arial", 20);
+			challengeABallsLabel.attr({
+				"x":challengeABallsImage.x-2,
+				"y":challengeABallsImage.y+(challengeABallsImage.height*challengeABallsImage.scale)/2,
 				"anchorX":1,
 				"anchorY":.5
 			});
-			challengeAXPLabel.color = cc.color(0,0,0,255);
-			this.addChild(challengeAXPLabel);
+			challengeABallsLabel.color = cc.color(0,0,0,255);
+			this.addChild(challengeABallsLabel);
 			
 			var challengeABonusImage = new cc.Sprite(res.coin);
 			challengeABonusImage.setScale((this.challengeARect.height-6)/2 / challengeABonusImage.height);
@@ -283,7 +283,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 			
 			var challengeABonusLabel = new cc.LabelTTF("+"+challenge.coins,"Arial", 20);
 			challengeABonusLabel.attr({
-				x:challengeAXPLabel.x,
+				x:challengeABallsLabel.x,
 				y:challengeABonusImage.y+(challengeABonusImage.height*challengeABonusImage.scale)/2,
 				anchorX:1,
 				anchorY:.5
@@ -362,25 +362,25 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 				this.addChild(this.collectRewardBButton);
 			}
 			 
-			var challengeBXPImage = new cc.Sprite(res.smile_emoji);
-			challengeBXPImage.setScale((this.challengeBRect.height-6)/2 / challengeBXPImage.height);
-			challengeBXPImage.attr({
-				x:this.challengeBRect.x+this.challengeBRect.width - 2 - (challengeBXPImage.width*challengeBXPImage.scale),
-				y:this.challengeBRect.y+this.challengeBRect.height - 2 - (challengeBXPImage.height*challengeBXPImage.scale),
+			var challengeBBallsImage = new cc.Sprite(res.smile_emoji);
+			challengeBBallsImage.setScale((this.challengeBRect.height-6)/2 / challengeBBallsImage.height);
+			challengeBBallsImage.attr({
+				x:this.challengeBRect.x+this.challengeBRect.width - 2 - (challengeBBallsImage.width*challengeBBallsImage.scale),
+				y:this.challengeBRect.y+this.challengeBRect.height - 2 - (challengeBBallsImage.height*challengeBBallsImage.scale),
 				anchorX:0,
 				anchorY:0
 			});
-			this.addChild(challengeBXPImage);
+			this.addChild(challengeBBallsImage);
 			
-			var challengeBXPLabel = new cc.LabelTTF("+"+challenge.xp, "Arial", 20);
-			challengeBXPLabel.attr({
-				"x":challengeBXPImage.x-2,
-				"y":challengeBXPImage.y+(challengeBXPImage.height*challengeBXPImage.scale)/2,
+			var challengeBBallsLabel = new cc.LabelTTF("+"+challenge.balls, "Arial", 20);
+			challengeBBallsLabel.attr({
+				"x":challengeBBallsImage.x-2,
+				"y":challengeBBallsImage.y+(challengeBBallsImage.height*challengeBBallsImage.scale)/2,
 				"anchorX":1,
 				"anchorY":.5
 			});
-			challengeBXPLabel.color = cc.color(0,0,0,255);
-			this.addChild(challengeBXPLabel);
+			challengeBBallsLabel.color = cc.color(0,0,0,255);
+			this.addChild(challengeBBallsLabel);
 			
 			var challengeBBonusImage = new cc.Sprite(res.coin);
 			challengeBBonusImage.setScale((this.challengeBRect.height-6)/2 / challengeBBonusImage.height);
@@ -394,7 +394,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 			
 			var challengeBBonusLabel = new cc.LabelTTF("+"+challenge.coins,"Arial", 20);
 			challengeBBonusLabel.attr({
-				x:challengeBXPLabel.x,
+				x:challengeBBallsLabel.x,
 				y:challengeBBonusImage.y+(challengeBBonusImage.height*challengeBBonusImage.scale)/2,
 				anchorX:1,
 				anchorY:.5
@@ -470,25 +470,25 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 				this.addChild(this.collectRewardCButton);
 			}	
 			 
-			var challengeCXPImage = new cc.Sprite(res.smile_emoji);
-			challengeCXPImage.setScale((this.challengeCRect.height-6)/2 / challengeCXPImage.height);
-			challengeCXPImage.attr({
-				x:this.challengeCRect.x+this.challengeCRect.width - 2 - (challengeCXPImage.width*challengeCXPImage.scale),
-				y:this.challengeCRect.y+this.challengeCRect.height - 2 - (challengeCXPImage.height*challengeCXPImage.scale),
+			var challengeCBallsImage = new cc.Sprite(res.smile_emoji);
+			challengeCBallsImage.setScale((this.challengeCRect.height-6)/2 / challengeCBallsImage.height);
+			challengeCBallsImage.attr({
+				x:this.challengeCRect.x+this.challengeCRect.width - 2 - (challengeCBallsImage.width*challengeCBallsImage.scale),
+				y:this.challengeCRect.y+this.challengeCRect.height - 2 - (challengeCBallsImage.height*challengeCBallsImage.scale),
 				anchorX:0,
 				anchorY:0
 			});
-			this.addChild(challengeCXPImage);
+			this.addChild(challengeCBallsImage);
 			
-			var challengeCXPLabel = new cc.LabelTTF("+"+challenge.xp, "Arial", 20);
-			challengeCXPLabel.attr({
-				"x":challengeCXPImage.x-2,
-				"y":challengeCXPImage.y+(challengeCXPImage.height*challengeCXPImage.scale)/2,
+			var challengeCBallsLabel = new cc.LabelTTF("+"+challenge.balls, "Arial", 20);
+			challengeCBallsLabel.attr({
+				"x":challengeCBallsImage.x-2,
+				"y":challengeCBallsImage.y+(challengeCBallsImage.height*challengeCBallsImage.scale)/2,
 				"anchorX":1,
 				"anchorY":.5
 			});
-			challengeCXPLabel.color = cc.color(0,0,0,255);
-			this.addChild(challengeCXPLabel);
+			challengeCBallsLabel.color = cc.color(0,0,0,255);
+			this.addChild(challengeCBallsLabel);
 			
 			var challengeCBonusImage = new cc.Sprite(res.coin);
 			challengeCBonusImage.setScale((this.challengeCRect.height-6)/2 / challengeCBonusImage.height);
@@ -502,7 +502,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 			
 			var challengeCBonusLabel = new cc.LabelTTF("+"+challenge.coins,"Arial", 20);
 			challengeCBonusLabel.attr({
-				x:challengeCXPLabel.x,
+				x:challengeCBallsLabel.x,
 				y:challengeCBonusImage.y+(challengeCBonusImage.height*challengeCBonusImage.scale)/2,
 				anchorX:1,
 				anchorY:.5
@@ -697,7 +697,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 			}
 			else if(FUNCTIONS.posWithin(pos, this.challengeARect) && this.collectRewardAButton != null)
 			{
-				var rankReturn = DATA.checkRankUp(DATA.dailyChallenges[0].xp);
+				//var rankReturn = DATA.checkRankUp(DATA.dailyChallenges[0].xp);
 				DATA.setCurrencies(DATA.coins+DATA.dailyChallenges[0].coins, DATA.gems);
 				
 				this.removeChild(this.collectRewardAButton);
@@ -716,7 +716,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 			}
 			else if(FUNCTIONS.posWithin(pos, this.challengeBRect) && this.collectRewardBButton != null)
 			{
-				var rankReturn = DATA.checkRankUp(DATA.dailyChallenges[1].xp);
+				//var rankReturn = DATA.checkRankUp(DATA.dailyChallenges[1].xp);
 				DATA.setCurrencies(DATA.coins+DATA.dailyChallenges[1].coins, DATA.gems);
 				
 				this.removeChild(this.collectRewardBButton);
@@ -735,7 +735,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 			}
 			else if(FUNCTIONS.posWithin(pos, this.challengeCRect) && this.collectRewardCButton != null)
 			{
-				var rankReturn = DATA.checkRankUp(DATA.dailyChallenges[2].xp);
+				//var rankReturn = DATA.checkRankUp(DATA.dailyChallenges[2].xp);
 				DATA.setCurrencies(DATA.coins+DATA.dailyChallenges[2].coins, DATA.gems);
 				
 				this.removeChild(this.collectRewardCButton);
