@@ -78,6 +78,7 @@ var WorldMapLayer = cc.Layer.extend({
 				anchorX:.5,
 				anchorY:0
 			});
+			this.nodeYDiff = node.height*node.scale*1.85;
 			this.addChild(node);
 			this.nodes.push(node);
 			
@@ -116,6 +117,10 @@ var WorldMapLayer = cc.Layer.extend({
 			{
 				rewardImg = new cc.Sprite(res.red_die_emoji);
 			}
+			else if(worldNumber == 4)
+			{
+				rewardImg = new cc.Sprite(res.puzzle_piece);
+			}
 			else if(worldNumber == 5)
 			{
 				rewardImg = new cc.Sprite(res.dynamite_1_emoji);
@@ -123,6 +128,10 @@ var WorldMapLayer = cc.Layer.extend({
 			else if(worldNumber == 7)
 			{
 				rewardImg = new cc.Sprite(res.red_bulb_emoji);
+			}
+			else if(worldNumber == 8)
+			{
+				rewardImg = new cc.Sprite(res.puzzle_piece);
 			}
 			else if(worldNumber == 10)
 			{
@@ -132,29 +141,57 @@ var WorldMapLayer = cc.Layer.extend({
 			{
 				rewardImg = new cc.Sprite(res.dagger_top_right_emoji);
 			}
+			else if(worldNumber == 15)
+			{
+				rewardImg = new cc.Sprite(res.puzzle_piece);
+			}
 			else if(worldNumber == 17)
 			{
 				rewardImg = new cc.Sprite(res.cloud_emoji);
+			}
+			else if(worldNumber == 19)
+			{
+				rewardImg = new cc.Sprite(res.puzzle_piece);
 			}
 			else if(worldNumber == 21)
 			{
 				rewardImg = new cc.Sprite(res.orb_emoji);
 			}
+			else if(worldNumber == 23)
+			{
+				rewardImg = new cc.Sprite(res.puzzle_piece);
+			}
 			else if(worldNumber == 25)
 			{
 				rewardImg = new cc.Sprite(res.red_soapbar_emoji);
+			}
+			else if(worldNumber == 27)
+			{
+				rewardImg = new cc.Sprite(res.puzzle_piece);
 			}
 			else if(worldNumber == 30)
 			{
 				rewardImg = new cc.Sprite(res.spiderweb_emoji);
 			}
+			else if(worldNumber == 33)
+			{
+				rewardImg = new cc.Sprite(res.puzzle_piece);
+			}
 			else if(worldNumber == 36)
 			{
 				rewardImg = new cc.Sprite(res.package_emoji);
 			}
+			else if(worldNumber == 39)
+			{
+				rewardImg = new cc.Sprite(res.puzzle_piece);
+			}
 			else if(worldNumber == 42)
 			{
 				rewardImg = new cc.Sprite(res.red_balloon_emoji);
+			}
+			else if(worldNumber == 45)
+			{
+				rewardImg = new cc.Sprite(res.puzzle_piece);
 			}
 			else if(worldNumber == 50)
 			{
@@ -218,7 +255,7 @@ var WorldMapLayer = cc.Layer.extend({
 				nodeX += nodeWidth*2/3;
 			else nodeX -= nodeWidth*2/3;
 			
-			nodeY += node.height*node.scale*1.85;
+			nodeY += this.nodeYDiff;
 			
 			nodeCount++;
 			worldNumber++;
@@ -228,6 +265,9 @@ var WorldMapLayer = cc.Layer.extend({
 		//} while(nodeY < this.titleLabel.y-this.titleLabel.height);
 		
 	},
+	/*onEnter:function(){
+		this._super();
+	},*/
 	
 	onTouchStarted:function(pos)
 	{
@@ -250,6 +290,13 @@ var WorldMapLayer = cc.Layer.extend({
 		{
 			return "close";
 		}
+	},
+	
+	advanceAvatar:function()
+	{
+		var moveAction = cc.moveBy(1, (this.width - 30)/5, this.nodeYDiff);
+		var seq = new cc.Sequence(moveAction, cc.callFunc(this.parent.closeWorldMapAfterCompletion, this.parent));
+		this.avatarImg.runAction(seq);
 	},
 	
 	scroll:function(dist)

@@ -314,6 +314,11 @@ var MainContainerLayer = cc.Layer.extend({
         //return true;
 	},
 	
+	/*onEnter:function()
+	{
+		this._super();
+	},*/
+	
 	isPopup:function()
 	{
 		if(this.settingsLayer != null || this.worldMapLayer != null)
@@ -338,6 +343,43 @@ var MainContainerLayer = cc.Layer.extend({
 		this.addChild(this.worldMapLayer, 9);
 		
 		
+	},
+	
+	openWorldMapLayerAfterCompletion:function()
+	{
+		this.worldMapLayer = new WorldMapLayer(this.width-50, this.height-50);
+		this.worldMapLayer.attr({
+			x:25,
+			y:25,
+			anchorX:0,
+			anchorY:0
+		});
+		this.worldMapLayer.setScale(0);
+		this.addChild(this.worldMapLayer);
+		
+		var scaleAction = cc.scaleTo(.5,1,1);
+		var moveToAction = cc.moveTo(.5, cc.p(25,25));
+		var spawn = cc.spawn(scaleAction, moveToAction);
+		var seq = new cc.Sequence(
+			spawn, 
+			cc.callFunc(this.worldMapLayer.advanceAvatar, this.worldMapLayer)
+			
+		);
+		this.worldMapLayer.runAction(seq);
+	},
+	
+	closeWorldMapAfterCompletion:function()
+	{
+		var moveAction = cc.moveTo(.5, cc.winSize.width/2, cc.winSize.height/2);
+		var scaleAction = cc.scaleTo(.5, 0,0);
+		var spawn = cc.spawn(moveAction, scaleAction);
+		var seq = new cc.Sequence(
+			spawn, 
+			cc.callFunc(this.worldMapLayer.removeFromParent, this.worldMapLayer),
+			cc.callFunc(this.gameplayLayer.openWorldElementLayer, this.gameplayLayer)
+		);
+		this.worldMapLayer.runAction(seq);
+		this.worldMapLayer = null;
 	},
 	
 	slideTabs:function(moveDistance)

@@ -24,7 +24,7 @@ var ChallengeLayer = cc.Layer.extend({
 		});
 		this.addChild(this.topUILayer);
 
-		
+				
 
 		this.bubbleLayer = new BubbleLayer(bubbles, numRows, numMoves, "challenge", size.width, size.height-this.bottomUILayer.height-this.topUILayer.height, preboosters);	
 		this.bubbleLayer.attr({
@@ -38,6 +38,7 @@ var ChallengeLayer = cc.Layer.extend({
 		this.settingsLayer = null;
 		this.quitConfirmLayer = null;
 		this.buyBoosterLayer = null;
+		this.challengeRewardLayer = null;
 		
 		
 		var self = this;
@@ -213,6 +214,30 @@ var ChallengeLayer = cc.Layer.extend({
 					    		self.bubbleLayer.changeShooter(1);
 					    	}
 				   		}
+				   		else if(self.challengeRewardLayer != null)
+				   		{
+				   			var loc = self.challengeRewardLayer.convertToNodeSpace(touch.getLocation());
+					    	var returnObj = self.challengeRewardLayer.onTouchEnd(loc);
+				   			
+				   			if(returnObj == "close")
+				   			{
+				   				/*var moveAction = cc.moveTo(.5, cc.winSize.width/2, (cc.winSize.height-self.bottomUILayer.height-self.topUILayer.height) / 2);
+				   				var scaleAction = cc.scaleTo(.5, 0,0);
+				   				var spawn = cc.spawn(moveAction, scaleAction);
+				   				//var seq;
+				   				self.challengeRewardLayer.runAction(spawn);*/
+				   				
+				   				var maxRow = 0;
+								for(var i=0; i<DATA.worldBubbles.length; i++)
+								{
+									if(DATA.worldBubbles[i].row > maxRow)
+										maxRow = DATA.worldBubbles[i].row;
+								}
+							  
+							  cc.director.runScene(new MainContainerScene(DATA.worldBubbles, maxRow+1));
+				   			}
+				   			
+				   		}
 				   	}
 			    	return true;
 			    }
@@ -227,9 +252,28 @@ var ChallengeLayer = cc.Layer.extend({
 	{
 		if(this.settingsLayer == null && 
 			this.quitConfirmLayer == null &&
-			this.buyBoosterLayer == null)
+			this.buyBoosterLayer == null &&
+			this.challengeRewardLayer == null)
 			return false;
 		return true;
+	},
+	
+	openChallengeRewardLayer:function()
+	{
+		this.challengeRewardLayer = new ChallengeRewardLayer(cc.winSize.width-50, cc.winSize.height-this.bottomUILayer.height-this.topUILayer.height-50);
+		this.challengeRewardLayer.attr({
+			x:cc.winSize.width/2,
+			y: (cc.winSize.height-this.bottomUILayer.height-this.topUILayer.height) / 2,
+			anchorX:0,
+			anchorY:0
+		});
+		this.challengeRewardLayer.setScale(0);
+		this.addChild(this.challengeRewardLayer);
+		
+		var moveAction = cc.moveTo(.5, 25, this.bottomUILayer.height+25);
+		var scaleAction = cc.scaleTo(.5,1,1);
+		var spawn = cc.spawn(moveAction, scaleAction);
+		this.challengeRewardLayer.runAction(spawn);
 	}
 	
 });

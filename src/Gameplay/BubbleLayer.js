@@ -147,6 +147,12 @@ var BubbleLayer = cc.Layer.extend({
 	       	
 	       	this.aimIndicator = {x:0, y:this.shooter.y+this.bubbleR*2, width:cc.winSize.width, height:(this.height-(this.bubbleR*21)) - (this.shooter.y+this.bubbleR*2) };
 		    this.drawAimIndicator();
+		    
+		    
+		    
+		    this.schedule(this.triggerRandomIdle, .1);
+		    
+		    
 		}
        	//this.outOfMovesWarningLabel = null;
        	
@@ -234,6 +240,30 @@ var BubbleLayer = cc.Layer.extend({
 		
 		
 		DATA.registerEvent({"type":"init","progress":this.bubbles.length});
+	},
+	onEnter:function(){
+		this._super();
+		
+	
+		    
+	},
+	
+	triggerRandomIdle:function()
+	{
+		/*var randomBubbleIndex = Math.floor(Math.random()*this.bubbles.length);
+		
+		if(this.bubbles[randomBubbleIndex].turnAnimation != null && this.bubbles[randomBubbleIndex].colorCode == "yellow")
+		{
+			var animateAction = cc.Animate.create(this.bubbles[randomBubbleIndex].turnAnimation);
+			this.bubbles[randomBubbleIndex].bubbleImg.runAction(animateAction);
+		}
+		else if(this.bubbles[randomBubbleIndex].idleAnimation != null)
+		{
+			var animateAction = cc.Animate.create(this.bubbles[randomBubbleIndex].idleAnimation);
+			this.bubbles[randomBubbleIndex].bubbleImg.runAction(animateAction);
+		}
+		*/
+	
 	},
 	
 	drawAimIndicator:function()
@@ -624,8 +654,13 @@ var BubbleLayer = cc.Layer.extend({
 			
 			this.drawAimIndicator();
 		}
+		
+		
     	
    	},
+   	
+   	
+   	
 	onTouchMove:function(loc){
 		if(this.inputFrozen)
 			return;
@@ -1266,8 +1301,9 @@ var BubbleLayer = cc.Layer.extend({
 			if(this.bubbles.length == 0)
 			{
 				DATA.updateWorldIndexDatabase(DATA.worldIndex+1);
-				
-				cc.director.runScene(new RewardScene());
+				this.unschedule(this.triggerRandomIdle);
+				//cc.director.runScene(new RewardScene());
+				this.parent.openWorldRewardsLayer();
 			}
 			
 			/*if(this.numMoves <= 0)
@@ -1297,9 +1333,9 @@ var BubbleLayer = cc.Layer.extend({
 				DATA.updateDatabaseLevelIndices();
 				
 				
-				var rankReturn = DATA.checkRankUp();
+				//var rankReturn = DATA.checkRankUp();
 				
-				var rewardScene = new ChallengeRewardScene(rankReturn);
+				//var rewardScene = new ChallengeRewardScene();
 				
 				
 				DATA.streakStep = Math.min(DATA.streakStep+1, 2);
@@ -1309,7 +1345,9 @@ var BubbleLayer = cc.Layer.extend({
 				
 				DATA.registerEvent({"type":"level","progress":1});
 				
-				cc.director.runScene(rewardScene);
+				//cc.director.runScene(rewardScene);
+				
+				this.parent.openChallengeRewardLayer();
 			}
 			else if(this.numMoves <= 1)
 			{

@@ -85,6 +85,13 @@ var res = {
     pink_soapbar_emoji: "res/pink-soapbar.png",
     purple_soapbar_emoji: "res/purple-soapbar.png",
     
+    smile_blink_anim: "res/smile-blink-anim.png",
+    angry_blink_anim: "res/angry-blink-anim.png",
+    sad_blink_anim: "res/sad-blink-anim.png",
+    
+    smile_turn_anim: "res/smile-turn-anim.png",
+    smile_turnright_anim: "res/smile-turnright-anim.png",
+    
     spiderweb_emoji: "res/spiderweb_emoji.png",
     red_bulb_emoji: "res/red-bulb.png",
     dagger_top_right_emoji:"res/dagger-top-right.png",
@@ -233,11 +240,13 @@ var res = {
     
     sunglass_face: "res/sunglass-face.png",
     concerned_face: "res/concerned-face.png",
+    crown_face: "res/crown-face.png",
     
     world_node: "res/node.png",
     world_node_gray: "res/node-gray.png",
     map_icon: "res/map.png",
-    puzzle_piece: "res/puzzle-piece.png"
+    puzzle_piece: "res/puzzle-piece.png",
+    framed_picture: "res/framed-picture.png"
 };
 
 

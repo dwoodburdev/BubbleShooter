@@ -15,6 +15,8 @@ var GameplayLayer = cc.Layer.extend({
 			anchorY:0
 		});
 		this.addChild(this.coreButtonsUI);
+		
+		this.bubbleLayerHeight = this.height-this.coreButtonsUI.height;
 
 		this.bubbleLayer = new BubbleLayer(bubbles, numRows, DATA.worldBallsLeft, "world", size.width, this.height-this.coreButtonsUI.height, []);	
 		this.bubbleLayer.attr({
@@ -31,6 +33,7 @@ var GameplayLayer = cc.Layer.extend({
 		this.buyBallsLayer = null;
 		this.noLevelLayer = null;
 		this.buyPreboosterLayer = null;
+		this.worldElementLayer = null;
 		
 		this.shooterLabel = null;
 		
@@ -42,6 +45,10 @@ var GameplayLayer = cc.Layer.extend({
 		
         return true;
 	},
+	/*onEnter:function()
+	{
+		this._super();
+	},*/
 	
 	triggerLevelsFullLabel:function()
 	{
@@ -86,7 +93,8 @@ var GameplayLayer = cc.Layer.extend({
 			this.worldRewardsLayer == null &&
 			this.buyBallsLayer == null &&
 			this.noLevelLayer == null &&
-			this.buyPreboosterLayer == null)
+			this.buyPreboosterLayer == null &&
+			this.worldElementLayer == null)
 		{
 			return false;
 		}
@@ -304,14 +312,22 @@ var GameplayLayer = cc.Layer.extend({
 				}
 			}
 			else if(this.worldRewardsLayer != null && FUNCTIONS.posWithin(this.convertToNodeSpace(pos), this.worldRewardsLayer))
-			{
+			{cc.log("world rewards");
 				var returnObj = this.worldRewardsLayer.onTouchEnd(this.convertToNodeSpace(pos));
-				if(returnObj == "close")
+				/*if(returnObj == "close")
 				{
 					this.removeChild(this.worldRewardsLayer);
 					this.worldRewardsLayer = null;
 					return "close";
+				}*/
+				if(returnObj == "open")
+				{
+					//this.schedule(this.closeWorldRewardsLayer, 1.5);
 				}
+			}
+			else if(this.worldElementLayer != null && FUNCTIONS.posWithin(this.convertToNodeSpace(pos), this.worldElementLayer))
+			{
+				var returnObj = this.worldElementLayer.onTouchEnd(this.convertToNodeSpace(pos));
 			}
 			
 			
@@ -319,11 +335,141 @@ var GameplayLayer = cc.Layer.extend({
 		}
 	},
 	
+	openWorldRewardsLayer:function()
+	{
+		this.worldRewardsLayer = new WorldRewardsLayer(cc.winSize.width-50,this.height-50);
+		this.worldRewardsLayer.attr({
+			x:cc.winSize.width*.5,y:this.height*.5,anchorX:0,anchorY:0
+		});
+		this.addChild(this.worldRewardsLayer, 1);
+		this.worldRewardsLayer.setScale(0);
+		var scaleAction = cc.scaleTo(.5,1,1);
+		var moveToAction = cc.moveTo(.5, cc.p(25,25));
+		var spawn = cc.spawn(scaleAction, moveToAction);
+		this.worldRewardsLayer.runAction(spawn);
+	},
+	
+	closeWorldRewardsLayer:function()
+	{cc.log("CLOOOSSSIIINGNGG WORLD REWARDS YO");
+		var scaleAction = cc.scaleTo(.5,0,0);
+		var moveToAction = cc.moveTo(.5, cc.p(cc.winSize.width/2, this.height/2));
+		var spawn = cc.spawn(scaleAction, moveToAction);
+		var seq = new cc.Sequence(
+			spawn, 
+			//cc.callFunc(this.worldRewardsLayer.removeFromParent, this.worldRewardsLayer), 
+			cc.callFunc(this.parent.openWorldMapLayerAfterCompletion, this.parent)
+		);
+		this.worldRewardsLayer.runAction(seq);
+		this.worldRewardsLayer = null;
+		
+	},
+	
+	openWorldElementLayer:function()
+	{cc.log("OPEN WORLD ELEMENT LAYER");
+		if((""+DATA.worldIndex) in DATA.worldElements)
+		{cc.log("NEW ELEMENT");
+			this.worldElementLayer = new WorldElementLayer(cc.winSize.width-50, this.height-50);
+			this.worldElementLayer.attr({
+				x:cc.winSize.width/2,
+				y:this.height/2,
+				anchorX:0,
+				anchorY:0
+			});
+			this.worldElementLayer.setScale(0);
+			this.addChild(this.worldElementLayer);
+			var moveAction = cc.moveTo(.5,25,25);
+			var scaleAction = cc.scaleTo(.5,1,1);
+			var spawn = cc.spawn(moveAction, scaleAction);
+			this.worldElementLayer.runAction(spawn);
+		}
+		else
+		{cc.log("LOAD WORLD");
+			this.loadNextWorld();
+		}
+		
+		
+	},
+	
+	loadNextWorld:function()
+	{
+		if(this.worldElementLayer != null)
+		{
+			this.removeChild(this.worldElementLayer);
+			this.worldElementLayer = null;
+		}
+		this.removeChild(this.bubbleLayer);
+		this.bubbleLayer = null;
+		
+		var level = DATA.levels[DATA.worldIndex];
+		DATA.worldBubbles = [];
+		for(var i=0; i<level.bubbles.length; i++)
+		{
+			DATA.worldBubbles.push(level.bubbles[i]);
+		}
+		DATA.setWorldDatabaseBubbles(DATA.worldBubbles);
+		//DATA.worldBubbles = level.bubbles;
+		var maxRow = 0;
+		for(var i=0; i<DATA.worldBubbles.length; i++)
+		{
+			if(DATA.worldBubbles[i].row > maxRow)
+				maxRow = DATA.worldBubbles[i].row;
+		}
+		cc.log(level.bubbles);
+		this.bubbleLayer = new BubbleLayer(level.bubbles, maxRow+1, DATA.worldBallsLeft, "world", cc.winSize.width, this.height-this.coreButtonsUI.height, []);	
+		this.bubbleLayer.attr({
+			x:0,
+			y:this.coreButtonsUI.height,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.bubbleLayer);
+		
+		/*DATA.database.ref("worlds/levels/"+DATA.worldIndex).once("value").then(function(snapshot){
+			var d = snapshot.val();
+			var bubbles = [];
+		  	var bubKeys = Object.keys(d.bubbles);
+		  	for(var i=0; i<bubKeys.length; i++)
+		  	{
+		  		var dBub = d.bubbles[bubKeys[i]];
+		  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:dBub.colorCode};
+		    	bubbles.push(bubble);
+		  	}
+		  	var queue = {type:d.queue.type, colors:d.queue.colors};
+		  	DATA.worldLevel = {"bubbles":bubbles, "queue":queue};
+		  	
+		  	//var bubbles = DATA.worldLevel.bubbles;
+		
+			var maxRow = 0;
+			for(var i=0; i<bubbles.length; i++)
+			{
+				if(bubbles[i].row > maxRow)
+					maxRow = bubbles[i].row;
+			}
+			
+			DATA.worldBubbles = bubbles;
+			//DATA.setWorldQueue(DATA.worldLevel.queue);
+			
+			cc.log(this.coreButtonsUI);
+			// load next world
+			this.bubbleLayer = null;
+			this.bubbleLayer = new BubbleLayer(DATA.worldBubbles, maxRow, DATA.worldBallsLeft, "world", cc.winSize.width, this.bubbleLayerHeight, []);	
+			this.bubbleLayer.attr({
+				x:0,
+				y:0,//this.coreButtonsUI.height,
+				anchorX:0,
+				anchorY:0
+			});
+			this.addChild(this.bubbleLayer);
+			
+			
+		});*/
+	},
+	
 	openPreLayer:function()
 	{
 		this.preLayer = new PreChallengeLayer(DATA.levelIndexA,cc.winSize.width-50,this.height-50);
 		this.preLayer.attr({x:cc.winSize.width*.5,y:25,anchorX:0,anchorY:0});
-		this.addChild(this.preLayer);
+		this.addChild(this.preLayer, 1);
 		this.preLayer.setScale(0);
 		var scaleAction = cc.scaleTo(.5, 1, 1);
 		var moveToAction = cc.moveTo(.5, cc.p(25, 25));

@@ -28,6 +28,10 @@ var Bubble = cc.Sprite.extend({
         //this.cascadable = false;	// Can cause additional effects after its effect (need to think about this)
         //this.stateChangable = false;// Changes its state - need to think about this (after turn, after effect)
         
+        this.idleAnimation = null;
+        this.turnRightAnimation = null;
+        this.turnLeftAnimation = null;
+        
         if(this.type == -1)
         {
         	this.onHit = null;
@@ -43,6 +47,87 @@ var Bubble = cc.Sprite.extend({
         	this.onMatch = bubbleClearEffect;
 			this.onClear = bubbleClearEffect;
         	this.onTurn = null;
+        	
+        	
+        	var texture = null;
+        	var numFrames = 0;
+        	var frameWidth = 0;
+        	if(this.colorCode=="yellow")
+        	{
+        		texture = cc.textureCache.addImage(res.smile_blink_anim);
+        		numFrames = 6;
+        		frameWidth = 458;
+        	}
+        	else if(this.colorCode=="red")
+        	{
+        		texture = cc.textureCache.addImage(res.angry_blink_anim);
+        		numFrames = 5;
+        		frameWidth = 457;
+        	}
+        	else if(this.colorCode=="blue")
+        	{
+        		texture = cc.textureCache.addImage(res.sad_blink_anim);
+        		numFrames = 5;
+        		frameWidth = 496;
+        	}
+        	
+        	// Animations
+        	
+        	var rects = [];
+        	for(var i=0; i<numFrames; i++)
+        		rects.push(cc.rect(i*frameWidth,0,frameWidth,frameWidth));
+        	for(var i=numFrames-1; i>=0; i--)
+        		rects.push(cc.rect(i*frameWidth,0,frameWidth,frameWidth));
+        	
+        	var animFrames = [];
+        	for(var i=0; i<rects.length; i++)
+        	{
+        		var spriteFrame = new cc.SpriteFrame(texture, rects[i]);
+        		var animFrame = new cc.AnimationFrame();
+        		animFrame.initWithSpriteFrame(spriteFrame, 1, null);
+        		animFrames.push(animFrame);
+        	}
+        	
+        	this.idleAnimation = cc.Animation.create(animFrames, .1);
+        	
+        	
+        	if(this.colorCode == "yellow")
+        	{
+        		var turnTexture = cc.textureCache.addImage(res.smile_turnright_anim);
+        		var turnFrameWidth = 458;
+        		
+        		var turnRects = [];
+        		/*
+        		for(var i=0; i<5; i++)
+        			turnRects.push(cc.rect(i*turnFrameWidth,0,turnFrameWidth,turnFrameWidth));
+        		for(var i=3; i>=0; i--)
+        			turnRects.push(cc.rect(i*turnFrameWidth,0,turnFrameWidth,turnFrameWidth));
+        		for(var i=5; i<9; i++)
+        			turnRects.push(cc.rect(i*turnFrameWidth,0,turnFrameWidth,turnFrameWidth));
+        		for(var i=7; i>=5; i--)
+        			turnRects.push(cc.rect(i*turnFrameWidth,0,turnFrameWidth,turnFrameWidth));
+        		turnRects.push(cc.rect(0,0,turnFrameWidth,turnFrameWidth));
+        		*/
+        		
+        		for(var i=0; i<5; i++)
+        			turnRects.push(cc.rect(i*turnFrameWidth,0,turnFrameWidth,turnFrameWidth));
+        		// pause on far right
+        		for(var i=0; i<10; i++)
+        			turnRects.push(cc.rect(4*turnFrameWidth,0,turnFrameWidth,turnFrameWidth));
+        		for(var i=3; i>=0; i--)
+        			turnRects.push(cc.rect(i*turnFrameWidth,0,turnFrameWidth,turnFrameWidth));
+        		
+        		var turnAnimFrames = [];
+        		for(var i=0; i<turnRects.length; i++)
+        		{
+        			var spriteFrame = new cc.SpriteFrame(turnTexture, turnRects[i]);
+        			var animFrame = new cc.AnimationFrame();
+        			animFrame.initWithSpriteFrame(spriteFrame, 1, null);
+        			turnAnimFrames.push(animFrame);
+        		}
+        		this.turnAnimation = cc.Animation.create(turnAnimFrames, .1);
+        	}
+        	
         }
         // Bomb
         else if(this.type == 1)
@@ -477,10 +562,58 @@ var Bubble = cc.Sprite.extend({
 		//this.draw();
 	},
 	
-	onEnter:function()
-	{
-		this._super();
-	},
+	//onEnter:function()
+	//{
+	//	this._super();
+	/*
+	if(this.type == 0)
+	{	
+		
+		var texture = null;
+        	var numFrames = 0;
+        	var frameWidth = 0;
+        	if(this.colorCode=="yellow")
+        	{
+        		texture = cc.textureCache.addImage(res.smile_blink_anim);
+        		numFrames = 6;
+        		frameWidth = 458;
+        	}
+        	else if(this.colorCode=="red")
+        	{
+        		texture = cc.textureCache.addImage(res.angry_blink_anim);
+        		numFrames = 5;
+        		frameWidth = 457;
+        	}
+        	else if(this.colorCode=="blue")
+        	{
+        		texture = cc.textureCache.addImage(res.sad_blink_anim);
+        		numFrames = 5;
+        		frameWidth = 496;
+        	}
+        	
+        	
+        	// Animations
+        	var rects = [];
+        	for(var i=0; i<numFrames; i++)
+        		rects.push(cc.rect(i*frameWidth,0,frameWidth,frameWidth));
+        	for(var i=numFrames-1; i>=0; i--)
+        		rects.push(cc.rect(i*frameWidth,0,frameWidth,frameWidth));
+        	
+        	
+        	var animFrames = [];
+        	for(var i=0; i<rects.length; i++)
+        	{
+        		var spriteFrame = new cc.SpriteFrame(texture, rects[i]);
+        		var animFrame = new cc.AnimationFrame();
+        		animFrame.initWithSpriteFrame(spriteFrame, 1, null);
+        		animFrames.push(animFrame);
+        	}
+        	
+        	this.idleAnimation = cc.Animation.create(animFrames, .05);
+        	
+        }*/
+		
+	//},
 	
 	triggerOnTurn:function(turnNumber){
 		this.removeChild(this.bubbleImg);

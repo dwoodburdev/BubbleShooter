@@ -13,7 +13,7 @@ var WorldRewardsLayer = cc.Layer.extend({
 		this.addChild(this.dn);
 		
 		
-        this.closeButton = new cc.Sprite(res.red_x_button);
+        /*this.closeButton = new cc.Sprite(res.red_x_button);
         this.closeButton.setScale(this.width/10 / this.closeButton.width);
         this.closeButton.attr({
         	"x":0,
@@ -21,9 +21,19 @@ var WorldRewardsLayer = cc.Layer.extend({
         	"anchorX":0,
         	"anchorY":0
         });
-		this.addChild(this.closeButton);
+		this.addChild(this.closeButton);*/
 		
-		this.titleLabel = new cc.LabelTTF("Reward Notification", "Roboto", 35);
+		this.openButton = new cc.Sprite(res.get_button);
+		this.openButton.setScale(this.width/4 / this.openButton.width);
+		this.openButton.attr({
+			x:this.width/2,
+			y:this.openButton.height*this.openButton.scale,
+			anchorX:.5,
+			anchorY:0
+		});
+		this.addChild(this.openButton);
+		
+		this.titleLabel = new cc.LabelTTF("World "+DATA.worldIndex+" Complete!", "Roboto", 35);
 		this.titleLabel.attr({
 			"x":this.x+this.width/2,
 			"y":this.height-40,
@@ -43,13 +53,74 @@ var WorldRewardsLayer = cc.Layer.extend({
 		});
 		this.addChild(this.majorChest);
 		
+		this.coinImg = null;
+		this.coinLabel = null;
+		
 	},
 	
 	onTouchEnd:function(pos)
-	{cc.log("touchend");cc.log(pos);cc.log(this.closeButton.x + " " + this.closeButton.y+ " " + this.closeButton.scale);
-		if(this.posWithin(pos, {"x":this.x+this.closeButton.x,"y":this.y+this.closeButton.y,"width":this.closeButton.width*this.closeButton.scale,"height":this.closeButton.height*this.closeButton.scale}))
+	{cc.log(pos);
+		/*if(this.posWithin(pos, {"x":this.x+this.closeButton.x,"y":this.y+this.closeButton.y,"width":this.closeButton.width*this.closeButton.scale,"height":this.closeButton.height*this.closeButton.scale}))
     	{cc.log("close");
     		return "close";
+    	}
+    	else*/ if(FUNCTIONS.posWithinScaled(pos, this.openButton))
+    	{
+    		this.coinLabel = new cc.LabelTTF("+50","Roboto",24);
+    		this.coinLabel.attr({
+    			x:this.width/2,
+    			y:this.height/2,
+    			anchorX:1,
+    			anchorY:.5
+    		});
+    		this.coinLabel.color = cc.color(0,0,0,255);
+    		this.addChild(this.coinLabel);
+    		
+    		this.coinImg = new cc.Sprite(res.coin);
+    		this.coinImg.setScale(this.coinLabel.height / this.coinImg.height);
+    		this.coinImg.attr({
+    			x:this.coinLabel.x,
+    			y:this.height/2,
+    			anchorX:0,
+    			anchorY:.5
+    		});
+    		this.addChild(this.coinImg);
+    		
+    		// Need to include rewarded boosters too
+    		
+    		
+    		/*var coinLabel = new cc.LabelTTF("+50","Roboto",24);
+    		coinLabel.attr({
+    			x:this.width/2,
+    			y:this.height/2,
+    			anchorX:1,
+    			anchorY:.5
+    		});
+    		coinLabel.color = cc.color(0,0,0,255);
+    		this.addChild(coinLabel);*/
+    		
+    		var coinImg = new cc.Sprite(res.coin);
+    		coinImg.setScale(this.coinLabel.height / coinImg.height);
+    		coinImg.attr({
+    			x:this.coinLabel.x,
+    			y:this.height/2,
+    			anchorX:0,
+    			anchorY:.5
+    		});
+    		this.addChild(coinImg);
+    		
+    		var moveAction = cc.moveTo(.5, this.parent.parent.topUILayer.coinImg.x, this.parent.parent.topUILayer.y);
+    		var delayAction = cc.delayTime(1);
+    		var spawn = cc.spawn();
+    		//var remSpawn = cc.spawn(cc.callFunc(coinImg.removeFromParent, coinImg));
+    		var seq = new cc.Sequence(
+    			moveAction, delayAction, /*cc.callFunc(coinImg.removeFromParent, coinImg),*/ 
+    			cc.callFunc(this.parent.closeWorldRewardsLayer, this.parent)
+    		);
+    		coinImg.runAction(seq);
+    		
+    		return "open";
+    		
     	}
     	
     	return null;

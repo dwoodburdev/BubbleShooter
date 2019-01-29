@@ -54,6 +54,8 @@
     	"src/Popups/ChallengeCollectionDisplayLayer.js",
     	"src/Popups/ChallengeFailLayer.js",
     	"src/Popups/ChallengeRewardLayer.js",
+    	"src/Popups/ChallengeWinDailyLayer.js",
+    	"src/Popups/ChallengeWinPuzzleLayer.js",
     	"src/Popups/ChallengeWinSummaryLayer.js",
     	"src/Popups/ExtraBonusRewardPickerLayer.js",
     	"src/Popups/NoLevelLayer.js",
@@ -63,6 +65,7 @@
     	"src/Popups/RankUpLayer.js",
     	"src/Popups/RewardLayer.js",
     	"src/Popups/SettingsLayer.js",
+    	"src/Popups/WorldElementLayer.js",
     	"src/Popups/WorldMapLayer.js",
     	"src/Popups/WorldRewardsLayer.js",
     	
