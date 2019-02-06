@@ -1,5 +1,5 @@
 var Bubble = cc.Sprite.extend({
-	ctor:function(r,color,type,orientation,row,col){
+	ctor:function(r,color,type,orientation,binary,meta,row,col){
 		this._super();
 		cc.associateWithNative( this, cc.Sprite );
         
@@ -7,6 +7,8 @@ var Bubble = cc.Sprite.extend({
         this.colorCode = color;
         this.type = type;
         this.orientation = orientation;
+        this.binary = binary;
+        this.meta = meta;
         this.triggered = false;
         this.colorQueue = [];
         //this.anchor = false;
@@ -14,6 +16,9 @@ var Bubble = cc.Sprite.extend({
         this.onMatch = null; 		// Clears when matched (can still have on-match effect)
         this.onClear = null; 		// Clearable by supers
         //this.clustered = false;
+        this.onTrespass = null;
+        
+        this.matchable = false;
         
         this.onHit = null;    		// Has on-hit effect	
         this.onAdjMatch = null;	// Has on-adjacent-match effect
@@ -47,6 +52,8 @@ var Bubble = cc.Sprite.extend({
         	this.onMatch = bubbleClearEffect;
 			this.onClear = bubbleClearEffect;
         	this.onTurn = null;
+        	
+        	this.matchable = true;
         	
         	
         	var texture = null;
@@ -188,26 +195,23 @@ var Bubble = cc.Sprite.extend({
         	this.onClear = pinSuperEffect;
         	this.onTurn = null;
         }
-        // Pinwheel
+        // Lightbulb (used to be Pinwheel)
         else if(this.type == 7)
-        {
+        {cc.log("BULB");
         	var clearEffect = {"type":"destroy","rule":"self"};
-        	var changeColorEffect = {"type":"changeColor","rule":"queue"};
+        	var changeColorEffect = {"type":"transform","variable":"color","rule":"queue"};
         	this.onHit = null;
         	this.onMatch = clearEffect;
         	this.onAdjMatch = null;
         	this.onClear = clearEffect;
         	this.onTurn = changeColorEffect;
         	
-        	var randomColors = ["red","blue","yellow","green"];
-        	do
-        	{
-        		var pickedColorIndex = Math.floor(Math.random()*randomColors.length);
-        		this.colorQueue.push(randomColors[pickedColorIndex]);
-        		randomColors.splice(pickedColorIndex, 1);
-        	} while(randomColors.length > 0);
-        	
+        	this.colorQueue = this.colorCode;
         	this.colorCode = this.colorQueue[0];
+        	
+        	
+        	this.matchable = true;
+        	
         }
         // Dice
         else if(this.type == 8)
@@ -221,9 +225,11 @@ var Bubble = cc.Sprite.extend({
         	this.onClear = clearEffect;
         	this.onTurn = null;
         	
-        	this.colorQueue = ["red","yellow","blue","green"];
+        	this.colorQueue = ["red","orange","yellow","green","blue","pink","purple"];
         	if(this.colorCode == null)
         		this.colorCode = this.colorQueue[Math.floor(Math.random()*this.colorQueue.length)];
+        	
+        	this.matchable = true;
         }
         // Clones (Orb)
         else if(this.type == 9)
@@ -236,6 +242,8 @@ var Bubble = cc.Sprite.extend({
         	this.onAdjMatch = cloneEffect;
         	this.onClear = clearEffect;
         	this.onTurn = null;
+        	
+        	this.matchable = true;
         }
         // Disco
         else if(this.type == 10)
@@ -248,14 +256,14 @@ var Bubble = cc.Sprite.extend({
         	this.onClear = bombEffect; // ?
         	this.onTurn = null;
         }
-        // Gumball
+        // Beachball (Changed from onAdjMatch Gumball)
         else if(this.type == 11)
         {
         	var clearMatches = {"type":"explode", "aoe":{"type":"match","rule":"adjacents"}};
         	
-        	this.onHit = null;
+        	this.onHit = clearMatches;
         	this.onMatch = null;
-        	this.onAdjMatch = clearMatches;
+        	this.onAdjMatch = null;
         	this.onClear = clearMatches;
         	this.onTurn = null;
         }
@@ -282,7 +290,7 @@ var Bubble = cc.Sprite.extend({
         // electric orb - on adj-match, takes out (random or nearest?) match on-screen
         else if(this.type == 14)
        	{
-       		var bombEffect = {"type":"explode", "aoe":{"type":"match","rule":"nearest"}};
+       		var bombEffect = {"type":"explode", "aoe":{"type":"match","rule":"random"}};
         	this.onHit = null;
        		this.onMatch = null;
         	this.onAdjMatch = bombEffect;
@@ -300,8 +308,10 @@ var Bubble = cc.Sprite.extend({
         	this.onAdjMatch = null;//cloneEffect;
         	this.onClear = clearEffect;
         	this.onTurn = null;
+        	
+        	this.matchable = true;
         }
-        // spike
+        // spike (now fire)
         else if(this.type == 16)
        	{
        		var destroyShooterEffect = {"type":"destroy", "rule":"shooter"};
@@ -347,6 +357,8 @@ var Bubble = cc.Sprite.extend({
         	this.onTurn = null;
         	
         	this.isAnchor = true;
+        	
+        	this.matchable = true;
         }
          // Star - use meta effect for onhit, onmatch, etc, to reward level via Data.js
         else if(this.type == 20)
@@ -362,8 +374,132 @@ var Bubble = cc.Sprite.extend({
         	
         	this.isAnchor = false;
         	
-        	
         }
+        // Dagger
+        else if(this.type == 21)
+        {
+        	var daggerSuperEffect = {"type":"explode","aoe":{"type":"direction","distance":3}};
+        	var rotateEffect = {"type":"rotate","rule":"random"};
+        	
+        	this.onHit = daggerSuperEffect;
+        	this.onMatch = null;
+        	this.onAdjMatch = null;
+        	this.onClear = daggerSuperEffect;
+        	this.onTurn = rotateEffect;
+        }
+        // Egg
+        else if(this.type == 22)
+        {
+        	var changeEffect = {"type":"transform","variable":"type","rule":"secondary"};
+        	this.onHit = changeEffect;
+        	this.onMatch = null;
+        	this.onAdjMatch = null;
+        	this.onClear = changeEffect;
+        	this.onTurn = null;
+        }
+        // Hatched Chick
+        else if(this.type == 23)
+        {
+        	var bubbleClearEffect = {"type":"destroy","rule":"self"};
+        	this.onHit = null;
+        	this.onMatch = bubbleClearEffect;
+        	this.onAdjMatch = null;
+			this.onClear = bubbleClearEffect;
+        	this.onTurn = null;
+        	
+        	this.matchable = true;
+        }
+        // Snail
+        else if(this.type == 24)
+        {
+        	var moveEffect = {"type":"transform","rule":"type"};
+        	var clearEffect = {"type":"destroy","rule":"self"};
+        	this.onHit = null;
+        	this.onMatch = clearEffect;
+        	this.onAdjMatch = null;
+        	this.onClear = clearEffect;
+        	this.onTurn = moveEffect;
+        	
+        	this.matchable = true;
+        }
+        // Siren
+        else if(this.type == 25)
+        {
+        	var clearEffect = {"type":"destroy","rule":"binary", "variable":"matchable"};
+        	var flipEffect = {"type":"transform","rule":"binary"};
+        	this.onHit = null;
+        	this.onMatch = clearEffect;
+        	this.onAdjMatch = null;
+        	this.onClear = clearEffect;
+        	this.onTurn = flipEffect;
+        	
+        	this.matchable = true; // only if in on state
+        }
+        // Lantern
+        else if(this.type == 26)
+        {
+        	var clearEffect = {"type":"destroy","rule":"self"};
+        	var moveEffect = {"type":"transform","rule":"position"};
+        	this.onHit = null;
+        	this.onMatch = clearEffect;
+        	this.onAdjMatch = null;
+        	this.onClear = clearEffect;
+        	this.onTurn = moveEffect;
+        	
+        	this.matchable = true;
+        }
+        // Ghost
+        else if(this.type == 27)
+        {
+        	var clearEffect = {"type":"destroy","rule":"binary","variable":"matchable"};
+        	var ghostEffect = {"type":"transform","rule":"binary"};
+        	this.onHit = null;
+        	this.onMatch = clearEffect;
+        	this.onAdjMatch = null;
+        	this.onClear = clearEffect;
+        	this.onTurn = ghostEffect;
+        	
+        	this.matchable = true; // only if on state
+        }
+        // Note    should have transparency variable like Ghost
+        else if(this.type == 28)
+        {
+        	var clearEffect = {"type":"destroy","rule":"self"};
+        	var tickAction = {"type":"transform","variable":"countdown","rule":"not-structured"};
+        	this.onTrespass = clearEffect;
+        	this.onHit = null;
+        	this.onMatch = null;
+        	this.onAdjMatch = null;
+        	this.onClear = null;
+        	this.onTurn = tickAction;
+        	this.onCountdown = clearEffect;
+        	
+        	this.isAnchor = true;
+        }
+        // Spiderweb
+        else if(this.type == 29)
+        {
+        	var clearEffect = {"type":"destroy","rule":"self"};
+        	this.onTrespass = clearEffect;
+        	this.onHit = null;
+        	this.onMatch = null;
+        	this.onAdjMatch = null;
+        	this.onClear = null;
+        	this.onTurn = tickAction;
+        	this.onCountdown = clearEffect;
+        }
+        // Blank ball
+        else if(this.type == 30)
+        {
+        	var bubbleClearEffect = {"type":"destroy","rule":"self"};
+        	this.onHit = null;
+        	this.onMatch = bubbleClearEffect;
+			this.onClear = bubbleClearEffect;
+        	this.onTurn = null;
+        	
+        	this.matchable = true;
+        }
+        
         
         
         this.dx = 1;
@@ -383,42 +519,46 @@ var Bubble = cc.Sprite.extend({
 		        if(this.colorCode == "red")
 					this.bubbleImg = new cc.Sprite(res.angry_emoji);
 				else if(this.colorCode == "orange")
-					this.bubbleImg = new cc.Sprite(res.orange_bubble);
+					this.bubbleImg = new cc.Sprite(res.cat_emoji);
 				else if(this.colorCode == "yellow")
 					this.bubbleImg = new cc.Sprite(res.smile_emoji);
 				else if(this.colorCode == "green")
 					this.bubbleImg = new cc.Sprite(res.sick_emoji);
+				else if(this.colorCode == "lightblue")
+					this.bubbleImg = new cc.Sprite(res.cold_emoji);
 				else if(this.colorCode == "blue")
 					this.bubbleImg = new cc.Sprite(res.sad_emoji);
 				else if(this.colorCode == "pink")
 					this.bubbleImg = new cc.Sprite(res.love_emoji);
 				else if(this.colorCode == "purple")
 					this.bubbleImg = new cc.Sprite(res.evil_emoji);
-				else if(this.colorCode == "white")
-					this.bubbleImg = new cc.Sprite(res.white_bubble);
-				else if(this.colorCode == "black")
-					this.bubbleImg = new cc.Sprite(res.black_bubble);
 			}
 			else if(this.type == 7)
-			{
+			{cc.log(this.colorCode);
 				if(this.colorCode == "red")
-					this.bubbleImg = new cc.Sprite(res.red_pinwheel_emoji);
+					this.bubbleImg = new cc.Sprite(res.red_bulb_emoji);
+				else if(this.colorCode == "orange")
+					this.bubbleImg = new cc.Sprite(res.orange_bulb_emoji);
 				else if(this.colorCode == "yellow")
-					this.bubbleImg = new cc.Sprite(res.yellow_pinwheel_emoji);
+					this.bubbleImg = new cc.Sprite(res.yellow_bulb_emoji);
+				else if(this.colorCode == "lightblue")
+					this.bubbleImg = new cc.Sprite(res.lightblue_bulb_emoji);
 				else if(this.colorCode == "blue")
-					this.bubbleImg = new cc.Sprite(res.blue_pinwheel_emoji);
+					this.bubbleImg = new cc.Sprite(res.blue_bulb_emoji);
 				else if(this.colorCode == "green")
-					this.bubbleImg = new cc.Sprite(res.green_pinwheel_emoji);
+					this.bubbleImg = new cc.Sprite(res.green_bulb_emoji);
 				else if(this.colorCode == "pink")
-					this.bubbleImg = new cc.Sprite(res.pink_pinwheel_emoji);
+					this.bubbleImg = new cc.Sprite(res.pink_bulb_emoji);
 				else if(this.colorCode == "purple")
-					this.bubbleImg = new cc.Sprite(res.purple_pinwheel_emoji);
+					this.bubbleImg = new cc.Sprite(res.purple_bulb_emoji);
 				else cc.log("wtf");
 			}
 			else if(this.type == 8)
 			{
 				if(this.colorCode == "red")
 					this.bubbleImg = new cc.Sprite(res.red_die_emoji);
+				else if(this.colorCode == "orange")
+					this.bubbleImg = new cc.Sprite(res.orange_die_emoji);
 				else if(this.colorCode == "yellow")
 					this.bubbleImg = new cc.Sprite(res.yellow_die_emoji);
 				else if(this.colorCode == "blue")
@@ -434,7 +574,9 @@ var Bubble = cc.Sprite.extend({
 			else if(this.type == 17)
 			{
 				if(this.colorCode == "red")
-					this.bubbleImg = new cc.Sprite(res.red_soapbar_emoji);//this
+					this.bubbleImg = new cc.Sprite(res.red_soapbar_emoji);
+				else if(this.colorCode == "orange")
+					this.bubbleImg = new cc.Sprite(res.orange_soapbar_emoji);
 				else if(this.colorCode == "yellow")
 					this.bubbleImg = new cc.Sprite(res.yellow_soapbar_emoji);
 				else if(this.colorCode == "blue")
@@ -450,6 +592,8 @@ var Bubble = cc.Sprite.extend({
 			{
 				if(this.colorCode == "red")
 					this.bubbleImg = new cc.Sprite(res.red_balloon_emoji);
+				else if(this.colorCode == "orange")
+					this.bubbleImg = new cc.Sprite(res.orange_balloon_emoji);
 				else if(this.colorCode == "yellow")
 					this.bubbleImg = new cc.Sprite(res.yellow_balloon_emoji);
 				else if(this.colorCode == "blue")
@@ -460,7 +604,201 @@ var Bubble = cc.Sprite.extend({
 					this.bubbleImg = new cc.Sprite(res.pink_balloon_emoji);
 				else if(this.colorCode == "purple")
 					this.bubbleImg = new cc.Sprite(res.purple_balloon_emoji);
+			}// Egg
+			else if(this.type == 22)
+			{
+				this.bubbleImg = new cc.Sprite(res.egg_emoji);
 			}
+			// Hatched Egg
+			else if(this.type == 23)
+			{
+				if(this.colorCode == "red")
+					this.bubbleImg = new cc.Sprite(res.red_chick_emoji);
+				else if(this.colorCode == "orange")
+					this.bubbleImg = new cc.Sprite(res.orange_chick_emoji);
+				else if(this.colorCode == "yellow")
+					this.bubbleImg = new cc.Sprite(res.yellow_chick_emoji);
+				else if(this.colorCode == "green")
+					this.bubbleImg = new cc.Sprite(res.green_chick_emoji);
+				else if(this.colorCode == "lightblue")
+					this.bubbleImg = new cc.Sprite(res.lightblue_chick_emoji);
+				else if(this.colorCode == "blue")
+					this.bubbleImg = new cc.Sprite(res.blue_chick_emoji);
+				else if(this.colorCode == "pink")
+					this.bubbleImg = new cc.Sprite(res.pink_chick_emoji);
+				else if(this.colorCode == "purple")
+					this.bubbleImg = new cc.Sprite(res.purple_chick_emoji);
+			}
+			// Snail
+			else if(this.type == 24)
+			{
+				if(this.binary)
+				{
+					if(this.colorCode == "red")
+						this.bubbleImg = new cc.Sprite(res.red_snail_emoji);
+					else if(this.colorCode == "orange")
+						this.bubbleImg = new cc.Sprite(res.orange_snail_emoji);
+					else if(this.colorCode == "yellow")
+						this.bubbleImg = new cc.Sprite(res.yellow_snail_emoji);
+					else if(this.colorCode == "green")
+						this.bubbleImg = new cc.Sprite(res.green_snail_emoji);
+					else if(this.colorCode == "lightblue")
+						this.bubbleImg = new cc.Sprite(res.lightblue_snail_emoji);
+					else if(this.colorCode == "blue")
+						this.bubbleImg = new cc.Sprite(res.blue_snail_emoji);
+					else if(this.colorCode == "pink")
+						this.bubbleImg = new cc.Sprite(res.pink_snail_emoji);
+					else if(this.colorCode == "purple")
+						this.bubbleImg = new cc.Sprite(res.purple_snail_emoji);
+				}
+				else
+				{
+					if(this.colorCode == "red")
+						this.bubbleImg = new cc.Sprite(res.red_snail_right_emoji);
+					else if(this.colorCode == "orange")
+						this.bubbleImg = new cc.Sprite(res.orange_snail_right_emoji);
+					else if(this.colorCode == "yellow")
+						this.bubbleImg = new cc.Sprite(res.yellow_snail_right_emoji);
+					else if(this.colorCode == "green")
+						this.bubbleImg = new cc.Sprite(res.green_snail_right_emoji);
+					else if(this.colorCode == "lightblue")
+						this.bubbleImg = new cc.Sprite(res.lightblue_snail_right_emoji);
+					else if(this.colorCode == "blue")
+						this.bubbleImg = new cc.Sprite(res.blue_snail_right_emoji);
+					else if(this.colorCode == "pink")
+						this.bubbleImg = new cc.Sprite(res.pink_snail_right_emoji);
+					else if(this.colorCode == "purple")
+						this.bubbleImg = new cc.Sprite(res.purple_snail_right_emoji);
+				}
+			}
+			// Siren
+			else if(this.type == 25)
+			{
+				if(this.binary)
+				{
+					if(this.colorCode == "red")
+						this.bubbleImg = new cc.Sprite(res.red_siren_emoji);
+					else if(this.colorCode == "orange")
+						this.bubbleImg = new cc.Sprite(res.orange_siren_emoji);
+					else if(this.colorCode == "yellow")
+						this.bubbleImg = new cc.Sprite(res.yellow_siren_emoji);
+					else if(this.colorCode == "green")
+						this.bubbleImg = new cc.Sprite(res.green_siren_emoji);
+					else if(this.colorCode == "lightblue")
+						this.bubbleImg = new cc.Sprite(res.lightblue_siren_emoji);
+					else if(this.colorCode == "blue")
+						this.bubbleImg = new cc.Sprite(res.blue_siren_emoji);
+					else if(this.colorCode == "pink")
+						this.bubbleImg = new cc.Sprite(res.pink_siren_emoji);
+					else if(this.colorCode == "purple")
+						this.bubbleImg = new cc.Sprite(res.purple_siren_emoji);
+				}
+				else
+				{
+					if(this.colorCode == "red")
+						this.bubbleImg = new cc.Sprite(res.red_siren_off_emoji);
+					else if(this.colorCode == "orange")
+						this.bubbleImg = new cc.Sprite(res.orange_siren_off_emoji);
+					else if(this.colorCode == "yellow")
+						this.bubbleImg = new cc.Sprite(res.yellow_siren_off_emoji);
+					else if(this.colorCode == "green")
+						this.bubbleImg = new cc.Sprite(res.green_siren_off_emoji);
+					else if(this.colorCode == "lightblue")
+						this.bubbleImg = new cc.Sprite(res.lightblue_siren_off_emoji);
+					else if(this.colorCode == "blue")
+						this.bubbleImg = new cc.Sprite(res.blue_siren_off_emoji);
+					else if(this.colorCode == "pink")
+						this.bubbleImg = new cc.Sprite(res.pink_siren_off_emoji);
+					else if(this.colorCode == "purple")
+						this.bubbleImg = new cc.Sprite(res.purple_siren_off_emoji);
+				}
+			}
+			// Lantern
+			else if(this.type == 26)
+			{
+				if(this.colorCode == "red")
+					this.bubbleImg = new cc.Sprite(res.red_lantern_emoji);
+				else if(this.colorCode == "orange")
+					this.bubbleImg = new cc.Sprite(res.orange_lantern_emoji);
+				else if(this.colorCode == "yellow")
+					this.bubbleImg = new cc.Sprite(res.yellow_lantern_emoji);
+				else if(this.colorCode == "green")
+					this.bubbleImg = new cc.Sprite(res.green_lantern_emoji);
+				else if(this.colorCode == "lightblue")
+					this.bubbleImg = new cc.Sprite(res.lightblue_lantern_emoji);
+				else if(this.colorCode == "blue")
+					this.bubbleImg = new cc.Sprite(res.blue_lantern_emoji);
+				else if(this.colorCode == "pink")
+					this.bubbleImg = new cc.Sprite(res.pink_lantern_emoji);
+				else if(this.colorCode == "purple")
+					this.bubbleImg = new cc.Sprite(res.purple_lantern_emoji);
+			}
+			// Ghost
+			else if(this.type == 27)
+			{
+				if(this.colorCode == "red")
+					this.bubbleImg = new cc.Sprite(res.red_ghost_emoji);
+				else if(this.colorCode == "orange")
+					this.bubbleImg = new cc.Sprite(res.orange_ghost_emoji);
+				else if(this.colorCode == "yellow")
+					this.bubbleImg = new cc.Sprite(res.yellow_ghost_emoji);
+				else if(this.colorCode == "green")
+					this.bubbleImg = new cc.Sprite(res.green_ghost_emoji);
+				else if(this.colorCode == "lightblue")
+					this.bubbleImg = new cc.Sprite(res.lightblue_ghost_emoji);
+				else if(this.colorCode == "blue")
+					this.bubbleImg = new cc.Sprite(res.blue_ghost_emoji);
+				else if(this.colorCode == "pink")
+					this.bubbleImg = new cc.Sprite(res.pink_ghost_emoji);
+				else if(this.colorCode == "purple")
+					this.bubbleImg = new cc.Sprite(res.purple_ghost_emoji);
+				cc.log(this.binary);
+				if(!this.binary)
+				{
+					this.bubbleImg.setOpacity(122);
+				}
+			}
+			// Note
+			else if(this.type == 28)
+			{
+				if(this.colorCode == "red")
+					this.bubbleImg = new cc.Sprite(res.red_note_emoji);
+				else if(this.colorCode == "orange")
+					this.bubbleImg = new cc.Sprite(res.orange_note_emoji);
+				else if(this.colorCode == "yellow")
+					this.bubbleImg = new cc.Sprite(res.yellow_note_emoji);
+				else if(this.colorCode == "green")
+					this.bubbleImg = new cc.Sprite(res.green_note_emoji);
+				else if(this.colorCode == "lightblue")
+					this.bubbleImg = new cc.Sprite(res.lightblue_note_emoji);
+				else if(this.colorCode == "blue")
+					this.bubbleImg = new cc.Sprite(res.blue_note_emoji);
+				else if(this.colorCode == "pink")
+					this.bubbleImg = new cc.Sprite(res.pink_note_emoji);
+				else if(this.colorCode == "purple")
+					this.bubbleImg = new cc.Sprite(res.purple_note_emoji);
+			}
+			// Ball
+			else if(this.type == 30)
+			{
+				if(this.colorCode == "red")
+					this.bubbleImg = new cc.Sprite(res.red_ball);
+				else if(this.colorCode == "orange")
+					this.bubbleImg = new cc.Sprite(res.orange_ball);
+				else if(this.colorCode == "yellow")
+					this.bubbleImg = new cc.Sprite(res.yellow_ball);
+				else if(this.colorCode == "green")
+					this.bubbleImg = new cc.Sprite(res.green_ball);
+				else if(this.colorCode == "lightblue")
+					this.bubbleImg = new cc.Sprite(res.lightblue_ball);
+				else if(this.colorCode == "blue")
+					this.bubbleImg = new cc.Sprite(res.blue_ball);
+				else if(this.colorCode == "pink")
+					this.bubbleImg = new cc.Sprite(res.pink_ball);
+				else if(this.colorCode == "purple")
+					this.bubbleImg = new cc.Sprite(res.purple_ball);
+			}
+			
 		}
 		else if(this.colorCode == null)
 		{
@@ -469,16 +807,16 @@ var Bubble = cc.Sprite.extend({
 			// Bomb
 			else if(this.type == 1)
 				this.bubbleImg = new cc.Sprite(res.bomb_emoji);
-			// Anvil (Steel)
+			// 8-Ball (Anvil) (Steel)
 			else if(this.type == 2)
 				this.bubbleImg = new cc.Sprite(res.anvil_emoji);
 			// Jawbreaker (Rock)
 			else if(this.type == 3)
-				this.bubbleImg = new cc.Sprite(res.jawbreaker_emoji);
+				this.bubbleImg = new cc.Sprite(res.anvil_emoji);
 			
 			// Egg (Poof)
 			else if(this.type == 4)
-				this.bubbleImg = new cc.Sprite(res.egg_emoji);
+				this.bubbleImg = new cc.Sprite(res.cd_emoji);
 			// (Soap)
 			else if(this.type == 5)
 				this.bubbleImg = new cc.Sprite(res.soap_emoji);
@@ -506,7 +844,7 @@ var Bubble = cc.Sprite.extend({
 			}
 			else if(this.type == 11)
 			{
-				this.bubbleImg = new cc.Sprite(res.gumball_emoji);
+				this.bubbleImg = new cc.Sprite(res.beachball_emoji);
 			}
 			else if(this.type == 12)
 			{
@@ -546,6 +884,45 @@ var Bubble = cc.Sprite.extend({
 	        	var seq = new cc.Sequence(spinAction, repeatAction);
 	        	this.runAction(seq);
 			}
+			else if(this.type == 21)
+			{
+				if(this.orientation == "upright")
+				{
+					this.bubbleImg = new cc.Sprite(res.upright_dagger_emoji);
+				}
+				else if(this.orientation == "right")
+				{
+					this.bubbleImg = new cc.Sprite(res.right_dagger_emoji);
+				}
+				else if(this.orientation == "downright")
+				{
+					this.bubbleImg = new cc.Sprite(res.downright_dagger_emoji);
+				}
+				else if(this.orientation == "downleft")
+				{
+					this.bubbleImg = new cc.Sprite(res.downleft_dagger_emoji);
+				}
+				else if(this.orientation == "left")
+				{
+					this.bubbleImg = new cc.Sprite(res.left_dagger_emoji);
+				}
+				else if(this.orientation == "upleft")
+				{
+					this.bubbleImg = new cc.Sprite(res.upleft_dagger_emoji);
+				}
+				
+			}
+			// Egg
+			else if(this.type == 22)
+			{
+				this.bubbleImg = new cc.Sprite(res.egg_emoji);
+			}
+			// Spiderweb
+			else if(this.type == 29)
+			{
+				this.bubbleImg = new cc.Sprite(res.spiderweb_emoji);
+			}
+			
 		}
 		else cc.log("WTF");
 		
@@ -621,23 +998,45 @@ var Bubble = cc.Sprite.extend({
 		{
 			this.colorCode = this.colorQueue[turnNumber%this.colorQueue.length];
 			if(this.colorCode == "red")
-				this.bubbleImg = new cc.Sprite(res.red_pinwheel_emoji);
+				this.bubbleImg = new cc.Sprite(res.red_bulb_emoji);
+			else if(this.colorCode == "orange")
+				this.bubbleImg = new cc.Sprite(res.orange_bulb_emoji);
 			else if(this.colorCode == "yellow")
-				this.bubbleImg = new cc.Sprite(res.yellow_pinwheel_emoji);
+				this.bubbleImg = new cc.Sprite(res.yellow_bulb_emoji);
 			else if(this.colorCode == "blue")
-				this.bubbleImg = new cc.Sprite(res.blue_pinwheel_emoji);
+				this.bubbleImg = new cc.Sprite(res.lightblue_bulb_emoji);
+			else if(this.colorCode == "blue")
+				this.bubbleImg = new cc.Sprite(res.blue_bulb_emoji);
 			else if(this.colorCode == "green")
-				this.bubbleImg = new cc.Sprite(res.green_pinwheel_emoji);
+				this.bubbleImg = new cc.Sprite(res.green_bulb_emoji);
 			else if(this.colorCode == "pink")
-				this.bubbleImg = new cc.Sprite(res.pink_pinwheel_emoji);
+				this.bubbleImg = new cc.Sprite(res.pink_bulb_emoji);
 			else if(this.colorCode == "purple")
-				this.bubbleImg = new cc.Sprite(res.purple_pinwheel_emoji);
-			else if(this.colorCode == "white")
-				this.bubbleImg = new cc.Sprite(res.white_pinwheel_emoji);
-			else if(this.colorCode == "black")
-				this.bubbleImg = new cc.Sprite(res.black_pinwheel_emoji);
+				this.bubbleImg = new cc.Sprite(res.purple_bulb_emoji);
 			
 		}	
+		else if(this.type == 21)
+		{
+			var orientations = ["downleft","upleft","downright","upright","left","right"];
+			// remove current orientation
+			orientations.splice(orientations.getIndex(this.orientation), 1);
+			//pick random orientation
+			this.orientation = orientations[Math.floor(Math.random()*orientations.length)];
+			
+			if(this.orientation == "downleft")
+				this.bubbleImg = new cc.Sprite(res.downleft_dagger_emoji);
+			else if(this.orientation == "downright")
+				this.bubbleImg = new cc.Sprite(res.downright_dagger_emoji);
+			else if(this.orientation == "upleft")
+				this.bubbleImg = new cc.Sprite(res.upleft_dagger_emoji);
+			else if(this.orientation == "upright")
+				this.bubbleImg = new cc.Sprite(res.upright_dagger_emoji);
+			else if(this.orientation == "left")
+				this.bubbleImg = new cc.Sprite(res.left_dagger_emoji);
+			else if(this.orientation == "right")
+				this.bubbleImg = new cc.Sprite(res.right_dagger_emoji);
+			
+		}
 		this.bubbleImg.attr({
 			x:this.width/2,
 			y:this.height/2,
@@ -710,10 +1109,6 @@ var Bubble = cc.Sprite.extend({
 				this.bubbleImg = new cc.Sprite(res.pink_orb_emoji);
 			else if(this.colorCode == "purple")
 				this.bubbleImg = new cc.Sprite(res.purple_orb_emoji);
-			else if(this.colorCode == "white")
-				this.bubbleImg = new cc.Sprite(res.white_orb_emoji);
-			else if(this.colorCode == "black")
-				this.bubbleImg = new cc.Sprite(res.black_orb_emoji);
 		}
 		else if(this.type == 10)
 		{
@@ -796,6 +1191,25 @@ var Bubble = cc.Sprite.extend({
 				this.bubbleImg = new cc.Sprite(res.pink_flowerpot_emoji);
 			else if(this.colorCode == "purple")
 				this.bubbleImg = new cc.Sprite(res.purple_flowerpot_emoji);
+		}
+		else if(this.type == 22)
+		{
+			if(this.colorCode == "red")
+				this.bubbleImg = new cc.Sprite(res.red_eggchick_emoji);
+			else if(this.colorCode == "orange")
+				this.bubbleImg = new cc.Sprite(res.orange_eggchick_emoji);
+			else if(this.colorCode == "yellow")
+				this.bubbleImg = new cc.Sprite(res.yellow_eggchick_emoji);
+			else if(this.colorCode == "green")
+				this.bubbleImg = new cc.Sprite(res.green_eggchick_emoji);
+			else if(this.colorCode == "lightblue")
+				this.bubbleImg = new cc.Sprite(res.lightblue_eggchick_emoji);
+			else if(this.colorCode == "blue")
+				this.bubbleImg = new cc.Sprite(res.blue_eggchick_emoji);
+			else if(this.colorCode == "pink")
+				this.bubbleImg = new cc.Sprite(res.pink_eggchick_emoji);
+			else if(this.colorCode == "purple")
+				this.bubbleImg = new cc.Sprite(res.purple_eggchick_emoji);
 		}
 		this.bubbleImg.attr({
 			x:this.width/2,

@@ -24,7 +24,6 @@ var PlaytestLayer = cc.Layer.extend({
 		});
 		this.addChild(this.topUILayer);
 
-		
 
 		this.bubbleLayer = new BubbleLayer(bubbles, numRows, numMoves, "playtest", size.width, size.height-this.bottomUILayer.height-this.topUILayer.height, []);	
 		this.bubbleLayer.attr({

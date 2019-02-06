@@ -8,13 +8,13 @@ var BonusRewardPickerLayer = cc.Layer.extend({
 		this.cardPicked = false;
 		
 		this.dn = new cc.DrawNode();
-		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),0,cc.color(0,0,0,255));
+		//this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),0,cc.color(0,0,0,255));
 		this.addChild(this.dn);
 		
 		this.width = width;
 		this.height = height;
 		
-		this.tabTitleLabel = new cc.LabelTTF("Pick a Reward", "Arial", 20);
+		/*this.tabTitleLabel = new cc.LabelTTF("Pick a Reward", "Arial", 20);
 		this.tabTitleLabel.attr({
 			"x":this.width/2,
 			"y":this.height-30,
@@ -22,7 +22,7 @@ var BonusRewardPickerLayer = cc.Layer.extend({
 			"anchorY":1
 		});
 		this.tabTitleLabel.color = cc.color(0,0,0,255);
-		this.addChild(this.tabTitleLabel);
+		this.addChild(this.tabTitleLabel);*/
 		
 		this.cardBorderWidth = 5;
 		this.cardWidth = this.width/3 - this.cardBorderWidth*4;
@@ -36,15 +36,15 @@ var BonusRewardPickerLayer = cc.Layer.extend({
 				var cardImg = new cc.Sprite(res.card_back);
 				
 				cardImg.attr({
-					"x":this.cardBorderWidth + j*this.cardBorderWidth + + j*this.cardWidth,
+					"x":this.cardBorderWidth + j*this.cardBorderWidth + j*this.cardWidth,
 					"y":i*this.cardHeight - i*this.cardBorderWidth,
 					"anchorX":0,
 					"anchorY":0
 				});
 				cardImg.setScaleX(this.cardWidth/cardImg.width);
 				cardImg.setScaleY(this.cardHeight/cardImg.height);
-				cardImg.width = this.cardWidth;
-				cardImg.height = this.cardHeight;
+				//cardImg.width = this.cardWidth;
+				//cardImg.height = this.cardHeight;
 				this.addChild(cardImg);
 				this.cards.push(cardImg);
 			}
@@ -91,7 +91,7 @@ var BonusRewardPickerLayer = cc.Layer.extend({
 		for(var i=0; i<this.cards.length; i++)
 		{
 			var card = this.cards[i];
-			if(pos.x > card.x && pos.x < card.x+card.width && pos.y > card.y && pos.y < card.y+card.height)
+			if(pos.x > card.x && pos.x < card.x+(card.width*card.scaleX) && pos.y > card.y && pos.y < card.y+(card.height*card.scaleY))
 			{cc.log("w " + card.width + " h " + card.height);
 				var oldX = card.x;
 				var oldY = card.y;
@@ -106,7 +106,9 @@ var BonusRewardPickerLayer = cc.Layer.extend({
 				else if(ballsAdded == 5)
 					this.cards[i] = new cc.Sprite(res.five_move_card);
 					
-				DATA.worldBallsLeft += ballsAdded;
+				//DATA.worldBallsLeft += ballsAdded;
+				
+				DATA.gameplayRewardOnReturn = {"type":"bonus","number":ballsAdded};
 				
 				this.cards[i].setScaleX(this.cardWidth/this.cards[i].width);
 				this.cards[i].setScaleY(this.cardHeight/this.cards[i].height);
@@ -125,11 +127,4 @@ var BonusRewardPickerLayer = cc.Layer.extend({
 		
 	}
 	
-});
-var BonusRewardPickerScene = cc.Scene.extend({
-	onEnter:function(){
-		this._super();
-		var layer = new BonusRewardPickerLayer();
-		this.addChild(layer);
-	}
 });

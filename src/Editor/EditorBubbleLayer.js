@@ -93,7 +93,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 	       		var overflowOffset = this.getOverflowOffset();
 	       		
 	       		
-	       		var hex = new Bubble(this.bubbleR, null, -1, null, i, j);
+	       		var hex = new Bubble(this.bubbleR, null, -1, null, null, null, i, j);
 	       		hex.attr({
 	       			x: this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
 	       			y: this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
@@ -115,8 +115,8 @@ var EditorBubbleLayer = cc.Layer.extend({
        	var hexIndicesToDelete = [];
        	for(var i=0; i<bubbles.length; i++)
        	{
-       		var bub = new Bubble(this.bubbleR, bubbles[i].colorCode, bubbles[i].type, null, bubbles[i].row, bubbles[i].col);
-			
+       		var bub = new Bubble(this.bubbleR, bubbles[i].colorCode, bubbles[i].type, null, null, null, bubbles[i].row, bubbles[i].col);
+			cc.log(bub);
 			bub.attr({
        			x: this.bubbleR+bub.col*this.bubbleR*2 + (bub.row%2)*this.bubbleR,
        			y: this.height - bub.row*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
@@ -162,25 +162,25 @@ var EditorBubbleLayer = cc.Layer.extend({
 //	-moveShooter(dt)
 //	-resetShooter()
 
-	onTouchBegin:function(loc, drawType, drawColor){
+	onTouchBegin:function(loc, drawType, drawColor, drawOrientation, drawBinary, drawMeta){
 		var hex = this.getHexAtPos(loc);
 		if(hex.y < this.bubbleMap.length)
-			this.paintHex(hex, drawType, drawColor);
+			this.paintHex(hex, drawType, drawColor, drawOrientation, drawBinary, drawMeta);
 		else
 		{
 			this.addRows(hex.y-this.bubbleMap.length+1);
-			this.paintHex(hex, drawType, drawColor);
+			this.paintHex(hex, drawType, drawColor, drawOrientation, drawBinary, drawMeta);
 		}
 			
    	},
-	onTouchMoved:function(loc, drawType, drawColor){
+	onTouchMoved:function(loc, drawType, drawColor, drawOrientation, drawBinary, drawMeta){
 		var hex = this.getHexAtPos(loc);
 		if(hex.y < this.bubbleMap.length)
-			this.paintHex(hex, drawType, drawColor);
+			this.paintHex(hex, drawType, drawColor, drawOrientation, drawBinary, drawMeta);
 		else
 		{
 			this.addRows(hex.y-this.bubbleMap.length+1);
-			this.paintHex(hex, drawType, drawColor);
+			this.paintHex(hex, drawType, drawColor, drawOrientation, drawBinary, drawMeta);
 		}
 	},
 	onTouchEnded:function(loc){
@@ -306,12 +306,9 @@ var EditorBubbleLayer = cc.Layer.extend({
 		}*/
 	},
 	
-	paintHex:function(hex, drawType, drawColor)
+	paintHex:function(hex, drawType, drawColor, drawOrientation, drawBinary, drawMeta)
 	{
-	
-	
 		var overflowOffset = this.getOverflowOffset();
-		
 		
 		if(drawType == -1)
 		{
@@ -321,7 +318,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 				this.bubbles.splice(this.bubbleMap[hex.y][hex.x], 1);
 				this.bubbleMap[hex.y][hex.x] = -1;
 				
-				var newHex = new Bubble(this.bubbleR, null, -1, null, hex.y, hex.x);
+				var newHex = new Bubble(this.bubbleR, null, -1, null, null, null, hex.y, hex.x);
 				newHex.attr({
 					x: this.bubbleR+newHex.col*this.bubbleR*2 + (newHex.row%2)*this.bubbleR,
 	       			y: this.height - newHex.row*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
@@ -348,8 +345,8 @@ var EditorBubbleLayer = cc.Layer.extend({
 				this.hexes.splice(this.hexMap[hex.y][hex.x], 1);
 				this.hexMap[hex.y][hex.x] = -1;
 				this.syncHexMap();
-				
-				var bubble = new Bubble(this.bubbleR,drawColor,drawType,null,hex.y, hex.x);
+				cc.log(drawColor);
+				var bubble = new Bubble(this.bubbleR,drawColor,drawType,drawOrientation,drawBinary,drawMeta,hex.y, hex.x);
 				bubble.attr({
 	       			x: this.bubbleR+hex.x*this.bubbleR*2 + (hex.y%2)*this.bubbleR,
 	       			y: this.height - hex.y*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
@@ -360,13 +357,27 @@ var EditorBubbleLayer = cc.Layer.extend({
 				this.addChild(bubble);
 				this.bubbles.push(bubble);
 				this.bubbleMap[hex.y][hex.x] = this.bubbles.length-1;
+				
+				if(drawType == 7)
+				{
+					var bulbLabel = new cc.LabelTTF(""+drawMeta.iteration,"Roboto",24);
+					bulbLabel.attr({
+						x:DATA.bubbleR/3,
+						y:-DATA.bubbleR/3,
+						anchorX:.5,
+						anchorY:.5
+					});
+					bulbLabel.color = cc.color(0,0,0,255);
+					bubble.addChild(bulbLabel);
+				}
+				
 			}
 			// Replace existing bubble
 			else if(this.bubbleMap[hex.y][hex.x] != -1 && this.bubbles[this.bubbleMap[hex.y][hex.x]].colorCode != drawColor)
 			{
 				var oldBubble = this.bubbles[this.bubbleMap[hex.y][hex.x]];
 				this.removeChild(oldBubble);
-				var bubble = new Bubble(this.bubbleR,drawColor,drawType,null,hex.y, hex.x);
+				var bubble = new Bubble(this.bubbleR,drawColor,drawType,drawOrientation,drawBinary,drawMeta,hex.y, hex.x);
 				bubble.attr({
 	       			x: this.bubbleR+hex.x*this.bubbleR*2 + (hex.y%2)*this.bubbleR,
 	       			y: this.height - hex.y*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
@@ -376,8 +387,21 @@ var EditorBubbleLayer = cc.Layer.extend({
 				this.addChild(bubble);
 				this.bubbles.splice(this.bubbleMap[hex.y][hex.x], 1, bubble);
 				
+				if(drawType == 7)
+				{
+					var bulbLabel = new cc.LabelTTF(""+drawMeta.iteration,"Roboto",24);
+					bulbLabel.attr({
+						x:DATA.bubbleR/3,
+						y:-DATA.bubbleR/3,
+						anchorX:.5,
+						anchorY:.5
+					});
+					bulbLabel.color = cc.color(0,0,0,255);
+					bubble.addChild(bulbLabel);
+				}
+				
 			}
-		}
+		}cc.log(this.bubbles);
 	},
 	
 	getHexAtPos:function(pos)
@@ -649,7 +673,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 		
 		for(var i=0; i<bubbles.length; i++)
 		{
-			var bubble = new Bubble(this.bubbleR,bubbles[i].colorCode,bubbles[i].type,null,bubbles[i].row, bubbles[i].col);
+			var bubble = new Bubble(this.bubbleR,bubbles[i].colorCode,bubbles[i].type,null,null,null,bubbles[i].row, bubbles[i].col);
 			bubble.attr({
        			x: this.bubbleR+bubbles[i].col*this.bubbleR*2 + (bubbles[i].row%2)*this.bubbleR,
        			y: this.height - bubbles[i].row*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,

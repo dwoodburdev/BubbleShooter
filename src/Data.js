@@ -77,6 +77,10 @@ DATA.numColors = 0;
 
 DATA.levelsComplete = {"normal":[], "one-pager":{"tier":0,"completed":[]}};
 
+
+DATA.gameplayRewardsOnReturn = null;
+
+
 DATA.userID = "JksVjAgr68PFKhwEyVzGKBr3hGW2";
 var email = "dwoodburdev@gmail.com";
  var password = "marlin81=";
@@ -862,11 +866,11 @@ DATA.swapBubbleColors = function(modeType)
 DATA.setCurrencies = function(coins, gems)
   {
   	DATA.coins = coins;
-  	DATA.gems = gems;
+  	//DATA.gems = gems;
   	if(coins != null)
   		DATA.database.ref("users/"+DATA.userID+"/coins").set(coins);
- 	if(gems != null)
- 		DATA.database.ref("users/"+DATA.userID+"/gems").set(gems);
+ 	//if(gems != null)
+ 	//	DATA.database.ref("users/"+DATA.userID+"/gems").set(gems);
   };
   
  /*
@@ -1048,10 +1052,10 @@ FUNCTIONS.posWithin = function(pos, square)
 };
 FUNCTIONS.posWithinScaled = function(pos, img)
 {
-	var imgX = img.x-(img.width*img.scale*img.anchorX);
-	var imgY = img.y-(img.height*img.scale*img.anchorY);
-	if(pos.x > imgX && pos.x < imgX+(img.width*img.scale) &&
-		pos.y > imgY && pos.y < imgY+(img.height*img.scale))
+	var imgX = img.x-(img.width*img.scaleX*img.anchorX);
+	var imgY = img.y-(img.height*img.scaleY*img.anchorY);
+	if(pos.x > imgX && pos.x < imgX+(img.width*img.scaleX) &&
+		pos.y > imgY && pos.y < imgY+(img.height*img.scaleY))
 	{
 		return true;
 	}

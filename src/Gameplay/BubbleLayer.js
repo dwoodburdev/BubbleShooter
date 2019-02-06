@@ -49,7 +49,7 @@ var BubbleLayer = cc.Layer.extend({
 		//this.bubbles = [];
 		this.bubbleMap = [];
 		
-		this.possibleColors = ["red","yellow","green","blue"/*,"pink","purple"*/];
+		this.possibleColors = ["red","orange","yellow","green","blue","pink","purple"];
 		this.bubbleR = this.width/this.numCols / 2;
 		DATA.bubbleR = this.bubbleR;
 		this.rowHeight = Math.pow(3, .5) * this.bubbleR;
@@ -115,7 +115,7 @@ var BubbleLayer = cc.Layer.extend({
        	
        	if(this.modeType != "preview")
 	    {cc.log(DATA.getQueueColor(this.modeType));
-	       	this.queueBubble = new Bubble(this.bubbleR, DATA.getQueueColor(this.modeType), 0, null, null, null);
+	       	this.queueBubble = new Bubble(this.bubbleR, DATA.getQueueColor(this.modeType), 0, null, null, null, null, null);
 	       	this.queueBubble.attr({
 	       		x:this.width*.25,
 	       		y:this.bubbleStartHeight,
@@ -135,7 +135,7 @@ var BubbleLayer = cc.Layer.extend({
 			this.ballsLeftLabel.color = cc.color(0,0,0,255);
 			this.addChild(this.ballsLeftLabel);
 			cc.log(DATA.getShooterColor(this.modeType));
-	       	this.shooter = new Bubble(this.bubbleR, DATA.getShooterColor(this.modeType), 0, null, null, null);
+	       	this.shooter = new Bubble(this.bubbleR, DATA.getShooterColor(this.modeType), 0, null, null, null, null, null);
 	       	this.shooter.attr({
 	       		x: this.width/2,
 	       		y: this.bubbleStartHeight,
@@ -218,7 +218,7 @@ var BubbleLayer = cc.Layer.extend({
 			for(var i=0; i<this.bubbles.length; i++)
 			{
 				//var bub = this.bubbles[i];cc.log(bub.row);cc.log(bub)
-				var bub = new Bubble(this.bubbleR, this.bubbles[i].colorCode, this.bubbles[i].type, null, this.bubbles[i].row, this.bubbles[i].col);
+				var bub = new Bubble(this.bubbleR, this.bubbles[i].colorCode, this.bubbles[i].type, null, null, null, this.bubbles[i].row, this.bubbles[i].col);
 				this.bubbles[i] = bub;
 				bub.attr({
 	       			x: this.bubbleR+bub.col*this.bubbleR*2 + (bub.row%2)*this.bubbleR,
@@ -514,6 +514,8 @@ var BubbleLayer = cc.Layer.extend({
 	       		var type = 0;
 	       		var color = null;
 	       		var orientation = null;
+	       		var binary = null;
+	       		var meta = null;
 	       		
 	       		var typeFound = false;
 	       		for(var k=0; k<typeOdds.length && !typeFound; k++)
@@ -535,7 +537,7 @@ var BubbleLayer = cc.Layer.extend({
 	       		}
 	       		
 	       		
-	       		var bubble = new Bubble(this.bubbleR, color, type, orientation, i, j);
+	       		var bubble = new Bubble(this.bubbleR, color, type, orientation, binary, meta, i, j);
 	       		bubble.attr({
 	       			x: this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
 	       			y: this.height - i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
@@ -620,7 +622,7 @@ var BubbleLayer = cc.Layer.extend({
 		    	var trajectory = this.shooter.initShotPrediction(loc);
 		    	this.targetHex = this.predictTarget(trajectory);
 		    	
-		    	this.targetBubble = new Bubble(this.bubbleR, null, -1, null, this.targetHex.x, this.targetHex.y);
+		    	this.targetBubble = new Bubble(this.bubbleR, null, -1, null, null, null, this.targetHex.x, this.targetHex.y);
 		   		this.targetBubble.attr({
 		   			x: this.bubbleR+this.targetHex.x*this.bubbleR*2 + (this.targetHex.y%2)*this.bubbleR,
 		   			y: this.height - this.targetHex.y*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
@@ -754,7 +756,7 @@ var BubbleLayer = cc.Layer.extend({
 		   		DATA.swapBubbleColors(this.modeType);
 		   		this.prevShooterColor = DATA.getShooterColor(this.modeType);
 		   		cc.log("SHOOTER BUBBLE");
-		   		this.shooter = new Bubble(this.bubbleR, DATA.getShooterColor(this.modeType), 0, null, null, null);
+		   		this.shooter = new Bubble(this.bubbleR, DATA.getShooterColor(this.modeType), 0, null, null, null, null, null);
 		       	this.shooter.attr({
 		       		x: this.width/2,
 		       		y: this.bubbleStartHeight,
@@ -764,7 +766,7 @@ var BubbleLayer = cc.Layer.extend({
 		       	this.shooter.active = true;
 		       	this.addChild(this.shooter);
 				
-		       	this.queueBubble = new Bubble(this.bubbleR, DATA.getQueueColor(this.modeType), 0, null, null, null);
+		       	this.queueBubble = new Bubble(this.bubbleR, DATA.getQueueColor(this.modeType), 0, null, null, null, null, null);
 		       	this.queueBubble.attr({
 		       		x:this.width/4,
 		       		y:this.bubbleStartHeight,
@@ -945,7 +947,7 @@ var BubbleLayer = cc.Layer.extend({
 		
 		//this.removeChild(this.shooter);
 		this.shooter = null;
-       	this.shooter = new Bubble(this.bubbleR, DATA.getShooterColor(this.modeType), 0, null, null, null);
+       	this.shooter = new Bubble(this.bubbleR, DATA.getShooterColor(this.modeType), 0, null, null, null, null, null);
        	this.shooter.attr({
        		x: this.width/2,
        		y: this.bubbleStartHeight,
@@ -961,7 +963,7 @@ var BubbleLayer = cc.Layer.extend({
 		
 		
        	this.removeChild(this.queueBubble);
-       	this.queueBubble = new Bubble(this.bubbleR, DATA.getQueueColor(this.modeType), 0, null, null, null);
+       	this.queueBubble = new Bubble(this.bubbleR, DATA.getQueueColor(this.modeType), 0, null, null, null, null, null);
        	this.queueBubble.attr({
        		x:this.width/4,
        		y:this.bubbleStartHeight,
@@ -1389,7 +1391,7 @@ var BubbleLayer = cc.Layer.extend({
 	{
 		if(this.modeType == "world")
 		{
-			var colors = ["red","yellow","green","blue","pink","purple"];
+			var colors = ["red","orange","yellow","green","blue","pink","purple"];
 			var colorsFound = [];
 			
 			// Get colors that were active last turn
@@ -1499,7 +1501,7 @@ var BubbleLayer = cc.Layer.extend({
 			if(bubble == null)
 				cc.log("UNDEFINED AT " + adj.x + ", " + adj.y);
 
-			if(bubble.onMatch!= null && bubble.colorCode == color)
+			if(bubble.onMatch!= null && bubble.colorCode == color && bubble.matchable)
 			{
 				// 1. Mark as adjacent-color
 				matchedBubbleIndices.push(this.bubbleMap[adj.y][adj.x]);
@@ -1578,6 +1580,33 @@ var BubbleLayer = cc.Layer.extend({
 			triggeredBubbleIndices.push(bubIndex);
 			triggersList.push("match");
 		}
+		// Egg
+		else if(this.bubbles[bubIndex].type == 22)
+		{
+			var bubbleClearEffect = {"type":"destroy","rule":"self"};
+        	this.bubbles[bubIndex].onHit = null;
+        	this.bubbles[bubIndex].onMatch = bubbleClearEffect;
+        	this.bubbles[bubIndex].onAdjMatch = null;
+			this.bubbles[bubIndex].onClear = bubbleClearEffect;
+        	this.bubbles[bubIndex].onTurn = null;
+        	
+        	this.bubbles[bubIndex].matchable = true;
+			//this.bubbles[bubIndex].transform();
+			/*var color = this.bubbles[bubIndex].colorCode;
+			var row = this.bubbles[bubIndex].row;
+			var col = this.bubbles[bubIndex].col;
+			var x = this.bubbles[bubIndex].x;
+			var y = this.bubbles[bubIndex].y;
+			
+			this.removeChild(this.bubbles[bubIndex]);
+			this.bubbles[bubIndex] = new Bubble(DATA.bubbleR, color, 23, null, row, col);
+			this.bubbles[bubIndex].attr({x:x,y:y,anchorX:.5,anchorY:.5});
+			this.addChild(this.bubbles[bubIndex]);*/
+			
+			//triggeredBubbleIndices.push(bubIndex);
+			//triggersList.push("match");
+		}
+		
 		return {"destroyed":[], "triggered":triggeredBubbleIndices, "triggers":triggersList};
 	},
 	
@@ -1901,6 +1930,10 @@ var BubbleLayer = cc.Layer.extend({
 				//FP
 				if(this.type == 15)
 					bubble.colorCode = "red";
+				else if(this.type == 22)
+				{
+					
+				}
 				//this.shooter.colorCode;
 				
 				//bubble.trigger();
@@ -2378,7 +2411,7 @@ var BubbleLayer = cc.Layer.extend({
 		
 		this.removeChild(this.shooter);
 		this.shooter = null;
-		this.shooter = new Bubble(this.bubbleR, null, type, null, null, null);
+		this.shooter = new Bubble(this.bubbleR, null, type, null, null, null, null, null);
        	this.shooter.attr({
        		x: this.width/2,
        		y: this.bubbleStartHeight,

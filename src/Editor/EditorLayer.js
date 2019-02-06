@@ -9,6 +9,9 @@ var EditorLayer = cc.Layer.extend({
 		this.curDraw = null; // can have multiple things selected from different layers
 		this.drawType = 0;
 		this.drawColor = "blue";
+		this.drawOrientation = null;
+		this.drawBinary = null;
+		this.drawMeta = {};
 		
 		this.mode = "create";
 		
@@ -97,7 +100,7 @@ var EditorLayer = cc.Layer.extend({
 			    	{
 			    		if(self.mode == "create")
 			    		{
-			    			self.bubbleLayer.onTouchBegin(touch.getLocation(), self.drawType, self.drawColor);
+			    			self.bubbleLayer.onTouchBegin(touch.getLocation(), self.drawType, self.drawColor, self.drawOrientation, self.drawBinary, self.drawMeta);
 			    		}
 			    		else if(self.mode == "view")
 			    		{
@@ -125,7 +128,7 @@ var EditorLayer = cc.Layer.extend({
 			    		}
 			    		else self.midUILayer.onTouchMoved(touch.getLocation());
 			    	}
-			    	else self.bubbleLayer.onTouchMoved(touch.getLocation(), self.drawType, self.drawColor);
+			    	else self.bubbleLayer.onTouchMoved(touch.getLocation(), self.drawType, self.drawColor, self.drawOrientation, self.drawBinary, self.drawMeta);
 			    	
 			    	return true;
 			    },
@@ -156,7 +159,7 @@ var EditorLayer = cc.Layer.extend({
 			    	}
 			    	else
 			    	{
-			    		self.bubbleLayer.onTouchEnded(touch.getLocation(), self.drawType, self.drawColor);
+			    		self.bubbleLayer.onTouchEnded(touch.getLocation(), self.drawType, self.drawColor, self.drawOrientation, self.drawBinary, self.drawMeta);
 				   	}
 				   	
 				   	if(returnData == "test")
@@ -187,7 +190,11 @@ var EditorLayer = cc.Layer.extend({
 				   		for(var i=0; i<bubbleData.length; i++)
 				   		{
 				   			var bub = bubbleData[i];
-				   			bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":bub.colorCode});
+				   			if(bub.type == 7)
+				   			{
+				   				bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":bub.colorQueue});
+				   			}
+				   			else bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":bub.colorCode});
 				   		}
 				   		DATA.saveNewLevelToDatabase(bubs);
 				   	}
@@ -203,6 +210,7 @@ var EditorLayer = cc.Layer.extend({
 				   					maxRow = bubs[i].row;
 				   			}
 				   			self.removeChild(self.viewerBubbleLayer);
+				   			cc.log(bubs);
 				   			self.viewerBubbleLayer = new EditorBubbleLayer(size.width, size.height-self.editorUILayer.height-self.midUILayer.height,
 				   				bubs, maxRow+1);
 							self.viewerBubbleLayer.attr({
@@ -257,7 +265,7 @@ var EditorLayer = cc.Layer.extend({
 									maxRow = bubbles[i].row;
 							}
 							DATA.setLevelQueue({"type":"bucket", "colors":[1,1,1,1,0,0]});// LATER - set to queue stored in data
-							
+							cc.log(bubbles);
 							cc.director.runScene(new PlaytestScene(bubbles, maxRow+1));
 				   		}
 				   		else if(returnData.type == "share")
@@ -271,7 +279,10 @@ var EditorLayer = cc.Layer.extend({
 				   		else
 				   		{
 				   			self.drawType = returnData.type;
-				  			self.drawColor = returnData.color;
+				  			self.drawColor = returnData.color;cc.log(self.drawColor);
+				  			self.drawOrientation = returnData.orientation;
+				  			self.drawBinary = returnData.binary;
+				  			self.drawMeta = returnData.meta;
 				  		}
 				   	}
 				   	

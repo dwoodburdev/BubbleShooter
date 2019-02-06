@@ -54,7 +54,7 @@ var MidUILayer = cc.Layer.extend({
 		this.scrollDownImg.setScale((imgWidth)/this.scrollDownImg.width);
 		this.addChild(this.scrollDownImg);
 		
-		this.createLabel = new cc.LabelTTF("CREATE", "Roboto", Math.floor(this.height*.7));
+		this.createLabel = new cc.LabelTTF("EDIT", "Roboto", Math.floor(this.height*.7));
 		this.createLabel.attr({
 			"x":5,
 			"y":this.height/2,

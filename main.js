@@ -137,7 +137,21 @@ cc.game.onStart = function(){
 			  	for(var i=0; i<bubKeys.length; i++)
 			  	{
 			  		var dBub = d.bubbles[bubKeys[i]];
-			  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:dBub.colorCode};
+			  		
+			  		var colorCode = null;
+			  		if(dBub.type == 7)
+			  		{
+			  			colorCode = [];
+			  			var colorKeys = Object.keys(dBub.colorCode);
+			  			for(var j=0; j<colorKeys.length; j++)
+			  			{
+			  				colorCode.push(dBub.colorCode[colorKeys[j]]);
+			  			}
+			  		}
+			  		else colorCode = dBub.colorCode;
+			  		
+			  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:colorCode, binary:dBub.binary};
+			  		cc.log(bubble);
 			    	bubbles.push(bubble);
 			  	}
 			  	var queue = {type:d.queue.type, colors:d.queue.colors};

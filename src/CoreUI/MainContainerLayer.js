@@ -44,6 +44,12 @@ var MainContainerLayer = cc.Layer.extend({
 		});
 		this.addChild(this.gameplayLayer);
 		
+		if(DATA.gameplayRewardOnReturn != null)
+		{
+			this.gameplayLayer.triggerRewardOnStart(DATA.gameplayRewardOnReturn);
+			DATA.gameplayRewardOnReturn = null;
+		}
+		
 		this.curMainLayer = this.gameplayLayer;
 		
 		this.challengeLayer = new ChallengeMenuDisplayLayer(cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight);
@@ -316,7 +322,8 @@ var MainContainerLayer = cc.Layer.extend({
 	
 	/*onEnter:function()
 	{
-		this._super();
+		//this._super();
+		cc.log("ON ENTER !!!!!!!!!!!!!!!!!!");
 	},*/
 	
 	isPopup:function()

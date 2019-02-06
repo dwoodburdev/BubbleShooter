@@ -50,6 +50,79 @@ var GameplayLayer = cc.Layer.extend({
 		this._super();
 	},*/
 	
+	triggerRewardOnStart:function(rewardData)
+	{
+		var cardImg = null;
+		if(rewardData.type == "extraBonus")
+		{
+			if(rewardData.number == 0)
+			{
+				cardImg = new cc.Sprite(res.ten_moves_gold_card);
+				DATA.worldBallsLeft += 10;
+			}
+			else if(rewardData.number == 1)
+			{
+				cardImg = new cc.Sprite(res.fifteen_coins_gold_card);
+				DATA.setCurrencies(DATA.coins+15,0);
+				DATA.worldBallsLeft += 5;
+			}
+			else if(rewardData.number == 2)
+			{
+				cardImg = new cc.Sprite(res.twentyfive_coins_gold_card);
+				DATA.setCurrencies(DATA.coins+15,0);
+				DATA.worldBallsLeft += 5;
+			}
+			else if(rewardData.number == 3)
+			{
+				cardImg = new cc.Sprite(res.gem_gold_card);
+				DATA.setCurrencies(DATA.coins+5,0);
+			}
+		}
+		else if(rewardData.type == "bonus")
+		{
+			if(rewardData.number == 1)
+				cardImg = new cc.Sprite(res.one_move_card);
+			else if(rewardData.number == 3)
+				cardImg = new cc.Sprite(res.three_move_card);
+			else if(rewardData.number == 5)
+				cardImg = new cc.Sprite(res.five_move_card);
+			DATA.worldBallsLeft += rewardData.number;
+		}
+		
+		DATA.setDatabaseMoves(DATA.worldBallsLeft);
+		
+		cardImg.setScale(cardImg.height / this.height/2);
+		cardImg.attr({
+			x:0-(cardImg.width*cardImg.scale)/2,
+			y:this.height/2,
+			anchorX:.5,
+			anchorY:.5
+		});
+		this.addChild(cardImg);
+		
+		var moveAction = cc.moveTo(.5, this.width/2, this.height/2);
+		
+		var callAction = cc.callFunc(this.refreshUIQuantities, this);
+		var delayAction = cc.delayTime(1.5);
+		var spawn = cc.spawn(callAction, delayAction);
+		
+		var moveActionB = cc.moveTo(.5, this.width + (cardImg.width*cardImg.scale)/2, this.height/2);
+		var removeAction = cc.callFunc(cardImg.removeFromParent, cardImg);
+		
+		var seq = new cc.Sequence(moveAction, spawn, moveActionB, removeAction);
+		cardImg.runAction(seq);
+		
+		
+		
+	},
+	
+	refreshUIQuantities:function()
+	{
+		this.bubbleLayer.ballsLeftLabel.setString(DATA.worldBallsLeft);
+		this.parent.topUILayer.setCoins(DATA.coins);
+		
+	},
+	
 	triggerLevelsFullLabel:function()
 	{
 		this.levelsFullLabel = new cc.LabelTTF("Levels Full!","Roboto",30);
