@@ -10,9 +10,6 @@ var EditorUILayer = cc.Layer.extend({
 		this.dn = new cc.DrawNode();
 		this.addChild(this.dn);
 		
-		//this.width = w;
-		//this.height = h;
-		
 		this.editorObstacleHighlight = null;
 		
 		this.editorHighlightA = null;
@@ -22,6 +19,8 @@ var EditorUILayer = cc.Layer.extend({
 	 	this.dividerX = this.width/12*7;
 	 	
 		this.tabIndex = 0;
+		
+		this.topBulbIndex = 0;
 		
 		this.sidemenuMode = null;
 		
@@ -122,10 +121,6 @@ var EditorUILayer = cc.Layer.extend({
 		});
 		this.addChild(this.rightDownButton);
 		
-		
-		//this.backHomeButton = new Button(size.width*.75, 5, "Home", 28, cc.color(255,0,0,255), cc.color(255,255,255,255));
-       
-        
         this.backHomeButton = new cc.Sprite(res.quit_button);
         this.backHomeButton.setScaleX((DATA.bubbleR*5-1) / this.backHomeButton.width);
         this.backHomeButton.setScaleY(DATA.bubbleR*2 / this.backHomeButton.height)
@@ -155,22 +150,6 @@ var EditorUILayer = cc.Layer.extend({
 	{
 		var size = cc.winSize;
 		var imgWidth = size.width/12;
-		
-		
-		/*this.coloredEmojiNames = [
-			["red_emoji","orange_emoji","yellow_emoji","green_emoji","blue_emoji","pink_emoji","purple_emoji"],
-			["red_ball","orange_ball","yellow_ball","green_ball","blue_ball","pink_ball","purple_ball"],
-			["red_die","orange_die","yellow_die","green_die","blue_die","pink_die","purple_die"],
-			["red_bulb","orange_bulb","yellow_bulb","green_bulb","blue_bulb","pink_bulb","purple_bulb"],
-			["red_balloon","orange_balloon","yellow_balloon","green_balloon","blue_balloon","pink_balloon","purple_balloon"],
-			["red_soapbar","orange_soapbar","yellow_soapbar","green_soapbar","blue_soapbar","pink_soapbar","purple_soapbar"],
-			["red_egg","orange_egg","yellow_egg","green_egg","blue_egg","pink_egg","purple_egg"],
-			["red_snail","orange_snail","yellow_snail","green_snail","blue_snail","pink_snail","purple_snail"],
-			["red_siren","orange_siren","yellow_siren","green_siren","blue_siren","pink_siren","purple_siren"],
-			["red_lantern","orange_lantern","yellow_lantern","green_lantern","blue_lantern","pink_lantern","purple_lantern"],
-			["red_ghost","orange_ghost","yellow_ghost","green_ghost","blue_ghost","pink_ghost","purple_ghost"],
-			["red_note","orange_note","yellow_note","green_note","blue_note","pink_note","purple_note"]
-		];*/
 		
 		this.allDrawData = [];
 		for(var i=0; i<this.allEmojiNames.length; i++)
@@ -204,26 +183,6 @@ var EditorUILayer = cc.Layer.extend({
 			}
 		}
 		
-		/*var iconNames = [
-			["delete"]
-		];
-		for(var e=0; e<iconNames.length; e++)
-		{
-			for(var i=0; i<iconNames[e].length; i++)
-			{cc.log(this.dividerX);
-				var img = this.getIcon(iconNames[e][i]);
-				img.attr({
-					x:this.dividerX + i*imgWidth,
-					y:this.height-(e*imgWidth),
-					anchorX:0,
-					anchorY:1
-				});
-				img.setScale((imgWidth)/img.width);
-				this.addChild(img);
-				this.iconButtons.push(img);
-			}
-		}*/
-		
 		this.editorObstacleHighlight = new cc.Sprite(res.thick_black_circle);
 		this.editorObstacleHighlight.setScale((imgWidth)/this.editorObstacleHighlight.width);
 		this.editorObstacleHighlight.attr({
@@ -235,14 +194,11 @@ var EditorUILayer = cc.Layer.extend({
 	},
 	clearButtons:function()
 	{
-		//for(var i=0; i<this.iconButtons.length; i++)
-		//	this.removeChild(this.iconButtons[i]);
 		for(var i=0; i<this.imgButtons.length; i++)
 			this.removeChild(this.imgButtons[i]);
 			
 		//this.removeChild(this.editorObstacleHighlight);
 		
-		//this.iconButtons = [];
 		this.imgButtons = [];
 		//this.editorObstacleHighlight = null;
 	},
@@ -262,380 +218,416 @@ var EditorUILayer = cc.Layer.extend({
 		
 	},
 	onTouchEnded:function(pos)
-	{cc.log("end");
+	{
 		var size = cc.winSize;
 		
-		// UNCOMMENT THE TEST PART TO GET THE JSON DOWNLOAD!!!!!!!!!!!!!!!!!!!!!
-		
-		/*if(this.homeButton.pointWithin(pos))
-			cc.director.runScene(new HelloWorldScene());
-		else if(this.testButton.pointWithin(pos))
-			return "test";
+		// Buttons
+		if(FUNCTIONS.posWithinScaled(pos, this.rightTabArrow))
+		{
+			this.tabIndex++;
+			if(this.tabIndex > 1)
+				this.tabIndex = 0;
+			this.tabTitleLabel.setString(this.tabTitles[this.tabIndex]);
+			
+			for(var i=0; i<this.imgButtons.length; i++)
+			{
+				this.removeChild(this.imgButtons[i]);
+			}
+			this.imgButtons = [];
+			this.loadButtons();
+		}
+		else if(FUNCTIONS.posWithinScaled(pos, this.leftTabArrow))
+		{
+			this.tabIndex--;
+			if(this.tabIndex < 0)
+				this.tabIndex = 1;
+			this.tabTitleLabel.setString(this.tabTitles[this.tabIndex]);
+			
+			for(var i=0; i<this.imgButtons.length; i++)
+			{
+				this.removeChild(this.imgButtons[i]);
+			}
+			this.imgButtons = [];
+			this.loadButtons();
+		}
+		else if(FUNCTIONS.posWithinScaled(pos, this.rightUpButton))
+		{
+			if(this.sidemenuMode == "bulb")
+			{
+				this.topBulbIndex = Math.max(0, this.topBulbIndex-1);
+				this.resetBulbIcons();
+			}
+		}
+		else if(FUNCTIONS.posWithinScaled(pos, this.rightDownButton))
+		{
+			if(this.sidemenuMode == "bulb")
+			{
+				this.topBulbIndex++;
+				if(this.topBulbIndex+3 >= this.bulbData.length)
+					this.bulbData.push([0,0,0,0,0,0]);
+				
+				this.resetBulbIcons();
+			}
+		}
+		// Left Menu
+		else if(pos.x < this.dividerX)
+		{
+			return this.leftMenuTouch(pos);
+		}
+		// Right Menu
 		else
-		{*/
-			if(FUNCTIONS.posWithinScaled(pos, this.rightTabArrow))
-			{
-				this.tabIndex++;
-				if(this.tabIndex > 1)
-					this.tabIndex = 0;
-				this.tabTitleLabel.setString(this.tabTitles[this.tabIndex]);
+		{
+			return this.rightMenuTouch(pos);
+		}
+		
+	},
+	
+	leftMenuTouch:function(pos)
+	{
+		var drawIndex = null;
 				
-				for(var i=0; i<this.imgButtons.length; i++)
-				{
-					this.removeChild(this.imgButtons[i]);
-				}
-				this.imgButtons = [];
+		var drawData = null;
+		if(this.tabIndex == 0)
+			drawData = this.allDrawData;
+		
+		for(var i=0; i<this.imgButtons.length && drawIndex == null; i++)
+		{
+			var img = this.imgButtons[i];
+			if(pos.x >= img.x && pos.x <= img.x+img.width*img.scale && pos.y <= img.y && pos.y >= img.y-img.height*img.scale)
+			{
+				drawIndex = i;
+				
+				this.editorObstacleHighlight.attr({
+					"x":img.x+img.width*img.scale/2,
+					"y":img.y-img.height*img.scale/2
+				});
+			
+			}
+		}
+		if(drawIndex == null)
+			return null;
+		else
+		{
+			this.clearRightHighlights();
+			this.clearRightMenuButtons();
+			this.sidemenuMode = null;
+			
+			var type = drawData[drawIndex].type;
+			if(type == 0)
+			{
+				var color = drawData[drawIndex].color
+				this.allEmojiNames[1] = [color+"_ball",color+"_die",color+"_balloon",color+"_soapbar",color+"_snail"];
+				this.allEmojiNames[2] = [color+"_siren",color+"_lantern",color+"_ghost",color+"_note",color+"_egg"];
+				this.clearButtons();
 				this.loadButtons();
 			}
-			else if(FUNCTIONS.posWithinScaled(pos, this.leftTabArrow))
+			else if(type == 7)
 			{
-				this.tabIndex--;
-				if(this.tabIndex < 0)
-					this.tabIndex = 1;
-				this.tabTitleLabel.setString(this.tabTitles[this.tabIndex]);
-				
-				for(var i=0; i<this.imgButtons.length; i++)
-				{
-					this.removeChild(this.imgButtons[i]);
-				}
-				this.imgButtons = [];
-				this.loadButtons();
+				this.sidemenuMode = "bulb";
+				this.openBulbSidemenu();
 			}
-			else if(pos.x < this.dividerX)
+			else if(type == 8 || type == 19 || type == 17 
+				|| type == 28 || type == 22 || type == 30
+				 || type == 24 || type == 25 || type == 27)
 			{
-				var drawIndex = null;
-				
-				/*var allDrawData = [{"type":0,"color":"red"},{"type":0,"color":"yellow"}, {"type":0,"color":"green"}, 
-					{"type":0,"color":"blue"}, {"type":0,"color":"pink"}, {"type":0,"color":"purple"},
-					{"type":29,"color":"red"},{"type":8,"color":"red"},{"type":19,"color":"red"},{"type":17,"color":"red"},
-					{"type":24,"color":"red"},{"type":25,"color":"red"},{"type":26,"color":"red"},
-					{"type":27,"color":"blue"},{"type":28,"color":"pink"},{"type":22,"color":null},
-					{"type":7,"color":"red"},
-					{"type":3,"color":null},{"type":2,"color":null},{"type":16,"color":null},{"type":4,"color":null},{"type":5,"color":null},{"type":18,"color":null},
-					{"type":1,"color":null},{"type":12,"color":null},{"type":13,"color":null},{"type":20,"color":null},
-					{"type":21,"color":null,"orientation":"upright"},{"type":21,"color":null,"orientation":"right"},{"type":21,"color":null,"orientation":"downright"},
-					{"type":21,"color":null,"orientation":"downleft"},{"type":21,"color":null,"orientation":"left"},{"type":21,"color":null,"orientation":"upleft"},
-					{"type":9,"color":null},{"type":10,"color":null},{"type":11,"color":null},{"type":15,"color":null},{"type":29,"color":null}
-				];*/
-				/*var coloredDrawData = [{"type":0,"color":"red"},{"type":0,"color":"yellow"}, {"type":0,"color":"green"}, 
-					{"type":0,"color":"blue"}, {"type":0,"color":"pink"}, {"type":0,"color":"purple"},
-					{"type":8,"color":"red"},{"type":8,"color":"yellow"},{"type":8,"color":"green"},
-					{"type":8,"color":"blue"},{"type":8,"color":"pink"},{"type":8,"color":"purple"},
-					{"type":7,"color":"red"},{"type":7,"color":"yellow"},{"type":7,"color":"green"},
-					{"type":7,"color":"blue"},{"type":7,"color":"pink"},{"type":7,"color":"purple"},
-					{"type":19,"color":"red"},{"type":19,"color":"yellow"},{"type":19,"color":"green"},
-					{"type":19,"color":"blue"},{"type":19,"color":"pink"},{"type":19,"color":"purple"},
-					{"type":17,"color":"red"},{"type":17,"color":"yellow"},{"type":17,"color":"green"},
-					{"type":17,"color":"blue"},{"type":17,"color":"pink"},{"type":17,"color":"purple"}
-				];*/
-				
-				var drawData = null;
-				if(this.tabIndex == 0)
-					drawData = this.allDrawData;
-				
-				for(var i=0; i<this.imgButtons.length && drawIndex == null; i++)
-				{
-					var img = this.imgButtons[i];
-					if(pos.x >= img.x && pos.x <= img.x+img.width*img.scale && pos.y <= img.y && pos.y >= img.y-img.height*img.scale)
-					{
-						drawIndex = i;
-						
-						this.editorObstacleHighlight.attr({
-							"x":img.x+img.width*img.scale/2,
-							"y":img.y-img.height*img.scale/2
-						});
-					
-					}
-				}
-				if(drawIndex == null)
-					return null;
-				else
-				{
-					this.clearRightHighlights();
-					this.clearRightMenuButtons();
-					
-					var type = drawData[drawIndex].type;
-					if(type == 0)
-					{
-						var color = drawData[drawIndex].color
-						this.allEmojiNames[1] = [color+"_ball",color+"_die",color+"_balloon",color+"_soapbar",color+"_snail"];
-						this.allEmojiNames[2] = [color+"_siren",color+"_lantern",color+"_ghost",color+"_note",color+"_egg"];
-						this.clearButtons();
-						this.loadButtons();
-					}
-					else if(type == 7)
-					{
-						this.sidemenuMode = "bulb";
-						this.openBulbSidemenu();
-					}
-					else if(type == 8 || type == 19 || type == 17 
-						|| type == 28 || type == 22 || type == 30
-						 || type == 24 || type == 25 || type == 27)
-					{
-						this.sidemenuMode = "colorPicker";
-						this.openPickerSidemenu(drawData[drawIndex]);
-					}
-				}
-				
-				this.curModeData.type = drawData[drawIndex].type;
-				this.curModeData.color = drawData[drawIndex].color;
-				this.curModeData.orientation = drawData[drawIndex].orientation;
-				this.curModeData.binary = drawData[drawIndex].binary;
-				this.curModeData.meta = drawData[drawIndex].meta;
-				cc.log(this.curModeData);
-				return drawData[drawIndex];
+				this.sidemenuMode = "colorPicker";
+				this.openPickerSidemenu(drawData[drawIndex]);
 			}
-			// RIGHT MENU
-			else
+		}
+		
+		this.curModeData.type = drawData[drawIndex].type;
+		this.curModeData.color = drawData[drawIndex].color;
+		this.curModeData.orientation = drawData[drawIndex].orientation;
+		this.curModeData.binary = drawData[drawIndex].binary;
+		this.curModeData.meta = drawData[drawIndex].meta;
+		cc.log(this.curModeData);
+		return drawData[drawIndex];
+	},
+	
+	rightMenuTouch:function(pos)
+	{
+		// Buttons
+		if(FUNCTIONS.posWithinScaled(pos, this.backHomeButton))
+		{
+			var maxRow = 0;
+			for(var i=0; i<DATA.worldBubbles.length; i++)
 			{
-				if(FUNCTIONS.posWithinScaled(pos, this.backHomeButton))
-				{
-					//var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
-		    		/*var bubbles = DATA.worldBubbles;
-		    		//cc.log(bubbles);
-		    		var maxRow = 0;
-		    		var bubbleData = [];
-		    		for(var i=0; i<bubbles.length; i++)
-		    		{
-		    			if(bubbles[i].row > maxRow)
-		    				maxRow = bubbles[i].row;
-		    		}
-					cc.director.runScene(new GameplayScene(bubbles, maxRow+1));*/
-					
-					var maxRow = 0;
-					for(var i=0; i<DATA.worldBubbles.length; i++)
-					{
-						if(DATA.worldBubbles[i].row > maxRow)
-							maxRow = DATA.worldBubbles[i].row;
-					}
-					
-					cc.director.runScene(new cc.TransitionFade(1, new MainContainerScene(DATA.worldBubbles, maxRow+1)));
-					
-					return null;
-				}
-				else if(FUNCTIONS.posWithinScaled(pos, this.saveButton))
-				{
-					return "save";
-				}
-				else
-				{
-					if(this.sidemenuMode == "bulb")
-					{
-						var rowClicked = Math.floor((this.height-pos.y)/(DATA.bubbleR*2));
-						if(pos.x > this.dividerX+(DATA.bubbleR*2) && pos.x < this.width-(DATA.bubbleR*2)
-							&& pos.y < this.height && pos.y > DATA.bubbleR*2)
-						{
-							var colClicked = Math.floor((pos.x - (this.dividerX+(DATA.bubbleR*2)))/(DATA.bubbleR*2));
-							var bulbIterClicked = Math.floor(rowClicked/2);
-							var iterNumber = (rowClicked%2)*3 + colClicked;
-							
-							if(rowClicked%2 == 0)
-							{
-								if(this.editorHighlightA != null)
-								{
-									this.removeChild(this.editorHighlightA);
-									this.editorHighlightA = null;
-								}
-							
-								this.editorHighlightA = new cc.Sprite(res.thick_black_circle);
-								this.editorHighlightA.setScale((DATA.bubbleR*2)/this.editorHighlightA.width);
-								this.editorHighlightA.attr({
-									x:this.dividerX,
-									y:this.height - rowClicked*DATA.bubbleR*2,
-									anchorX:0,
-									anchorY:1
-								});
-								this.addChild(this.editorHighlightA);
-								
-							}
-							
-							this.bulbData[bulbIterClicked][iterNumber]++;
-							if(this.bulbData[bulbIterClicked][iterNumber] > 6)
-								this.bulbData[bulbIterClicked][iterNumber] = 0;
-							var bulbIterNumber = bulbIterClicked*6+iterNumber;cc.log(this.bulbData);
-							
-							var oldBulb = this.iconButtons["input"][bulbIterNumber];
-							this.removeChild(oldBulb);
-							var bulbType = this.bulbData[bulbIterClicked][iterNumber];
-							var newBulb = null;
-							if(bulbType == 0)
-								newBulb = new cc.Sprite(res.gray_bulb_emoji);
-							else if(bulbType == 1)
-								newBulb = new cc.Sprite(res.red_bulb_emoji);
-							else if(bulbType == 2)
-								newBulb = new cc.Sprite(res.yellow_bulb_emoji);
-							else if(bulbType == 3)
-								newBulb = new cc.Sprite(res.green_bulb_emoji);
-							else if(bulbType == 4)
-								newBulb = new cc.Sprite(res.blue_bulb_emoji);
-							else if(bulbType == 5)
-								newBulb = new cc.Sprite(res.pink_bulb_emoji);
-							else if(bulbType == 6)
-								newBulb = new cc.Sprite(res.purple_bulb_emoji);
-							
-							newBulb.setScale(DATA.bubbleR*2 / newBulb.width);
-							newBulb.attr({
-								x:oldBulb.x,
-								y:oldBulb.y,
-								anchorX:0,
-								anchorY:1
-							});
-							this.addChild(newBulb);
-							this.iconButtons["input"][bulbIterNumber] = newBulb;
-							
-							cc.log(bulbIterClicked);cc.log(this.bulbData);
-							
-							this.curModeData.color = this.convertCodesToColors(this.bulbData[bulbIterClicked]);
-							this.curModeData.meta = {"iteration":bulbIterClicked};cc.log(this.curModeData);
-							return {"type":this.curModeData.type,"color":this.curModeData.color,
-								"binary":this.curModeData.binary,"meta":this.curModeData.meta};
-						}
-						else if(pos.x < this.dividerX+(DATA.bubbleR*2) )
-						{
-							if(rowClicked%2 == 0)
-							{
-								if(this.editorHighlightA != null)
-								{
-									this.removeChild(this.editorHighlightA);
-									this.editorHighlightA = null;
-								}
-							
-								this.editorHighlightA = new cc.Sprite(res.thick_black_circle);
-								this.editorHighlightA.setScale((DATA.bubbleR*2)/this.editorHighlightA.width);
-								this.editorHighlightA.attr({
-									x:this.dividerX,
-									y:this.height - rowClicked*DATA.bubbleR*2,
-									anchorX:0,
-									anchorY:1
-								});
-								this.addChild(this.editorHighlightA);
-								
-								// return draw data or whatever
-								
-							}
-							this.curModeData.color = this.convertCodesToColors(this.bulbData[bulbIterClicked]);
-							this.curModeData.meta = {"iteration":bulbIterClicked};cc.log(this.curModeData);
-							return {"type":this.curModeData.type,"color":this.curModeData.color,
-								"binary":this.curModeData.binary,"meta":this.curModeData.meta};
-							
-						}
-						
-					}
-					else if(this.sidemenuMode == "colorPicker")
-					{
-						if(pos.x > this.dividerX+DATA.bubbleR && pos.x < this.width-(DATA.bubbleR*3)
-							&& pos.y < this.height && pos.y > this.height-(DATA.bubbleR*4))
-						{
-							if(this.editorHighlightA != null)
-							{
-								this.removeChild(this.editorHighlightA);
-								this.editorHighlightA = null;
-							}
-							
-							var rowClicked = Math.floor((this.height-pos.y)/(DATA.bubbleR*2));
-							var colClicked = Math.floor((pos.x - (this.dividerX+(DATA.bubbleR*1)))/(DATA.bubbleR*2));
-							cc.log(rowClicked + " "+colClicked);
-							this.editorHighlightA = new cc.Sprite(res.thick_black_circle);
-							this.editorHighlightA.setScale((DATA.bubbleR*2)/this.editorHighlightA.width);
-							this.editorHighlightA.attr({
-								x:this.dividerX+DATA.bubbleR+(colClicked*DATA.bubbleR*2),
-								y:this.height - rowClicked*DATA.bubbleR*2,
-								anchorX:0,
-								anchorY:1
-							});
-							this.addChild(this.editorHighlightA);
-						
-							if(rowClicked == 0 && colClicked == 0)
-							{
-								this.curModeData.color = "red";
-								return {"type":this.curModeData.type,"color":"red","binary":this.curModeData.binary,"meta":null};
-							}
-							else if(rowClicked == 0 && colClicked == 1)
-							{
-								this.curModeData.color = "yellow";
-								return {"type":this.curModeData.type,"color":"yellow","binary":this.curModeData.binary,"meta":null};
-							}
-							else if(rowClicked == 0 && colClicked == 2)
-							{
-								this.curModeData.color = "green";
-								return {"type":this.curModeData.type,"color":"green","binary":this.curModeData.binary,"meta":null};
-							}
-							else if(rowClicked == 1 && colClicked == 0)
-							{
-								this.curModeData.color = "blue";
-								return {"type":this.curModeData.type,"color":"blue","binary":this.curModeData.binary,"meta":null};
-							}
-							else if(rowClicked == 1 && colClicked == 1)
-							{
-								this.curModeData.color = "pink";
-								return {"type":this.curModeData.type,"color":"pink","binary":this.curModeData.binary,"meta":null};
-							}
-							else if(rowClicked == 1 && colClicked == 2)
-							{
-								this.curModeData.color = "purple";
-								return {"type":this.curModeData.type,"color":"purple","binary":this.curModeData.binary,"meta":null};
-							}
-						}
-						else if(pos.x > this.dividerX+(DATA.bubbleR*2) && pos.x < this.dividerX+(DATA.bubbleR*6)
-							&& pos.y < this.height-(DATA.bubbleR*5) && pos.y > this.height-(DATA.bubbleR*7))
-						{
-							if(this.editorHighlightB != null)
-							{
-								this.removeChild(this.editorHighlightB);
-								this.editorHighlightB = null;
-							}
-							
-							var colClicked = Math.floor((pos.x - (this.dividerX+(DATA.bubbleR*2)))/(DATA.bubbleR*2));
-							
-							this.editorHighlightB = new cc.Sprite(res.thick_black_circle);
-							this.editorHighlightB.setScale((DATA.bubbleR*2)/this.editorHighlightB.width);
-							this.editorHighlightB.attr({
-								x:this.dividerX+(DATA.bubbleR*2)+(colClicked*DATA.bubbleR*2),
-								y:this.height - (DATA.bubbleR*5),
-								anchorX:0,
-								anchorY:1
-							});
-							this.addChild(this.editorHighlightB);
-							
-							if(colClicked == 0)
-							{
-								this.curModeData.binary = true
-								return {"type":this.curModeData.type,"color":this.curModeData.color,
-								"binary":this.curModeData.binary,"meta":null};
-							}
-							if(colClicked == 1)
-							{
-								this.curModeData.binary = false;
-								return {"type":this.curModeData.type,"color":this.curModeData.color,
-								"binary":this.curModeData.binary,"meta":null};
-							}
-						}
-					}
-					
-					/*var drawIndex = null;
-					var drawData = [{"type":"-1"}];
-					
-					for(var i=0; i<this.iconButtons.length && drawIndex == null; i++)
-					{
-						var img = this.iconButtons[i];
-						if(pos.x >= img.x && pos.x <= img.x+img.width*img.scale && pos.y <= img.y && pos.y >= img.y-img.height*img.scale)
-						{
-							drawIndex = i;
-							
-							this.editorObstacleHighlight.attr({
-								"x":img.x+img.width*img.scale/2,
-								"y":img.y-img.height*img.scale/2
-							});
-						}
-					}
-					
-					if(drawIndex == null)
-						return null;
-					return drawData[drawIndex];*/
-				}
+				if(DATA.worldBubbles[i].row > maxRow)
+					maxRow = DATA.worldBubbles[i].row;
 			}
 			
-		//}
+			cc.director.runScene(new cc.TransitionFade(1, new MainContainerScene(DATA.worldBubbles, maxRow+1)));
+			
+			return null;
+		}
+		else if(FUNCTIONS.posWithinScaled(pos, this.saveButton))
+		{
+			return "save";
+		}
+		
+		// Special Inputs touched (Functionality is Mode-Dependent)
+		else
+		{
+			if(this.sidemenuMode == "bulb")
+			{
+				return this.rightMenuBulbTouch(pos);	
+			}
+			else if(this.sidemenuMode == "colorPicker")
+			{
+				return this.rightMenuColorPickerTouch(pos);
+			}
+			
+		}
+	},
+	
+	rightMenuBulbTouch:function(pos)
+	{
+		var rowClicked = Math.floor((this.height-pos.y)/(DATA.bubbleR*2));
+		var bulbIterClicked = Math.floor(rowClicked/2);
+		if(pos.x > this.dividerX+(DATA.bubbleR*2) && pos.x < this.width-(DATA.bubbleR*2)
+			&& pos.y < this.height && pos.y > DATA.bubbleR*2)
+		{
+			var colClicked = Math.floor((pos.x - (this.dividerX+(DATA.bubbleR*2)))/(DATA.bubbleR*2));
+			var bulbIterClicked = Math.floor(rowClicked/2);
+			var iterNumber = (rowClicked%2)*3 + colClicked;
+			
+			if(rowClicked%2 == 0)
+			{
+				if(this.editorHighlightA != null)
+				{
+					this.removeChild(this.editorHighlightA);
+					this.editorHighlightA = null;
+				}
+			
+				this.editorHighlightA = new cc.Sprite(res.thick_black_circle);
+				this.editorHighlightA.setScale((DATA.bubbleR*2)/this.editorHighlightA.width);
+				this.editorHighlightA.attr({
+					x:this.dividerX,
+					y:this.height - rowClicked*DATA.bubbleR*2,
+					anchorX:0,
+					anchorY:1
+				});
+				this.addChild(this.editorHighlightA);
+				
+			}
+			
+			this.bulbData[bulbIterClicked + this.topBulbIndex][iterNumber]++;
+			if(this.bulbData[bulbIterClicked + this.topBulbIndex][iterNumber] > 6)
+				this.bulbData[bulbIterClicked + this.topBulbIndex][iterNumber] = 0;
+			var bulbIterNumber = bulbIterClicked*6+iterNumber;cc.log(this.bulbData);
+			
+			var oldBulb = this.iconButtons["input"][bulbIterNumber];
+			this.removeChild(oldBulb);
+			var bulbType = this.bulbData[bulbIterClicked + this.topBulbIndex][iterNumber];
+			var newBulb = null;
+			if(bulbType == 0)
+				newBulb = new cc.Sprite(res.gray_bulb_emoji);
+			else if(bulbType == 1)
+				newBulb = new cc.Sprite(res.red_bulb_emoji);
+			else if(bulbType == 2)
+				newBulb = new cc.Sprite(res.yellow_bulb_emoji);
+			else if(bulbType == 3)
+				newBulb = new cc.Sprite(res.green_bulb_emoji);
+			else if(bulbType == 4)
+				newBulb = new cc.Sprite(res.blue_bulb_emoji);
+			else if(bulbType == 5)
+				newBulb = new cc.Sprite(res.pink_bulb_emoji);
+			else if(bulbType == 6)
+				newBulb = new cc.Sprite(res.purple_bulb_emoji);
+			
+			newBulb.setScale(DATA.bubbleR*2 / newBulb.width);
+			newBulb.attr({
+				x:oldBulb.x,
+				y:oldBulb.y,
+				anchorX:0,
+				anchorY:1
+			});
+			this.addChild(newBulb);
+			this.iconButtons["input"][bulbIterNumber] = newBulb;
+			
+			cc.log(bulbIterClicked);cc.log(this.topBulbIndex);cc.log(this.bulbData);
+			
+			this.curModeData.color = this.convertCodesToColors(this.bulbData[bulbIterClicked + this.topBulbIndex]);
+			this.curModeData.meta = {"iteration":bulbIterClicked+this.topBulbIndex};cc.log(this.curModeData);
+			return {"type":this.curModeData.type,"color":this.curModeData.color,
+				"binary":this.curModeData.binary,"meta":this.curModeData.meta};
+		}
+		else if(pos.x < this.dividerX+(DATA.bubbleR*2) )
+		{
+			if(rowClicked%2 == 0)
+			{
+				if(this.editorHighlightA != null)
+				{
+					this.removeChild(this.editorHighlightA);
+					this.editorHighlightA = null;
+				}
+			
+				this.editorHighlightA = new cc.Sprite(res.thick_black_circle);
+				this.editorHighlightA.setScale((DATA.bubbleR*2)/this.editorHighlightA.width);
+				this.editorHighlightA.attr({
+					x:this.dividerX,
+					y:this.height - rowClicked*DATA.bubbleR*2,
+					anchorX:0,
+					anchorY:1
+				});
+				this.addChild(this.editorHighlightA);
+				
+				// return draw data or whatever
+				
+			}
+			
+			this.curModeData.color = this.convertCodesToColors(this.bulbData[bulbIterClicked + this.topBulbIndex]);
+			this.curModeData.meta = {"iteration":bulbIterClicked + this.topBulbIndex};
+			return {"type":this.curModeData.type,"color":this.curModeData.color,
+				"binary":this.curModeData.binary,"meta":this.curModeData.meta};
+			
+		}
+	
+	},
+	
+	rightMenuColorPickerTouch:function(pos)
+	{
+		if(pos.x > this.dividerX+DATA.bubbleR && pos.x < this.width-(DATA.bubbleR*3)
+			&& pos.y < this.height && pos.y > this.height-(DATA.bubbleR*4))
+		{
+			if(this.editorHighlightA != null)
+			{
+				this.removeChild(this.editorHighlightA);
+				this.editorHighlightA = null;
+			}
+			
+			var rowClicked = Math.floor((this.height-pos.y)/(DATA.bubbleR*2));
+			var colClicked = Math.floor((pos.x - (this.dividerX+(DATA.bubbleR*1)))/(DATA.bubbleR*2));
+			cc.log(rowClicked + " "+colClicked);
+			this.editorHighlightA = new cc.Sprite(res.thick_black_circle);
+			this.editorHighlightA.setScale((DATA.bubbleR*2)/this.editorHighlightA.width);
+			this.editorHighlightA.attr({
+				x:this.dividerX+DATA.bubbleR+(colClicked*DATA.bubbleR*2),
+				y:this.height - rowClicked*DATA.bubbleR*2,
+				anchorX:0,
+				anchorY:1
+			});
+			this.addChild(this.editorHighlightA);
+		
+			if(rowClicked == 0 && colClicked == 0)
+			{
+				this.curModeData.color = "red";
+				return {"type":this.curModeData.type,"color":"red","binary":this.curModeData.binary,"meta":null};
+			}
+			else if(rowClicked == 0 && colClicked == 1)
+			{
+				this.curModeData.color = "yellow";
+				return {"type":this.curModeData.type,"color":"yellow","binary":this.curModeData.binary,"meta":null};
+			}
+			else if(rowClicked == 0 && colClicked == 2)
+			{
+				this.curModeData.color = "green";
+				return {"type":this.curModeData.type,"color":"green","binary":this.curModeData.binary,"meta":null};
+			}
+			else if(rowClicked == 1 && colClicked == 0)
+			{
+				this.curModeData.color = "blue";
+				return {"type":this.curModeData.type,"color":"blue","binary":this.curModeData.binary,"meta":null};
+			}
+			else if(rowClicked == 1 && colClicked == 1)
+			{
+				this.curModeData.color = "pink";
+				return {"type":this.curModeData.type,"color":"pink","binary":this.curModeData.binary,"meta":null};
+			}
+			else if(rowClicked == 1 && colClicked == 2)
+			{
+				this.curModeData.color = "purple";
+				return {"type":this.curModeData.type,"color":"purple","binary":this.curModeData.binary,"meta":null};
+			}
+		}
+		else if(pos.x > this.dividerX+(DATA.bubbleR*2) && pos.x < this.dividerX+(DATA.bubbleR*6)
+			&& pos.y < this.height-(DATA.bubbleR*5) && pos.y > this.height-(DATA.bubbleR*7))
+		{
+			if(this.editorHighlightB != null)
+			{
+				this.removeChild(this.editorHighlightB);
+				this.editorHighlightB = null;
+			}
+			
+			var colClicked = Math.floor((pos.x - (this.dividerX+(DATA.bubbleR*2)))/(DATA.bubbleR*2));
+			
+			this.editorHighlightB = new cc.Sprite(res.thick_black_circle);
+			this.editorHighlightB.setScale((DATA.bubbleR*2)/this.editorHighlightB.width);
+			this.editorHighlightB.attr({
+				x:this.dividerX+(DATA.bubbleR*2)+(colClicked*DATA.bubbleR*2),
+				y:this.height - (DATA.bubbleR*5),
+				anchorX:0,
+				anchorY:1
+			});
+			this.addChild(this.editorHighlightB);
+			
+			if(colClicked == 0)
+			{
+				this.curModeData.binary = true
+				return {"type":this.curModeData.type,"color":this.curModeData.color,
+				"binary":this.curModeData.binary,"meta":null};
+			}
+			if(colClicked == 1)
+			{
+				this.curModeData.binary = false;
+				return {"type":this.curModeData.type,"color":this.curModeData.color,
+				"binary":this.curModeData.binary,"meta":null};
+			}
+		}
+	},
+	
+	resetBulbIcons:function()
+	{cc.log("resetBulbIcons");
+		this.clearRightMenuButtons();
+		this.iconButtons["header"] = [];
+		this.iconButtons["input"] = [];
+		
+		for(var i=0; i<3; i++)
+		{
+			var headBulb = new cc.Sprite(res.gray_bulb_emoji);
+			headBulb.setScale(DATA.bubbleR*2 / headBulb.width);
+			headBulb.attr({
+				x:this.dividerX,
+				y:this.height-(i*DATA.bubbleR*4),
+				anchorX:0,
+				anchorY:1
+			});
+			this.addChild(headBulb);
+			this.iconButtons["header"].push(headBulb);
+			for(var j=0; j<6; j++)
+			{
+				var xOff = Math.floor(j/3)*(-1*DATA.bubbleR*6) + j*(DATA.bubbleR*2);
+				var yOff = Math.floor(j/3)*(DATA.bubbleR*2);
+				
+				var inputBulb = null;
+				if(this.bulbData[i+this.topBulbIndex][j] == 0)
+					inputBulb = new cc.Sprite(res.gray_bulb_emoji);
+				else if(this.bulbData[i+this.topBulbIndex][j] == 1)
+					inputBulb = new cc.Sprite(res.red_bulb_emoji);
+				else if(this.bulbData[i+this.topBulbIndex][j] == 2)
+					inputBulb = new cc.Sprite(res.yellow_bulb_emoji);
+				else if(this.bulbData[i+this.topBulbIndex][j] == 3)
+					inputBulb = new cc.Sprite(res.green_bulb_emoji);
+				else if(this.bulbData[i+this.topBulbIndex][j] == 4)
+					inputBulb = new cc.Sprite(res.blue_bulb_emoji);
+				else if(this.bulbData[i+this.topBulbIndex][j] == 5)
+					inputBulb = new cc.Sprite(res.pink_bulb_emoji);
+				else if(this.bulbData[i+this.topBulbIndex][j] == 6)
+					inputBulb = new cc.Sprite(res.purple_bulb_emoji);
+				
+				
+				
+				inputBulb.setScale(DATA.bubbleR*2 / inputBulb.width);
+				inputBulb.attr({
+					x:this.dividerX+DATA.bubbleR*2+xOff,
+					y:this.height-(i*DATA.bubbleR*4)-yOff,
+					anchorX:0,
+					anchorY:1
+				});
+				this.addChild(inputBulb);
+				this.iconButtons["input"].push(inputBulb);
+			}
+		}
 	},
 	
 	openBulbSidemenu:function()
@@ -798,20 +790,12 @@ var EditorUILayer = cc.Layer.extend({
 		this.draw();
 	},
 	
-	clearRightMenuButtons:function()
-	{
-		this.sidemenuMode = null;
-		
-		var iconKeys = Object.keys(this.iconButtons);
-		for(var i=0; i<iconKeys.length; i++)
-		{
-			for(var j=0; j<this.iconButtons[iconKeys[i]].length; j++)
-			{
-				this.removeChild(this.iconButtons[iconKeys[i]][j]);
-			}
-		}
-		this.iconButtons = {};
-	},
+	
+	
+	// Data Functions
+	
+	
+	
 	
 	draw:function(){
 		
@@ -841,6 +825,21 @@ var EditorUILayer = cc.Layer.extend({
 		{
 			
 		}
+	},
+	
+	clearRightMenuButtons:function()
+	{
+		//this.sidemenuMode = null;
+		
+		var iconKeys = Object.keys(this.iconButtons);
+		for(var i=0; i<iconKeys.length; i++)
+		{
+			for(var j=0; j<this.iconButtons[iconKeys[i]].length; j++)
+			{
+				this.removeChild(this.iconButtons[iconKeys[i]][j]);
+			}
+		}
+		this.iconButtons = {};
 	},
 	
 	clearHighlights:function()

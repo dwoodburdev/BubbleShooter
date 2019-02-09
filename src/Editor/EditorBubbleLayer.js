@@ -8,7 +8,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 //	-initLevel()
 	
 	ctor:function(width, height, bubbles, numRows){
-		this._super();
+		this._super();cc.log(bubbles);
 		
 		this.width = width;
 		this.height = height;
@@ -48,6 +48,17 @@ var EditorBubbleLayer = cc.Layer.extend({
        	
        	
 		this.initLevel(bubbles);
+	},
+	
+	setMove:function(moveNum)
+	{
+		for(var i=0; i<this.bubbles.length; i++)
+		{
+			if(this.bubbles[i].type == 7)
+			{
+				this.bubbles[i].advanceToTurn(moveNum);
+			}
+		}
 	},
 	
 	onEnter:function(){
@@ -116,7 +127,7 @@ var EditorBubbleLayer = cc.Layer.extend({
        	for(var i=0; i<bubbles.length; i++)
        	{
        		var bub = new Bubble(this.bubbleR, bubbles[i].colorCode, bubbles[i].type, null, null, null, bubbles[i].row, bubbles[i].col);
-			cc.log(bub);
+			//cc.log(bub);
 			bub.attr({
        			x: this.bubbleR+bub.col*this.bubbleR*2 + (bub.row%2)*this.bubbleR,
        			y: this.height - bub.row*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
@@ -360,15 +371,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 				
 				if(drawType == 7)
 				{
-					var bulbLabel = new cc.LabelTTF(""+drawMeta.iteration,"Roboto",24);
-					bulbLabel.attr({
-						x:DATA.bubbleR/3,
-						y:-DATA.bubbleR/3,
-						anchorX:.5,
-						anchorY:.5
-					});
-					bulbLabel.color = cc.color(0,0,0,255);
-					bubble.addChild(bulbLabel);
+					bubble.addNumber(drawMeta.iteration);
 				}
 				
 			}
@@ -401,7 +404,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 				}
 				
 			}
-		}cc.log(this.bubbles);
+		}
 	},
 	
 	getHexAtPos:function(pos)

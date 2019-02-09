@@ -73,6 +73,49 @@ var MidUILayer = cc.Layer.extend({
 		});
 		this.viewLabel.color = cc.color(0,0,0,255);
 		this.addChild(this.viewLabel);
+		
+		this.deleteImg = new cc.Sprite(res.red_x);
+		this.deleteImg.setScale(this.height / this.deleteImg.height);
+		this.deleteImg.attr({
+			x:this.scrollDownImg.x,
+			y:this.height/2,
+			anchorX:1,
+			anchorY:.5
+		});
+		this.addChild(this.deleteImg);
+		
+		this.rightMoveArrow = new cc.Sprite(res.right_arrow);
+		this.rightMoveArrow.setScale(this.height / this.rightMoveArrow.height);
+		this.rightMoveArrow.attr({
+			x:this.deleteImg.x-(this.deleteImg.width*this.deleteImg.scale),
+			y:this.height/2,
+			anchorX:1,
+			anchorY:.5
+		});
+		this.addChild(this.rightMoveArrow);
+		
+		this.moveLabel = new cc.LabelTTF("0","Roboto",24);
+		this.moveLabel.attr({
+			x:this.rightMoveArrow.x-(this.rightMoveArrow.width*this.rightMoveArrow.scale),
+			y:this.height/2,
+			anchorX:1,
+			anchorY:.5
+		});
+		this.moveLabel.color = cc.color(0,0,0,255);
+		this.addChild(this.moveLabel);
+		
+		this.leftMoveArrow = new cc.Sprite(res.left_arrow);
+		this.leftMoveArrow.setScale(this.height / this.leftMoveArrow.height);
+		this.leftMoveArrow.attr({
+			x:this.moveLabel.x-(this.moveLabel.width*this.moveLabel.scale),
+			y:this.height/2,
+			anchorX:1,
+			anchorY:.5
+		});
+		this.addChild(this.leftMoveArrow);
+		
+		
+		
 	},
 	
 	onTouchBegin:function(pos)
@@ -92,6 +135,18 @@ var MidUILayer = cc.Layer.extend({
 		else if(pos.x > this.scrollDownImg.x && pos.x < this.scrollDownImg.x+this.scrollDownImg.width)
 		{
 			return {"type":"scrolldown"};
+		}
+		else if(pos.x < this.deleteImg.x && pos.x > this.deleteImg.x-(this.deleteImg.width*this.deleteImg.scale))
+		{
+			return {"type":"delete"};
+		}
+		else if(pos.x < this.rightMoveArrow.x && pos.x > this.rightMoveArrow.x-(this.rightMoveArrow.width*this.rightMoveArrow.scale))
+		{
+			return {"type":"rightMove"};
+		}
+		else if(pos.x < this.leftMoveArrow.x && pos.x > this.leftMoveArrow.x-(this.leftMoveArrow.width*this.leftMoveArrow.scale))
+		{
+			return {"type":"leftMove"};
 		}
 		else if(pos.x > this.createLabel.x && pos.x < this.createLabel.x+this.createLabel.width)
 		{

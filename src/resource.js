@@ -43,7 +43,8 @@ var res = {
     blue_balloon_emoji: "res/blue-balloon.png",
     pink_balloon_emoji: "res/pink-balloon.png",
     purple_balloon_emoji: "res/purple-balloon.png",
-    cd_emoji: "res/cd.png",
+    //cd_emoji: "res/cd.png",
+    cd_emoji: "res/poop.png",
     egg_emoji : "res/egg.png",
     poop_emoji : "res/poop.png",
     right_fist_emoji : "res/right-fist.png",
@@ -386,6 +387,7 @@ var res = {
     
     world_node: "res/node.png",
     world_node_gray: "res/node-gray.png",
+    world_node_red: "res/node-red.png",
     map_icon: "res/map.png",
     puzzle_piece: "res/puzzle-piece.png",
     framed_picture: "res/framed-picture.png"

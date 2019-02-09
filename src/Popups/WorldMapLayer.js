@@ -54,9 +54,12 @@ var WorldMapLayer = cc.Layer.extend({
 		do
 		{
 			
-			var node = new cc.Sprite(res.world_node);
-			if(worldNumber > DATA.worldIndex)
-				node = new cc.Sprite(res.world_node_gray);
+			var node = null;
+			if(worldNumber <= DATA.worldIndex)
+				node = new cc.Sprite(res.world_node);
+			else if(this.isRedNode(worldNumber))
+				node = new cc.Sprite(res.world_node_red);
+			else node = new cc.Sprite(res.world_node_gray);
 			
 			var numLabel = new cc.LabelTTF(""+worldNumber, "Roboto", 16);
 			numLabel.attr({
@@ -115,21 +118,29 @@ var WorldMapLayer = cc.Layer.extend({
 			}
 			else if(worldNumber == 3)
 			{
-				rewardImg = new cc.Sprite(res.red_die_emoji);
+				rewardImg = new cc.Sprite(res.red_bulb_emoji);
 			}
 			else if(worldNumber == 4)
 			{
-				rewardImg = new cc.Sprite(res.puzzle_piece);
+				rewardImg = new cc.Sprite(res.poop_emoji);
 			}
 			else if(worldNumber == 5)
 			{
 				rewardImg = new cc.Sprite(res.dynamite_1_emoji);
 			}
+			else if(worldNumber == 6)
+			{
+				rewardImg = new cc.Sprite(res.red_die_emoji);
+			}
 			else if(worldNumber == 7)
 			{
-				rewardImg = new cc.Sprite(res.red_bulb_emoji);
+				rewardImg = new cc.Sprite(res.dagger_top_right_emoji);
 			}
 			else if(worldNumber == 8)
+			{
+				rewardImg = new cc.Sprite(res.anvil_emoji);
+			}
+			else if(worldNumber == 9)
 			{
 				rewardImg = new cc.Sprite(res.puzzle_piece);
 			}
@@ -265,9 +276,13 @@ var WorldMapLayer = cc.Layer.extend({
 		//} while(nodeY < this.titleLabel.y-this.titleLabel.height);
 		
 	},
-	/*onEnter:function(){
-		this._super();
-	},*/
+	
+	isRedNode:function(num)
+	{
+		if((num >= 2 && num <=8) || num == 10)
+			return true;
+		return false;
+	},
 	
 	onTouchStarted:function(pos)
 	{

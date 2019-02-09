@@ -15,6 +15,8 @@ var EditorLayer = cc.Layer.extend({
 		
 		this.mode = "create";
 		
+		this.moveNum = 0;
+		
 		this.editorUILayer = new EditorUILayer(size.width, size.height/3);
 		this.editorUILayer.attr({
 			x: 0,
@@ -186,17 +188,26 @@ var EditorLayer = cc.Layer.extend({
 				   	else if(returnData == "save")
 				   	{
 				   		var bubbleData = self.bubbleLayer.getBubbles();
-				   		var bubs = [];
+				   		var bubs = [];cc.log(bubbleData);
 				   		for(var i=0; i<bubbleData.length; i++)
 				   		{
 				   			var bub = bubbleData[i];
+				   			
 				   			if(bub.type == 7)
 				   			{
 				   				bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":bub.colorQueue});
 				   			}
-				   			else bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":bub.colorCode});
-				   		}
+				   			else 
+				   			{
+				   				var color = null;
+				   				if("colorCode" in bub && bub.colorCode !== undefined)
+				   					color = bub.colorCode;
+				   				bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":color});
+				   			}
+				   		}cc.log(bubs);
 				   		DATA.saveNewLevelToDatabase(bubs);
+				   		
+				   		
 				   	}
 				   	else if(returnData != null)
 				   	{
@@ -232,7 +243,7 @@ var EditorLayer = cc.Layer.extend({
 			   				
 			   				self.removeChild(self.levelViewerUILayer);
 			   				
-			   				self.bubbleLayer = new EditorBubbleLayer(size.width, size.height-self.editorUILayer.height-self.midUILayer.height, self.viewerBubbleLayer.bubbles, self.viewerBubbleLayer.numRows);	
+			   				self.bubbleLayer = new EditorBubbleLayer(size.width, size.height-self.editorUILayer.height-self.midUILayer.height, self.viewerBubbleLayer.bubbles, 100/*self.viewerBubbleLayer.numRows*/);	
 							self.bubbleLayer.attr({
 								x:0,
 								y:self.editorUILayer.height+self.midUILayer.height,
@@ -277,7 +288,7 @@ var EditorLayer = cc.Layer.extend({
 				   			self.drawType = -1;
 				   		}
 				   		else
-				   		{
+				   		{cc.log(returnData);
 				   			self.drawType = returnData.type;
 				  			self.drawColor = returnData.color;cc.log(self.drawColor);
 				  			self.drawOrientation = returnData.orientation;
@@ -309,6 +320,23 @@ var EditorLayer = cc.Layer.extend({
 				   			{
 				   				self.viewerBubbleLayer.scrollDown();
 				   			}
+				   		}
+				   		else if(uiData.type == "delete")
+				   		{
+				   			if(self.mode == "create")
+				   			{
+				   				self.drawType = -1;
+				   			}
+				   		}
+				   		else if(uiData.type == "rightMove")
+				   		{
+				   			self.moveNum++;
+				   			self.bubbleLayer.setMove(self.moveNum);
+				   		}
+				   		else if(uiData.type == "leftMove")
+				   		{
+				   			self.moveNum = Math.max(0, self.moveNum-1);
+				   			self.bubbleLayer.setMove(self.moveNum);
 				   		}
 				   		else if(uiData.type == "create")
 				   		{

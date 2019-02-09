@@ -1032,16 +1032,45 @@ var BubbleLayer = cc.Layer.extend({
 					cc.log(action.type);
 					if(action.type == "match")
 					{
-						affectedIndices = this.executeMatch(action.position.y, action.position.x);
-						
-						if(affectedIndices.destroyed.length > 0)
-							DATA.registerEvent({"type":"match-size","progress":1,"size":affectedIndices.destroyed.length});
+						if(this.bubbles[this.bubbleMap[action.position.y][action.position.x]].type == 11)
+						{cc.log("rainbow match exec");cc.log(action.position);
+							affectedIndices = {"destroyed":[],"triggered":[],"triggers":[]};
+							var colors = ["red","yellow","green","blue"];
+							for(var i=0; i<colors.length; i++)
+							{cc.log(colors[i]);
+								this.bubbles[this.bubbleMap[action.position.y][action.position.x]].colorCode = colors[i];
+								var newAffectedIndices = this.executeMatch(action.position.y, action.position.x);
+								var affectedKeys = Object.keys(newAffectedIndices);
+								for(var j=0; j<affectedKeys.length; j++)
+								{
+									affectedIndices[affectedKeys[j]] = affectedIndices[affectedKeys[j]].concat(newAffectedIndices[affectedKeys[j]]);
+								}
+							}
+							for(var i=affectedIndices.destroyed.length-1; i>=0; i--)
+							{
+								if(affectedIndices.destroyed[i] == this.bubbleMap[action.position.y][action.position.x])
+								affectedIndices.destroyed.splice(i,1);
+							}
+							affectedIndices.destroyed.push(this.bubbleMap[action.position.y][action.position.x]);
+						}
+						else 
+						{
+							affectedIndices = this.executeMatch(action.position.y, action.position.x);
+							if(affectedIndices.destroyed.length > 0)
+								DATA.registerEvent({"type":"match-size","progress":1,"size":affectedIndices.destroyed.length});
+						}
+						cc.log(affectedIndices);
 						
 						var subIndices = this.executeOnAdjMatch(affectedIndices.destroyed);
 						affectedIndices.destroyed = affectedIndices.destroyed.concat(subIndices.destroyed);
 						affectedIndices.triggered = affectedIndices.triggered.concat(subIndices.triggered);
 						affectedIndices.triggers = affectedIndices.triggers.concat(subIndices.triggers);
 					}
+					/*else if(action.type == "rainbow")
+					{
+						var colors = ["red","blue","yellow","green"]
+						for(var i=0; i<)
+					}*/
 					else if(action.type == "hit")
 					{
 						affectedIndices = this.executeHit(action.position.y, action.position.x, destroyedHexes);
@@ -1306,6 +1335,9 @@ var BubbleLayer = cc.Layer.extend({
 				this.unschedule(this.triggerRandomIdle);
 				//cc.director.runScene(new RewardScene());
 				this.parent.openWorldRewardsLayer();
+				//DATA.worldColorsEliminated = [];
+				DATA.resetForNewWorld();
+
 			}
 			
 			/*if(this.numMoves <= 0)
@@ -1418,7 +1450,7 @@ var BubbleLayer = cc.Layer.extend({
 			
 			// eliminate colors no longer in puzzle
 			if(colorsFound.length != curColors.length)
-			{
+			{cc.log(DATA.worldActiveQueue);
 				// eliminate colors, replace queue bubbles
 				for(var i=0; i<curColors.length; i++)
 				{cc.log(DATA.worldColorsEliminated.length);cc.log(DATA.numColors-1);
@@ -1438,6 +1470,7 @@ var BubbleLayer = cc.Layer.extend({
 						}
 					}
 				}
+				cc.log(DATA.worldActiveQueue);
 			}
 		}
 	},
@@ -1483,7 +1516,7 @@ var BubbleLayer = cc.Layer.extend({
 	
 	executeMatch:function(row, col)
 	{
-		var color = this.bubbles[this.bubbleMap[row][col]].colorCode;
+		var color = this.bubbles[this.bubbleMap[row][col]].colorCode;cc.log(color);
 		var adjQueue = [{"x":col, "y":row}];
 		var matchedBubbleIndices = [];
 		var triggeredBubbleIndices = [];
@@ -1523,7 +1556,7 @@ var BubbleLayer = cc.Layer.extend({
 			}
 			
 			adjQueue.splice(0, 1);
-		}
+		}cc.log("matchedBubbleIndices");cc.log(matchedBubbleIndices);
 		if(matchedBubbleIndices.length > 2)
 		{
 			var adjMatchChecked = [];
@@ -1563,7 +1596,7 @@ var BubbleLayer = cc.Layer.extend({
 	executeTransform:function(row, col)
 	{
 		var bubIndex = this.bubbleMap[row][col];
-		this.bubbles[bubIndex].colorCode = this.prevShooterColor;
+		//this.bubbles[bubIndex].colorCode = this.prevShooterColor;
 		this.bubbles[bubIndex].transform();
 		
 		var triggeredBubbleIndices = [];
@@ -1636,74 +1669,66 @@ var BubbleLayer = cc.Layer.extend({
 			// Bombs
 			if(aoe.type == "radial")
 			{
-				// It should destroy itself.
-				//this.bubbles[this.bubbleMap[bubble.row][bubble.col]].trigger();
-				destroyedBubbleIndices.push(this.bubbleMap[row][col]);
-				//exploredHexes[this.createKey({"x":bubble.col, "y":bubble.row})] = 0;
-				
-				// Launch "Clear" trigger to adjacents
-				var directAdjacents = this.getAdjacentsExcluding(bubble.row, bubble.col, exploredHexes);
 				var adjacents = [];
-				adjacents = adjacents.concat(directAdjacents);
-				//if(aoe.radius == 2)
-				//{
-				for(var r=0; r<aoe.radius-1; r++)
+				if(row%2==0)
 				{
-					var nextRing = [];
-					for(var i=0; i<directAdjacents.length; i++)
-					{
-						var adj = directAdjacents[i];
-						exploredHexes[this.createKey(adj)] = 0;
-					}
-					for(var i=0; i<directAdjacents.length; i++)
-					{
-						var rAdjacents = [];
-						var adj = directAdjacents[i];
-						rAdjacents = this.getAdjacentsExcluding(adj.y, adj.x, exploredHexes);
-						for(var j=0; j<rAdjacents.length; j++)
-						{
-							exploredHexes[this.createKey(rAdjacents[j])] = 0;
-							adjacents.push(rAdjacents[j]);
-							nextRing.push(rAdjacents[j]);
-						}
-					}
-					directAdjacents = [];
-					directAdjacents = directAdjacents.concat(nextRing);
+					adjacents = [{x:col-2,y:row+0},{x:col+2,y:row+0},{x:col+1,y:row+0},{x:col+2,y:row+0},
+									{x:col-1,y:row-2},{x:col+0,y:row-2},{x:col+1,y:row-2},
+									{x:col-1,y:row+2},{x:col+0,y:row+2},{x:col+1,y:row+2},
+									{x:col-2,y:row-1},{x:col-1,y:row-1},{x:col+0,y:row-1},{x:col+1,y:row-1},
+									{x:col-2,y:row+1},{x:col-1,y:row+1},{x:col+0,y:row+1},{x:col+1,y:row+1}
+								];
 				}
-				//}
+				else
+				{
+					adjacents = [{x:col-2,y:row+0},{x:col+2,y:row+0},{x:col+1,y:row+0},{x:col+2,y:row+0},
+									{x:col-1,y:row-2},{x:col+0,y:row-2},{x:col+1,y:row-2},
+									{x:col-1,y:row+2},{x:col+0,y:row+2},{x:col+1,y:row+2},
+									{x:col-1,y:row-1},{x:col+0,y:row-1},{x:col+1,y:row-1},{x:col+2,y:row-1},
+									{x:col-1,y:row+1},{x:col+0,y:row+1},{x:col+1,y:row+1},{x:col+2,y:row+1}
+								];
+				}
+				
+				// It should destroy itself.
+				destroyedBubbleIndices.push(this.bubbleMap[row][col]);
+				
 				for(var i=0; i<adjacents.length; i++)
 				{
 					var adj = adjacents[i];
-					var bub = this.bubbles[this.bubbleMap[adj.y][adj.x]];
-					
-					if(bub != null && bub.onClear != null)
+					if(adj.y < this.bubbleMap.length && adj.y >= 0 && adj.x < this.bubbleMap[adj.y].length && adj.x >= 0
+						&& this.bubbleMap[adj.y][adj.x] != -1)
 					{
-						var clearEffect = bub.onClear;
-						if(clearEffect.type == "destroy")
+						var bub = this.bubbles[this.bubbleMap[adj.y][adj.x]];
+						
+						if(bub != null && bub.onClear != null)
 						{
-							destroyedBubbleIndices.push(this.bubbleMap[adj.y][adj.x]);
-						}
-						else if(clearEffect.type == "explode" && !bub.triggered)
-						{
-							triggeredBubbleIndices.push(this.bubbleMap[adj.y][adj.x]);
-							triggersList.push("clear");
-							this.bubbles[this.bubbleMap[adj.y][adj.x]].trigger();
-						}
-						else if(clearEffect.type == "clear" && !bub.triggered)
-						{
-							if(clearEffect.aoe == "connected")
+							var clearEffect = bub.onClear;
+							if(clearEffect.type == "destroy")
 							{
-								
-								var connectedBubbleIndices = this.getConnectedOfType(bub.row, bub.col);
-								triggeredBubbleIndices = triggeredBubbleIndices.concat(connectedBubbleIndices);
-								for(var j=0; j<connectedBubbleIndices.length; j++)
+								destroyedBubbleIndices.push(this.bubbleMap[adj.y][adj.x]);
+							}
+							else if(clearEffect.type == "explode" && !bub.triggered)
+							{
+								triggeredBubbleIndices.push(this.bubbleMap[adj.y][adj.x]);
+								triggersList.push("clear");
+								this.bubbles[this.bubbleMap[adj.y][adj.x]].trigger();
+							}
+							else if(clearEffect.type == "clear" && !bub.triggered)
+							{
+								if(clearEffect.aoe == "connected")
 								{
-									this.bubbles[connectedBubbleIndices[j]].trigger();
-									triggersList.push("destroy");
+									
+									var connectedBubbleIndices = this.getConnectedOfType(bub.row, bub.col);
+									triggeredBubbleIndices = triggeredBubbleIndices.concat(connectedBubbleIndices);
+									for(var j=0; j<connectedBubbleIndices.length; j++)
+									{
+										this.bubbles[connectedBubbleIndices[j]].trigger();
+										triggersList.push("destroy");
+									}
 								}
 							}
+							
 						}
-						
 					}
 				}
 				
@@ -1730,6 +1755,116 @@ var BubbleLayer = cc.Layer.extend({
 						}
 					}
 				}
+			}
+			else if(aoe.type == "direction")
+			{
+				destroyedBubbleIndices.push(this.bubbleMap[bubble.row][bubble.col]);
+				//cc.log("Destroying bomb at " + bubble.row + " _ " + bubble.col);
+				
+				var dir = bubble.orientation;
+				var dist = aoe.distance;
+				var curPos = {"x":bubble.col, "y":bubble.row};
+				var outOfBounds = false;
+				for(var i=0; i<dist && !outOfBounds; i++)
+				{
+					if(dir == "left")
+						curPos.x--;
+					else if(dir == "right")
+						curPos.x++;
+					else if(dir == "upleft")
+					{
+						curPos.x -= (curPos.y+1)%2;
+						curPos.y -= 1;
+					}
+					else if(dir == "downleft")
+					{
+						curPos.x -= (curPos.y+1)%2;
+						curPos.y += 1;
+					}
+					else if(dir == "upright")
+					{
+						curPos.x += curPos.y%2;
+						curPos.y -= 1;
+					}
+					else if(dir == "downright")
+					{
+						curPos.x += (curPos.y)%2;
+						curPos.y += 1;
+					}
+					
+					if(curPos.x < 0 || curPos.x > 11-(curPos.y%2) || curPos.y < 0 || curPos.y >= this.bubbleMap.length)
+					{
+						outOfBounds = true;
+					}
+					else
+					{
+						var bubIndex = this.bubbleMap[curPos.y][curPos.x];
+						if(bubIndex != -1)
+						{
+							var bub = this.bubbles[bubIndex];
+							var key = ""+bub.row+"_"+bub.col;
+							if(!(key in exploredHexes) && bub.onClear != null)
+							{
+								var clearEffect = bub.onClear;
+								if(clearEffect.type == "destroy")
+								{
+									destroyedBubbleIndices.push(this.bubbleMap[curPos.y][curPos.x]);
+									exploredHexes[""+curPos.y+"_"+curPos.x] = 0;
+								}
+								else
+								{
+									triggeredBubbleIndices.push(this.bubbleMap[curPos.y][curPos.x]);
+									triggersList.push("clear");
+									exploredHexes[""+curPos.y+"_"+curPos.x] = 0;
+								}
+								
+							}
+							
+						}
+					
+						
+					}
+					
+				}
+				
+				var moveAction = null;
+							if(dir == "left")
+							{
+								moveAction = cc.moveBy(.5,-1*DATA.bubbleR*6, 0);
+							}
+							else if(dir == "right")
+							{
+								moveAction = cc.moveBy(.5,DATA.bubbleR*6, 0);
+							}
+							else if(dir == "upleft")
+							{
+								moveAction = cc.moveBy(.5,-1*DATA.bubbleR*3, DATA.bubbleR*6);
+							}
+							else if(dir == "downleft")
+							{
+								moveAction = cc.moveBy(.5,-1*DATA.bubbleR*3, -1*DATA.bubbleR*6);
+							}
+							else if(dir == "upright")
+							{
+								moveAction = cc.moveBy(.5,DATA.bubbleR*3, DATA.bubbleR*6);
+							}
+							else if(dir == "downright")
+							{
+								moveAction = cc.moveBy(.5,DATA.bubbleR*3, -1*DATA.bubbleR*6);
+							}
+							
+							var effectBub = new Bubble(DATA.bubbleR, null, bubble.type, bubble.orientation, null, null, bubble.row, bubble.col);
+							effectBub.attr({
+								x:bubble.getPositionX(),
+								y:bubble.getPositionY(),
+								anchorX:.5,
+								anchorY:.5
+							});
+							this.addChild(effectBub);
+							var seq = new cc.Sequence(moveAction, cc.callFunc(effectBub.removeFromParent, effectBub));
+							effectBub.bubbleImg.runAction(seq);
+					
+				
 			}
 			else if(aoe.type == "match" && aoe.rule == "adjacents")
 			{
@@ -1816,13 +1951,19 @@ var BubbleLayer = cc.Layer.extend({
 					
 					
 				}
+				// Beachball
+				/*else if(aoe.type == "match")
+				{
+					triggeredBubbleIndices.push(this.bubbleMap[bubble.row][bubble.col]);
+					triggersList.push("rainbow");
+				}*/
 				else if(aoe.type == "linear")
 				{
 					this.bubbles[this.bubbleMap[bubble.row][bubble.col]].trigger();
 					triggeredBubbleIndices.push(this.bubbleMap[bubble.row][bubble.col]);
 					triggersList.push("clear");
 				}
-				// Pins, 
+				// Pins, daggers
 				else if(aoe.type = "direction")
 				{
 					destroyedBubbleIndices.push(this.bubbleMap[bubble.row][bubble.col]);
@@ -1835,9 +1976,13 @@ var BubbleLayer = cc.Layer.extend({
 					for(var i=0; i<dist && !outOfBounds; i++)
 					{
 						if(dir == "left")
+						{
 							curPos.x--;
+						}
 						else if(dir == "right")
+						{
 							curPos.x++;
+						}
 						else if(dir == "upleft")
 						{
 							curPos.x -= (curPos.y+1)%2;
@@ -1885,18 +2030,64 @@ var BubbleLayer = cc.Layer.extend({
 										exploredHexes[""+curPos.y+"_"+curPos.x] = 0;
 									}
 									
-									
 								}
 								
-								
-								
-								
 							}
+							
+							
 						}
 					}
+					
+					
+					var moveAction = null;
+							if(dir == "left")
+							{
+								moveAction = cc.moveBy(.5,-1*DATA.bubbleR*6, 0);
+							}
+							else if(dir == "right")
+							{
+								moveAction = cc.moveBy(.5,DATA.bubbleR*6, 0);
+							}
+							else if(dir == "upleft")
+							{
+								moveAction = cc.moveBy(.5,-1*DATA.bubbleR*3, DATA.bubbleR*6);
+							}
+							else if(dir == "downleft")
+							{
+								moveAction = cc.moveBy(.5,-1*DATA.bubbleR*3, -1*DATA.bubbleR*6);
+							}
+							else if(dir == "upright")
+							{
+								moveAction = cc.moveBy(.5,DATA.bubbleR*3, DATA.bubbleR*6);
+							}
+							else if(dir == "downright")
+							{
+								moveAction = cc.moveBy(.5,DATA.bubbleR*3, -1*DATA.bubbleR*6);
+							}
+							
+							var effectBub = new Bubble(DATA.bubbleR, null, bubble.type, bubble.orientation, null, null, bubble.row, bubble.col);
+							effectBub.attr({
+								x:bubble.getPositionX(),
+								y:bubble.getPositionY(),
+								anchorX:.5,
+								anchorY:.5
+							});
+							this.addChild(effectBub);
+							var seq = new cc.Sequence(moveAction, cc.callFunc(effectBub.removeFromParent, effectBub));
+							effectBub.bubbleImg.runAction(seq);
+					
 					//return {"destroyed":destroyedBubbleIndices, "triggered":triggeredBubbleIndices, "triggers":[]};
 				}
 				
+			}
+			else if(bubble.onHit.type == "match")
+			{
+				var aoe = bubble.onHit.aoe
+				if(aoe.rule == "adjacents")
+				{cc.log("rainbow match");
+					triggeredBubbleIndices.push(this.bubbleMap[bubble.row][bubble.col]);
+					triggersList.push("match");
+				}
 			}
 			// 
 			else if(bubble.onHit.type == "clear")

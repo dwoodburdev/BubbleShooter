@@ -4,7 +4,7 @@ var Bubble = cc.Sprite.extend({
 		cc.associateWithNative( this, cc.Sprite );
         
         this.r = r;
-        this.colorCode = color;
+        this.colorCode = color;//if(color === undefined)this.colorCode = null;cc.log(this.colorCode);
         this.type = type;
         this.orientation = orientation;
         this.binary = binary;
@@ -26,6 +26,8 @@ var Bubble = cc.Sprite.extend({
         this.isAnchor = false;
         
         this.active = false;
+        
+        this.bulbLabel = null;
         
  		       //this.explosive = false;		// Has clearing effect (associated with on-hit or on-match or on-adj-match) ! (should associate this with each on-X effect in case has multiple effects depending)
         		//this.aoe = null;			// AoE for effect (need to think about this)
@@ -139,7 +141,7 @@ var Bubble = cc.Sprite.extend({
         // Bomb
         else if(this.type == 1)
        	{
-       		var bombEffect = {"type":"explode", "aoe":{"type":"radial","radius":1}}
+       		var bombEffect = {"type":"explode", "aoe":{"type":"radial","radius":2}}
         	this.onHit = bombEffect;
        		this.onMatch = null;
         	this.onAdjMatch = null;
@@ -225,7 +227,7 @@ var Bubble = cc.Sprite.extend({
         	this.onClear = clearEffect;
         	this.onTurn = null;
         	
-        	this.colorQueue = ["red","orange","yellow","green","blue","pink","purple"];
+        	this.colorQueue = ["red","yellow","green","blue"];
         	if(this.colorCode == null)
         		this.colorCode = this.colorQueue[Math.floor(Math.random()*this.colorQueue.length)];
         	
@@ -259,13 +261,16 @@ var Bubble = cc.Sprite.extend({
         // Beachball (Changed from onAdjMatch Gumball)
         else if(this.type == 11)
         {
-        	var clearMatches = {"type":"explode", "aoe":{"type":"match","rule":"adjacents"}};
+        	var clearMatches = {"type":"match", "aoe":{"type":"match","rule":"adjacents"}};
+        	var clearEffect = {"type":"destroy","rule":"self"};
         	
         	this.onHit = clearMatches;
-        	this.onMatch = null;
+        	this.onMatch = clearEffect;
         	this.onAdjMatch = null;
         	this.onClear = clearMatches;
         	this.onTurn = null;
+        	
+        	this.matchable = true;
         }
         // 2-r bomb
         else if(this.type == 12)
@@ -280,7 +285,7 @@ var Bubble = cc.Sprite.extend({
         // line clear
         else if(this.type == 13)
        	{
-       		var bombEffect = {"type":"explode", "aoe":{"type":"linear","length":2}};
+       		var bombEffect = {"type":"explode", "aoe":{"type":"linear","length":11}};
         	this.onHit = bombEffect;
        		this.onMatch = null;
         	this.onAdjMatch = null;
@@ -886,29 +891,43 @@ var Bubble = cc.Sprite.extend({
 			}
 			else if(this.type == 21)
 			{
+				if(this.orientation == null)
+				{
+					var orientations = ["upright","right","downright","downleft","left","upleft"];
+					this.orientation = orientations[Math.floor(Math.random()*orientations.length)];
+				}
+				
+				this.bubbleImg = new cc.Sprite(res.left_dagger_emoji);
+				
 				if(this.orientation == "upright")
 				{
-					this.bubbleImg = new cc.Sprite(res.upright_dagger_emoji);
+					//this.bubbleImg = new cc.Sprite(res.upright_dagger_emoji);
+					this.bubbleImg.setRotation(120);
 				}
 				else if(this.orientation == "right")
 				{
-					this.bubbleImg = new cc.Sprite(res.right_dagger_emoji);
+					//this.bubbleImg = new cc.Sprite(res.right_dagger_emoji);
+					this.bubbleImg.setRotation(180);
 				}
 				else if(this.orientation == "downright")
 				{
-					this.bubbleImg = new cc.Sprite(res.downright_dagger_emoji);
+					//this.bubbleImg = new cc.Sprite(res.downright_dagger_emoji);
+					this.bubbleImg.setRotation(240);
 				}
 				else if(this.orientation == "downleft")
 				{
-					this.bubbleImg = new cc.Sprite(res.downleft_dagger_emoji);
+					//this.bubbleImg = new cc.Sprite(res.downleft_dagger_emoji);
+					this.bubbleImg.setRotation(300);
 				}
 				else if(this.orientation == "left")
 				{
-					this.bubbleImg = new cc.Sprite(res.left_dagger_emoji);
+					//this.bubbleImg = new cc.Sprite(res.left_dagger_emoji);
+					this.bubbleImg.setRotation(0);
 				}
 				else if(this.orientation == "upleft")
 				{
-					this.bubbleImg = new cc.Sprite(res.upleft_dagger_emoji);
+					//this.bubbleImg = new cc.Sprite(res.upleft_dagger_emoji);
+					this.bubbleImg.setRotation(60);
 				}
 				
 			}
@@ -992,6 +1011,58 @@ var Bubble = cc.Sprite.extend({
 		
 	//},
 	
+	advanceToTurn:function(turnNumber)
+	{this.removeChild(this.bubbleImg);
+		if(this.type == 7)
+		{
+			this.colorCode = this.colorQueue[turnNumber%this.colorQueue.length];
+			if(this.colorCode == "red")
+				this.bubbleImg = new cc.Sprite(res.red_bulb_emoji);
+			else if(this.colorCode == "orange")
+				this.bubbleImg = new cc.Sprite(res.orange_bulb_emoji);
+			else if(this.colorCode == "yellow")
+				this.bubbleImg = new cc.Sprite(res.yellow_bulb_emoji);
+			else if(this.colorCode == "lightblue")
+				this.bubbleImg = new cc.Sprite(res.lightblue_bulb_emoji);
+			else if(this.colorCode == "blue")
+				this.bubbleImg = new cc.Sprite(res.blue_bulb_emoji);
+			else if(this.colorCode == "green")
+				this.bubbleImg = new cc.Sprite(res.green_bulb_emoji);
+			else if(this.colorCode == "pink")
+				this.bubbleImg = new cc.Sprite(res.pink_bulb_emoji);
+			else if(this.colorCode == "purple")
+				this.bubbleImg = new cc.Sprite(res.purple_bulb_emoji);
+			
+		}	
+		this.bubbleImg.attr({
+			x:this.width/2,
+			y:this.height/2,
+			anchorX:.5,
+			anchorY:.5
+		});
+		this.bubbleImg.setScale((this.r*2)/this.bubbleImg.width);
+		this.addChild(this.bubbleImg);
+		if(this.type == 7)
+		{
+			//this.removeChild(this.bulbLabel);
+			//this.addChild(this.bulbLabel);
+			this.addNumber(this.meta.iteration);
+		}
+	},
+	
+	addNumber:function(iteration)
+	{this.removeChild(this.bulbLabel);
+		this.bulbLabel = new cc.LabelTTF(""+iteration,"Roboto",24);
+		this.bulbLabel.attr({
+			x:DATA.bubbleR/3,
+			y:-DATA.bubbleR/3,
+			anchorX:.5,
+			anchorY:.5
+		});
+		this.bulbLabel.color = cc.color(0,0,0,255);
+		this.addChild(this.bulbLabel);
+	},
+	
 	triggerOnTurn:function(turnNumber){
 		this.removeChild(this.bubbleImg);
 		if(this.type == 7)
@@ -1003,7 +1074,7 @@ var Bubble = cc.Sprite.extend({
 				this.bubbleImg = new cc.Sprite(res.orange_bulb_emoji);
 			else if(this.colorCode == "yellow")
 				this.bubbleImg = new cc.Sprite(res.yellow_bulb_emoji);
-			else if(this.colorCode == "blue")
+			else if(this.colorCode == "lightblue")
 				this.bubbleImg = new cc.Sprite(res.lightblue_bulb_emoji);
 			else if(this.colorCode == "blue")
 				this.bubbleImg = new cc.Sprite(res.blue_bulb_emoji);
@@ -1017,13 +1088,33 @@ var Bubble = cc.Sprite.extend({
 		}	
 		else if(this.type == 21)
 		{
+			var oldOrientation = this.orientation;
 			var orientations = ["downleft","upleft","downright","upright","left","right"];
 			// remove current orientation
-			orientations.splice(orientations.getIndex(this.orientation), 1);
+			orientations.splice(orientations.indexOf(this.orientation), 1);
 			//pick random orientation
 			this.orientation = orientations[Math.floor(Math.random()*orientations.length)];
 			
-			if(this.orientation == "downleft")
+			var angle = 0;
+			if(this.orientation == "left")
+				angle = 0;
+			else if(this.orientation == "upleft")
+				angle = 60;
+			else if(this.orientation == "upright")
+				angle = 120;
+			else if(this.orientation == "right")
+				angle = 180;
+			else if(this.orientation == "downright")
+				angle = 240;
+			else if(this.orientation == "downleft")
+				angle = 300;
+				
+			var spinAction = cc.rotateBy(.35, 360);
+			var rotAction = cc.rotateTo(.35, angle);
+			var seq = new cc.Sequence(spinAction, rotAction);
+			this.bubbleImg.runAction(seq);
+			
+			/*if(this.orientation == "downleft")
 				this.bubbleImg = new cc.Sprite(res.downleft_dagger_emoji);
 			else if(this.orientation == "downright")
 				this.bubbleImg = new cc.Sprite(res.downright_dagger_emoji);
@@ -1034,7 +1125,7 @@ var Bubble = cc.Sprite.extend({
 			else if(this.orientation == "left")
 				this.bubbleImg = new cc.Sprite(res.left_dagger_emoji);
 			else if(this.orientation == "right")
-				this.bubbleImg = new cc.Sprite(res.right_dagger_emoji);
+				this.bubbleImg = new cc.Sprite(res.right_dagger_emoji);*/
 			
 		}
 		this.bubbleImg.attr({
@@ -1153,7 +1244,7 @@ var Bubble = cc.Sprite.extend({
 		this.removeChild(this.bubbleImg);
 		
 		if(this.type == 8)
-		{
+		{cc.log("Color Before:");cc.log(this.colorCode);
 			var possibleColors = [];
 			for(var i=0; i<this.colorQueue.length; i++)
 			{
@@ -1162,6 +1253,8 @@ var Bubble = cc.Sprite.extend({
 					possibleColors.push(this.colorQueue[i]);
 				}
 			}
+			if(possibleColors.length > 1)
+				possibleColors.splice(possibleColors.indexOf(this.colorCode), 1);
 			this.colorCode = possibleColors[Math.floor(Math.random()*possibleColors.length)];
 			if(this.colorCode == "red")
 				this.bubbleImg = new cc.Sprite(res.red_die_emoji);
@@ -1175,7 +1268,8 @@ var Bubble = cc.Sprite.extend({
 				this.bubbleImg = new cc.Sprite(res.pink_die_emoji);
 			else if(this.colorCode == "purple")
 				this.bubbleImg = new cc.Sprite(res.purple_die_emoji);
-			
+				
+			cc.log("Color After:");cc.log(this.colorCode);
 		}
 		else if(this.type == 15)
 		{
