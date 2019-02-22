@@ -7,7 +7,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 //	-onEnter()
 //	-initLevel()
 	
-	ctor:function(width, height, bubbles, numRows){
+	ctor:function(width, height, bubbles, numRows,meta){
 		this._super();cc.log(bubbles);
 		
 		this.width = width;
@@ -20,6 +20,18 @@ var EditorBubbleLayer = cc.Layer.extend({
 		
 		this.evenRowAdjacents = [{"x":-1,"y":0}, {"x":1,"y":0}, {"x":0,"y":1}, {"x":-1,"y":1}, {"x":0,"y":-1}, {"x":-1,"y":-1}];
 		this.oddRowAdjacents = [{"x":-1,"y":0}, {"x":1,"y":0}, {"x":0,"y":1}, {"x":1,"y":1}, {"x":0,"y":-1}, {"x":1,"y":-1}];
+		
+		this.bulbData = [];
+		cc.log(meta);
+		if(meta != null && "bulbData" in meta)
+		{
+			this.bulbData = meta.bulbData;
+			for(var i=0; i<this.bulbData.length; i++)
+			{
+				this.bulbData[i] = FUNCTIONS.convertCodesToColors(this.bulbData[i]);
+			}
+		}
+		cc.log(this.bulbData);
 		
 		//this.numRows = 20;
 		this.numCols = 12;
@@ -123,10 +135,17 @@ var EditorBubbleLayer = cc.Layer.extend({
        	
        	var overflowOffset = this.getOverflowOffset();
        	
+       	
        	var hexIndicesToDelete = [];
        	for(var i=0; i<bubbles.length; i++)
        	{
-       		var bub = new Bubble(this.bubbleR, bubbles[i].colorCode, bubbles[i].type, null, null, null, bubbles[i].row, bubbles[i].col);
+       		var colorData = bubbles[i].colorCode;cc.log(colorData);
+       		if(bubbles[i].type == 7)
+       		{cc.log(this.bulbData[colorData]);
+       			//colorData = FUNCTIONS.convertCodesToColors(this.bulbData[colorData]);
+       			colorData = this.bulbData[colorData];
+       		}cc.log(colorData);
+       		var bub = new Bubble(this.bubbleR, colorData, bubbles[i].type, null, null, bubbles[i].meta, bubbles[i].row, bubbles[i].col);
 			//cc.log(bub);
 			bub.attr({
        			x: this.bubbleR+bub.col*this.bubbleR*2 + (bub.row%2)*this.bubbleR,

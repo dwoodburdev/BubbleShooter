@@ -129,6 +129,11 @@ var res = {
     pink_flowerpot_emoji : "res/pink-flowerpot.png",
     purple_flowerpot_emoji : "res/purple-flowerpot.png",
     
+    flashlight_topleft_emoji : "res/flashlight-top-left.png",
+    crayon_red_bottomleft_emoji: "res/crayon-bottom-left.png",
+    red_glove_emoji: "res/red-glove.png",
+    magnet_topright_emoji: "res/magnet-topright.png",
+    
     bomb_triggered: "res/bomb_triggered.png",
     large_bomb_triggered: "res/triggered-large-bomb.png",
     soap_triggered: "res/soap_triggered.png",
@@ -136,6 +141,7 @@ var res = {
     yellow_die_emoji: "res/yellow_die.png",
     orange_die_emoji: "res/orange_die.png",
     green_die_emoji: "res/green_die.png",
+    lightblue_die_emoji: "res/lightblue_die.png",
     blue_die_emoji: "res/blue_die.png",
     pink_die_emoji: "res/pink_die.png",
     purple_die_emoji: "res/purple_die.png",
@@ -390,7 +396,21 @@ var res = {
     world_node_red: "res/node-red.png",
     map_icon: "res/map.png",
     puzzle_piece: "res/puzzle-piece.png",
-    framed_picture: "res/framed-picture.png"
+    framed_picture: "res/framed-picture.png",
+    
+    finger_point: "res/finger-point.png",
+    checkmark: "res/checkmark.png",
+    redx: "res/redx.png",
+    
+    nerd_emoji:"res/nerd-emoji.png",
+    
+    upright_path_dir:"res/upright-path-dir.png",
+    right_path_dir:"res/right-path-dir.png",
+    downright_path_dir:"res/downright-path-dir.png",
+    downleft_path_dir:"res/downleft-path-dir.png",
+    left_path_dir:"res/left-path-dir.png",
+    upleft_path_dir:"res/upleft-path-dir.png"
+    
 };
 
 

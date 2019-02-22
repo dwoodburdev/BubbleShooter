@@ -171,6 +171,10 @@ var EditorLayer = cc.Layer.extend({
 				   		for(var i=0; i<bubbleData.length; i++)
 				   		{
 				   			var bub = bubbleData[i];
+				   			if(bub.type == 7)
+				   			{
+				   				
+				   			}
 				   			bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":bub.colorCode});
 				   		}
 				   		var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(
@@ -183,7 +187,7 @@ var EditorLayer = cc.Layer.extend({
 					    downloadAnchorNode.remove();
 				   		
 				   		
-						cc.director.runScene(new GameplayScene(self.bubbleLayer.getBubbles(), self.bubbleLayer.getNumRows()));
+						cc.director.runScene(new GameplayScene(self.bubbleLayer.getBubbles(), self.bubbleLayer.getNumRows(), {bulbData:self.bubbleLayer.bulbData}));
 				   	}
 				   	else if(returnData == "save")
 				   	{
@@ -195,7 +199,7 @@ var EditorLayer = cc.Layer.extend({
 				   			
 				   			if(bub.type == 7)
 				   			{
-				   				bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":bub.colorQueue});
+				   				bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":bub.meta.iteration});
 				   			}
 				   			else 
 				   			{
@@ -205,7 +209,10 @@ var EditorLayer = cc.Layer.extend({
 				   				bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":color});
 				   			}
 				   		}cc.log(bubs);
-				   		DATA.saveNewLevelToDatabase(bubs);
+				   		
+				   		var meta = {bulbData:self.editorUILayer.bulbData};
+				   		
+				   		DATA.saveNewLevelToDatabase(bubs, meta);
 				   		
 				   		
 				   	}
@@ -222,8 +229,20 @@ var EditorLayer = cc.Layer.extend({
 				   			}
 				   			self.removeChild(self.viewerBubbleLayer);
 				   			cc.log(bubs);
+				   			var metaData = DATA.createdLevels[returnData.number].meta;cc.log(metaData);
+				   			/*var meta = {bulbData:[]};
+				   			if(metaData != null && "bulbData" in metaData)
+				   			{
+				   				for(var i=0; i<metaData.bulbData.length; i++)
+				   				{
+				   					for(var j=0; j<metaData.bulbData[i].length; j++)
+				   					{
+				   						meta.bulbData.push(metaData.bulbData[i][j]);
+				   					}
+				   				}
+				   			}cc.log(meta);*/
 				   			self.viewerBubbleLayer = new EditorBubbleLayer(size.width, size.height-self.editorUILayer.height-self.midUILayer.height,
-				   				bubs, maxRow+1);
+				   				bubs, maxRow+1, metaData);
 							self.viewerBubbleLayer.attr({
 								x:0,
 								y:self.editorUILayer.height+self.midUILayer.height,
@@ -277,7 +296,10 @@ var EditorLayer = cc.Layer.extend({
 							}
 							DATA.setLevelQueue({"type":"bucket", "colors":[1,1,1,1,0,0]});// LATER - set to queue stored in data
 							cc.log(bubbles);
-							cc.director.runScene(new PlaytestScene(bubbles, maxRow+1));
+							//cc.log(self.editorUILayer.bulbData);
+							var meta = DATA.createdLevels[returnData.number].meta;
+							cc.log(meta);
+							cc.director.runScene(new PlaytestScene(bubbles, maxRow+1, 99, meta));
 				   		}
 				   		else if(returnData.type == "share")
 				   		{

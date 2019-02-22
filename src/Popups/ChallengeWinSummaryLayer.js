@@ -35,6 +35,17 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 		});
 		this.addChild(this.emojiFace);
 		
+		this.streakDescription = new cc.LabelTTF((DATA.streakStep+1)+" tries per level!", "Roboto",18);
+		this.streakDescription.attr({
+			x:this.width/2,
+			y:this.emojiFace.y-(this.emojiFace.height*this.emojiFace.scale)-3,
+			anchorX:.5,
+			anchorY:1
+		});
+		this.streakDescription.color = cc.color(0,0,0,255);
+		this.addChild(this.streakDescription);
+		
+		
 		/*this.nextButton = new cc.Sprite(res.next_button);
 		this.nextButton.setScale(this.width/3 / this.nextButton.width)
 		this.nextButton.attr({
@@ -90,6 +101,47 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 		this.addChild(this.streakUpAlert);
 		
 		
+		this.popupDn = new cc.DrawNode();
+		this.tutorialStreakTextA = null;
+		this.tutorialStreakTextB = null;
+		if(DATA.worldIndex == 0)
+		{
+			this.addChild(this.popupDn);
+			var streakPosY = 3+this.streakUpAlert.y+(this.streakUpAlert.height*this.streakUpAlert.scale);
+			this.dn.drawRect(cc.p(20,streakPosY),
+				cc.p(this.width-20, this.streakDescription.y-this.streakDescription.height-3),
+				cc.color(255,255,255,255),4,cc.color(0,0,0,255)
+			);
+				
+			this.tutorialStreakTextA = new cc.LabelTTF("Nice! Keep your streak for","Roboto",24);
+			this.tutorialStreakTextA.attr({
+				x:this.width/2,
+				y:this.streakDescription.y-this.streakDescription.height-10,
+				anchorX:.5,
+				anchorY:1
+			});
+			this.tutorialStreakTextA.color = cc.color(0,0,0,255);
+			this.addChild(this.tutorialStreakTextA);
+			this.tutorialStreakTextB = new cc.LabelTTF("more tries and rewards!","Roboto",24);
+			this.tutorialStreakTextB.attr({
+				x:this.width/2,
+				y:this.tutorialStreakTextA.y-this.tutorialStreakTextA.height-3,
+				anchorX:.5,
+				anchorY:1
+			});
+			this.tutorialStreakTextB.color = cc.color(0,0,0,255);
+			this.addChild(this.tutorialStreakTextB);
+			
+			this.tutFace = new cc.Sprite(res.nerd_emoji);
+			this.tutFace.setScale(circleR*2.5 / this.tutFace.width);
+			this.tutFace.attr({
+				x:this.width-3,
+				y:streakPosY,
+				anchorX:1,
+				anchorY:.5
+			});
+			this.addChild(this.tutFace);
+		}
 		
 	},
 	

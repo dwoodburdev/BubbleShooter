@@ -39,6 +39,8 @@ var Bubble = cc.Sprite.extend({
         this.turnRightAnimation = null;
         this.turnLeftAnimation = null;
         
+        //cc.log(this.type + "  " + this.colorCode);
+        
         if(this.type == -1)
         {
         	this.onHit = null;
@@ -199,7 +201,7 @@ var Bubble = cc.Sprite.extend({
         }
         // Lightbulb (used to be Pinwheel)
         else if(this.type == 7)
-        {cc.log("BULB");
+        {
         	var clearEffect = {"type":"destroy","rule":"self"};
         	var changeColorEffect = {"type":"transform","variable":"color","rule":"queue"};
         	this.onHit = null;
@@ -207,10 +209,18 @@ var Bubble = cc.Sprite.extend({
         	this.onAdjMatch = null;
         	this.onClear = clearEffect;
         	this.onTurn = changeColorEffect;
+        	cc.log(this.colorCode);
+        	
+        	/*var localColorCodes = ["red","yellow","green","blue","pink","purple"];
+        	for(var i=0; i<this.colorCode.length && this.colorCode[i] != 0; i++)
+        	{
+        		this.colorCode[i] = localColorCodes[this.colorCode[i]-1];
+        	}*/
+        	
         	
         	this.colorQueue = this.colorCode;
         	this.colorCode = this.colorQueue[0];
-        	
+        	cc.log(this.colorCode);
         	
         	this.matchable = true;
         	
@@ -330,10 +340,11 @@ var Bubble = cc.Sprite.extend({
         // soap-bar
         else if(this.type == 17)
        	{
-        	var superSoapEffect = {"type":"transformOthers","aoe":{"type":"radial","radius":2},"rule":"soap"};
-        	var subSoapEffect = {"type":"transformOthers","aoe":{"type":"radial","radius":1},"rule":"soap"};
+        	var superSoapEffect = {"type":"transform","aoe":{"type":"radial","radius":2},"rule":"soap"};
+        	//var subSoapEffect = {"type":"transformOthers","aoe":{"type":"radial","radius":1},"rule":"soap"};
         	
-        	this.onHit = {"same":superSoapEffect,"else":subSoapEffect};
+        	//this.onHit = {"same":superSoapEffect,"else":subSoapEffect};
+        	this.onHit = superSoapEffect;
         	this.onMatch = null;
         	this.onAdjMatch = null;
         	this.onClear = null;
@@ -398,9 +409,11 @@ var Bubble = cc.Sprite.extend({
         	var changeEffect = {"type":"transform","variable":"type","rule":"secondary"};
         	this.onHit = changeEffect;
         	this.onMatch = null;
-        	this.onAdjMatch = null;
+        	this.onAdjMatch = changeEffect;
         	this.onClear = changeEffect;
         	this.onTurn = null;
+        	
+        	this.matchable = false;
         }
         // Hatched Chick
         else if(this.type == 23)
@@ -417,7 +430,7 @@ var Bubble = cc.Sprite.extend({
         // Snail
         else if(this.type == 24)
         {
-        	var moveEffect = {"type":"transform","rule":"type"};
+        	var moveEffect = {"type":"transform","rule":"move"};
         	var clearEffect = {"type":"destroy","rule":"self"};
         	this.onHit = null;
         	this.onMatch = clearEffect;
@@ -540,7 +553,7 @@ var Bubble = cc.Sprite.extend({
 			}
 			else if(this.type == 7)
 			{cc.log(this.colorCode);
-				if(this.colorCode == "red")
+				/*if(this.colorCode == "red")
 					this.bubbleImg = new cc.Sprite(res.red_bulb_emoji);
 				else if(this.colorCode == "orange")
 					this.bubbleImg = new cc.Sprite(res.orange_bulb_emoji);
@@ -555,8 +568,21 @@ var Bubble = cc.Sprite.extend({
 				else if(this.colorCode == "pink")
 					this.bubbleImg = new cc.Sprite(res.pink_bulb_emoji);
 				else if(this.colorCode == "purple")
+					this.bubbleImg = new cc.Sprite(res.purple_bulb_emoji);*/
+				if(this.colorCode == "red")
+					this.bubbleImg = new cc.Sprite(res.red_bulb_emoji);
+				else if(this.colorCode == "yellow")
+					this.bubbleImg = new cc.Sprite(res.yellow_bulb_emoji);
+				else if(this.colorCode == "green")
+					this.bubbleImg = new cc.Sprite(res.green_bulb_emoji);
+				else if(this.colorCode == "blue")
+					this.bubbleImg = new cc.Sprite(res.blue_bulb_emoji);
+				else if(this.colorCode == "pink")
+					this.bubbleImg = new cc.Sprite(res.pink_bulb_emoji);
+				else if(this.colorCode == "purple")
 					this.bubbleImg = new cc.Sprite(res.purple_bulb_emoji);
 				else cc.log("wtf");
+				cc.log(this.bubbleImg);
 			}
 			else if(this.type == 8)
 			{
@@ -945,7 +971,7 @@ var Bubble = cc.Sprite.extend({
 		}
 		else cc.log("WTF");
 		
-		//cc.log(this.type);cc.log(this.colorCode);
+		//cc.log(this.type + "  " + this.colorCode);
 		this.bubbleImg.attr({
 			x:this.width/2,
 			y:this.height/2,
@@ -1011,6 +1037,79 @@ var Bubble = cc.Sprite.extend({
 		
 	//},
 	
+	updateSnailSprite:function()
+	{
+		this.removeChild(this.bubbleImg);
+		if(this.binary)
+		{
+			if(this.colorCode == "red")
+				this.bubbleImg = new cc.Sprite(res.red_snail_emoji);
+			else if(this.colorCode == "orange")
+				this.bubbleImg = new cc.Sprite(res.orange_snail_emoji);
+			else if(this.colorCode == "yellow")
+				this.bubbleImg = new cc.Sprite(res.yellow_snail_emoji);
+			else if(this.colorCode == "green")
+				this.bubbleImg = new cc.Sprite(res.green_snail_emoji);
+			else if(this.colorCode == "lightblue")
+				this.bubbleImg = new cc.Sprite(res.lightblue_snail_emoji);
+			else if(this.colorCode == "blue")
+				this.bubbleImg = new cc.Sprite(res.blue_snail_emoji);
+			else if(this.colorCode == "pink")
+				this.bubbleImg = new cc.Sprite(res.pink_snail_emoji);
+			else if(this.colorCode == "purple")
+				this.bubbleImg = new cc.Sprite(res.purple_snail_emoji);
+		}
+		else
+		{
+			if(this.colorCode == "red")
+				this.bubbleImg = new cc.Sprite(res.red_snail_right_emoji);
+			else if(this.colorCode == "orange")
+				this.bubbleImg = new cc.Sprite(res.orange_snail_right_emoji);
+			else if(this.colorCode == "yellow")
+				this.bubbleImg = new cc.Sprite(res.yellow_snail_right_emoji);
+			else if(this.colorCode == "green")
+				this.bubbleImg = new cc.Sprite(res.green_snail_right_emoji);
+			else if(this.colorCode == "lightblue")
+				this.bubbleImg = new cc.Sprite(res.lightblue_snail_right_emoji);
+			else if(this.colorCode == "blue")
+				this.bubbleImg = new cc.Sprite(res.blue_snail_right_emoji);
+			else if(this.colorCode == "pink")
+				this.bubbleImg = new cc.Sprite(res.pink_snail_right_emoji);
+			else if(this.colorCode == "purple")
+				this.bubbleImg = new cc.Sprite(res.purple_snail_right_emoji);
+		}
+		
+		this.bubbleImg.attr({
+			x:this.width/2,
+			y:this.height/2,
+			anchorX:.5,
+			anchorY:.5
+		});
+		this.bubbleImg.setScale((this.r*2)/this.bubbleImg.width);
+		this.addChild(this.bubbleImg);
+	},
+	
+	changeToSoap:function()
+	{
+		this.removeChild(this.bubbleImg);
+		this.bubbleImg = new cc.Sprite(res.soap_emoji);
+		this.bubbleImg.attr({
+			x:this.width/2,
+			y:this.height/2,
+			anchorX:.5,
+			anchorY:.5
+		});
+		this.bubbleImg.setScale((this.r*2)/this.bubbleImg.width);
+		this.addChild(this.bubbleImg);
+		
+		var clusterClearEffect = {"type":"clear","aoe":"connected"};
+    	this.onHit = clusterClearEffect;
+    	this.onMatch = null;
+    	this.onAdjMatch = null;
+    	this.onClear = clusterClearEffect;
+    	this.onTurn = null;
+	},
+	
 	advanceToTurn:function(turnNumber)
 	{this.removeChild(this.bubbleImg);
 		if(this.type == 7)
@@ -1018,12 +1117,8 @@ var Bubble = cc.Sprite.extend({
 			this.colorCode = this.colorQueue[turnNumber%this.colorQueue.length];
 			if(this.colorCode == "red")
 				this.bubbleImg = new cc.Sprite(res.red_bulb_emoji);
-			else if(this.colorCode == "orange")
-				this.bubbleImg = new cc.Sprite(res.orange_bulb_emoji);
 			else if(this.colorCode == "yellow")
 				this.bubbleImg = new cc.Sprite(res.yellow_bulb_emoji);
-			else if(this.colorCode == "lightblue")
-				this.bubbleImg = new cc.Sprite(res.lightblue_bulb_emoji);
 			else if(this.colorCode == "blue")
 				this.bubbleImg = new cc.Sprite(res.blue_bulb_emoji);
 			else if(this.colorCode == "green")
@@ -1128,6 +1223,7 @@ var Bubble = cc.Sprite.extend({
 				this.bubbleImg = new cc.Sprite(res.right_dagger_emoji);*/
 			
 		}
+		
 		this.bubbleImg.attr({
 			x:this.width/2,
 			y:this.height/2,
@@ -1286,7 +1382,7 @@ var Bubble = cc.Sprite.extend({
 			else if(this.colorCode == "purple")
 				this.bubbleImg = new cc.Sprite(res.purple_flowerpot_emoji);
 		}
-		else if(this.type == 22)
+		else if(this.type == 23)
 		{
 			if(this.colorCode == "red")
 				this.bubbleImg = new cc.Sprite(res.red_eggchick_emoji);
@@ -1352,7 +1448,7 @@ var Bubble = cc.Sprite.extend({
 		
 		//do
 		//{
-			cc.log("y");cc.log(this.y);
+			
 			var leftCornerM = -999999;
 			if(leftWallX-this.x != 0)
 				leftCornerM = (numRows*rowHeight + (bottomMostY-this.y) )/(leftWallX-this.x);
@@ -1366,7 +1462,7 @@ var Bubble = cc.Sprite.extend({
 			cc.log("M");cc.log(m);
 			
 			//var y = numRows*rowHeight + (bottomMostY-this.y);
-			var y = 0
+			var y = 0;
 			
 			if(m > leftCornerM || m < rightCornerM)
 			{
@@ -1381,7 +1477,7 @@ var Bubble = cc.Sprite.extend({
 					var wallCollisionY = m*(rightWallX-this.x) + y;cc.log("y-collision");cc.log(wallCollisionY);
 				}
 				
-				//segments.push({duration: , m: m });
+				//segmentActions.push(cc.moveTo())
 				
 				m *= -1;
 			}
@@ -1390,7 +1486,7 @@ var Bubble = cc.Sprite.extend({
 				// Segment points to ceililng, this will be last segment to targetHex.
 				
 				
-				//segments.push({duration: , m: m });
+				//segmentActions.push(cc.moveTo())
 			}
 			
 			
@@ -1398,6 +1494,9 @@ var Bubble = cc.Sprite.extend({
 			
 		//} while();
 		
+		segmentActions.push(cc.callFunc(this.parent.snapShooter, this.parent));
+		shotSeq = new cc.Sequence(segmentActions);
+		this.bubbleImg.runAction(shotSeq);
 	},
 	
 	

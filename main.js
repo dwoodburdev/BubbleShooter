@@ -130,6 +130,7 @@ cc.game.onStart = function(){
 			
 			DATA.userID = cc.sys.localStorage.getItem("userID");
 			
+			
 			DATA.database.ref("users/"+DATA.userID+"/world").once("value").then(function(snapshot){
 				var d = snapshot.val();
 				var bubbles = [];
@@ -151,7 +152,7 @@ cc.game.onStart = function(){
 			  		else colorCode = dBub.colorCode;
 			  		
 			  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:colorCode, binary:dBub.binary};
-			  		cc.log(bubble);
+			  		//cc.log(bubble);
 			    	bubbles.push(bubble);
 			  	}
 			  	var queue = {type:d.queue.type, colors:d.queue.colors};

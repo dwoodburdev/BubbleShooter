@@ -1,5 +1,5 @@
 var PlaytestLayer = cc.Layer.extend({
-	ctor:function(bubbles, numRows, numMoves){
+	ctor:function(bubbles, numRows, numMoves, meta){
 		this._super();
 		//cc.associateWithNative( this, cc.Sprite );
 		
@@ -25,7 +25,7 @@ var PlaytestLayer = cc.Layer.extend({
 		this.addChild(this.topUILayer);
 
 
-		this.bubbleLayer = new BubbleLayer(bubbles, numRows, numMoves, "playtest", size.width, size.height-this.bottomUILayer.height-this.topUILayer.height, []);	
+		this.bubbleLayer = new BubbleLayer(bubbles, numRows, numMoves, "playtest", size.width, size.height-this.bottomUILayer.height-this.topUILayer.height, [], meta);	
 		this.bubbleLayer.attr({
 			x:0,
 			y:this.bottomUILayer.height,
@@ -149,15 +149,16 @@ var PlaytestLayer = cc.Layer.extend({
 	
 });
 var PlaytestScene = cc.Scene.extend({
-	ctor:function(bubbles, numRows, numMoves){
+	ctor:function(bubbles, numRows, numMoves, meta){
 		this._super();
 		this.bubbles = bubbles;
 		this.numRows = numRows;
 		this.numMoves = numMoves;
+		this.meta = meta;
 	},
 	onEnter:function(){
 		this._super();
-		var layer = new PlaytestLayer(this.bubbles, this.numRows, this.numMoves);
+		var layer = new PlaytestLayer(this.bubbles, this.numRows, this.numMoves, this.meta);
 		this.addChild(layer);
 	}
 });

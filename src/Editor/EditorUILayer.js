@@ -30,9 +30,9 @@ var EditorUILayer = cc.Layer.extend({
 			["red_ball","red_die","red_balloon","red_soapbar","red_snail"],
 			["red_siren","red_lantern","red_ghost","red_note","red_egg"],
 			["gray_bulb"],
-			["steel","spike","poof","soap","cloud"],
+			["steel","orb","poof","soap","cloud"],
 			["bomb","dynamite","right_dagger","star"],
-			["orb","disco","beachball","flowerpot","spiderweb"]
+			["disco","beachball","flowerpot","spiderweb"]
 		];
 		
 		this.curModeData = {"type":0,"color":"red","binary":null,"meta":null};
@@ -325,6 +325,11 @@ var EditorUILayer = cc.Layer.extend({
 			{
 				this.sidemenuMode = "bulb";
 				this.openBulbSidemenu();
+			}
+			else if(type == 26)
+			{
+				this.sidemenuMode = "path";
+				this.openPathSidemenu();
 			}
 			else if(type == 8 || type == 19 || type == 17 
 				|| type == 28 || type == 22 || type == 30
@@ -632,7 +637,7 @@ var EditorUILayer = cc.Layer.extend({
 	
 	openBulbSidemenu:function()
 	{
-		this.sidemenuMode == "bulb"
+		//this.sidemenuMode == "bulb"
 		
 		this.iconButtons["input"] = [];
 		this.iconButtons["header"] = [];
@@ -683,6 +688,49 @@ var EditorUILayer = cc.Layer.extend({
 				this.iconButtons["input"].push(inputBulb);
 			}
 		}
+		this.draw();
+	},
+	
+	openPathSidemenu:function()
+	{
+		var pathNames = ["upright_dir","right_dir","downright_dir","downleft_dir","left_dir","upleft_dir"];
+		var colorName = ["red_lantern","yellow_lantern","green_lantern","blue_lantern","pink_lantern","purple_lantern"];
+		
+		this.iconButtons["colors"] = [];
+		for(var i=0; i<colorSpriteNames.length; i++)
+		{
+			var xOff = i*(DATA.bubbleR*2) - Math.floor(i/3)*(DATA.bubbleR*6);
+			var yOff = Math.floor(i/3)*DATA.bubbleR*2;
+			
+			var colorSprite = this.getSprite(colorSpriteNames[i]);
+			colorSprite.setScale(DATA.bubbleR*2 / colorSprite.width);
+			colorSprite.attr({
+				x:this.dividerX+DATA.bubbleR + xOff,
+				y:this.height-(DATA.bubbleR*2)-yOff,
+				anchorX:0,
+				anchorY:0
+			});
+			this.addChild(colorSprite);
+			this.iconButtons["colors"].push(colorSprite);
+		}
+		
+		this.iconButtons["path"] = [];
+		for(var i=0; i<pathSpriteNames.length; i++)
+		{
+			
+			var pathSprite = this.getSprite(pathSpriteNames[i]);
+			pathSprite.setScale(DATA.bubbleR*2 / pathSprite.width);
+			pathSprite.attr({
+				x:this.dividerX+(DATA.bubbleR*2)+i*(DATA.bubbleR*2),
+				y:this.height-(DATA.bubbleR*7),
+				anchorX:0,
+				anchorY:0
+			});
+			this.addChild(pathSprite);
+			this.iconButtons["path"].push(pathSprite);
+		}
+		
+		
 		this.draw();
 	},
 	
@@ -993,8 +1041,10 @@ var EditorUILayer = cc.Layer.extend({
 			return new cc.Sprite(res.anvil_emoji);
 		else if(name == "rock")
 			return new cc.Sprite(res.jawbreaker_emoji);
-		else if(name == "spike")
-			return new cc.Sprite(res.spike_emoji);
+		//else if(name == "spike")
+		//	return new cc.Sprite(res.spike_emoji);
+		else if(name == "orb")
+			return new cc.Sprite(res.neutral_orb_emoji);
 			
 		else if(name == "poof")
 			return new cc.Sprite(res.cd_emoji)
@@ -1028,8 +1078,6 @@ var EditorUILayer = cc.Layer.extend({
 			return new cc.Sprite(res.upleft_dagger_emoji);
 		
 			
-		else if(name == "orb")
-			return new cc.Sprite(res.neutral_orb_emoji);
 		else if(name == "disco")
 			return new cc.Sprite(res.disco_emoji);
 		else if(name == "beachball")
@@ -1127,6 +1175,20 @@ var EditorUILayer = cc.Layer.extend({
 			return new cc.Sprite(res.pink_lantern_emoji);
 		else if(name == "purple_lantern")
 			return new cc.Sprite(res.purple_lantern_emoji);
+			
+		else if(name == "upright_dir")
+			return new cc.Sprite(res.upright_path_dir);
+		else if(name == "right_dir")
+			return new cc.Sprite(res.right_path_dir);
+		else if(name == "downright_dir")
+			return new cc.Sprite(res.downright_path_dir);
+		else if(name == "downleft_dir")
+			return new cc.Sprite(res.downleft_path_dir);
+		else if(name == "left_dir")
+			return new cc.Sprite(res.left_path_dir);
+		else if(name == "upleft_dir")
+			return new cc.Sprite(res.upleft_path_dir);
+		
 			
 		else if(name == "red_ghost")
 			return new cc.Sprite(res.red_ghost_emoji);
@@ -1303,8 +1365,10 @@ var EditorUILayer = cc.Layer.extend({
 			return {"type":2,"color":null};
 		else if(name == "rock")
 			return {"type":3,"color":null};
-		else if(name == "spike")
-			return {"type":16,"color":null};
+		//else if(name == "spike")
+		//	return {"type":16,"color":null};
+		else if(name == "orb")
+			return {"type":9,"color":null};
 			
 		else if(name == "poof")
 			return {"type":4,"color":null};
@@ -1338,8 +1402,6 @@ var EditorUILayer = cc.Layer.extend({
 			return {"type":21,"color":null,"orientation":"upleft"};
 		
 			
-		else if(name == "orb")
-			return {"type":9,"color":null};
 		else if(name == "disco")
 			return {"type":10,"color":null};
 		else if(name == "beachball")

@@ -11,6 +11,7 @@ DATA.worldBallsLeft = 99;
 DATA.worldLevel = null;
 
 DATA.worldBubbles = [];
+DATA.worldMeta = {};
 DATA.challengeBubbles = [];
 DATA.bubblesToAdd = [];
 
@@ -80,6 +81,7 @@ DATA.levelsComplete = {"normal":[], "one-pager":{"tier":0,"completed":[]}};
 
 DATA.gameplayRewardsOnReturn = null;
 
+DATA.tutorialCompleted = -1; 
 
 DATA.userID = "JksVjAgr68PFKhwEyVzGKBr3hGW2";
 var email = "dwoodburdev@gmail.com";
@@ -123,7 +125,8 @@ DATA.initUserData = function()
     		bubbles.push(bubble); 
   		}
   		var queue = {type:d[i].queue.type, colors:d[i].queue.colors};
-    	var level = {"queue":queue,"bubbles":bubbles};
+  		var meta = d[i].meta;
+    	var level = {"queue":queue,"bubbles":bubbles,"meta":meta};
   		DATA.levels.push(level);
   	}cc.log(DATA.levels);
   	
@@ -178,7 +181,7 @@ DATA.initUserData = function()
   	//{
 		var createdKeys = Object.keys(d);
 		for(var i=0; i<createdKeys.length; i++)
-		{
+		{cc.log("User level " + i);
 			var dLevel = d[createdKeys[i]];
 			
 			var bubbles = [];
@@ -196,8 +199,12 @@ DATA.initUserData = function()
 			queue.type = dLevel.queue.type;
 			queue.colors = [dLevel.queue.colors["0"], dLevel.queue.colors["1"], dLevel.queue.colors["2"], 
 				dLevel.queue.colors["3"], dLevel.queue.colors["4"], dLevel.queue.colors["5"]];
-			
-			DATA.createdLevels.push({"bubbles":bubbles, "queue":queue});
+				
+			//var meta = {bulbData:[]};
+			//for(var i=0; i<d.meta)
+			if("meta" in dLevel)
+				cc.log(dLevel.meta);
+			DATA.createdLevels.push({"bubbles":bubbles, "queue":queue, "meta":dLevel.meta});
 		//}
 	}
   });
@@ -230,6 +237,8 @@ DATA.initUserData = function()
   	
   	// moves
   	DATA.worldBallsLeft = d.worldMoves;
+  	
+  	DATA.tutorialCompleted = d.tutorialCompleted;
   	
   	// time last move spawned; add moves, adjust time
   	DATA.timeLastMoveSpawned = d.timeOfLastMoveSpawn;
@@ -281,6 +290,11 @@ DATA.initUserData = function()
 	cc.log(DATA.worldActiveQueue);
 	// World index
 	DATA.worldIndex = d.worldIndex
+	
+	
+	DATA.checkTutorial();
+	
+	// 15 rows - 8 long, 7 short (8*12 + 7*11) = 96+77 = 173
 	
 	// Queue: world
 	var queueKeys = Object.keys(d.world.queue.colors);
@@ -403,8 +417,10 @@ DATA.initUserData = function()
 		if(DATA.worldBubbles[i].row > maxRow)
 			maxRow = DATA.worldBubbles[i].row;
 	}
+	
+	DATA.worldMeta = d.world.meta;cc.log(DATA.worldMeta);
   
-  cc.director.runScene(new MainContainerScene(DATA.worldBubbles, maxRow+1));
+  cc.director.runScene(new MainContainerScene(DATA.worldBubbles, maxRow+1, DATA.worldMeta));
   });
   
   
@@ -422,10 +438,61 @@ DATA.initUserData = function()
 
 
 
+DATA.checkTutorial = function(numBubbles)
+{
+	DATA.tutorial = null;
+	if(DATA.worldIndex == 0)
+	{
+		if(numBubbles >= 242)	// First shot (bubble row)
+		{
+			DATA.tutorial = {type:"hold", id:0};
+		}
+		else if(numBubbles >= 230)	// Make match on row row 13
+		{
+			DATA.tutorial = {type:"target-positions", id:1, positions:[{x:0,y:20},{x:1,y:20},{x:2,y:20},{x:3,y:20},{x:4,y:20}] };
+		}
+		else if(numBubbles >= 226)	// Make soap drop on row 12
+		{
+			DATA.tutorial = {type:"target-positions", id:2, positions:[{x:0,y:19},{x:1,y:19},{x:2,y:19},{x:3,y:19}] };
+		}
+		else if(numBubbles >= 184 && DATA.tutorialCompleted < 3)	// Make match
+		{
+			DATA.tutorial = {type:"target-positions", id:3, positions:[{x:7,y:16},{x:8,y:16},{x:9,y:16},{x:10,y:16},{x:11,y:16}] };
+		}
+		else if(numBubbles >= 180 && DATA.tutorialCompleted < 4)	// Swap
+		{
+			DATA.tutorial = {type:"swap", id:4};
+		}
+		else if(numBubbles == 127 && DATA.tutorialCompleted < 5) // Hit first star
+		{
+			DATA.tutorial = {type:"target-positions", id:5, positions:[{x:5,y:11}, {x:6,y:11}] };
+		}
+	}
+	else if(DATA.worldIndex == 1)
+	{
+		if(numBubbles == 204)
+		{
+			DATA.tutorial = {type:"target-positions",id:6,positions:[{x:5,y:18},{x:6,y:18}]};
+		}
+	}
+	
+	else if(DATA.worldIndex == 3)
+	{
+		if(numBubbles == 252)
+		{
+			DATA.tutorial = {type:"target-positions",id:7,positions:[{x:5,y:30},{x:6,y:30}]};
+		}
+	}
+	
+	return DATA.tutorial;
+};
 
 
-
-
+DATA.setTutorialCompleted = function(num)
+{
+	DATA.tutorialCompleted = num;
+	DATA.database.ref("users/"+DATA.userID+"/tutorialCompleted").set(num);
+};
 
 
 DATA.refreshTimeUntilNextChallenge = function()
@@ -540,7 +607,7 @@ DATA.spawnNewDailyChallenge = function()
   	});
   };
   
-  DATA.setWorldDatabaseBubbles = function(newBubbles)
+  DATA.setWorldDatabaseBubbles = function(newBubbles, newQueue, newMeta)
   {
   	DATA.database.ref("users/"+DATA.userID+"/world").once("value").then(function(snapshot){
   		var d = snapshot.val();
@@ -557,7 +624,7 @@ DATA.spawnNewDailyChallenge = function()
   			if(newBubbles[i].colorCode != null)
   				capturedBubbles[key]["colorCode"] = newBubbles[i].colorCode;
   		}
-  		DATA.database.ref("users/"+DATA.userID+"/world").set({bubbles:capturedBubbles, queue:d.queue});
+  		DATA.database.ref("users/"+DATA.userID+"/world").set({bubbles:capturedBubbles, queue:newQueue, meta:newMeta});
   	});
   };
   
@@ -565,7 +632,7 @@ DATA.spawnNewDailyChallenge = function()
    * LEVEL EDITOR
    */
   DATA.isAdmin = function(){return true;};
-  DATA.saveNewLevelToDatabase = function(newBubbles)
+  DATA.saveNewLevelToDatabase = function(newBubbles, newWorldMeta)
   {
   	DATA.database.ref("levels/userLevels/"+DATA.userID).once("value").then(function(snapshot){
   		var d = snapshot.val();
@@ -576,7 +643,8 @@ DATA.spawnNewDailyChallenge = function()
   			bubbleContainer[""+i] = newBubbles[i];
   		}
   		var newLevel = {"queue":{"type":"bucket","colors":{"0":1,"1":1,"2":1,"3":1,"4":1,"5":1}},
-  						"bubbles":newBubbles};
+  						"bubbles":newBubbles,
+  						"meta":newWorldMeta};
   						
   		var dKeys = Object.keys(d);
   		if(dKeys.length == 1 && dKeys[0] == "00")
@@ -755,7 +823,7 @@ DATA.setQueue = function(queue)
 };
 
 DATA.getPossibleColors = function(queue)
-{
+{cc.log(queue);
 	var colors = ["red","yellow","green","blue","pink","purple"];
 	var queueColors = [];
 	//var queueKeys = Object.keys(queue);
@@ -765,7 +833,7 @@ DATA.getPossibleColors = function(queue)
 		{
 			queueColors.push(colors[i]);
 		}
-	}
+	}cc.log(queueColors);
 	return queueColors;
 };
 
@@ -1083,821 +1151,36 @@ FUNCTIONS.posWithinScaled = function(pos, img)
 	return false;
 };
 
-
-var demBubs =  [ {
-  "col" : 0,
-  "colorCode" : "red",
-  "row" : 11,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "red",
-  "row" : 11,
-  "type" : 0
-}, {
-  "col" : 0,
-  "row" : 9,
-  "type" : 5
-}, {
-  "col" : 1,
-  "row" : 9,
-  "type" : 5
-}, {
-  "col" : 2,
-  "row" : 9,
-  "type" : 5
-}, {
-  "col" : 3,
-  "row" : 9,
-  "type" : 5
-}, {
-  "col" : 4,
-  "row" : 9,
-  "type" : 5
-}, {
-  "col" : 5,
-  "row" : 9,
-  "type" : 5
-}, {
-  "col" : 6,
-  "row" : 9,
-  "type" : 5
-}, {
-  "col" : 7,
-  "row" : 9,
-  "type" : 5
-}, {
-  "col" : 8,
-  "row" : 9,
-  "type" : 5
-}, {
-  "col" : 9,
-  "row" : 9,
-  "type" : 5
-}, {
-  "col" : 10,
-  "row" : 9,
-  "type" : 5
-}, {
-  "col" : 0,
-  "row" : 5,
-  "type" : 5
-}, {
-  "col" : 1,
-  "row" : 5,
-  "type" : 5
-}, {
-  "col" : 2,
-  "row" : 5,
-  "type" : 5
-}, {
-  "col" : 3,
-  "row" : 5,
-  "type" : 5
-}, {
-  "col" : 4,
-  "row" : 5,
-  "type" : 5
-}, {
-  "col" : 5,
-  "row" : 5,
-  "type" : 5
-}, {
-  "col" : 6,
-  "row" : 5,
-  "type" : 5
-}, {
-  "col" : 7,
-  "row" : 5,
-  "type" : 5
-}, {
-  "col" : 8,
-  "row" : 5,
-  "type" : 5
-}, {
-  "col" : 9,
-  "row" : 5,
-  "type" : 5
-}, {
-  "col" : 10,
-  "row" : 5,
-  "type" : 5
-}, {
-  "col" : 0,
-  "row" : 0,
-  "type" : 5
-}, {
-  "col" : 1,
-  "row" : 0,
-  "type" : 5
-}, {
-  "col" : 2,
-  "row" : 0,
-  "type" : 5
-}, {
-  "col" : 3,
-  "row" : 0,
-  "type" : 5
-}, {
-  "col" : 4,
-  "row" : 0,
-  "type" : 5
-}, {
-  "col" : 5,
-  "row" : 0,
-  "type" : 5
-}, {
-  "col" : 6,
-  "row" : 0,
-  "type" : 5
-}, {
-  "col" : 7,
-  "row" : 0,
-  "type" : 5
-}, {
-  "col" : 8,
-  "row" : 0,
-  "type" : 5
-}, {
-  "col" : 9,
-  "row" : 0,
-  "type" : 5
-}, {
-  "col" : 10,
-  "row" : 0,
-  "type" : 5
-}, {
-  "col" : 11,
-  "row" : 0,
-  "type" : 5
-}, {
-  "col" : 2,
-  "colorCode" : "red",
-  "row" : 11,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "red",
-  "row" : 11,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "yellow",
-  "row" : 11,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "yellow",
-  "row" : 11,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 11,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "blue",
-  "row" : 11,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "blue",
-  "row" : 11,
-  "type" : 0
-}, {
-  "col" : 9,
-  "colorCode" : "blue",
-  "row" : 11,
-  "type" : 0
-}, {
-  "col" : 10,
-  "colorCode" : "blue",
-  "row" : 11,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "yellow",
-  "row" : 10,
-  "type" : 0
-}, {
-  "col" : 2,
-  "colorCode" : "yellow",
-  "row" : 10,
-  "type" : 0
-}, {
-  "col" : 0,
-  "colorCode" : "yellow",
-  "row" : 10,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "blue",
-  "row" : 10,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "blue",
-  "row" : 10,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "blue",
-  "row" : 10,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 10,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "red",
-  "row" : 10,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "red",
-  "row" : 10,
-  "type" : 0
-}, {
-  "col" : 9,
-  "colorCode" : "yellow",
-  "row" : 10,
-  "type" : 0
-}, {
-  "col" : 11,
-  "colorCode" : "yellow",
-  "row" : 10,
-  "type" : 0
-}, {
-  "col" : 10,
-  "colorCode" : "yellow",
-  "row" : 10,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "yellow",
-  "row" : 8,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "yellow",
-  "row" : 8,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "yellow",
-  "row" : 8,
-  "type" : 0
-}, {
-  "col" : 2,
-  "colorCode" : "blue",
-  "row" : 8,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "blue",
-  "row" : 8,
-  "type" : 0
-}, {
-  "col" : 0,
-  "colorCode" : "blue",
-  "row" : 8,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "red",
-  "row" : 8,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "red",
-  "row" : 8,
-  "type" : 0
-}, {
-  "col" : 6,
-  "row" : 8,
-  "type" : 20
-}, {
-  "col" : 9,
-  "colorCode" : "blue",
-  "row" : 8,
-  "type" : 0
-}, {
-  "col" : 10,
-  "colorCode" : "blue",
-  "row" : 8,
-  "type" : 0
-}, {
-  "col" : 11,
-  "colorCode" : "blue",
-  "row" : 8,
-  "type" : 0
-}, {
-  "col" : 10,
-  "colorCode" : "red",
-  "row" : 7,
-  "type" : 0
-}, {
-  "col" : 9,
-  "colorCode" : "red",
-  "row" : 7,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "yellow",
-  "row" : 7,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "yellow",
-  "row" : 7,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "blue",
-  "row" : 7,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "blue",
-  "row" : 7,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "blue",
-  "row" : 7,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "red",
-  "row" : 7,
-  "type" : 0
-}, {
-  "col" : 2,
-  "colorCode" : "red",
-  "row" : 7,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "yellow",
-  "row" : 7,
-  "type" : 0
-}, {
-  "col" : 0,
-  "colorCode" : "yellow",
-  "row" : 7,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "red",
-  "row" : 6,
-  "type" : 0
-}, {
-  "col" : 0,
-  "colorCode" : "red",
-  "row" : 6,
-  "type" : 0
-}, {
-  "col" : 2,
-  "colorCode" : "blue",
-  "row" : 6,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "blue",
-  "row" : 6,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "yellow",
-  "row" : 6,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "yellow",
-  "row" : 6,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 6,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "red",
-  "row" : 6,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "blue",
-  "row" : 6,
-  "type" : 0
-}, {
-  "col" : 9,
-  "colorCode" : "blue",
-  "row" : 6,
-  "type" : 0
-}, {
-  "col" : 10,
-  "colorCode" : "yellow",
-  "row" : 6,
-  "type" : 0
-}, {
-  "col" : 11,
-  "colorCode" : "yellow",
-  "row" : 6,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "yellow",
-  "row" : 4,
-  "type" : 0
-}, {
-  "col" : 0,
-  "colorCode" : "yellow",
-  "row" : 4,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "red",
-  "row" : 4,
-  "type" : 0
-}, {
-  "col" : 2,
-  "colorCode" : "red",
-  "row" : 4,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "blue",
-  "row" : 4,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "blue",
-  "row" : 4,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 4,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "yellow",
-  "row" : 4,
-  "type" : 0
-}, {
-  "col" : 10,
-  "colorCode" : "blue",
-  "row" : 4,
-  "type" : 0
-}, {
-  "col" : 11,
-  "colorCode" : "blue",
-  "row" : 4,
-  "type" : 0
-}, {
-  "col" : 9,
-  "colorCode" : "red",
-  "row" : 4,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "red",
-  "row" : 4,
-  "type" : 0
-}, {
-  "col" : 10,
-  "colorCode" : "yellow",
-  "row" : 3,
-  "type" : 0
-}, {
-  "col" : 9,
-  "colorCode" : "yellow",
-  "row" : 3,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "blue",
-  "row" : 3,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "blue",
-  "row" : 3,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 3,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "red",
-  "row" : 3,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "red",
-  "row" : 3,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "yellow",
-  "row" : 3,
-  "type" : 0
-}, {
-  "col" : 2,
-  "colorCode" : "yellow",
-  "row" : 3,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "blue",
-  "row" : 3,
-  "type" : 0
-}, {
-  "col" : 0,
-  "colorCode" : "blue",
-  "row" : 3,
-  "type" : 0
-}, {
-  "col" : 2,
-  "colorCode" : "red",
-  "row" : 2,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "blue",
-  "row" : 2,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "red",
-  "row" : 2,
-  "type" : 0
-}, {
-  "col" : 0,
-  "colorCode" : "red",
-  "row" : 2,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "blue",
-  "row" : 2,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "blue",
-  "row" : 2,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 2,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "yellow",
-  "row" : 2,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "yellow",
-  "row" : 2,
-  "type" : 0
-}, {
-  "col" : 9,
-  "row" : 2,
-  "type" : 20
-}, {
-  "col" : 10,
-  "colorCode" : "red",
-  "row" : 2,
-  "type" : 0
-}, {
-  "col" : 11,
-  "colorCode" : "red",
-  "row" : 2,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "red",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "red",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "red",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "blue",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "blue",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 10,
-  "colorCode" : "yellow",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 9,
-  "colorCode" : "yellow",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "yellow",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 2,
-  "colorCode" : "yellow",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "blue",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 0,
-  "colorCode" : "blue",
-  "row" : 1,
-  "type" : 0
-}, {
-  "col" : 0,
-  "row" : 12,
-  "type" : 5
-}, {
-  "col" : 1,
-  "row" : 12,
-  "type" : 5
-}, {
-  "col" : 3,
-  "row" : 12,
-  "type" : 5
-}, {
-  "col" : 2,
-  "row" : 12,
-  "type" : 5
-}, {
-  "col" : 4,
-  "row" : 12,
-  "type" : 5
-}, {
-  "col" : 5,
-  "row" : 12,
-  "type" : 5
-}, {
-  "col" : 6,
-  "row" : 12,
-  "type" : 5
-}, {
-  "col" : 7,
-  "row" : 12,
-  "type" : 5
-}, {
-  "col" : 8,
-  "row" : 12,
-  "type" : 5
-}, {
-  "col" : 9,
-  "row" : 12,
-  "type" : 5
-}, {
-  "col" : 10,
-  "row" : 12,
-  "type" : 5
-}, {
-  "col" : 11,
-  "row" : 12,
-  "type" : 5
-}, {
-  "col" : 1,
-  "row" : 14,
-  "type" : 5
-}, {
-  "col" : 2,
-  "row" : 14,
-  "type" : 5
-}, {
-  "col" : 3,
-  "row" : 14,
-  "type" : 5
-}, {
-  "col" : 4,
-  "row" : 14,
-  "type" : 5
-}, {
-  "col" : 5,
-  "row" : 14,
-  "type" : 5
-}, {
-  "col" : 6,
-  "row" : 14,
-  "type" : 5
-}, {
-  "col" : 7,
-  "row" : 14,
-  "type" : 5
-}, {
-  "col" : 8,
-  "row" : 14,
-  "type" : 5
-}, {
-  "col" : 9,
-  "row" : 14,
-  "type" : 5
-}, {
-  "col" : 10,
-  "row" : 14,
-  "type" : 5
-}, {
-  "col" : 11,
-  "row" : 14,
-  "type" : 5
-}, {
-  "col" : 0,
-  "row" : 14,
-  "type" : 5
-}, {
-  "col" : 10,
-  "colorCode" : "red",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 9,
-  "colorCode" : "red",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 8,
-  "colorCode" : "red",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 7,
-  "colorCode" : "red",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 3,
-  "colorCode" : "blue",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 2,
-  "colorCode" : "blue",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 1,
-  "colorCode" : "blue",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 0,
-  "colorCode" : "blue",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 4,
-  "colorCode" : "yellow",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 5,
-  "colorCode" : "yellow",
-  "row" : 13,
-  "type" : 0
-}, {
-  "col" : 6,
-  "colorCode" : "yellow",
-  "row" : 13,
-  "type" : 0
-} ];
-
-
-var demBubsObj = {};
-for(var i=0; i<demBubs.length; i++)
+FUNCTIONS.convertCodesToColors = function(codes)
 {
-	var bub = demBubs[i];
-	demBubsObj[""+bub.row+"_"+bub.col] = bub;
-}
-DATA.database.ref("users/"+DATA.userID+"/world/bubbles").set(demBubsObj);
+	var colorCodes = ["red","yellow","green","blue","pink","purple"];
+	var translations = [];
+	for(var i=0; i<codes.length; i++)
+	{
+		translations.push(colorCodes[codes[i]]);
+	}
+	return translations;
+};
 
+
+//var demBubs =  ;
+DATA.resetWorld = function()
+{cc.log("reset");
+DATA.tutorialCompleted = -1;
+	DATA.database.ref("worlds/levels/"+DATA.worldIndex).once("value").then(function(snapshot){
+		
+		//var demBubsObj = {};
+		var demBubsObj = {};
+		var demBubs = snapshot.val().bubbles;
+		for(var i=0; i<demBubs.length; i++)
+		{
+			var bub = demBubs[i];
+			demBubsObj[""+bub.row+"_"+bub.col] = bub;
+		}cc.log(demBubsObj);
+		DATA.database.ref("users/"+DATA.userID+"/world/bubbles").set(demBubsObj);
+		
+	});
+};
+
+DATA.resetWorld();
  

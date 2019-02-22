@@ -83,6 +83,9 @@ var PreChallengeLayer = cc.Layer.extend({
 		this.levelNameLabel.color = cc.color(0,0,0,255);
 		this.addChild(this.levelNameLabel,12);
 	
+	this.preBoosterA = null;
+	this.preBoosterACounter = null;
+	
 		this.preBoosterA = new cc.Sprite(res.pre_booster_moves);
 		this.preBoosterA.setScale(this.width/6 / this.preBoosterA.width);
 		this.preBoosterA.attr({
@@ -91,7 +94,10 @@ var PreChallengeLayer = cc.Layer.extend({
 			anchorX:0,
 			anchorY:0
 		});
+	if(DATA.worldIndex > 0)
+	{
 		this.addChild(this.preBoosterA);
+	}
 		cc.log("PRE INVENTORY");cc.log(DATA.preBoosterInventoryA);
 		this.preBoosterACounter = new cc.LabelTTF(""+DATA.preBoosterInventoryA, "Roboto", 15);
 		this.preBoosterACounter.attr({
@@ -101,8 +107,10 @@ var PreChallengeLayer = cc.Layer.extend({
 			"anchorY":0
 		});
 		this.preBoosterACounter.color = cc.color(0,0,0,255);
+	if(DATA.worldIndex > 0)
+	{
 		this.addChild(this.preBoosterACounter);
-		
+	}
 		var numMoves = 0;
 		if(DATA.levelIndexAType == "normal")
 		{cc.log("normal");
@@ -197,7 +205,7 @@ var PreChallengeLayer = cc.Layer.extend({
 		this.puzzlePieceImg = null;
 		this.puzzleNumberLabel = null;
 		this.puzzleRewardImg = null;
-		if(DATA.levelIndexAType != "normal")
+		/*if(DATA.levelIndexAType != "normal")
 		{
 			this.puzzlePieceImg = new cc.Sprite(res.puzzle_piece);
 			this.puzzlePieceImg.setScale(this.tryAlert.width*this.tryAlert.scale / this.puzzlePieceImg.width);
@@ -228,6 +236,29 @@ var PreChallengeLayer = cc.Layer.extend({
 				anchorY:.5
 			});
 			this.addChild(this.puzzleRewardImg);
+		}*/
+		cc.log(DATA.worldBubbles.length);
+		if(DATA.worldIndex == 0 /*&& DATA.worldBubbles.length > 120*/)
+		{cc.log("hand anim for tutorial");
+			var handAnim = new cc.Sprite(res.finger_point);
+			handAnim.setScale( (this.playButton.height*this.playButton.scale)*1.5 / handAnim.width);
+			handAnim.setFlippedX(true);
+			handAnim.setRotation(270);
+			handAnim.attr({
+				x:this.playButton.x+(this.playButton.width*this.playButton.scale),
+				y:this.playButton.y-20/*+(this.playButton.height*this.playButton.scale/2)*/,
+				anchorX:0,
+				anchorY:0
+			});
+			this.addChild(handAnim);
+			
+			var moveRightAction = cc.moveBy(1,70,0);
+			var moveLeftAction = cc.moveBy(1,-70,0);
+			var seq = new cc.Sequence(moveRightAction, moveLeftAction);
+			var repSeq = new cc.RepeatForever(seq);
+			handAnim.runAction(repSeq);
+			
+			
 		}
 		
 		/*this.xpRewardImg = null;

@@ -114,23 +114,23 @@ var WorldMapLayer = cc.Layer.extend({
 			}*/
 			else if(worldNumber == 2)
 			{
-				rewardImg = new cc.Sprite(res.bomb_emoji);
+				rewardImg = new cc.Sprite(res.dynamite_1_emoji);
 			}
 			else if(worldNumber == 3)
 			{
-				rewardImg = new cc.Sprite(res.red_bulb_emoji);
+				rewardImg = new cc.Sprite(res.yellow_bulb_emoji);
 			}
 			else if(worldNumber == 4)
 			{
-				rewardImg = new cc.Sprite(res.poop_emoji);
+				rewardImg = new cc.Sprite(res.bomb_emoji);
 			}
 			else if(worldNumber == 5)
 			{
-				rewardImg = new cc.Sprite(res.dynamite_1_emoji);
+				rewardImg = new cc.Sprite(res.lightblue_die_emoji);
 			}
 			else if(worldNumber == 6)
 			{
-				rewardImg = new cc.Sprite(res.red_die_emoji);
+				rewardImg = new cc.Sprite(res.beachball_emoji);
 			}
 			else if(worldNumber == 7)
 			{
@@ -138,77 +138,85 @@ var WorldMapLayer = cc.Layer.extend({
 			}
 			else if(worldNumber == 8)
 			{
-				rewardImg = new cc.Sprite(res.anvil_emoji);
+				rewardImg = new cc.Sprite(res.neutral_orb_emoji);
 			}
-			else if(worldNumber == 9)
+			/*else if(worldNumber == 9)
 			{
 				rewardImg = new cc.Sprite(res.puzzle_piece);
-			}
+			}*/
 			else if(worldNumber == 10)
 			{
-				rewardImg = new cc.Sprite(res.beachball_emoji);
+				rewardImg = new cc.Sprite(res.green_snail_emoji);
 			}
-			else if(worldNumber == 13)
+			else if(worldNumber == 12)
 			{
-				rewardImg = new cc.Sprite(res.dagger_top_right_emoji);
+				rewardImg = new cc.Sprite(res.egg_emoji);
 			}
-			else if(worldNumber == 15)
+			else if(worldNumber == 14)
 			{
-				rewardImg = new cc.Sprite(res.puzzle_piece);
+				rewardImg = new cc.Sprite(res.green_lantern_emoji);
 			}
-			else if(worldNumber == 17)
+			else if(worldNumber == 16)
 			{
-				rewardImg = new cc.Sprite(res.cloud_emoji);
+				rewardImg = new cc.Sprite(res.yellow_soapbar_emoji);
 			}
-			else if(worldNumber == 19)
+			else if(worldNumber == 18)
 			{
-				rewardImg = new cc.Sprite(res.puzzle_piece);
+				rewardImg = new cc.Sprite(res.pink_balloon_emoji);
 			}
-			else if(worldNumber == 21)
+			else if(worldNumber == 20)
 			{
-				rewardImg = new cc.Sprite(res.orb_emoji);
+				rewardImg = new cc.Sprite(res.blue_siren_emoji);
 			}
-			else if(worldNumber == 23)
+			else if(worldNumber == 22)
 			{
-				rewardImg = new cc.Sprite(res.puzzle_piece);
+				rewardImg = new cc.Sprite(res.purple_note_emoji);
 			}
 			else if(worldNumber == 25)
 			{
-				rewardImg = new cc.Sprite(res.red_soapbar_emoji);
+				rewardImg = new cc.Sprite(res.green_ghost_emoji);
 			}
-			else if(worldNumber == 27)
+			else if(worldNumber == 28)
 			{
-				rewardImg = new cc.Sprite(res.puzzle_piece);
+				rewardImg = new cc.Sprite(res.pink_flowerpot_emoji);
 			}
-			else if(worldNumber == 30)
+			else if(worldNumber == 31)
 			{
 				rewardImg = new cc.Sprite(res.spiderweb_emoji);
 			}
-			else if(worldNumber == 33)
+			else if(worldNumber == 34)
 			{
-				rewardImg = new cc.Sprite(res.puzzle_piece);
+				rewardImg = new cc.Sprite(res.red_tv_emoji);
 			}
-			else if(worldNumber == 36)
+			else if(worldNumber == 37)
 			{
-				rewardImg = new cc.Sprite(res.package_emoji);
+				rewardImg = new cc.Sprite(res.flashlight_topleft_emoji);
 			}
-			else if(worldNumber == 39)
+			else if(worldNumber == 40)
 			{
-				rewardImg = new cc.Sprite(res.puzzle_piece);
+				rewardImg = new cc.Sprite(res.magnet_topright_emoji);
 			}
-			else if(worldNumber == 42)
+			else if(worldNumber == 43)
 			{
-				rewardImg = new cc.Sprite(res.red_balloon_emoji);
+				rewardImg = new cc.Sprite(res.crayon_red_bottomleft_emoji);
 			}
-			else if(worldNumber == 45)
+			else if(worldNumber == 46)
 			{
-				rewardImg = new cc.Sprite(res.puzzle_piece);
+				rewardImg = new cc.Sprite(res.red_glove_emoji);
 			}
 			else if(worldNumber == 50)
 			{
 				rewardImg = new cc.Sprite(res.pallette_emoji);
 			}
+			else if(worldNumber == 54)
+			{
+				rewardImg = new cc.Sprite(res.red_tv_emoji);
+			}
 			else if(worldNumber == 58)
+			{
+				rewardImg = new cc.Sprite(res.red_tv_emoji);
+			}
+			else if(worldNumber == 62)
 			{
 				rewardImg = new cc.Sprite(res.red_tv_emoji);
 			}
@@ -216,15 +224,27 @@ var WorldMapLayer = cc.Layer.extend({
 			{
 				rewardImg = new cc.Sprite(res.red_tv_emoji);
 			}
-			else if(worldNumber == 74)
+			else if(worldNumber == 70)
 			{
 				rewardImg = new cc.Sprite(res.red_tv_emoji);
 			}
-			else if(worldNumber == 81)
+			else if(worldNumber == 75)
+			{
+				rewardImg = new cc.Sprite(res.red_tv_emoji);
+			}
+			else if(worldNumber == 80)
+			{
+				rewardImg = new cc.Sprite(res.red_tv_emoji);
+			}
+			else if(worldNumber == 85)
 			{
 				rewardImg = new cc.Sprite(res.red_tv_emoji);
 			}
 			else if(worldNumber == 90)
+			{
+				rewardImg = new cc.Sprite(res.red_tv_emoji);
+			}
+			else if(worldNumber == 95)
 			{
 				rewardImg = new cc.Sprite(res.red_tv_emoji);
 			}

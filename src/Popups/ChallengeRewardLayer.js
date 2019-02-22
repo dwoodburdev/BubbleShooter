@@ -92,6 +92,8 @@ var ChallengeRewardLayer = cc.Layer.extend({
 						anchorY:0
 					});
 					this.addChild(this.rewardPicker);
+					
+					this.tabTitleLabel.setString("Pick Reward!");
 				}
 				else if(DATA.streakStep == 2)
 				{
@@ -106,6 +108,8 @@ var ChallengeRewardLayer = cc.Layer.extend({
 						anchorY:0
 					});
 					this.addChild(this.rewardPicker);
+					
+					this.tabTitleLabel.setString("Pick Reward!");
 				}
 				
 			}
@@ -129,7 +133,7 @@ var ChallengeRewardLayer = cc.Layer.extend({
 				this.removeChild(this.dailyDisplayLayer);
 				this.dailyDisplayLayer = null;
 				
-				this.puzzleDisplayLayer = new ChallengeWinPuzzleLayer(
+				/*this.puzzleDisplayLayer = new ChallengeWinPuzzleLayer(
 					this.width, 
 					this.tabTitleLabel.y-(this.tabTitleLabel.height*this.tabTitleLabel.scale) - (this.nextButton.y+(this.nextButton.height*this.nextButton.scale))
 				);
@@ -139,10 +143,10 @@ var ChallengeRewardLayer = cc.Layer.extend({
 					anchorX:0,
 					anchorY:0
 				});
-				this.addChild(this.puzzleDisplayLayer);
-			}
-			else
-			{
+				this.addChild(this.puzzleDisplayLayer);*/
+			//}
+			//else
+			//{
 				return "close";
 			}
 			

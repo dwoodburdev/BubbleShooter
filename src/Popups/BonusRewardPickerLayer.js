@@ -25,8 +25,8 @@ var BonusRewardPickerLayer = cc.Layer.extend({
 		this.addChild(this.tabTitleLabel);*/
 		
 		this.cardBorderWidth = 5;
-		this.cardWidth = this.width/3 - this.cardBorderWidth*4;
-		this.cardHeight = this.height/3 - this.cardBorderWidth*4;
+		this.cardWidth = this.width/3 - (this.cardBorderWidth*4)/3;
+		this.cardHeight = this.height/3 - (this.cardBorderWidth*4)/3;
 		
 		this.cards = [];
 		for(var i=0; i<3; i++)
@@ -34,17 +34,16 @@ var BonusRewardPickerLayer = cc.Layer.extend({
 			for(var j=0; j<3; j++)
 			{
 				var cardImg = new cc.Sprite(res.card_back);
-				
+				cardImg.setScaleX(this.cardWidth/cardImg.width);
+				cardImg.setScaleY(this.cardHeight/cardImg.height);
 				cardImg.attr({
 					"x":this.cardBorderWidth + j*this.cardBorderWidth + j*this.cardWidth,
 					"y":i*this.cardHeight - i*this.cardBorderWidth,
 					"anchorX":0,
 					"anchorY":0
 				});
-				cardImg.setScaleX(this.cardWidth/cardImg.width);
-				cardImg.setScaleY(this.cardHeight/cardImg.height);
-				//cardImg.width = this.cardWidth;
-				//cardImg.height = this.cardHeight;
+				
+				
 				this.addChild(cardImg);
 				this.cards.push(cardImg);
 			}

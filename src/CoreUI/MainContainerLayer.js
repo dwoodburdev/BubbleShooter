@@ -1,5 +1,5 @@
 var MainContainerLayer = cc.Layer.extend({
-	ctor:function(bubbles, maxRow){
+	ctor:function(bubbles, maxRow, meta){
 		this._super();
 		//cc.associateWithNative( this, cc.Sprite );
 		
@@ -34,8 +34,8 @@ var MainContainerLayer = cc.Layer.extend({
 		
 		this.bubbles = bubbles;
 		this.maxRow = maxRow;
-		
-		this.gameplayLayer = new GameplayLayer(bubbles, maxRow, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight);
+		cc.log(meta);
+		this.gameplayLayer = new GameplayLayer(bubbles, maxRow, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight, meta);
 		this.gameplayLayer.attr({
 			x:0,
 			y:DATA.bottomUIHeight,

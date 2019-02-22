@@ -1,5 +1,5 @@
 var GameplayLayer = cc.Layer.extend({
-	ctor:function(bubbles, numRows, height){
+	ctor:function(bubbles, numRows, height, meta){
 		this._super();
 		//cc.associateWithNative( this, cc.Sprite );
 		this.height = height;
@@ -18,7 +18,7 @@ var GameplayLayer = cc.Layer.extend({
 		
 		this.bubbleLayerHeight = this.height-this.coreButtonsUI.height;
 
-		this.bubbleLayer = new BubbleLayer(bubbles, numRows, DATA.worldBallsLeft, "world", size.width, this.height-this.coreButtonsUI.height, []);	
+		this.bubbleLayer = new BubbleLayer(bubbles, numRows, DATA.worldBallsLeft, "world", size.width, this.height-this.coreButtonsUI.height, [], meta);	
 		this.bubbleLayer.attr({
 			x:0,
 			y:this.coreButtonsUI.height,
@@ -35,6 +35,148 @@ var GameplayLayer = cc.Layer.extend({
 		this.buyPreboosterLayer = null;
 		this.worldElementLayer = null;
 		
+											// Start - animate finger dragging side-side
+		this.tutorialA = null;		// Initial "hold", then "release" allowed any direction
+											// Single Row - Match
+		this.tutorialB = null;	// Initital "hold", then "drag/release" in left or right
+											// Shoot through Single Row for Soap Drop
+		this.tutorialC = null;		// Repeat "hold/drag/release" if player releases in wrong area, display large X if fail
+											// Double Row - Make match, allow to fail (eventually, add same assist tutorial if fail twice)
+											// Swap Tutorial - Player must swap, big red circle and big arrow (Player given unneeded color at head)
+		this.tutorialD = null;
+									// Star Tutorial - must hit star, other aims will be denied with big X
+		this.tutorialE = null;
+									// First Level - Player must tap Green Button (usually auto), and must play level.
+		this.tutorialF = null;
+									// (3 color level, little longer than top section, leading to soap drop)
+									
+									// If Win, (might not have to add tutorialization to win flow?)
+									// Back home, Tutorial for highlighting Streak (Quick visual of what streak means (get extra try, earn more moves), point to indicator on green button)
+		
+									// If Lose
+									// Back home (FIRST LEVEL ONLY), show visual (Beat levels to earn moves)
+									
+									// If Lose Streak
+									// Back home, show visual (You are back to zero)
+									
+									
+									
+									// In Final section, right side with star takes more 
+									
+									
+									
+									//Other
+									// +5 moves prebooster (After first fail, only in prelevel)
+									// Swords Tutorial - Beat level in X swords for reward (3 swords) (First Sword level (W2?))
+									// Bomb Tutorial - Beat level in X bombs for reward (3 bombs) (First Bomb level (W4?))
+									// Beachball Tutorial - Beat level in X beachballs for reward (3 beachballs) (First Beachball level (W 7?))
+									// Ext. Aim prebooster (Considering removing ext. aim for full world before) (do I even want to do this??)
+									
+									// Editor - Add exclamation when player unlocks Emoji (After World 2 when intro'd?), whenever emoji unlocked
+									// First time opening Editor, Show visual highlighting features (make levels, challenge friends, become famous creator)
+									
+									
+									// Watch Ad / Buy Moves Tutorial - When players run out of moves first time
+									// Daily Chest/Challenges - Intro'd when players run out of moves for first time, or if they play
+		
+									
+					// Worlds
+					// 1 - General Tutorial, 3-color Soap / 2 mins
+					// 		-- 2 levels
+					// 2 - Sword Tutorial, 4-color / 2.5 mins
+					// 		-- 2 levels?
+					//		-- first challenge is infinite-sword level, LEVEL CHALLENGE use less than X to get +5 moves
+					//		-- last challenge, or first free from here, is special mode - clean the poop timed(?) challenge, unlocks obstacle
+					// 3 - Bulb Tutorial, 4-color / 4 mins
+					// 		-- should be lil longer than prev, players could lose here, intro to Daily Challenges
+					//		-- if run out (casuals), aim for Watch Ad / Buy Moves Tutorial
+					// 4 - Bomb Tutorial, 4-color / 4 mins
+					//		-- first challenge is infinite-bomb level, LEVEL CHALLENGE use less than X to get +5 moves
+					//		
+					// 5 - Dice Tutorial - 5-color / 4.5 mins
+					//		-- Aim For Star-Goal to end here, towards unlocking Event Mode
+					//
+					// 6 - Beachball Tutorial - 4-color / 4 mins
+					//		-- first challenge is infinite-beachball level, LEVEL CHALLENGE use less than X to get +5 moves
+					//
+					// 7 - Dagger Tutorial - 
+					//		-- would be cool to have a world challenge, chain X together
+					//
+					// 8 - Clone Tutorial
+					//		-- 
+					//
+					// 9 - 
+					//		-- new challenge set?
+					//
+					// 10 - Snail Tutorial (maybe something else special?) - 
+					// 
+					//
+					// 11 - 
+					//
+					//
+					// 12 - Egg
+					//
+					//
+					// 13 - 
+					//
+					//
+					// 14 - Lantern
+					//
+					//
+					// 15 - 
+					//
+					//
+					// 16 - Balloon
+					//
+					//
+					// 17 - 
+					//
+					//
+					// 18 - Soapbar
+					//
+					//
+					// 19 - 
+					//
+					//
+					// 20 - x (maybe some kind of super)
+					//
+					//
+					// 21 - 
+					//
+					//
+					// 22 - Siren (changes colors around it?)
+					//
+					//
+					// 23 - 
+					//
+					//
+					// 24 - 
+					//
+					//
+					// 25 - Ghost (something else special?)
+					//
+					//
+					// 26 - 
+					//
+					//
+					// 27 - 
+					//
+					//
+					// 28 - (obstacle)
+					//
+					//
+					//
+					//
+					
+					
+									
+									
+									// 5 (CHANGED TO LEVEL-UNLCOKED OBSTACTLE) - Poop Tutorial, Banking Reinforcement - First shot must bank to hit Poop
+									//
+									
+									// Still need to think about new colored emojis, how to use
+		
+		
 		this.shooterLabel = null;
 		
 		if(DATA.levelIndexB != null)
@@ -49,6 +191,14 @@ var GameplayLayer = cc.Layer.extend({
 	{
 		this._super();
 	},*/
+	
+	executeTutorial:function(tutorial)
+	{
+		if(tutorial.type == "daily-challenges")
+		{
+			
+		}
+	},
 	
 	triggerRewardOnStart:function(rewardData)
 	{
@@ -479,7 +629,42 @@ var GameplayLayer = cc.Layer.extend({
 		{
 			DATA.worldBubbles.push(level.bubbles[i]);
 		}
-		DATA.setWorldDatabaseBubbles(DATA.worldBubbles);
+		DATA.worldQueue = {type:"bucket",colors:[]};
+		for(var i=0; i<level.queue.colors.length; i++)
+		{
+			var newColor = level.queue.colors[i];
+			DATA.worldQueue.colors.push(newColor);
+		}
+		
+		cc.log(level);
+		
+		DATA.worldMeta = {bulbData:[]};
+		if("meta" in level)
+		{
+			if("bulbData" in level.meta)
+			{
+			
+				for(var i=0; i<level.meta.bulbData.length; i++)
+				{
+					DATA.worldMeta.bulbData.push([]);
+					for(var j=0; j<level.meta.bulbData[i].length; j++)
+					{
+						DATA.worldMeta.bulbData[i].push(level.meta.bulbData[i][j]);
+					}
+				}
+			}
+		}
+		
+		DATA.setWorldDatabaseBubbles(DATA.worldBubbles, DATA.worldQueue, DATA.worldMeta);
+		
+		//var queue = {type:level.queue.type, colors:level.queue.colors};
+		//DATA.worldLevel = {"bubbles":DATA.worldBubbles, "queue":queue};
+		
+		
+		DATA.worldActiveQueue = [1,1,1,1,0,0];
+		DATA.worldQueue = [1,1,1,1,0,0];
+		
+		
 		//DATA.worldBubbles = level.bubbles;
 		var maxRow = 0;
 		for(var i=0; i<DATA.worldBubbles.length; i++)
@@ -488,7 +673,7 @@ var GameplayLayer = cc.Layer.extend({
 				maxRow = DATA.worldBubbles[i].row;
 		}
 		cc.log(level.bubbles);
-		this.bubbleLayer = new BubbleLayer(level.bubbles, maxRow+1, DATA.worldBallsLeft, "world", cc.winSize.width, this.height-this.coreButtonsUI.height, []);	
+		this.bubbleLayer = new BubbleLayer(level.bubbles, maxRow+1, DATA.worldBallsLeft, "world", cc.winSize.width, this.height-this.coreButtonsUI.height, [], DATA.worldMeta);	
 		this.bubbleLayer.attr({
 			x:0,
 			y:this.coreButtonsUI.height,
