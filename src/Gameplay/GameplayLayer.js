@@ -202,6 +202,9 @@ var GameplayLayer = cc.Layer.extend({
 	
 	triggerRewardOnStart:function(rewardData)
 	{
+		
+		
+		
 		var cardImg = null;
 		if(rewardData.type == "extraBonus")
 		{
@@ -261,6 +264,57 @@ var GameplayLayer = cc.Layer.extend({
 		
 		var seq = new cc.Sequence(moveAction, spawn, moveActionB, removeAction);
 		cardImg.runAction(seq);
+		
+		
+		
+		
+		if(DATA.worldIndex == 0 && this.bubbleLayer.bubbles.length > 100)
+		{
+			this.popupDn = new cc.DrawNode();
+			this.tutorialStreakTextA = null;
+			this.tutorialStreakTextB = null;
+			
+			cc.log(DATA.worldBubbles.length);
+			if(DATA.worldIndex == 0 && this.bubbleLayer.bubbles.length > 100/*&& DATA.worldBubbles.length > 120*/)
+			{
+					//Tutorial Popup
+				this.addChild(this.popupDn);
+				var botPosY = this.y + 3;
+				this.dn.drawRect(cc.p(20,botPosY),
+					cc.p(this.width-20, this.cardImg.y-(cardImg.height*cardImg.scale)-3),
+					cc.color(255,255,255,255),4,cc.color(0,0,0,255)
+				);
+					
+				this.tutorialStreakTextA = new cc.LabelTTF("Beat levels to earn moves!","Roboto",24);
+				this.tutorialStreakTextA.attr({
+					x:this.width/2,
+					y:this.cardImg.y-(cardImg.height*cardImg.scale)-10,
+					anchorX:.5,
+					anchorY:1
+				});
+				this.tutorialStreakTextA.color = cc.color(0,0,0,255);
+				this.addChild(this.tutorialStreakTextA);
+				this.tutorialStreakTextB = new cc.LabelTTF("","Roboto",24);
+				this.tutorialStreakTextB.attr({
+					x:this.width/2,
+					y:this.tutorialStreakTextA.y-this.tutorialStreakTextA.height-3,
+					anchorX:.5,
+					anchorY:1
+				});
+				this.tutorialStreakTextB.color = cc.color(0,0,0,255);
+				this.addChild(this.tutorialStreakTextB);
+				
+				this.tutFace = new cc.Sprite(res.nerd_emoji);
+				this.tutFace.setScale(circleR*2.5 / this.tutFace.width);
+				this.tutFace.attr({
+					x:this.width-3,
+					y:botPosY,
+					anchorX:1,
+					anchorY:.5
+				});
+				this.addChild(this.tutFace);
+			}
+		}
 		
 		
 		

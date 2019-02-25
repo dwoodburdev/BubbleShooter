@@ -189,7 +189,7 @@ DATA.initUserData = function()
 			for(var j=0; j<bubbleKeys.length; j++)
 			{
 				var bub = dLevel.bubbles[bubbleKeys[j]];
-				var newBub = {"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":bub.colorCode}
+				var newBub = {"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":bub.colorCode,"meta":bub.meta};
 				//if(bub.colorCode != null)
 				//	newBub.colorCode = bub.colorCode;
 				bubbles.push(newBub);

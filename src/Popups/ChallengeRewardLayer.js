@@ -155,7 +155,7 @@ var ChallengeRewardLayer = cc.Layer.extend({
 		else if(this.rewardPicker != null && FUNCTIONS.posWithin(pos, this.rewardPicker))
 		{
 			this.rewardPicker.onTouchEnd(pos);
-			
+			//return "close";
 			var seq = new cc.Sequence(cc.delayTime(2), cc.callFunc(this.switchTabsAfterRewardPicker, this));
 			this.runAction(seq);
 		}
@@ -164,6 +164,8 @@ var ChallengeRewardLayer = cc.Layer.extend({
 	
 	switchTabsAfterRewardPicker:function()
 	{
+		return "close";
+		
 		this.removeChild(this.rewardPicker);
 		this.rewardPicker = null;
 		

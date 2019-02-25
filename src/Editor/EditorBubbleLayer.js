@@ -387,7 +387,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 				this.addChild(bubble);
 				this.bubbles.push(bubble);
 				this.bubbleMap[hex.y][hex.x] = this.bubbles.length-1;
-				
+				cc.log(bubble.modImg);
 				if(drawType == 7)
 				{
 					bubble.addNumber(drawMeta.iteration);

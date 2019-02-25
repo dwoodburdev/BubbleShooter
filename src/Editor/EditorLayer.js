@@ -206,7 +206,7 @@ var EditorLayer = cc.Layer.extend({
 				   				var color = null;
 				   				if("colorCode" in bub && bub.colorCode !== undefined)
 				   					color = bub.colorCode;
-				   				bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":color});
+				   				bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":color,"meta":bub.meta});
 				   			}
 				   		}cc.log(bubs);
 				   		

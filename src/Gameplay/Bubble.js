@@ -763,6 +763,24 @@ var Bubble = cc.Sprite.extend({
 					this.bubbleImg = new cc.Sprite(res.pink_lantern_emoji);
 				else if(this.colorCode == "purple")
 					this.bubbleImg = new cc.Sprite(res.purple_lantern_emoji);
+				cc.log(this.meta);
+				if(this.meta != null && "dir" in this.meta && this.meta.dir != null /*&& this.parent.modeType == "preview"*/)
+				{
+					var dirCode = this.meta.dir;
+					if(dirCode == "upleft")
+						this.modImg = new cc.Sprite(res.upleft_path_dir);
+					else if(dirCode == "upright")
+						this.modImg = new cc.Sprite(res.upright_path_dir);
+					else if(dirCode == "left")
+						this.modImg = new cc.Sprite(res.left_path_dir);
+					else if(dirCode == "right")
+						this.modImg = new cc.Sprite(res.right_path_dir);
+					else if(dirCode == "downleft")
+						this.modImg = new cc.Sprite(res.downleft_path_dir);
+					else if(dirCode == "downright")
+						this.modImg = new cc.Sprite(res.downright_path_dir);
+				cc.log(this.modImg);
+				}
 			}
 			// Ghost
 			else if(this.type == 27)
@@ -962,6 +980,44 @@ var Bubble = cc.Sprite.extend({
 			{
 				this.bubbleImg = new cc.Sprite(res.egg_emoji);
 			}
+			// Lantern
+			else if(this.type == 26)
+			{
+				/*if(this.colorCode == "red")
+					this.bubbleImg = new cc.Sprite(res.red_lantern_emoji);
+				else if(this.colorCode == "orange")
+					this.bubbleImg = new cc.Sprite(res.orange_lantern_emoji);
+				else if(this.colorCode == "yellow")
+					this.bubbleImg = new cc.Sprite(res.yellow_lantern_emoji);
+				else if(this.colorCode == "green")
+					this.bubbleImg = new cc.Sprite(res.green_lantern_emoji);
+				else if(this.colorCode == "lightblue")
+					this.bubbleImg = new cc.Sprite(res.lightblue_lantern_emoji);
+				else if(this.colorCode == "blue")
+					this.bubbleImg = new cc.Sprite(res.blue_lantern_emoji);
+				else if(this.colorCode == "pink")
+					this.bubbleImg = new cc.Sprite(res.pink_lantern_emoji);
+				else if(this.colorCode == "purple")
+					this.bubbleImg = new cc.Sprite(res.purple_lantern_emoji);*/
+				cc.log(this.meta);
+				if(this.meta != null && "dir" in this.meta && this.meta.dir != null /*&& this.parent.modeType == "preview"*/)
+				{
+					var dirCode = this.meta.dir;
+					if(dirCode == "upleft")
+						this.modImg = new cc.Sprite(res.upleft_path_dir);
+					else if(dirCode == "upright")
+						this.modImg = new cc.Sprite(res.upright_path_dir);
+					else if(dirCode == "left")
+						this.modImg = new cc.Sprite(res.left_path_dir);
+					else if(dirCode == "right")
+						this.modImg = new cc.Sprite(res.right_path_dir);
+					else if(dirCode == "downleft")
+						this.modImg = new cc.Sprite(res.downleft_path_dir);
+					else if(dirCode == "downright")
+						this.modImg = new cc.Sprite(res.downright_path_dir);
+					cc.log(this.modImg);
+				}
+			}
 			// Spiderweb
 			else if(this.type == 29)
 			{
@@ -972,14 +1028,32 @@ var Bubble = cc.Sprite.extend({
 		else cc.log("WTF");
 		
 		//cc.log(this.type + "  " + this.colorCode);
-		this.bubbleImg.attr({
-			x:this.width/2,
-			y:this.height/2,
-			anchorX:.5,
-			anchorY:.5
-		});
-		this.bubbleImg.setScale((this.r*2)/this.bubbleImg.width);
-		this.addChild(this.bubbleImg);
+		if(this.bubbleImg != null)
+		{
+			
+			this.bubbleImg.attr({
+				x:this.width/2,
+				y:this.height/2,
+				anchorX:.5,
+				anchorY:.5
+			});
+			this.bubbleImg.setScale((this.r*2)/this.bubbleImg.width);
+			this.addChild(this.bubbleImg);
+		}
+		//cc.log(this.modImg);
+		/*if(this.modImg != null)
+		{
+			this.modImg.attr({
+				x:this.width/2,
+				y:this.height/2,
+				anchorX:.5,
+				anchorY:.5
+			});
+			this.modImg.setScale((this.r)/this.modImg.width);
+			this.addChild(this.modImg);
+			cc.log(this.modImg);
+		}*/
+		
 		//this.sprite=this.bubbleImg;
 		//this.draw();
 	},

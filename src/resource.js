@@ -409,7 +409,9 @@ var res = {
     downright_path_dir:"res/downright-path-dir.png",
     downleft_path_dir:"res/downleft-path-dir.png",
     left_path_dir:"res/left-path-dir.png",
-    upleft_path_dir:"res/upleft-path-dir.png"
+    upleft_path_dir:"res/upleft-path-dir.png",
+    
+    yellow_ui_circle: "res/yellow-circle.png"
     
 };
 

@@ -1676,6 +1676,7 @@ var BubbleLayer = cc.Layer.extend({
 		
 		var leftSnails = [];
 		var rightSnails = [];
+		var lanternUpdates = [];
 		for(var i=0; i<this.bubbles.length; i++)
 		{
 			if(this.bubbles[i].onTurn != null)
@@ -1691,12 +1692,85 @@ var BubbleLayer = cc.Layer.extend({
 						rightSnails.push({x:this.bubbles[i].col, y:this.bubbles[i].row, index:i});
 					}
 				}
+				// Lanterns
+				else if(this.bubbles[i].type == 26)
+				{cc.log(this.bubbles[i].meta);
+					var dir = this.bubbles[i].meta.dir;
+					if(this.bubbles[i].colorCode != null)
+					{cc.log(this.bubbles[i].col + " " + this.bubbles[i].row);
+						var xDist = 0;
+						var yDist = 0;
+						if(dir == "upleft")
+						{
+							xDist = -1*DATA.bubbleR;
+							yDist = this.rowHeight;
+							this.bubbles[i].col -= (1-(this.bubbles[i].row%2));
+							this.bubbles[i].row--;
+						}
+						else if(dir == "upright")
+						{
+							xDist = DATA.bubbleR;
+							yDist = this.rowHeight;
+							this.bubbles[i].col += 0+(this.bubbles[i].row%2);
+							this.bubbles[i].row--;
+						}
+						else if(dir == "left")
+						{
+							xDist = -2*DATA.bubbleR;
+							this.bubbles[i].col--;
+						}
+						else if(dir == "right")
+						{
+							xDist = 2*DATA.bubbleR;
+							this.bubbles[i].col++;
+						}
+						else if(dir == "downleft")
+						{
+							xDist = -1*DATA.bubbleR;
+							yDist = -1*this.rowHeight;
+							this.bubbles[i].col -= (1-(this.bubbles[i].row%2));
+							this.bubbles[i].row++;
+							
+						}
+						else if(dir == "downright")
+						{
+							xDist = DATA.bubbleR;
+							yDist = -1*this.rowHeight;
+							this.bubbles[i].col += 0+(this.bubbles[i].row%2);
+							this.bubbles[i].row++;
+						}
+						cc.log(this.bubbles[i].col + " " + this.bubbles[i].row);
+						// 
+						
+						//this.bubbleMap[this.bubbles[i].row][this.bubbles[i].col];
+						
+						lanternUpdates.push({"row":this.bubbles[i].row, "col":this.bubbles[i].col, "dir":this.bubbles[i].meta.dir,
+											"xDist":xDist,"yDist":yDist,"index":i});
+						//this.bubbles[i].colorCode = null;
+						//this.bubbles[i].bubbleImg = null;
+						
+						
+						
+					}
+				}
 				else
 				{
 					this.bubbles[i].triggerOnTurn(this.turnNumber);
 				}
 			}
 		}
+		
+		
+		// Lanterns
+		for(var i=0; i<lanternUpdates.length; i++)
+		{
+			var lanternData = lanternUpdates[i];cc.log(lanternData.row);cc.log(this.bubbleMap);
+			
+			this.bubbles[this.bubbleMap[lanternData.row][lanternData.col]].bubbleImg.runAction(cc.moveBy(.5, lanternData.xDist, lanternData.yDist));
+			
+			this.bubbleMap[lanternData.row][lanternData.col] = lanternData.index;
+		}
+		
 		
 		// sort left snails by x left->right
 		leftSnails.sort(function(a,b){return b.x-a.x;});
@@ -1742,6 +1816,7 @@ var BubbleLayer = cc.Layer.extend({
 				this.bubbles[snail.index].updateSnailSprite();
 			}
 		}
+		
 		
 		
 		this.inputFrozen = false;
@@ -1819,6 +1894,11 @@ var BubbleLayer = cc.Layer.extend({
 				else if(this.tutorial.id == 5)
 				{
 					var highlightBubs = [];
+					
+					//this.removeChild(this.bubbles[this.bubbleMap[10][6]].bubbleImg);
+					//this.addChild(this.bubbles[this.bubbleMap[10][6]].bubbleImg)
+					
+					
 					highlightBubs.push(this.bubbles[this.bubbleMap[10][6]]);
 					
 					this.highlightScaleBubbles(highlightBubs, 2);

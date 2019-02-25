@@ -381,6 +381,10 @@ var EditorUILayer = cc.Layer.extend({
 			{
 				return this.rightMenuColorPickerTouch(pos);
 			}
+			else if(this.sidemenuMode == "path")
+			{
+				return this.rightMenuPathTouch(pos);
+			}
 			
 		}
 	},
@@ -488,6 +492,187 @@ var EditorUILayer = cc.Layer.extend({
 			
 		}
 	
+	},
+	
+	rightMenuPathTouch:function(pos)
+	{
+		
+		if(pos.x > this.dividerX+DATA.bubbleR && pos.x < this.width-(DATA.bubbleR*3)
+			&& pos.y < this.height && pos.y > this.height-(DATA.bubbleR*4))
+			{
+				if(this.editorHighlightA != null)
+				{
+					this.removeChild(this.editorHighlightA);
+					this.editorHighlightA = null;
+				}
+				
+				var rowClicked = Math.floor((this.height-pos.y)/(DATA.bubbleR*2));
+				var colClicked = Math.floor((pos.x - (this.dividerX+(DATA.bubbleR*1)))/(DATA.bubbleR*2));
+				cc.log(rowClicked + " "+colClicked);
+				this.editorHighlightA = new cc.Sprite(res.thick_black_circle);
+				this.editorHighlightA.setScale((DATA.bubbleR*2)/this.editorHighlightA.width);
+				this.editorHighlightA.attr({
+					x:this.dividerX+DATA.bubbleR+(colClicked*DATA.bubbleR*2),
+					y:this.height - rowClicked*DATA.bubbleR*2,
+					anchorX:0,
+					anchorY:1
+				});
+				this.addChild(this.editorHighlightA);
+			
+				if(rowClicked == 0 && colClicked == 0)
+				{
+					if(this.curModeData.color == "red")
+					{
+						this.curModeData.color = null;
+						this.removeChild(this.editorHighlightA);
+						this.editorHighlightA = null;
+					}
+					else this.curModeData.color = "red";
+				}
+				else if(rowClicked == 0 && colClicked == 1)
+				{
+					if(this.curModeData.color == "yellow")
+					{
+						this.curModeData.color = null;
+						this.removeChild(this.editorHighlightA);
+						this.editorHighlightA = null;
+					}
+					else this.curModeData.color = "yellow";
+				}
+				else if(rowClicked == 0 && colClicked == 2)
+				{
+					if(this.curModeData.color == "green")
+					{
+						this.curModeData.color = null;
+						this.removeChild(this.editorHighlightA);
+						this.editorHighlightA = null;
+					}
+					else this.curModeData.color = "green";
+				}
+				else if(rowClicked == 1 && colClicked == 0)
+				{
+					if(this.curModeData.color == "blue")
+					{
+						this.curModeData.color = null;
+						this.removeChild(this.editorHighlightA);
+						this.editorHighlightA = null;
+					}
+					else this.curModeData.color = "blue";
+				}
+				else if(rowClicked == 1 && colClicked == 1)
+				{
+					if(this.curModeData.color == "pink")
+					{
+						this.curModeData.color = null;
+						this.removeChild(this.editorHighlightA);
+						this.editorHighlightA = null;
+					}
+					else this.curModeData.color = "pink";
+				}
+				else if(rowClicked == 1 && colClicked == 2)
+				{
+					if(this.curModeData.color == "purple")
+					{
+						this.curModeData.color = null;
+						this.removeChild(this.editorHighlightA);
+						this.editorHighlightA = null;
+					}
+					else this.curModeData.color = "purple";
+				}
+				
+				//var meta = null;
+				//if(this.curModeData.meta != null)
+				//	meta = this.curModeData.meta;
+				console.log(this.curModeData);
+				return {"type":this.curModeData.type,"color":this.curModeData.color,"binary":null,"meta":this.curModeData.meta};
+				
+			}
+			else if(pos.x > this.dividerX+DATA.bubbleR*2 && pos.x < this.width-(DATA.bubbleR*4)
+			&& pos.y < this.height-(DATA.bubbleR*5) && pos.y > this.height-(DATA.bubbleR*11))
+			{
+				if(this.editorHighlightB != null)
+				{
+					this.removeChild(this.editorHighlightB);
+					this.editorHighlightB = null;
+				}
+				
+				var rowClicked = Math.floor((this.height-(DATA.bubbleR*5)-pos.y)/(DATA.bubbleR*2));
+				var colClicked = Math.floor((pos.x - (this.dividerX+(DATA.bubbleR*2)))/(DATA.bubbleR*2));
+				cc.log(rowClicked + " "+colClicked);
+				this.editorHighlightB = new cc.Sprite(res.thick_black_circle);
+				this.editorHighlightB.setScale((DATA.bubbleR*2)/this.editorHighlightB.width);
+				this.editorHighlightB.attr({
+					x:this.dividerX+(DATA.bubbleR*2)+(colClicked*DATA.bubbleR*2),
+					y:(this.height-(DATA.bubbleR*5)) - rowClicked*(DATA.bubbleR*2),
+					anchorX:0,
+					anchorY:1
+				});
+				this.addChild(this.editorHighlightB);
+			
+				//this.curModeData.meta = null;
+				if(rowClicked == 0 && colClicked == 0)
+				{
+					if(this.curModeData.meta != null && "dir" in this.curModeData.meta && this.curModeData.meta.dir == "upleft")
+					{
+						this.curModeData.meta.dir = null;
+						this.removeChild(this.editorHighlightB);
+						this.editorHighlightB = null;
+					}
+					else this.curModeData.meta = {dir:"upleft"};
+				}
+				else if(rowClicked == 0 && colClicked == 1)
+				{
+					if(this.curModeData.meta != null && "dir" in this.curModeData.meta && this.curModeData.meta.dir == "upright")
+					{
+						this.curModeData.meta.dir = null;
+						this.removeChild(this.editorHighlightB);
+						this.editorHighlightB = null;
+					}
+					else this.curModeData.meta = {dir:"upright"};
+				}
+				else if(rowClicked == 1 && colClicked == 0)
+				{
+					if(this.curModeData.meta != null && "dir" in this.curModeData.meta && this.curModeData.meta.dir == "left")
+					{
+						this.curModeData.meta.dir = null;
+						this.removeChild(this.editorHighlightB);
+						this.editorHighlightB = null;
+					}
+					else this.curModeData.meta = {dir:"left"};
+				}
+				else if(rowClicked == 1 && colClicked == 1)
+				{
+					if(this.curModeData.meta != null && "dir" in this.curModeData.meta && this.curModeData.meta.dir == "right")
+					{
+						this.curModeData.meta.dir = null;
+						this.removeChild(this.editorHighlightB);
+						this.editorHighlightB = null;
+					}
+					else this.curModeData.meta = {dir:"right"};
+				}
+				else if(rowClicked == 2 && colClicked == 0)
+				{
+					if(this.curModeData.meta != null && "dir" in this.curModeData.meta && this.curModeData.meta.dir == "downleft")
+					{
+						this.curModeData.meta.dir = null;
+						this.removeChild(this.editorHighlightB);
+						this.editorHighlightB = null;
+					}
+					else this.curModeData.meta = {dir:"downleft"};
+				}
+				else if(rowClicked == 2 && colClicked == 1)
+				{
+					if(this.curModeData.meta != null && "dir" in this.curModeData.meta && this.curModeData.meta.dir == "downright")
+					{
+						this.curModeData.meta.dir = null;
+						this.removeChild(this.editorHighlightB);
+						this.editorHighlightB = null;
+					}
+					else this.curModeData.meta = {dir:"downright"};
+				}
+				console.log(this.curModeData);
+				return {"type":this.curModeData.type,"color":this.curModeData.color,"binary":null,"meta":{"dir":this.curModeData.meta.dir}};
+			}
 	},
 	
 	rightMenuColorPickerTouch:function(pos)
@@ -693,8 +878,9 @@ var EditorUILayer = cc.Layer.extend({
 	
 	openPathSidemenu:function()
 	{
-		var pathNames = ["upright_dir","right_dir","downright_dir","downleft_dir","left_dir","upleft_dir"];
-		var colorName = ["red_lantern","yellow_lantern","green_lantern","blue_lantern","pink_lantern","purple_lantern"];
+		var pathSpriteNames = ["upleft_dir","upright_dir","left_dir","right_dir","downleft_dir","downright_dir"];
+		var colorSpriteNames = ["red_lantern","yellow_lantern","green_lantern","blue_lantern","pink_lantern","purple_lantern"];
+		
 		
 		this.iconButtons["colors"] = [];
 		for(var i=0; i<colorSpriteNames.length; i++)
@@ -717,12 +903,14 @@ var EditorUILayer = cc.Layer.extend({
 		this.iconButtons["path"] = [];
 		for(var i=0; i<pathSpriteNames.length; i++)
 		{
+			var xOff = i*(DATA.bubbleR*2) - Math.floor(i/2)*(DATA.bubbleR*4);
+			var yOff = Math.floor(i/2)*DATA.bubbleR*2;
 			
 			var pathSprite = this.getSprite(pathSpriteNames[i]);
 			pathSprite.setScale(DATA.bubbleR*2 / pathSprite.width);
 			pathSprite.attr({
-				x:this.dividerX+(DATA.bubbleR*2)+i*(DATA.bubbleR*2),
-				y:this.height-(DATA.bubbleR*7),
+				x:this.dividerX+(DATA.bubbleR*2) + xOff,
+				y:this.height-(DATA.bubbleR*7)-yOff,
 				anchorX:0,
 				anchorY:0
 			});

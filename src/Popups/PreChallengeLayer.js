@@ -18,6 +18,10 @@ var PreChallengeLayer = cc.Layer.extend({
 		this.preBoosterABool = false;
 		
 		
+		
+		this.blinkerOpacity = 255;
+		
+		
 		this.playButton = new cc.Sprite(res.play_button_green);
 		this.playButton.setScale((this.width/3)/this.playButton.width);
 		this.playButton.attr({
@@ -73,15 +77,17 @@ var PreChallengeLayer = cc.Layer.extend({
 		this.previewDraw.drawRect(cc.p(this.bubblePreview.x,this.bubblePreview.y+this.bubblePreview.height),cc.p(this.bubblePreview.x+this.bubblePreview.width,this.bubblePreview.y+this.bubblePreview.height+DATA.bubbleR),cc.color(255,255,255,255),0,cc.color(255,255,255,255));
 		this.addChild(this.previewDraw,11);
 		
-		this.levelNameLabel = new cc.LabelTTF("One-Pagers (Tier 1)", "Roboto", 25);
+		this.levelNameLabel = new cc.LabelTTF(DATA.challenges[this.challengeIndex].moves+" moves", "Roboto", 25);
 		this.levelNameLabel.attr({
-			"x":this.x+this.width/2,
+			"x":this.x+this.width-10,
 			"y":this.bubblePreview.y+this.bubblePreview.height+1,
-			"anchorX":.5,
+			"anchorX":1,
 			"anchorY":0
 		});
 		this.levelNameLabel.color = cc.color(0,0,0,255);
 		this.addChild(this.levelNameLabel,12);
+		
+		
 	
 	this.preBoosterA = null;
 	this.preBoosterACounter = null;
@@ -120,6 +126,10 @@ var PreChallengeLayer = cc.Layer.extend({
 		{cc.log("one-pager");
 			numMoves = DATA.setChallenges["one-pager"][this.challengeIndex].moves;
 		}
+		
+		this.tabTitleLabel = null;
+		if(DATA.worldIndex > 0 && this.bubblePreview.bubbles.length > 100)
+		{
 		this.tabTitleLabel = new cc.LabelTTF(numMoves+" moves", "Roboto", 35);
 		this.tabTitleLabel.attr({
 			"x":this.x+this.width/2,
@@ -129,6 +139,7 @@ var PreChallengeLayer = cc.Layer.extend({
 		});
 		this.tabTitleLabel.color = cc.color(0,0,0,255);
 		this.addChild(this.tabTitleLabel);
+		}
 		
 		var circleR = (this.preBoosterA.y - (this.playButton.y+(this.playButton.height*this.playButton.scale)) ) / 2;
 		var circleY = (this.playButton.y+(this.playButton.height*this.playButton.scale)) + circleR;
@@ -154,6 +165,30 @@ var PreChallengeLayer = cc.Layer.extend({
 			this.dn.drawDot({x:this.x+this.width/2, y:circleY}, circleR, cc.color(100,100,100,255));
 		else
 			this.dn.drawDot({x:this.x+this.width/2, y:circleY}, circleR, cc.color(0,0,0,255));
+		
+		//this.flashDn = null;
+		if(DATA.streakStep == 0)
+		{
+			/*this.flashDn = new cc.DrawNode();
+			this.flashDn.drawDot({x:this.x+this.width/2,y:circleY}, circleR, cc.color(255,255,0,this.blinkerOpacity));
+			this.schedule(this.flashDn, .1);*/
+			this.flashImg = new cc.Sprite(res.yellow_ui_circle);
+			this.flashImg.setScale(circleR*2 / this.flashImg.width);
+			this.flashImg.attr({
+				x:this.x+this.width/2,
+				y:circleY+2,
+				anchorX:.5,
+				anchorY:.5
+			});
+			this.addChild(this.flashImg);
+			
+			
+			var fadeOutAction = cc.FadeOut.create(.4);
+			var fadeInAction = cc.FadeIn.create(.4);
+			var seq = new cc.Sequence(fadeOutAction,fadeInAction);
+			var repSeq = new cc.RepeatForever(seq);
+			this.flashImg.runAction(repSeq);
+		}
 			
 		if(DATA.streakStep == 2 && DATA.challengeTries == 0)
 			this.dn.drawDot({x:this.x+this.width/2 + circleR*2 + 5, y:circleY}, circleR, circleColor);
@@ -162,6 +197,7 @@ var PreChallengeLayer = cc.Layer.extend({
 		else this.dn.drawDot({x:this.x+this.width/2 + circleR*2 + 5, y:circleY}, circleR, cc.color(0,0,0,255));
 		
 		var playX = ((this.x+this.width/2 - circleR*2 - 5)-circleR);
+		
 		
 		
 		this.tryAlert = null;
@@ -237,9 +273,16 @@ var PreChallengeLayer = cc.Layer.extend({
 			});
 			this.addChild(this.puzzleRewardImg);
 		}*/
-		cc.log(DATA.worldBubbles.length);
-		if(DATA.worldIndex == 0 /*&& DATA.worldBubbles.length > 120*/)
-		{cc.log("hand anim for tutorial");
+		this.popupDn = new cc.DrawNode();
+		this.tutorialStreakTextA = null;
+		this.tutorialStreakTextB = null;
+		
+		var textForTutorialA = null;
+		var textForTutorialB = null;
+		
+		
+		if(DATA.worldIndex == 0 && this.bubblePreview.bubbles.length > 100)
+		{
 			var handAnim = new cc.Sprite(res.finger_point);
 			handAnim.setScale( (this.playButton.height*this.playButton.scale)*1.5 / handAnim.width);
 			handAnim.setFlippedX(true);
@@ -252,14 +295,107 @@ var PreChallengeLayer = cc.Layer.extend({
 			});
 			this.addChild(handAnim);
 			
-			var moveRightAction = cc.moveBy(1,70,0);
-			var moveLeftAction = cc.moveBy(1,-70,0);
+			var moveRightAction = cc.moveBy(.3,DATA.bubbleR*3,0);
+			var moveLeftAction = cc.moveBy(.3,-DATA.bubbleR*3,0);
 			var seq = new cc.Sequence(moveRightAction, moveLeftAction);
 			var repSeq = new cc.RepeatForever(seq);
 			handAnim.runAction(repSeq);
 			
+		}
+		
+		
+		if(DATA.streakStep == 0)
+		{
+			
+			textForTutorialA = "Win in 30 moves to";
+			textForTutorialB = "get a STREAK!";
 			
 		}
+		else if(DATA.streakStep == 1)
+		{
+			if(DATA.challengeTries == 0)
+			{
+				textForTutorialA = "You have 2 tries because";
+				textForTutorialB = "you have a STREAK!";
+			}
+			else if(DATA.challengeTries == 1)
+			{
+				textForTutorialA = "Oh no! If you lose you'll";
+				textForTutorialB = "lose your streak.";
+			}
+			
+		}
+		else if(DATA.streakStep == 2)
+		{
+			if(DATA.challengeTries <= 1)
+			{
+				textForTutorialA = "You have 3 tries because";
+				textForTutorialB = "of your MAX STREAK!";
+			}
+			else if(DATA.challengeTries == 2)
+			{
+				textForTutorialA = "Oh no! If you lose you'll";
+				textForTutorialB = "lose your streak.";
+			}
+		}
+		
+		if(textForTutorialA != null)
+		{
+			//Tutorial Popup
+			this.addChild(this.popupDn);
+			var botPosY = 3+this.tryAlert.y+(this.tryAlert.height*this.tryAlert.scale)/2 + 3;
+			this.dn.drawRect(cc.p(20,botPosY),
+				cc.p(this.width-20, this.bubblePreview.y-3),
+				cc.color(255,255,255,255),4,cc.color(0,0,0,255)
+			);
+				
+			this.tutorialStreakTextA = new cc.LabelTTF(textForTutorialA,"Roboto",24);
+			this.tutorialStreakTextA.attr({
+				x:this.width/2,
+				y:this.bubblePreview.y-10,
+				anchorX:.5,
+				anchorY:1
+			});
+			this.tutorialStreakTextA.color = cc.color(0,0,0,255);
+			this.addChild(this.tutorialStreakTextA);
+			this.tutorialStreakTextB = new cc.LabelTTF(textForTutorialB,"Roboto",24);
+			this.tutorialStreakTextB.attr({
+				x:this.width/2,
+				y:this.tutorialStreakTextA.y-this.tutorialStreakTextA.height-3,
+				anchorX:.5,
+				anchorY:1
+			});
+			this.tutorialStreakTextB.color = cc.color(0,0,0,255);
+			this.addChild(this.tutorialStreakTextB);
+			
+			if((DATA.streakStep == 1 && DATA.challengeTries == 1) || (DATA.streakStep == 2 && DATA.challengeTries == 2))
+			{
+				this.tutFace = new cc.Sprite(res.sad_emoji);
+				var shakeLeftAct = cc.moveBy(.05,-3,0);
+				var shakeRightAct = cc.moveBy(.05,3,0);
+				var seq = new cc.Sequence(shakeLeftAct, shakeRightAct);
+				var repSeq = new cc.RepeatForever(seq);
+				this.tutFace.runAction(repSeq);
+			}
+			else
+			{
+				this.tutFace = new cc.Sprite(res.nerd_emoji);
+				
+			}
+			
+			this.tutFace.setScale(circleR*2.5 / this.tutFace.width);
+			this.tutFace.attr({
+				x:this.width-3,
+				y:botPosY,
+				anchorX:1,
+				anchorY:.5
+			});
+			this.addChild(this.tutFace);
+			
+		}
+			
+			
+	},
 		
 		/*this.xpRewardImg = null;
 		if(DATA.streakStep == 0)
@@ -282,7 +418,7 @@ var PreChallengeLayer = cc.Layer.extend({
 			anchorY:.5
 		});
 		this.addChild(this.xpRewardImg);*/
-	},
+	//},
 	
 	onTouchEnd:function(pos)
 	{cc.log("touchend");cc.log(pos);cc.log(this.closeButton.x + " " + this.closeButton.y+ " " + this.closeButton.scale);

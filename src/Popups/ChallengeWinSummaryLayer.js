@@ -113,7 +113,7 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 				cc.color(255,255,255,255),4,cc.color(0,0,0,255)
 			);
 				
-			this.tutorialStreakTextA = new cc.LabelTTF("Nice! Keep your streak for","Roboto",24);
+			this.tutorialStreakTextA = new cc.LabelTTF("Nice, you have a streak!","Roboto",24);
 			this.tutorialStreakTextA.attr({
 				x:this.width/2,
 				y:this.streakDescription.y-this.streakDescription.height-10,
@@ -122,7 +122,7 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 			});
 			this.tutorialStreakTextA.color = cc.color(0,0,0,255);
 			this.addChild(this.tutorialStreakTextA);
-			this.tutorialStreakTextB = new cc.LabelTTF("more tries and rewards!","Roboto",24);
+			this.tutorialStreakTextB = new cc.LabelTTF("You get 2 chances next time!","Roboto",24);
 			this.tutorialStreakTextB.attr({
 				x:this.width/2,
 				y:this.tutorialStreakTextA.y-this.tutorialStreakTextA.height-3,
