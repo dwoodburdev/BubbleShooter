@@ -22,7 +22,7 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 		this.addChild(this.tabTitleLabel);*/
 		
 		this.emojiFace = null;
-		if(DATA.streakStep == 1)
+		if(DATA.streakStep <= 1)
 			this.emojiFace = new cc.Sprite(res.sunglass_face);
 		else if(DATA.streakStep == 2)
 			this.emojiFace = new cc.Sprite(res.crown_face);
@@ -113,7 +113,7 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 				cc.color(255,255,255,255),4,cc.color(0,0,0,255)
 			);
 				
-			this.tutorialStreakTextA = new cc.LabelTTF("Nice, you have a streak!","Roboto",24);
+			this.tutorialStreakTextA = new cc.LabelTTF("You have a streak!","Roboto",24);
 			this.tutorialStreakTextA.attr({
 				x:this.width/2,
 				y:this.streakDescription.y-this.streakDescription.height-10,
@@ -122,7 +122,7 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 			});
 			this.tutorialStreakTextA.color = cc.color(0,0,0,255);
 			this.addChild(this.tutorialStreakTextA);
-			this.tutorialStreakTextB = new cc.LabelTTF("You get 2 chances next time!","Roboto",24);
+			this.tutorialStreakTextB = new cc.LabelTTF("You get 2 tries next time!","Roboto",24);
 			this.tutorialStreakTextB.attr({
 				x:this.width/2,
 				y:this.tutorialStreakTextA.y-this.tutorialStreakTextA.height-3,

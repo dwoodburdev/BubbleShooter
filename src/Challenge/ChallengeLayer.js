@@ -248,6 +248,18 @@ var ChallengeLayer = cc.Layer.extend({
         return true;
 	},
 	
+	goBackToGameplay:function()
+	{
+		var maxRow = 0;
+		for(var i=0; i<DATA.worldBubbles.length; i++)
+		{
+			if(DATA.worldBubbles[i].row > maxRow)
+				maxRow = DATA.worldBubbles[i].row;
+		}
+	  
+	  	cc.director.runScene(new MainContainerScene(DATA.worldBubbles, maxRow+1));
+	},
+	
 	isPopUp:function()
 	{
 		if(this.settingsLayer == null && 

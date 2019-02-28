@@ -171,12 +171,12 @@ var BubbleLayer = cc.Layer.extend({
 	       	this.shooter.active = true;
 	       	this.addChild(this.shooter);
 	       	
-	       	this.aimIndicator = {x:0, y:this.shooter.y+this.bubbleR*2, width:cc.winSize.width, height:(this.height-(this.bubbleR*21)) - (this.shooter.y+this.bubbleR*2) };
+	       	this.aimIndicator = {x:0, y:this.shooter.y+this.bubbleR*2, width:cc.winSize.width, height:(this.height-(this.bubbleR*22)) - (this.shooter.y+this.bubbleR*2) , color:cc.color(0,0,0,50) };
 		    this.drawAimIndicator();
 		    
 		    
 		    
-		    this.schedule(this.triggerRandomIdle, .1);
+		    this.schedule(this.triggerRandomIdle, .5);
 		    
 		    
 		}
@@ -267,7 +267,7 @@ var BubbleLayer = cc.Layer.extend({
 				}
 				//cc.log("TYPE: " + this.bubbles[i].type);
 				var bub = new Bubble(this.bubbleR, colorData, this.bubbles[i].type, null, null, this.bubbles[i].meta, this.bubbles[i].row, this.bubbles[i].col);
-				this.bubbles[i] = bub;
+				this.bubbles[i] = bub;if(this.bubbles[i].type == 20){ cc.log(this.bubbles[i].meta);}
 				bub.attr({
 	       			x: this.bubbleR+bub.col*this.bubbleR*2 + (bub.row%2)*this.bubbleR,
 	       			y: this.height - bub.row*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
@@ -329,19 +329,20 @@ var BubbleLayer = cc.Layer.extend({
 	
 	triggerRandomIdle:function()
 	{
-		/*var randomBubbleIndex = Math.floor(Math.random()*this.bubbles.length);
+		if(this.bubbles.length > 0)
+		{
+		var randomBubbleIndex = Math.floor(Math.random()*this.bubbles.length);
 		
-		if(this.bubbles[randomBubbleIndex].turnAnimation != null && this.bubbles[randomBubbleIndex].colorCode == "yellow")
+		if(this.bubbles[randomBubbleIndex].turnAnimation != null && this.bubbles[randomBubbleIndex].colorCode == "yellow"
+			&& !this.bubbles[randomBubbleIndex].activeAnimation)
 		{
 			var animateAction = cc.Animate.create(this.bubbles[randomBubbleIndex].turnAnimation);
-			this.bubbles[randomBubbleIndex].bubbleImg.runAction(animateAction);
+			var initIdleAction = cc.callFunc(this.bubbles[randomBubbleIndex].resetAnimation, this.bubbles[randomBubbleIndex]);
+			var seq = new cc.Sequence(animateAction, initIdleAction);
+			this.bubbles[randomBubbleIndex].bubbleImg.runAction(seq);
+			this.bubbles[randomBubbleIndex].activeAnimation = true;
 		}
-		else if(this.bubbles[randomBubbleIndex].idleAnimation != null)
-		{
-			var animateAction = cc.Animate.create(this.bubbles[randomBubbleIndex].idleAnimation);
-			this.bubbles[randomBubbleIndex].bubbleImg.runAction(animateAction);
 		}
-		*/
 	
 	},
 	
@@ -353,7 +354,7 @@ var BubbleLayer = cc.Layer.extend({
 			if(this.aimLine == null)
 				this.aimDN.drawRect(cc.p(this.aimIndicator.x+5, this.aimIndicator.y), cc.p(this.aimIndicator.x+this.aimIndicator.width-5, this.aimIndicator.y+this.aimIndicator.height), cc.color(0,0,0,100),1,cc.color(0,0,0,255));
 			else
-				this.aimDN.drawRect(cc.p(this.aimIndicator.x+5, this.aimIndicator.y), cc.p(this.aimIndicator.x+this.aimIndicator.width-5, this.aimIndicator.y+this.aimIndicator.height), cc.color(0,0,0,50),5,cc.color(0,0,0,255));
+				this.aimDN.drawRect(cc.p(this.aimIndicator.x+5, this.aimIndicator.y), cc.p(this.aimIndicator.x+this.aimIndicator.width-5, this.aimIndicator.y+this.aimIndicator.height), this.aimIndicator.color,5,cc.color(0,0,0,255));
 		}
 	},
 	clearAimIndicator:function()
@@ -676,6 +677,46 @@ var BubbleLayer = cc.Layer.extend({
 	onTouchBegin:function(loc){cc.log("touchstart");
 		if(this.inputFrozen)
 			return;
+			
+		if(this.tutorial!= null)
+		{
+			if(this.tutorial.id <= 3 && this.pointerVisual == null
+				&& loc.y < this.aimIndicator.y+this.aimIndicator.height && loc.y > this.aimIndicator.y
+				&& loc.x < this.aimIndicator.x+this.aimIndicator.width && loc.x > this.aimIndicator.x)
+	 		{
+	 			this.pointerVisual = new cc.Sprite(res.finger_point);
+	 			this.pointerVisual.setScale((DATA.bubbleR*6) / this.width);
+	 			this.pointerVisual.attr({
+	 				x:loc.x,
+	 				y:loc.y,
+	 				anchorX:.2,
+	 				anchorY:1
+	 			});
+	 			this.pointerVisual.setRotation(-60);
+	 			this.addChild(this.pointerVisual);
+	 			
+	 			this.pointerVisualRight = new cc.Sprite(res.finger_point);
+	 			this.pointerVisualRight.setScale((DATA.bubbleR*6) / this.width);
+	 			this.pointerVisualRight.setFlippedX(true);
+	 			this.pointerVisualRight.setRotation(60);
+	 			this.pointerVisualRight.attr({
+	 				x:loc.x-(this.pointerVisualRight.width*this.pointerVisualRight.scale),
+	 				y:loc.y,
+	 				anchorX:.2,
+	 				anchorY:0
+	 			});
+	 			this.addChild(this.pointerVisualRight);
+	 			
+	 			
+	 			
+	 		}
+	 		else if(this.tutorial.id == 5
+				&& loc.y < this.aimIndicator.y+this.aimIndicator.height && loc.y > this.aimIndicator.y
+				&& loc.x < this.aimIndicator.x+this.aimIndicator.width && loc.x > this.aimIndicator.x)
+			{
+				this.removeChild(this.upArrow);
+			}
+		}
 		
 		if(!this.isPopupLayer() || this.modeType == "challenge" || this.modeType == "playtest")
 		{
@@ -709,14 +750,15 @@ var BubbleLayer = cc.Layer.extend({
 		    	var trajectory = this.shooter.initShotPrediction(loc);
 		    	this.targetHex = this.predictTarget(trajectory);cc.log(this.targetHex);
 		    	
-		    	this.targetBubble = new Bubble(this.bubbleR, null, -1, null, null, null, this.targetHex.x, this.targetHex.y);
+		    	//this.targetBubble = new Bubble(this.bubbleR, null, -1, null, null, null, this.targetHex.x, this.targetHex.y);
+		   		this.targetBubble = new Bubble(this.bubbleR, this.shooter.colorCode, 0, null, null, null, this.targetHex.x, this.targetHex.y);
 		   		this.targetBubble.attr({
 		   			x: this.bubbleR+this.targetHex.x*this.bubbleR*2 + (this.targetHex.y%2)*this.bubbleR,
 		   			y: this.height - this.targetHex.y*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
 		   			anchorX:.5,
 		   			anchorY:.5
 		   		});
-		   		
+		   		this.targetBubble.bubbleImg.setOpacity(122);
 		   		this.addChild(this.targetBubble);
 		   		
 		   		
@@ -729,20 +771,62 @@ var BubbleLayer = cc.Layer.extend({
 		 	
 		 	
 		 	
-		 	this.drawAimIndicator();
 		 	cc.log(this.tutorial);
+		 	
+		 	if(/*this.tutorial.type == "hold" ||*/ this.modeType == "world" && DATA.worldIndex == 0 && this.bubbles.length > 125)
+   			{
+   				this.holdLabel.setString("");
+   				this.holdLabel.color = cc.color(0,255,0,255);
+   				this.holdLabel.attr({x:this.width/2});
+   						//this.removeChild(this.holdLabel);
+   				
+   				if(this.tutorial != null && this.tutorial.type == "target-positions" )
+   				{
+   					
+   					if(FUNCTIONS.coordIn(this.targetHex,this.tutorial.positions))
+   					{
+						this.holdLabel.color = cc.color(0,255,0,255);
+						this.holdLabel.setString("");
+   						this.holdLabel.attr({x:this.width/2});
+   						//this.removeChild(this.holdLabel);
+   						
+   						this.aimIndicator.color = cc.color(0,255,0,255);
+   						
+   					}
+   					else
+   					{
+   						this.holdLabel.color = cc.color(255,255,255,255);
+   						this.holdLabel.setString("AIM");
+   						this.aimIndicator.color = cc.color(255,0,0,255);
+   						if(this.tutorial.id == 1 || this.tutorial.id == 2)
+   							this.holdLabel.attr({x:this.width/4});
+   						else if(this.tutorial.id == 3)
+   							this.holdLabel.attr({x:this.width*3/4})
+   					}
+   				}
+   				
+		 	this.drawAimIndicator();
+   				/*if(this.tutorial != null)
+   				{
+   					if(this.tutorial.id != 0)
+   					{
+   						this.removeChild(this.fingerAnim);
+   						this.fingerAnim = null;
+   					}
+   				}
+   				else 
+   				{	*/this.removeChild(this.fingerAnim);
+   					this.fingerAnim = null;
+   				//}
+	   				
+   			}
 		 	
 		 	if(this.tutorial != null)
 	   		{
-	   			if(this.tutorial.type == "hold")
+	   			
+	   			
+	   			if(this.tutorial.type == "target-positions")
 	   			{
-	   				this.holdLabel.setString("RELEASE TO SHOOT");
-	   				this.holdLabel.color = cc.color(0,0,0,255);
-	   				this.removeChild(this.fingerAnim);
-	   				this.fingerAnim = null;
-	   			}
-	   			else if(this.tutorial.type == "target-positions")
-	   			{cc.log("TARGET POSITION");
 	   				var posFound = false;
 	   				for(var i=0; i<this.tutorial.positions.length && !posFound; i++)
 	   				{
@@ -810,6 +894,62 @@ var BubbleLayer = cc.Layer.extend({
 	 		{
 	 			return;// eventually highlight swap
 	 		}
+	 		
+	 		if(this.tutorial.id <= 3)
+	 		{
+		 		if(loc.y < this.aimIndicator.y+this.aimIndicator.height && loc.y > this.aimIndicator.y
+					&& loc.x < this.aimIndicator.x+this.aimIndicator.width && loc.x > this.aimIndicator.x)
+		 		{
+		 			if(this.pointerVisual == null)
+		 			{
+		 				this.pointerVisual = new cc.Sprite(res.finger_point);
+			 			this.pointerVisual.setScale((DATA.bubbleR*6) / this.width);
+			 			this.pointerVisual.attr({
+			 				x:loc.x,
+			 				y:loc.y,
+			 				anchorX:.2,
+			 				anchorY:1
+			 			});
+			 			this.pointerVisual.setRotation(-60);
+			 			this.addChild(this.pointerVisual);
+			 			
+			 			this.pointerVisualRight = new cc.Sprite(res.finger_point);
+			 			this.pointerVisualRight.setScale((DATA.bubbleR*6) / this.width);
+			 			this.pointerVisualRight.setFlippedX(true);
+			 			this.pointerVisualRight.setRotation(60);
+			 			this.pointerVisualRight.attr({
+			 				x:loc.x-(this.pointerVisualRight.width*this.pointerVisualRight.scale),
+			 				y:loc.y,
+			 				anchorX:.2,
+			 				anchorY:0
+			 			});
+			 			this.addChild(this.pointerVisualRight);
+			 			
+		 			}
+		 			else
+		 			{
+	 					this.pointerVisual.attr({
+			 				x:loc.x,
+			 				y:loc.y,
+			 				anchorX:.2,
+			 				anchorY:1
+			 			});
+			 			this.pointerVisualRight.attr({
+			 				x:loc.x-(this.pointerVisualRight.width*this.pointerVisualRight.scale),
+			 				y:loc.y,
+			 				anchorX:.2,
+			 				anchorY:0
+			 			});
+		 			}
+		 		}
+		 		else if(this.pointerVisual != null)
+		 		{
+		 			this.removeChild(this.pointerVisual);
+		 			this.pointerVisual = null;
+		 			this.removeChild(this.pointerVisualRight);
+		 			this.pointerVisualRight = null;
+		 		}
+	 		}
 	 	}
 			
 		if(!this.isPopupLayer() || this.modeType == "challenge" || this.modeType == "playtest")
@@ -858,6 +998,8 @@ var BubbleLayer = cc.Layer.extend({
 	   	
 	   	if(FUNCTIONS.posWithin(loc, this.aimIndicator))
 	   	{
+	   		
+	   		
 		 	this.drawAimIndicator();
 		
 			if(this.tutorial != null)
@@ -885,6 +1027,28 @@ var BubbleLayer = cc.Layer.extend({
 							//cc.log("COL: "+this.targetBubble.col+" "+pos.x);
 		   					if(pos.y == this.targetHex.y && pos.x == this.targetHex.x)
 		   					{
+		   						if(!this.targetFeedbackBool)
+		   						{
+		   							if(this.tutorial != null)
+			   						{
+			   							if(this.tutorial.type == "target-positions")
+			   							{
+			   								if(DATA.worldIndex == 0)
+			   								{
+			   									
+			   									/*this.holdLabel.color = cc.color(0,0,0,255);
+												this.holdLabel.setString("FIRE");
+   												this.holdLabel.attr({x:this.width/2});*/
+   												this.holdLabel.setString("");
+   												this.holdLabel.color = cc.color(0,255,0,255);
+			   								}
+			   								this.aimIndicator.color = cc.color(0,255,0,255);
+			   							}
+			   						}
+			   					
+   								}
+		   						
+		   						
 		   						//if(!this.targetFeedbackBool)
 		   						//{
 			   						this.targetFeedbackBool = true;
@@ -901,12 +1065,29 @@ var BubbleLayer = cc.Layer.extend({
 			   						this.addChild(this.targetFeedback);
 			   						posFound = true;
 		   						//}
+		   						
+		   						
 		   					}
 		   				}
 		   				if(!posFound)
 		   				{cc.log("SHOULD CHANGE TO X");cc.log(this.targetFeedbackBool);
 		   					if(this.targetFeedbackBool)
 		   					{
+		   						if(this.tutorial != null)
+		   						{
+		   							if(this.tutorial.type == "target-positions")
+		   							{
+		   								this.holdLabel.color = cc.color(255,255,255,255);
+		   								this.holdLabel.setString("AIM");
+		   								this.aimIndicator.color = cc.color(255,0,0,255);
+				   						if(this.tutorial.id == 1 || this.tutorial.id == 2)
+				   							this.holdLabel.attr({x:this.width/4});
+				   						else if(this.tutorial.id == 3)
+				   							this.holdLabel.attr({x:this.width*3/4})
+		   							}
+		   						}
+		   						
+		   						
 		   						this.removeChild(this.targetFeedback);
 			   					this.targetFeedbackBool = false;
 			   					this.targetFeedbackPos = {row:this.targetHex.y,col:this.targetHex.x};
@@ -936,13 +1117,11 @@ var BubbleLayer = cc.Layer.extend({
 			
 			this.drawAimIndicator();
 			
-			
-			if(this.tutorial != null)
-	   		{
-	   			if(this.tutorial.type == "hold")
-	   			{
+			if(/*this.tutorial.type == "hold" ||*/ DATA.worldIndex == 0 && this.bubbles.length > 125)
+	   			{cc.log("INIT TUTORIAL B");
 		   			this.holdLabel.setString("DRAG TO AIM");
 					this.holdLabel.color = cc.color(255,255,255,255);
+					this.holdLabel.attr({x:this.width/2});
 					
 					this.fingerAnim = new cc.Sprite(res.finger_point);
 					this.fingerAnim.setScale(DATA.bubbleR*3 / this.fingerAnim.width);
@@ -954,13 +1133,43 @@ var BubbleLayer = cc.Layer.extend({
 					});
 					this.addChild(this.fingerAnim);
 					
-					var moveRightAction = cc.moveTo(2,this.aimIndicator.x+this.aimIndicator.width,this.aimIndicator.y+DATA.bubbleR*2);
-					var moveLeftAction = cc.moveTo(2,this.aimIndicator.x,this.aimIndicator.y+DATA.bubbleR*2);
+					var leftFingerX = this.aimIndicator.x;
+					var rightFingerX = this.aimIndicator.x+this.aimIndicator.width;
+					var fingerTime = 2;
+					if(this.tutorial != null)
+					{
+						if(this.tutorial.id >= 1 && this.tutorial.id <= 2)
+						{
+							leftFingerX = this.aimIndicator.x;
+							rightFingerX = this.aimIndicator.x+this.aimIndicator.width/2;
+							fingerTime = .75;
+						}
+						else if(this.tutorial.id == 3)
+						{
+							leftFingerX = this.aimIndicator.x+this.aimIndicator.width/2;
+							rightFingerX = this.aimIndicator.x+this.aimIndicator.width;
+							fingerTime = .75;
+						}
+						else if(this.tutorial.id == 5)
+						{
+							leftFingerX = this.aimIndicator.x+this.aimIndicator.width/3;
+							rightFingerX = this.aimIndicator.x+this.aimIndicator.width*2/3;
+							fingerTime = .75;
+						}
+					}
+					
+					var moveRightAction = cc.moveTo(fingerTime,rightFingerX,this.aimIndicator.y+DATA.bubbleR*2);
+					var moveLeftAction = cc.moveTo(fingerTime,leftFingerX,this.aimIndicator.y+DATA.bubbleR*2);
 					var seq = new cc.Sequence(moveRightAction, moveLeftAction);
 					var repeatSeq = new cc.RepeatForever(seq);
 					this.fingerAnim.runAction(repeatSeq);
 	   			}
-	   			else if(this.tutorial.type == "target-positions")
+			
+			if(this.tutorial != null)
+	   		{
+	   			
+	   			
+	   			if(this.tutorial.type == "target-positions")
 	   			{
 	   				this.removeChild(this.targetFeedback);
 	   				this.targetFeedback = null;
@@ -971,6 +1180,78 @@ var BubbleLayer = cc.Layer.extend({
 		}
 	},
 	onTouchEnd:function(loc){cc.log("touchEnd");
+	
+		if(this.tutorial != null)
+		{
+			this.aimIndicator.color = cc.color(0,0,0,50);
+			
+			if(this.tutorial.id <= 3)
+			{
+			//if(loc.y < this.aimIndicator.y+this.aimIndicator.height && loc.y > this.aimIndicator.y
+			//	&& loc.x < this.aimIndicator.x+this.aimIndicator.width && loc.x > this.aimIndicator.x)
+	 		//{
+				if(this.pointerVisual != null)
+				{
+					this.removeChild(this.pointerVisual);
+					this.pointerVisual = null;
+					this.removeChild(this.pointerVisualRight);
+					this.pointerVisualRight = null;
+				}
+				
+				
+				
+			//}
+			/*else if(this.pointerVisual != null)
+	 		{
+	 			this.removeChild(this.pointerVisual);
+	 			this.pointerVisual = null;
+	 		}*/
+			}
+			if(this.tutorialStreakTextA != null)
+				{
+					this.removeChild(this.tutorialStreakTextA);
+					this.tutorialStreakTextA = null;
+					this.popupDn.clear();
+				}
+				if(this.tutorialStreakTextB != null)
+				{
+					this.removeChild(this.tutorialStreakTextB);
+					this.tutorialStreakTextB = null;
+				}
+				if(this.tutFace != null)
+				{
+					this.removeChild(this.tutFace);
+					this.tutFace = null;
+				}
+				
+				if(this.upArrowA != null)
+				{
+					this.removeChild(this.upArrowA);
+					this.upArrowA = null;
+					this.removeChild(this.upArrowB);
+					this.upArrowB = null;
+					this.removeChild(this.upArrowsLabelA);
+					this.upArrowsLabelA = null;
+					this.removeChild(this.upArrowsLabelB);
+					this.upArrowsLabelB = null;
+					this.bubbles[this.bubbleMap[2][9]].setScale(1);
+				}
+				
+			/*if(this.tutorial.id == 5)
+			{
+				this.upArrow = new cc.Sprite(res.tutorial_arrow);
+				this.upArrow.setScale(DATA.bubbleR*2 / this.upArrow.width);
+				this.upArrow.attr({
+					x:(this.width/2) +DATA.bubbleR,
+					y:this.height-(DATA.bubbleR*20),
+					anchorX:.5,
+					anchorY:1
+				});
+				this.addChild(this.upArrow);
+			}*/
+		}
+		
+	
 		if(this.aimLine != null)
 		{
 			
@@ -982,6 +1263,90 @@ var BubbleLayer = cc.Layer.extend({
 	   		this.aimLine.clear();
 	   		this.removeChild(this.aimLine);
 	   		this.aimLine = null;
+	   		
+	   		//if(this.tutorial != null)
+	   		//{
+	   			if(/*this.tutorial.type == "hold" ||*/ DATA.worldIndex <= 1)
+	   			{
+	   				this.removeChild(this.holdLabel);
+	   				this.holdLabel = null;
+	   				//this.fingerAnim.stopAction();
+	   				
+	   				/*if(this.tutorial != null)
+	   				{
+	   					if(this.tutorial.id != 0)
+	   					{
+	   						this.removeChild(this.fingerAnim);
+	   						this.fingerAnim = null;
+	   					}
+	   				}
+	   				else 
+	   				{*/
+	   					this.removeChild(this.fingerAnim);
+	   					this.fingerAnim = null;
+	   					
+	   					if(this.targetFeedbackBool == false)
+	   					{
+	   						this.holdLabel = new cc.LabelTTF("HOLD TO AIM","Roboto",36);
+							this.holdLabel.attr({
+								x:this.width/2,
+								y:this.aimIndicator.y+this.aimIndicator.height/2,
+								anchorX:.5,
+								anchorY:.5
+							});
+							this.holdLabel.color = cc.color(255,255,255,255);
+							this.addChild(this.holdLabel);
+							
+							this.aimIndicator.color = cc.color(0,0,0,50);
+							this.drawAimIndicator();
+							
+							this.fingerAnim = new cc.Sprite(res.finger_point);
+							this.fingerAnim.setScale(DATA.bubbleR*3 / this.fingerAnim.width);
+							this.fingerAnim.attr({
+								x:this.aimIndicator.x,
+								y:this.aimIndicator.y+DATA.bubbleR*2,
+								anchorX:.5,
+								anchorY:.5
+							});
+							this.addChild(this.fingerAnim);
+							
+							var leftFingerX = this.aimIndicator.x;
+							var rightFingerX = this.aimIndicator.x+this.aimIndicator.width;
+							var fingerTime = 2;
+							if(this.tutorial != null)
+							{
+								if(this.tutorial.id >= 1 && this.tutorial.id <= 2)
+								{
+									leftFingerX = this.aimIndicator.x;
+									rightFingerX = this.aimIndicator.x+this.aimIndicator.width/2;
+									fingerTime = .75;
+								}
+								else if(this.tutorial.id == 3)
+								{
+									leftFingerX = this.aimIndicator.x+this.aimIndicator.width/2;
+									rightFingerX = this.aimIndicator.x+this.aimIndicator.width;
+									fingerTime = .75;
+								}
+								else if(this.tutorial.id == 5)
+								{
+									leftFingerX = this.aimIndicator.x+this.aimIndicator.width/3 + DATA.bubbleR*3;
+									rightFingerX = this.aimIndicator.x+this.aimIndicator.width*2/3;
+									fingerTime = .75;
+								}
+							}
+							
+							var moveRightAction = cc.moveTo(fingerTime,rightFingerX,this.aimIndicator.y+DATA.bubbleR*2);
+							var moveLeftAction = cc.moveTo(fingerTime,leftFingerX,this.aimIndicator.y+DATA.bubbleR*2);
+							var seq = new cc.Sequence(moveRightAction, moveLeftAction);
+							var repeatSeq = new cc.RepeatForever(seq);
+							this.fingerAnim.runAction(repeatSeq);
+	   					}
+	   					
+	   				//}
+	   				if(this.tutorial != null && this.tutorial.id == 0)
+	   					this.tutorial = null;
+	   			}
+	   		//}
 	   		
 	   		if(this.tutorial != null && this.tutorial.type == "target-positions" && !this.targetFeedbackBool)
 	   		{
@@ -1024,18 +1389,7 @@ var BubbleLayer = cc.Layer.extend({
 	   		
 	   		this.removeChild(this.targetBubble);
 	   		
-	   		if(this.tutorial != null)
-	   		{
-	   			if(this.tutorial.type == "hold")
-	   			{
-	   				this.removeChild(this.holdLabel);
-	   				this.holdLabel = null;
-	   				//this.fingerAnim.stopAction();
-	   				this.removeChild(this.fingerAnim);
-	   				this.fingerAnim = null;
-	   				this.tutorial = null;
-	   			}
-	   		}
+	   		
 	   }
 	   else if(loc.y > this.queueBubble.y-this.bubbleR && loc.y < this.queueBubble.y+this.bubbleR)
 	   {cc.log("queue");
@@ -1057,15 +1411,15 @@ var BubbleLayer = cc.Layer.extend({
 			 			this.swapTutorialTextB = null;
 			 			//this.fingerAnim = null;
 			 			
+			 			this.removeChild(this.tutorialArrow);
+			 			this.tutorialArrow = null;
+			 			
 			 		}
 			 	}
-		   	
+		   	/*
 		   		this.removeChild(this.shooter);
 		   		this.removeChild(this.queueBubble);
 		   		
-		   		//var nextColor = this.nextShooterColor;
-		   		//this.nextShooterColor = this.shooterColor;
-		   		//this.shooterColor = nextColor;
 		   		DATA.swapBubbleColors(this.modeType);
 		   		this.prevShooterColor = DATA.getShooterColor(this.modeType);
 		   		cc.log("SHOOTER BUBBLE");
@@ -1088,6 +1442,53 @@ var BubbleLayer = cc.Layer.extend({
 		       	});
 		       	this.queueBubble.active = true;
 		       	this.addChild(this.queueBubble);
+		   */
+		  
+		  		this.inputFrozen = true;
+		      
+				DATA.swapBubbleColors(this.modeType);
+		   		this.prevShooterColor = DATA.getShooterColor(this.modeType);
+		  
+		   		var shooterX = this.shooter.x;
+				var queueX = this.queueBubble.x;
+				
+				var shooterAction = cc.moveTo(.3, shooterX, this.shooter.y);
+				var queueAction = cc.moveTo(.3, queueX, this.shooter.y);
+				
+		  		this.removeChild(this.shooter);
+		  		this.removeChild(this.queueBubble);
+		   		
+				this.shooter = null;
+				this.queueBubble = null;
+		   		
+		   		this.shooter = new Bubble(this.bubbleR, DATA.getShooterColor(this.modeType), 0, null, null, null, null, null);
+		       	this.shooter.attr({
+		       		x:this.width/4,
+		       		y:this.bubbleStartHeight,
+		       		anchorX:.5,
+		       		anchorY:.5
+		       	});
+		       	this.shooter.active = true;
+		       	this.addChild(this.shooter);
+				
+		       	this.queueBubble = new Bubble(this.bubbleR, DATA.getQueueColor(this.modeType), 0, null, null, null, null, null);
+		       	this.queueBubble.attr({
+		       		x: this.width/2,
+		       		y: this.bubbleStartHeight,
+		       		anchorX:.5,
+		       		anchorY:.5
+		       	});
+		       	this.queueBubble.active = true;
+		       	this.addChild(this.queueBubble);
+		   		
+				
+				var shooterSeq = new cc.Sequence(shooterAction, cc.callFunc(this.unfreezeInput, this));
+				this.shooter.runAction(shooterSeq);
+				this.queueBubble.runAction(queueAction);
+				
+		   		
+		   		
+
 		   }
 		   /*else if(this.levelAImg != null && loc.x > this.levelAImg.x-this.bubbleR && loc.x < this.levelAImg.x+this.bubbleR)
 		   {
@@ -1098,6 +1499,11 @@ var BubbleLayer = cc.Layer.extend({
 	
 		
 		
+	},
+	
+	unfreezeInput:function()
+	{
+		this.inputFrozen = false;
 	},
 	
 	predictTarget:function(trajectory)
@@ -1284,13 +1690,18 @@ var BubbleLayer = cc.Layer.extend({
 		this.shooter = null;
        	this.shooter = new Bubble(this.bubbleR, newShooterColor, 0, null, null, null, null, null);
        	this.shooter.attr({
-       		x: this.width/2,
+       		x: this.width/4,
        		y: this.bubbleStartHeight,
        		anchorX:.5,
        		anchorY:.5
        	});
        	this.shooter.active = true;
        	this.addChild(this.shooter);
+       	
+       	var shooterAction = cc.moveTo(.25, this.width/2, this.shooter.y);
+       	this.shooter.runAction(shooterAction);
+       	
+       	
        	
 		//this.prevShooterColor = DATA.getShooterColor(this.modeType);
 		//this.shooterColor = this.nextShooterColor;
@@ -1314,13 +1725,16 @@ var BubbleLayer = cc.Layer.extend({
        	}
        	this.queueBubble = new Bubble(this.bubbleR, newColor, 0, null, null, null, null, null);
        	this.queueBubble.attr({
-       		x:this.width/4,
+       		x:0-DATA.bubbleR,
        		y:this.bubbleStartHeight,
        		anchorX:.5,
        		anchorY:.5
        	});
        	this.queueBubble.active = true;
        	this.addChild(this.queueBubble);
+       	
+       	var queueAction = cc.moveTo(.4,this.width/4, this.queueBubble.y);
+       	this.queueBubble.runAction(queueAction);
        	
        	if(this.tutorial != null && this.tutorial.type == "swap")
        	{
@@ -1330,6 +1744,32 @@ var BubbleLayer = cc.Layer.extend({
 			
 			
 			this.queueBubble.runAction(new cc.RepeatForever(seq));
+			
+			this.tutorialArrow = new cc.Sprite(res.tutorial_arrow);
+			this.tutorialArrow.setScale(DATA.bubbleR*3 / this.tutorialArrow.height);
+			this.tutorialArrow.attr({
+				x:this.width/2,
+				y:this.aimIndicator.y + this.aimIndicator.height/2,
+				anchorX:.5,
+				anchorY:.5
+			});
+			
+			this.tutorialArrow.setRotation(210);
+			
+			this.addChild(this.tutorialArrow);
+			
+			var moveDist = ( (this.tutorialArrow.x-(this.tutorialArrow.width*this.tutorialArrow.scale)/2) - (this.width/4 + DATA.bubbleR) ) * .6;
+			var moveAAction = cc.moveBy(.4, -1*moveDist, -1*moveDist);
+			var moveBAction = cc.moveBy(.6, moveDist, moveDist);
+			
+			var seq = new cc.Sequence(moveAAction, moveBAction);
+			var repSeq = new cc.RepeatForever(seq);
+			this.tutorialArrow.runAction(repSeq);
+			
+			
+			//this.removeChild(this.shooter);
+			if(this.fingerAnim != null)
+				this.removeChild(this.fingerAnim);
        	}
 	},
 	
@@ -1832,51 +2272,84 @@ var BubbleLayer = cc.Layer.extend({
 	{
 		this.tutorial = DATA.checkTutorial(this.bubbles.length, this.bubbles, this.bubbleMap);
 		
+		if(/*this.tutorial.type == "hold" ||*/ DATA.worldIndex == 0 && (this.bubbles.length > 126))
+		{cc.log("INIT TUTORIAL");
+		cc.log(DATA.tutorialCompleted);
+		if(this.aimIndicator != null)
+		{
+			this.holdLabel = new cc.LabelTTF("DRAG TO AIM","Roboto",36);
+			this.holdLabel.attr({
+				x:this.width/2,
+				y:this.aimIndicator.y+this.aimIndicator.height/2,
+				anchorX:.5,
+				anchorY:.5
+			});
+			this.holdLabel.color = cc.color(255,255,255,255);
+			this.addChild(this.holdLabel);cc.log(this.bubbles.length);
+		/* THIS IS NOT RIGHT 										!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+			if(DATA.worldIndex == 0 && ( (this.bubbles.length > 179) || (this.bubbles.length==127 && DATA.tutorialCompleted != 5) ) )
+			{
+			this.fingerAnim = new cc.Sprite(res.finger_point);
+			this.fingerAnim.setScale(DATA.bubbleR*3 / this.fingerAnim.width);
+			this.fingerAnim.attr({
+				x:this.aimIndicator.x,
+				y:this.aimIndicator.y+DATA.bubbleR*2,
+				anchorX:.5,
+				anchorY:.5
+			});
+			this.addChild(this.fingerAnim);
+			
+			var leftFingerX = this.aimIndicator.x;
+			var rightFingerX = this.aimIndicator.x+this.aimIndicator.width;
+			var fingerTime = 2;
+			if(this.tutorial != null)
+			{
+				if(this.tutorial.id >= 1 && this.tutorial.id <= 2)
+				{
+					leftFingerX = this.aimIndicator.x;
+					rightFingerX = this.aimIndicator.x+this.aimIndicator.width/2;
+					fingerTime = .75;
+				}
+				else if(this.tutorial.id == 3)
+				{
+					leftFingerX = this.aimIndicator.x+this.aimIndicator.width/2;
+					rightFingerX = this.aimIndicator.x+this.aimIndicator.width;
+					fingerTime = .75;
+				}
+				else if(this.tutorial.id == 5)
+				{
+					leftFingerX = this.aimIndicator.x+this.aimIndicator.width/3 + DATA.bubbleR*3;
+					rightFingerX = this.aimIndicator.x+this.aimIndicator.width*2/3;
+					fingerTime = .75;
+				}
+			}
+			
+			var moveRightAction = cc.moveTo(fingerTime,rightFingerX,this.aimIndicator.y+DATA.bubbleR*2);
+			var moveLeftAction = cc.moveTo(fingerTime,leftFingerX,this.aimIndicator.y+DATA.bubbleR*2);
+			var seq = new cc.Sequence(moveRightAction, moveLeftAction);
+			var repeatSeq = new cc.RepeatForever(seq);
+			this.fingerAnim.runAction(repeatSeq);
+			}
+		}
+		}
+		
 		if(this.tutorial != null)
 		{
 			if(this.tutorial.type == "parent")
 			{
 				this.parent.executeTutorial(this.tutorial.tutorial);
 			}
-			else if(this.tutorial.type == "hold")
-			{
-				this.holdLabel = new cc.LabelTTF("DRAG TO AIM","Roboto",36);
-				this.holdLabel.attr({
-					x:this.width/2,
-					y:this.aimIndicator.y+this.aimIndicator.height/2,
-					anchorX:.5,
-					anchorY:.5
-				});
-				this.holdLabel.color = cc.color(255,255,255,255);
-				this.addChild(this.holdLabel);
-				
-				this.fingerAnim = new cc.Sprite(res.finger_point);
-				this.fingerAnim.setScale(DATA.bubbleR*3 / this.fingerAnim.width);
-				this.fingerAnim.attr({
-					x:this.aimIndicator.x,
-					y:this.aimIndicator.y+DATA.bubbleR*2,
-					anchorX:.5,
-					anchorY:.5
-				});
-				this.addChild(this.fingerAnim);
-				
-				var moveRightAction = cc.moveTo(2,this.aimIndicator.x+this.aimIndicator.width,this.aimIndicator.y+DATA.bubbleR*2);
-				var moveLeftAction = cc.moveTo(2,this.aimIndicator.x,this.aimIndicator.y+DATA.bubbleR*2);
-				var seq = new cc.Sequence(moveRightAction, moveLeftAction);
-				var repeatSeq = new cc.RepeatForever(seq);
-				this.fingerAnim.runAction(repeatSeq);
-			}
 			else if(this.tutorial.type == "target-positions")
-			{
+			{cc.log("TUTORIAL ID " + this.tutorial.id + "   " + DATA.tutorialCompleted);
 				// maybe use bubble animation to show intended match eventually
 				
 				if(this.tutorial.id == 1)
 				{
 					var highlightBubs = [];
-					highlightBubs.push(this.bubbles[this.bubbleMap[19][0]]);
-					highlightBubs.push(this.bubbles[this.bubbleMap[19][1]]);
-					highlightBubs.push(this.bubbles[this.bubbleMap[19][2]]);
-					highlightBubs.push(this.bubbles[this.bubbleMap[19][3]]);
+					highlightBubs.push(this.bubbleMap[19][0]);
+					highlightBubs.push(this.bubbleMap[19][1]);
+					highlightBubs.push(this.bubbleMap[19][2]);
+					highlightBubs.push(this.bubbleMap[19][3]);
 					
 					this.highlightScaleBubbles(highlightBubs, 1.3);
 					
@@ -1884,13 +2357,14 @@ var BubbleLayer = cc.Layer.extend({
 				else if(this.tutorial.id == 3)
 				{
 					var highlightBubs = [];
-					highlightBubs.push(this.bubbles[this.bubbleMap[15][7]]);
-					highlightBubs.push(this.bubbles[this.bubbleMap[15][8]]);
-					highlightBubs.push(this.bubbles[this.bubbleMap[15][9]]);
-					highlightBubs.push(this.bubbles[this.bubbleMap[15][10]]);
+					highlightBubs.push(this.bubbleMap[15][7]);
+					highlightBubs.push(this.bubbleMap[15][8]);
+					highlightBubs.push(this.bubbleMap[15][9]);
+					highlightBubs.push(this.bubbleMap[15][10]);
 					
 					this.highlightScaleBubbles(highlightBubs, 1.3);
 				}
+				// FIRST STAR
 				else if(this.tutorial.id == 5)
 				{
 					var highlightBubs = [];
@@ -1899,21 +2373,77 @@ var BubbleLayer = cc.Layer.extend({
 					//this.addChild(this.bubbles[this.bubbleMap[10][6]].bubbleImg)
 					
 					
-					highlightBubs.push(this.bubbles[this.bubbleMap[10][6]]);
-					
-					this.highlightScaleBubbles(highlightBubs, 2);
-				}
-				else if(this.tutorial.id == 6)
-				{
-					var highlightBubs = [];
-					highlightBubs.push(this.bubbles[this.bubbleMap[17][5]]);
+					highlightBubs.push(this.bubbleMap[10][6]);
 					
 					this.highlightScaleBubbles(highlightBubs, 1.5);
+					
+				
+					var textForTutorialA = "Get the STARS to";
+					var textForTutorialB = "win more moves!";
+					//Tutorial Popup
+					this.popupDn = new cc.DrawNode();
+					this.addChild(this.popupDn);
+					var botPosY = this.height-DATA.bubbleR*15;
+					var topPosY = this.height-DATA.bubbleR*8;
+					this.popupDn.drawRect(cc.p(20,botPosY),
+						cc.p(this.width-20, topPosY),
+						cc.color(255,255,255,255),4,cc.color(0,0,0,255)
+					);
+						
+					this.tutorialStreakTextA = new cc.LabelTTF(textForTutorialA,"Roboto",24);
+					this.tutorialStreakTextA.attr({
+						x:this.width/2,
+						y:topPosY-20,
+						anchorX:.5,
+						anchorY:1
+					});
+					this.tutorialStreakTextA.color = cc.color(0,0,0,255);
+					this.addChild(this.tutorialStreakTextA);
+					this.tutorialStreakTextB = new cc.LabelTTF(textForTutorialB,"Roboto",24);
+					this.tutorialStreakTextB.attr({
+						x:this.width/2,
+						y:this.tutorialStreakTextA.y-this.tutorialStreakTextA.height-3,
+						anchorX:.5,
+						anchorY:1
+					});
+					this.tutorialStreakTextB.color = cc.color(0,0,0,255);
+					this.addChild(this.tutorialStreakTextB);
+					
+					this.tutFace = new cc.Sprite(res.nerd_emoji);
+					
+					this.tutFace.setScale(DATA.bubbleR*5 / this.tutFace.width);
+					this.tutFace.attr({
+						x:this.width-3,
+						y:botPosY,
+						anchorX:1,
+						anchorY:.5
+					});
+					this.addChild(this.tutFace);
+					
+				
+					this.upArrow = new cc.Sprite(res.tutorial_arrow);
+					this.upArrow.setScale(DATA.bubbleR*2 / this.upArrow.width);
+					this.upArrow.attr({
+						x:(this.width/2) +DATA.bubbleR,
+						y:this.height-(DATA.bubbleR*20),
+						anchorX:.5,
+						anchorY:1
+					});
+					this.addChild(this.upArrow);
+				
 				}
+				
 				else if(this.tutorial.id == 7)
 				{
 					var highlightBubs = [];
-					highlightBubs.push(this.bubbles[this.bubbleMap[29][5]]);
+					highlightBubs.push(this.bubbleMap[17][5]);
+					
+					this.highlightScaleBubbles(highlightBubs, 1.5);
+				}
+				else if(this.tutorial.id == 8)
+				{
+					var highlightBubs = [];
+					highlightBubs.push(this.bubbleMap[29][5]);
 					
 					this.highlightScaleBubbles(highlightBubs, 1.5);
 				}
@@ -1942,11 +2472,82 @@ var BubbleLayer = cc.Layer.extend({
 				this.swapTutorialTextA.color = cc.color(0,0,0,255);
 				this.addChild(this.swapTutorialTextA);
 			}
+			else
+			{
+				if(this.tutorial.id == 6)
+				{cc.log("TUT 6");
+					this.upArrowA = new cc.Sprite(res.tutorial_arrow);
+					this.upArrowA.setScale(DATA.bubbleR*2 / this.upArrowA.width);
+					this.upArrowA.attr({
+						x:(this.width/4),
+						y:this.height-(DATA.bubbleR*13),
+						anchorX:.5,
+						anchorY:1
+					});
+					this.addChild(this.upArrowA);
+					
+					this.upArrowB = new cc.Sprite(res.tutorial_arrow);
+					this.upArrowB.setScale(DATA.bubbleR*2 / this.upArrowB.width);
+					this.upArrowB.attr({
+						x:(this.width*3/4),
+						y:this.height-(DATA.bubbleR*13),
+						anchorX:.5,
+						anchorY:1
+					});
+					this.addChild(this.upArrowB);
+					
+					this.upArrowsLabelA = new cc.LabelTTF("Pick your path","Roboto",24);
+					this.upArrowsLabelA.attr({
+						x:this.width/2,
+						y:this.upArrowA.y-(this.upArrowA.height*this.upArrowA.scale),
+						anchorX:.5,
+						anchorY:1
+					});
+					this.upArrowsLabelA.color = cc.color(255,0,0,255);
+					this.addChild(this.upArrowsLabelA);
+					
+					this.upArrowsLabelB = new cc.LabelTTF("to the top!","Roboto",24);
+					this.upArrowsLabelB.attr({
+						x:this.width/2,
+						y:this.upArrowsLabelA.y-(this.upArrowsLabelA.height)-3,
+						anchorX:.5,
+						anchorY:1
+					});
+					this.upArrowsLabelB.color = cc.color(255,0,0,255);
+					this.addChild(this.upArrowsLabelB);
+					
+					
+					/*var highlightBubs = [];
+					highlightBubs.push(this.bubbleMap[2][9]);
+					
+					this.highlightScaleBubbles(highlightBubs, 1.5);*/
+					this.bubbles[this.bubbleMap[2][9]].bubbleImg.setScale(DATA.bubbleR*3 / this.bubbles[this.bubbleMap[2][9]].bubbleImg.width)
+				}
+			}
 		}
+		
 	},
 	
 	highlightScaleBubbles:function(highlightBubs, scaleFactor)
 	{
+		
+		//if(this.tutorial != null)
+		//{
+			//if(this.tutorial.id == 5)
+			//{
+				for(var i=0; i<highlightBubs.length; i++)
+				{
+					this.bubbles[highlightBubs[i]].removeChild(this.bubbles[highlightBubs[i]].bubbleImg);
+					this.bubbles[highlightBubs[i]].addChild(this.bubbles[highlightBubs[i]].bubbleImg);
+					
+					
+				
+				
+				}
+				
+			//}
+		//}
+		
 		for(var i=0; i<highlightBubs.length; i++)
 		{
 			var scaleUp = cc.scaleBy(1,scaleFactor,scaleFactor);
@@ -1954,7 +2555,7 @@ var BubbleLayer = cc.Layer.extend({
 			var seq = new cc.Sequence(scaleUp, scaleDown);
 			var repeatSeq = new cc.RepeatForever(seq);
 		
-			highlightBubs[i].bubbleImg.runAction(repeatSeq);
+			this.bubbles[highlightBubs[i]].bubbleImg.runAction(repeatSeq);
 		}
 	},
 	
@@ -1987,7 +2588,7 @@ var BubbleLayer = cc.Layer.extend({
 				
 				DATA.updateDatabaseLevelIndices();
 				
-				
+				this.unschedule(this.triggerRandomIdle);
 				//var rankReturn = DATA.checkRankUp();
 				
 				//var rewardScene = new ChallengeRewardScene();
@@ -2071,10 +2672,10 @@ var BubbleLayer = cc.Layer.extend({
 			
 			// eliminate colors no longer in puzzle
 			if(colorsFound.length != curColors.length)
-			{cc.log(DATA.worldActiveQueue);
+			{//cc.log(DATA.worldActiveQueue);
 				// eliminate colors, replace queue bubbles
 				for(var i=0; i<curColors.length; i++)
-				{cc.log(DATA.worldColorsEliminated.length);cc.log(DATA.numColors-1);
+				{//cc.log(DATA.worldColorsEliminated.length);cc.log(DATA.numColors-1);
 					if(colorsFound.indexOf(curColors[i]) == -1 && DATA.worldColorsEliminated.length < DATA.numColors-1)
 					{
 						DATA.worldColorsEliminated.push(curColors[i]);
@@ -2098,11 +2699,15 @@ var BubbleLayer = cc.Layer.extend({
 	
 	executeMeta:function(row, col)
 	{cc.log("executing meta");
-		var bubble = this.bubbles[this.bubbleMap[row][col]];
+		var bubble = this.bubbles[this.bubbleMap[row][col]];cc.log(bubble);
 		if(bubble.type == 20)
 		{
 			// Look up level, add it to inventory.
-			DATA.retrieveLevel();
+			var metaId = null;
+			if(bubble.meta != null && "id" in bubble.meta && bubble.meta.id != null)
+				metaId = bubble.meta.id;
+			cc.log(metaId);
+			DATA.retrieveLevel(metaId);
 			if(DATA.levelIndexB != null)
 			{
 				this.parent.triggerLevelsFullLabel();

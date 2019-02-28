@@ -156,18 +156,25 @@ var ChallengeRewardLayer = cc.Layer.extend({
 		{
 			this.rewardPicker.onTouchEnd(pos);
 			//return "close";
-			var seq = new cc.Sequence(cc.delayTime(2), cc.callFunc(this.switchTabsAfterRewardPicker, this));
+			//var seq = new cc.Sequence(cc.delayTime(2), cc.callFunc(this.switchTabsAfterRewardPicker, this));
+			var seq = new cc.Sequence(cc.delayTime(2), cc.callFunc(this.parent.goBackToGameplay, this.parent));
 			this.runAction(seq);
+		//return "close";
 		}
+		
 		
 	},
 	
 	switchTabsAfterRewardPicker:function()
 	{
-		return "close";
 		
 		this.removeChild(this.rewardPicker);
 		this.rewardPicker = null;
+		
+		
+		
+		
+		
 		
 		
 		this.nextButton = new cc.Sprite(res.next_button);

@@ -143,14 +143,14 @@ DATA.initUserData = function()
   		for(var j=0; j<d[challengeKeys[i]].bubbles.length; j++)
   		{
   			var dBub = d[challengeKeys[i]].bubbles[j];
-  			var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:dBub.colorCode};
+  			var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:dBub.colorCode, meta:dBub.meta};
     		bubbles.push(bubble);
   		}
   		var queue = {type:d[challengeKeys[i]].queue.type, colors:d[challengeKeys[i]].queue.colors};
     	var moves = d[challengeKeys[i]].moves;
   		var level = {"queue":queue,"bubbles":bubbles,"moves":moves};
   		DATA.challenges.push(level);
-  	}
+  	}cc.log(DATA.challenges);
   });
   
   DATA.database.ref("levels/sets/one-pager/0").once("value").then(function(snapshot){
@@ -467,12 +467,16 @@ DATA.checkTutorial = function(numBubbles)
 		{
 			DATA.tutorial = {type:"target-positions", id:5, positions:[{x:5,y:11}, {x:6,y:11}] };
 		}
+		else if(numBubbles == 64 && DATA.tutorialCompleted < 6)
+		{
+			DATA.tutorial = {type:"pick-path-callout", id:6};
+		}
 	}
 	else if(DATA.worldIndex == 1)
 	{
 		if(numBubbles == 204)
 		{
-			DATA.tutorial = {type:"target-positions",id:6,positions:[{x:5,y:18},{x:6,y:18}]};
+			DATA.tutorial = {type:"target-positions",id:7,positions:[{x:5,y:18},{x:6,y:18}]};
 		}
 	}
 	
@@ -480,7 +484,7 @@ DATA.checkTutorial = function(numBubbles)
 	{
 		if(numBubbles == 252)
 		{
-			DATA.tutorial = {type:"target-positions",id:7,positions:[{x:5,y:30},{x:6,y:30}]};
+			DATA.tutorial = {type:"target-positions",id:8,positions:[{x:5,y:30},{x:6,y:30}]};
 		}
 	}
 	
@@ -677,35 +681,43 @@ DATA.spawnNewDailyChallenge = function()
    * LEVEL INDICES
    */
   
-DATA.retrieveLevel = function()
+DATA.retrieveLevel = function(levelId)
 {
 	if(DATA.levelIndexA == null)
 	{
-		if(Math.random() > .6667)
-		{
-			DATA.levelIndexA = Math.floor(Math.random()*DATA.challenges.length);
+		//if(Math.random() > .6667)
+		//{
+			if(levelId != null)
+			{
+				DATA.levelIndexA = levelId;
+			}
+			else DATA.levelIndexA = Math.floor(Math.random()*DATA.challenges.length);
 			DATA.levelIndexAType = "normal";
-		}
-		else
+		//}
+		/*else
 		{
 			DATA.levelIndexAType = "one-pager";
 			DATA.levelIndexA = Math.floor(Math.random()*DATA.setChallenges[DATA.levelIndexAType].length);
-		}
+		}*/
 		DATA.database.ref("users/"+DATA.userID+"/levelIndexAType").set(DATA.levelIndexAType);
 		DATA.database.ref("users/"+DATA.userID+"/levelIndexA").set(DATA.levelIndexA);
 	}
 	else if(DATA.levelIndexB == null)
 	{
-		if(Math.random() > .333)
-		{
-			DATA.levelIndexB = Math.floor(Math.random()*DATA.challenges.length);
+		//if(Math.random() > .333)
+		//{
+			if(levelId != null)
+			{
+				DATA.levelIndexA = levelId;
+			}
+			else DATA.levelIndexB = Math.floor(Math.random()*DATA.challenges.length);
 			DATA.levelIndexBType = "normal";
-		}
-		else
+		//}
+		/*else
 		{
 			DATA.levelIndexBType = "one-pager";
 			DATA.levelIndexB = Math.floor(Math.random()*DATA.setChallenges[DATA.levelIndexBType].length);
-		}
+		}*/
 		DATA.database.ref("users/"+DATA.userID+"/levelIndexB").set(DATA.levelIndexB);
 	}
 };
@@ -1162,6 +1174,17 @@ FUNCTIONS.convertCodesToColors = function(codes)
 	return translations;
 };
 
+FUNCTIONS.coordIn = function(coord, list)
+{
+	for(var i=0; i<list.length; i++)
+	{
+		if(coord.x == list[i].x && coord.y == list[i].y)
+		{
+			return true;
+		}
+	}
+	return false;
+};
 
 //var demBubs =  ;
 DATA.resetWorld = function()

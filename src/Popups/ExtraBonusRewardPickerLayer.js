@@ -86,59 +86,61 @@ var ExtraBonusRewardPickerLayer = cc.Layer.extend({
 	
 	onTouchEnd: function(pos)
 	{cc.log(pos);
-		for(var i=0; i<this.cards.length; i++)
+		if(!this.cardPicked)
 		{
-			var card = this.cards[i];
-			if(pos.x > card.x && pos.x < card.x+(card.width*card.scaleX) && pos.y > card.y && pos.y < card.y+(card.height*card.scaleY))
-			{cc.log("w " + card.width + " h " + card.height);
-				var oldX = card.x;
-				var oldY = card.y;
-				this.removeChild(card);
-				
-				var cardRewards = [0,0,0,0,0,1,1,2,3];
-				var cardReward = cardRewards[Math.floor(Math.random()*cardRewards.length)];
-				if(cardReward == 0)
-				{
-					this.cards[i] = new cc.Sprite(res.ten_moves_gold_card);
-					//DATA.worldBallsLeft += 10;
-				}
-				else if(cardReward == 1)
-				{
-					this.cards[i] = new cc.Sprite(res.fifteen_coins_gold_card);
-					//DATA.setCurrencies(DATA.coins+15,DATA.gems);
-					//DATA.worldBallsLeft += 5;
-				}
-				else if(cardReward == 2)
-				{
-					this.cards[i] = new cc.Sprite(res.twentyfive_coins_gold_card);
-					//DATA.setCurrencies(DATA.coins+15,DATA.gems);
-					//DATA.worldBallsLeft += 5;
-				}
-				else if(cardReward == 3)
-				{
-					this.cards[i] = new cc.Sprite(res.gem_gold_card);
-					//DATA.setCurrencies(DATA.coins+5,DATA.gems+1);
-				}
-				
-				DATA.gameplayRewardOnReturn = {"type":"extraBonus","number":cardReward};
+			for(var i=0; i<this.cards.length; i++)
+			{
+				var card = this.cards[i];
+				if(pos.x > card.x && pos.x < card.x+(card.width*card.scaleX) && pos.y > card.y && pos.y < card.y+(card.height*card.scaleY))
+				{cc.log("w " + card.width + " h " + card.height);
+					var oldX = card.x;
+					var oldY = card.y;
+					this.removeChild(card);
 					
-				//DATA.worldBallsLeft += cardRewards;
-				
-				this.cards[i].setScaleX(this.cardWidth/this.cards[i].width);
-				this.cards[i].setScaleY(this.cardHeight/this.cards[i].height);
-				
-				this.cards[i].attr({
-					"x":oldX,
-					"y":oldY,
-					"anchorX":0,
-					"anchorY":0
-				});
-				this.addChild(this.cards[i]);
-				this.cardPicked = true;
+					var cardRewards = [0,0,0,0,0,1,1,2,3];
+					var cardReward = cardRewards[Math.floor(Math.random()*cardRewards.length)];
+					if(cardReward == 0)
+					{
+						this.cards[i] = new cc.Sprite(res.ten_moves_gold_card);
+						//DATA.worldBallsLeft += 10;
+					}
+					else if(cardReward == 1)
+					{
+						this.cards[i] = new cc.Sprite(res.fifteen_coins_gold_card);
+						//DATA.setCurrencies(DATA.coins+15,DATA.gems);
+						//DATA.worldBallsLeft += 5;
+					}
+					else if(cardReward == 2)
+					{
+						this.cards[i] = new cc.Sprite(res.twentyfive_coins_gold_card);
+						//DATA.setCurrencies(DATA.coins+15,DATA.gems);
+						//DATA.worldBallsLeft += 5;
+					}
+					else if(cardReward == 3)
+					{
+						this.cards[i] = new cc.Sprite(res.gem_gold_card);
+						//DATA.setCurrencies(DATA.coins+5,DATA.gems+1);
+					}
+					
+					DATA.gameplayRewardOnReturn = {"type":"extraBonus","number":cardReward};
+						
+					//DATA.worldBallsLeft += cardRewards;
+					
+					this.cards[i].setScaleX(this.cardWidth/this.cards[i].width);
+					this.cards[i].setScaleY(this.cardHeight/this.cards[i].height);
+					
+					this.cards[i].attr({
+						"x":oldX,
+						"y":oldY,
+						"anchorX":0,
+						"anchorY":0
+					});
+					this.addChild(this.cards[i]);
+					this.cardPicked = true;
+				}
 			}
+		
 		}
-		
-		
 	}
 	
 });

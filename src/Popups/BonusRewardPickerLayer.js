@@ -87,43 +87,45 @@ var BonusRewardPickerLayer = cc.Layer.extend({
 	
 	onTouchEnd: function(pos)
 	{cc.log(pos);
-		for(var i=0; i<this.cards.length; i++)
+		if(!this.cardPicked)
 		{
-			var card = this.cards[i];
-			if(pos.x > card.x && pos.x < card.x+(card.width*card.scaleX) && pos.y > card.y && pos.y < card.y+(card.height*card.scaleY))
-			{cc.log("w " + card.width + " h " + card.height);
-				var oldX = card.x;
-				var oldY = card.y;
-				this.removeChild(card);
-				
-				var ballRewards = [1,1,1,1,1,3,3,5,5];
-				var ballsAdded = ballRewards[Math.floor(Math.random()*ballRewards.length)];
-				if(ballsAdded == 1)
-					this.cards[i] = new cc.Sprite(res.one_move_card);
-				else if(ballsAdded == 3)
-					this.cards[i] = new cc.Sprite(res.three_move_card);
-				else if(ballsAdded == 5)
-					this.cards[i] = new cc.Sprite(res.five_move_card);
+			for(var i=0; i<this.cards.length; i++)
+			{
+				var card = this.cards[i];
+				if(pos.x > card.x && pos.x < card.x+(card.width*card.scaleX) && pos.y > card.y && pos.y < card.y+(card.height*card.scaleY))
+				{cc.log("w " + card.width + " h " + card.height);
+					var oldX = card.x;
+					var oldY = card.y;
+					this.removeChild(card);
 					
-				//DATA.worldBallsLeft += ballsAdded;
-				
-				DATA.gameplayRewardOnReturn = {"type":"bonus","number":ballsAdded};
-				
-				this.cards[i].setScaleX(this.cardWidth/this.cards[i].width);
-				this.cards[i].setScaleY(this.cardHeight/this.cards[i].height);
-				
-				this.cards[i].attr({
-					"x":oldX,
-					"y":oldY,
-					"anchorX":0,
-					"anchorY":0
-				});
-				this.addChild(this.cards[i]);
-				this.cardPicked = true;
+					var ballRewards = [1,1,1,1,1,3,3,5,5];
+					var ballsAdded = ballRewards[Math.floor(Math.random()*ballRewards.length)];
+					if(ballsAdded == 1)
+						this.cards[i] = new cc.Sprite(res.one_move_card);
+					else if(ballsAdded == 3)
+						this.cards[i] = new cc.Sprite(res.three_move_card);
+					else if(ballsAdded == 5)
+						this.cards[i] = new cc.Sprite(res.five_move_card);
+						
+					//DATA.worldBallsLeft += ballsAdded;
+					
+					DATA.gameplayRewardOnReturn = {"type":"bonus","number":ballsAdded};
+					
+					this.cards[i].setScaleX(this.cardWidth/this.cards[i].width);
+					this.cards[i].setScaleY(this.cardHeight/this.cards[i].height);
+					
+					this.cards[i].attr({
+						"x":oldX,
+						"y":oldY,
+						"anchorX":0,
+						"anchorY":0
+					});
+					this.addChild(this.cards[i]);
+					this.cardPicked = true;
+				}
 			}
+		
 		}
-		
-		
 	}
 	
 });

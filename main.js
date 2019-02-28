@@ -134,12 +134,13 @@ cc.game.onStart = function(){
 			DATA.database.ref("users/"+DATA.userID+"/world").once("value").then(function(snapshot){
 				var d = snapshot.val();
 				var bubbles = [];
-			  	var bubKeys = Object.keys(d.bubbles);
+			  	var bubKeys = Object.keys(d.bubbles);cc.log("bubs");
 			  	for(var i=0; i<bubKeys.length; i++)
 			  	{
 			  		var dBub = d.bubbles[bubKeys[i]];
 			  		
 			  		var colorCode = null;
+			  		var metaData = null;
 			  		if(dBub.type == 7)
 			  		{
 			  			colorCode = [];
@@ -151,7 +152,15 @@ cc.game.onStart = function(){
 			  		}
 			  		else colorCode = dBub.colorCode;
 			  		
-			  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:colorCode, binary:dBub.binary};
+			  		if(dBub.type == 20)
+			  		{cc.log("star");
+			  			if("id" in dBub.meta && dBub.meta.id != null)
+			  			{cc.log("star with ID "+dBub.meta.id);
+			  				metaData = dBub.meta;
+			  			}
+			  		}
+			  		
+			  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:colorCode, binary:dBub.binary, meta:metaData};
 			  		//cc.log(bubble);
 			    	bubbles.push(bubble);
 			  	}

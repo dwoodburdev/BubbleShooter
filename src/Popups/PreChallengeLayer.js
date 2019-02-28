@@ -281,7 +281,7 @@ var PreChallengeLayer = cc.Layer.extend({
 		var textForTutorialB = null;
 		
 		
-		if(DATA.worldIndex == 0 && this.bubblePreview.bubbles.length > 100)
+		if(DATA.worldIndex == 0 && DATA.worldBubbles.length > 100)
 		{
 			var handAnim = new cc.Sprite(res.finger_point);
 			handAnim.setScale( (this.playButton.height*this.playButton.scale)*1.5 / handAnim.width);
@@ -307,8 +307,8 @@ var PreChallengeLayer = cc.Layer.extend({
 		if(DATA.streakStep == 0)
 		{
 			
-			textForTutorialA = "Win in 30 moves to";
-			textForTutorialB = "get a STREAK!";
+			textForTutorialA = "You only have ONE";
+			textForTutorialB = "chance to win!";
 			
 		}
 		else if(DATA.streakStep == 1)
@@ -321,7 +321,7 @@ var PreChallengeLayer = cc.Layer.extend({
 			else if(DATA.challengeTries == 1)
 			{
 				textForTutorialA = "Oh no! If you lose you'll";
-				textForTutorialB = "lose your streak.";
+				textForTutorialB = "lose your streak!";
 			}
 			
 		}
@@ -463,7 +463,10 @@ var PreChallengeLayer = cc.Layer.extend({
     	}
     	else if(this.posWithin(pos, {"x":this.x+this.closeButton.x,"y":this.y+this.closeButton.y,"width":this.closeButton.width*this.closeButton.scale,"height":this.closeButton.height*this.closeButton.scale}))
     	{cc.log("close");
-    		return "close";
+    		if(DATA.worldIndex == 0 && DATA.worldBubbles.length > 0)
+    		{}
+    		else
+    			return "close";
     	}
     	else if(this.posWithin(pos, {x:this.x+this.preBoosterA.x,
     		y:this.y+this.preBoosterA.y,

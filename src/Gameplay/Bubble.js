@@ -99,7 +99,12 @@ var Bubble = cc.Sprite.extend({
         		animFrames.push(animFrame);
         	}
         	
-        	this.idleAnimation = cc.Animation.create(animFrames, .1);
+        	var turnSpeed = .1;
+    		if(this.colorCode == "yellow")
+    			turnSpeed = .05;
+        	this.idleAnimation = cc.Animation.create(animFrames, turnSpeed);
+        	
+        	
         	
         	
         	if(this.colorCode == "yellow")
@@ -136,7 +141,12 @@ var Bubble = cc.Sprite.extend({
         			animFrame.initWithSpriteFrame(spriteFrame, 1, null);
         			turnAnimFrames.push(animFrame);
         		}
-        		this.turnAnimation = cc.Animation.create(turnAnimFrames, .1);
+        		var turnSpeed = .1;
+        		if(this.colorCode == "yellow")
+        			turnSpeed = .05;
+        		this.turnAnimation = cc.Animation.create(turnAnimFrames, turnSpeed);
+        		
+        		
         	}
         	
         }
@@ -550,6 +560,15 @@ var Bubble = cc.Sprite.extend({
 					this.bubbleImg = new cc.Sprite(res.love_emoji);
 				else if(this.colorCode == "purple")
 					this.bubbleImg = new cc.Sprite(res.evil_emoji);
+					
+				var animateAction = cc.Animate.create(this.idleAnimation);
+				var delay = .8;
+				if(this.colorCode == "red")
+					delay = 1.4;
+				else if(this.colorCode == "blue")
+					delay = 1.9;
+				var animateSeq = new cc.Sequence(cc.delayTime(delay), animateAction);
+				this.bubbleImg.runAction(new cc.RepeatForever(animateSeq));
 			}
 			else if(this.type == 7)
 			{cc.log(this.colorCode);
@@ -1110,6 +1129,23 @@ var Bubble = cc.Sprite.extend({
         }*/
 		
 	//},
+	
+	resetAnimation:function()
+	{
+		this.activeAnimation = false;
+		/*if(this.type == 0)
+		{
+			var animateAction = cc.Animate.create(this.idleAnimation);
+			var delay = .5;
+			if(this.colorCode == "red")
+				delay = 1.4;
+			else if(this.colorCode == "blue")
+				delay = 1.9;
+			var animateSeq = new cc.Sequence(cc.delayTime(delay), animateAction);
+			this.bubbleImg.runAction(new cc.RepeatForever(animateSeq));
+			
+		}*/
+	},
 	
 	updateSnailSprite:function()
 	{

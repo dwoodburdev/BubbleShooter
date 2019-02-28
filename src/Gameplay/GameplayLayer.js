@@ -6,6 +6,7 @@ var GameplayLayer = cc.Layer.extend({
         
 		var size = cc.winSize;
 		 
+		this.cardImg = null;
 		
 		this.coreButtonsUI = new CoreButtonsUI(cc.winSize.width/24, cc.winSize.height, "world");
 		this.coreButtonsUI.attr({
@@ -27,6 +28,8 @@ var GameplayLayer = cc.Layer.extend({
 		});
 		this.addChild(this.bubbleLayer);
 		
+		this.dn = new cc.DrawNode();
+		this.addChild(this.dn);
 		
 		this.preLayer = null;
 		this.worldRewardsLayer = null;
@@ -35,147 +38,7 @@ var GameplayLayer = cc.Layer.extend({
 		this.buyPreboosterLayer = null;
 		this.worldElementLayer = null;
 		
-											// Start - animate finger dragging side-side
-		this.tutorialA = null;		// Initial "hold", then "release" allowed any direction
-											// Single Row - Match
-		this.tutorialB = null;	// Initital "hold", then "drag/release" in left or right
-											// Shoot through Single Row for Soap Drop
-		this.tutorialC = null;		// Repeat "hold/drag/release" if player releases in wrong area, display large X if fail
-											// Double Row - Make match, allow to fail (eventually, add same assist tutorial if fail twice)
-											// Swap Tutorial - Player must swap, big red circle and big arrow (Player given unneeded color at head)
-		this.tutorialD = null;
-									// Star Tutorial - must hit star, other aims will be denied with big X
-		this.tutorialE = null;
-									// First Level - Player must tap Green Button (usually auto), and must play level.
-		this.tutorialF = null;
-									// (3 color level, little longer than top section, leading to soap drop)
-									
-									// If Win, (might not have to add tutorialization to win flow?)
-									// Back home, Tutorial for highlighting Streak (Quick visual of what streak means (get extra try, earn more moves), point to indicator on green button)
-		
-									// If Lose
-									// Back home (FIRST LEVEL ONLY), show visual (Beat levels to earn moves)
-									
-									// If Lose Streak
-									// Back home, show visual (You are back to zero)
-									
-									
-									
-									// In Final section, right side with star takes more 
-									
-									
-									
-									//Other
-									// +5 moves prebooster (After first fail, only in prelevel)
-									// Swords Tutorial - Beat level in X swords for reward (3 swords) (First Sword level (W2?))
-									// Bomb Tutorial - Beat level in X bombs for reward (3 bombs) (First Bomb level (W4?))
-									// Beachball Tutorial - Beat level in X beachballs for reward (3 beachballs) (First Beachball level (W 7?))
-									// Ext. Aim prebooster (Considering removing ext. aim for full world before) (do I even want to do this??)
-									
-									// Editor - Add exclamation when player unlocks Emoji (After World 2 when intro'd?), whenever emoji unlocked
-									// First time opening Editor, Show visual highlighting features (make levels, challenge friends, become famous creator)
-									
-									
-									// Watch Ad / Buy Moves Tutorial - When players run out of moves first time
-									// Daily Chest/Challenges - Intro'd when players run out of moves for first time, or if they play
-		
-									
-					// Worlds
-					// 1 - General Tutorial, 3-color Soap / 2 mins
-					// 		-- 2 levels
-					// 2 - Sword Tutorial, 4-color / 2.5 mins
-					// 		-- 2 levels?
-					//		-- first challenge is infinite-sword level, LEVEL CHALLENGE use less than X to get +5 moves
-					//		-- last challenge, or first free from here, is special mode - clean the poop timed(?) challenge, unlocks obstacle
-					// 3 - Bulb Tutorial, 4-color / 4 mins
-					// 		-- should be lil longer than prev, players could lose here, intro to Daily Challenges
-					//		-- if run out (casuals), aim for Watch Ad / Buy Moves Tutorial
-					// 4 - Bomb Tutorial, 4-color / 4 mins
-					//		-- first challenge is infinite-bomb level, LEVEL CHALLENGE use less than X to get +5 moves
-					//		
-					// 5 - Dice Tutorial - 5-color / 4.5 mins
-					//		-- Aim For Star-Goal to end here, towards unlocking Event Mode
-					//
-					// 6 - Beachball Tutorial - 4-color / 4 mins
-					//		-- first challenge is infinite-beachball level, LEVEL CHALLENGE use less than X to get +5 moves
-					//
-					// 7 - Dagger Tutorial - 
-					//		-- would be cool to have a world challenge, chain X together
-					//
-					// 8 - Clone Tutorial
-					//		-- 
-					//
-					// 9 - 
-					//		-- new challenge set?
-					//
-					// 10 - Snail Tutorial (maybe something else special?) - 
-					// 
-					//
-					// 11 - 
-					//
-					//
-					// 12 - Egg
-					//
-					//
-					// 13 - 
-					//
-					//
-					// 14 - Lantern
-					//
-					//
-					// 15 - 
-					//
-					//
-					// 16 - Balloon
-					//
-					//
-					// 17 - 
-					//
-					//
-					// 18 - Soapbar
-					//
-					//
-					// 19 - 
-					//
-					//
-					// 20 - x (maybe some kind of super)
-					//
-					//
-					// 21 - 
-					//
-					//
-					// 22 - Siren (changes colors around it?)
-					//
-					//
-					// 23 - 
-					//
-					//
-					// 24 - 
-					//
-					//
-					// 25 - Ghost (something else special?)
-					//
-					//
-					// 26 - 
-					//
-					//
-					// 27 - 
-					//
-					//
-					// 28 - (obstacle)
-					//
-					//
-					//
-					//
-					
-					
-									
-									
-									// 5 (CHANGED TO LEVEL-UNLCOKED OBSTACTLE) - Poop Tutorial, Banking Reinforcement - First shot must bank to hit Poop
-									//
-									
-									// Still need to think about new colored emojis, how to use
-		
+		this.cardTutorial = false;
 		
 		this.shooterLabel = null;
 		
@@ -205,53 +68,53 @@ var GameplayLayer = cc.Layer.extend({
 		
 		
 		
-		var cardImg = null;
+		this.cardImg = null;
 		if(rewardData.type == "extraBonus")
 		{
 			if(rewardData.number == 0)
 			{
-				cardImg = new cc.Sprite(res.ten_moves_gold_card);
+				this.cardImg = new cc.Sprite(res.ten_moves_gold_card);
 				DATA.worldBallsLeft += 10;
 			}
 			else if(rewardData.number == 1)
 			{
-				cardImg = new cc.Sprite(res.fifteen_coins_gold_card);
+				this.cardImg = new cc.Sprite(res.fifteen_coins_gold_card);
 				DATA.setCurrencies(DATA.coins+15,0);
 				DATA.worldBallsLeft += 5;
 			}
 			else if(rewardData.number == 2)
 			{
-				cardImg = new cc.Sprite(res.twentyfive_coins_gold_card);
+				this.cardImg = new cc.Sprite(res.twentyfive_coins_gold_card);
 				DATA.setCurrencies(DATA.coins+15,0);
 				DATA.worldBallsLeft += 5;
 			}
 			else if(rewardData.number == 3)
 			{
-				cardImg = new cc.Sprite(res.gem_gold_card);
+				this.cardImg = new cc.Sprite(res.gem_gold_card);
 				DATA.setCurrencies(DATA.coins+5,0);
 			}
 		}
 		else if(rewardData.type == "bonus")
 		{
 			if(rewardData.number == 1)
-				cardImg = new cc.Sprite(res.one_move_card);
+				this.cardImg = new cc.Sprite(res.one_move_card);
 			else if(rewardData.number == 3)
-				cardImg = new cc.Sprite(res.three_move_card);
+				this.cardImg = new cc.Sprite(res.three_move_card);
 			else if(rewardData.number == 5)
-				cardImg = new cc.Sprite(res.five_move_card);
+				this.cardImg = new cc.Sprite(res.five_move_card);
 			DATA.worldBallsLeft += rewardData.number;
 		}
 		
 		DATA.setDatabaseMoves(DATA.worldBallsLeft);
 		
-		cardImg.setScale(cardImg.height / this.height/2);
-		cardImg.attr({
-			x:0-(cardImg.width*cardImg.scale)/2,
+		this.cardImg.setScale(this.cardImg.height / this.height/2);
+		this.cardImg.attr({
+			x:0-(this.cardImg.width*this.cardImg.scale)/2,
 			y:this.height/2,
 			anchorX:.5,
 			anchorY:.5
 		});
-		this.addChild(cardImg);
+		this.addChild(this.cardImg);
 		
 		var moveAction = cc.moveTo(.5, this.width/2, this.height/2);
 		
@@ -259,17 +122,18 @@ var GameplayLayer = cc.Layer.extend({
 		var delayAction = cc.delayTime(1.5);
 		var spawn = cc.spawn(callAction, delayAction);
 		
-		var moveActionB = cc.moveTo(.5, this.width + (cardImg.width*cardImg.scale)/2, this.height/2);
-		var removeAction = cc.callFunc(cardImg.removeFromParent, cardImg);
+		var moveActionB = cc.moveTo(.5, this.width + (this.cardImg.width*this.cardImg.scale)/2, this.height/2);
+		var removeAction = cc.callFunc(this.clearRewardAnim, this);
 		
 		var seq = new cc.Sequence(moveAction, spawn, moveActionB, removeAction);
-		cardImg.runAction(seq);
+		this.cardImg.runAction(seq);
 		
 		
 		
 		
 		if(DATA.worldIndex == 0 && this.bubbleLayer.bubbles.length > 100)
 		{
+			this.cardTutorial = true;
 			this.popupDn = new cc.DrawNode();
 			this.tutorialStreakTextA = null;
 			this.tutorialStreakTextB = null;
@@ -281,14 +145,14 @@ var GameplayLayer = cc.Layer.extend({
 				this.addChild(this.popupDn);
 				var botPosY = this.y + 3;
 				this.dn.drawRect(cc.p(20,botPosY),
-					cc.p(this.width-20, this.cardImg.y-(cardImg.height*cardImg.scale)-3),
+					cc.p(this.width-20, this.cardImg.y-(this.cardImg.height*this.cardImg.scale)/2 - 3),
 					cc.color(255,255,255,255),4,cc.color(0,0,0,255)
 				);
 					
-				this.tutorialStreakTextA = new cc.LabelTTF("Beat levels to earn moves!","Roboto",24);
+				this.tutorialStreakTextA = new cc.LabelTTF("You won extra moves!","Roboto",24);
 				this.tutorialStreakTextA.attr({
 					x:this.width/2,
-					y:this.cardImg.y-(cardImg.height*cardImg.scale)-10,
+					y:this.cardImg.y-(this.cardImg.height*this.cardImg.scale)/2 -10,
 					anchorX:.5,
 					anchorY:1
 				});
@@ -305,7 +169,7 @@ var GameplayLayer = cc.Layer.extend({
 				this.addChild(this.tutorialStreakTextB);
 				
 				this.tutFace = new cc.Sprite(res.nerd_emoji);
-				this.tutFace.setScale(circleR*2.5 / this.tutFace.width);
+				this.tutFace.setScale(DATA.bubbleR*2.5 / this.tutFace.width);
 				this.tutFace.attr({
 					x:this.width-3,
 					y:botPosY,
@@ -318,6 +182,28 @@ var GameplayLayer = cc.Layer.extend({
 		
 		
 		
+	},
+	
+	clearRewardAnim:function()
+	{
+		this.removeChild(this.cardImg);
+		this.cardImg = null;
+		if(this.tutorialStreakTextA != null)
+		{
+			this.removeChild(this.tutorialStreakTextA);
+			this.tutorialStreakTextA = null;
+		}
+		if(this.tutorialStreakTextB != null)
+		{
+			this.removeChild(this.tutorialStreakTextB);
+			this.tutorialStreakTextB = null;
+		}
+		if(this.tutFace != null)
+		{
+			this.removeChild(this.tutFace);
+			this.tutFace = null;
+		}
+		this.dn.clear();
 	},
 	
 	refreshUIQuantities:function()

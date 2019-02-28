@@ -411,7 +411,8 @@ var res = {
     left_path_dir:"res/left-path-dir.png",
     upleft_path_dir:"res/upleft-path-dir.png",
     
-    yellow_ui_circle: "res/yellow-circle.png"
+    yellow_ui_circle: "res/yellow-circle.png",
+    tutorial_arrow: "res/tutorial-arrow.png"
     
 };
 
