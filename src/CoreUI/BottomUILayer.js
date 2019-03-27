@@ -16,6 +16,8 @@ var BottomUILayer = cc.Layer.extend({
 		
 		this.appWidth = this.buttonHeight*.7;
 		
+		this.color = cc.color(220,220,220,255);
+		
 		this.meButton = new cc.Sprite(res.me_button);
 		this.meButton.setScaleX(this.appWidth/this.meButton.width);
 		this.meButton.setScaleY(this.appWidth/this.meButton.height);
@@ -79,8 +81,122 @@ var BottomUILayer = cc.Layer.extend({
 	
 	draw:function(){
 		
-		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(220,220,220,255),0,cc.color(0,0,0,255));
+		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), this.color,0,cc.color(0,0,0,255));
 		
+	},
+	
+	changeToEditor:function()
+	{
+		var leagueScaleX = this.leagueButton.scaleX;
+		var leagueScaleY = this.leagueButton.scaleY;
+		var leagueX = this.buttonWidth*9/2;
+		var leagueY = this.height/2;
+		this.removeChild(this.leagueButton);
+		this.leagueButton = null;
+		this.leagueButton = new cc.Sprite(res.showcase_button);
+		this.leagueButton.setScaleX(leagueScaleX);
+		this.leagueButton.setScaleY(leagueScaleY);
+		this.leagueButton.attr({
+			"x":leagueX,
+			"y":leagueY,
+			"anchorX":.5,
+			"anchorY":.5
+		});
+		this.addChild(this.leagueButton);
+		
+		var playScaleX = this.playButton.scaleX;
+		var playScaleY = this.playButton.scaleY;
+		var playX = this.buttonWidth*5/2;
+		var playY = this.height/2;
+		this.removeChild(this.playButton);
+		this.playButton = null;
+		this.playButton = new cc.Sprite(res.edit_level_button);
+		this.playButton.setScaleX(playScaleX);
+		this.playButton.setScaleY(playScaleY);
+		this.playButton.attr({
+			"x":playX,
+			"y":playY,
+			"anchorX":.5,
+			"anchorY":.5
+		});
+		this.addChild(this.playButton);
+		
+		var challengeScaleX = this.challengeMenuButton.scaleX;
+		var challengeScaleY = this.challengeMenuButton.scaleY;
+		var challengeX = this.buttonWidth*3/2;
+		var challengeY = this.height/2;
+		this.removeChild(this.challengeMenuButton);
+		this.challengeMenuButton = null;
+		this.challengeMenuButton = new cc.Sprite(res.browse_button);
+		this.challengeMenuButton.setScaleX(challengeScaleX);
+		this.challengeMenuButton.setScaleY(challengeScaleY);
+		this.challengeMenuButton.attr({
+			"x":challengeX,
+			"y":challengeY,
+			"anchorX":.5,
+			"anchorY":.5
+		});
+		this.addChild(this.challengeMenuButton);
+		
+		this.color = cc.color(255,140,0,255);
+		this.draw();
+	},
+	
+	changeToGame:function()
+	{
+		var leagueScaleX = this.leagueButton.scaleX;
+		var leagueScaleY = this.leagueButton.scaleY;
+		var leagueX = this.buttonWidth*9/2;
+		var leagueY = this.height/2;
+		this.removeChild(this.leagueButton);
+		this.leagueButton = null;
+		this.leagueButton = new cc.Sprite(res.league_button);
+		this.leagueButton.setScaleX(leagueScaleX);
+		this.leagueButton.setScaleY(leagueScaleY);
+		this.leagueButton.attr({
+			"x":leagueX,
+			"y":leagueY,
+			"anchorX":.5,
+			"anchorY":.5
+		});
+		this.addChild(this.leagueButton);
+		
+		var playScaleX = this.playButton.scaleX;
+		var playScaleY = this.playButton.scaleY;
+		var playX = this.buttonWidth*5/2;
+		var playY = this.height/2;
+		this.removeChild(this.playButton);
+		this.playButton = null;
+		this.playButton = new cc.Sprite(res.play_button);
+		this.playButton.setScaleX(playScaleX);
+		this.playButton.setScaleY(playScaleY);
+		this.playButton.attr({
+			"x":playX,
+			"y":playY,
+			"anchorX":.5,
+			"anchorY":.5
+		});
+		this.addChild(this.playButton);
+		
+		var challengeScaleX = this.challengeMenuButton.scaleX;
+		var challengeScaleY = this.challengeMenuButton.scaleY;
+		var challengeX = this.buttonWidth*3/2;
+		var challengeY = this.height/2;
+		this.removeChild(this.challengeMenuButton);
+		this.challengeMenuButton = null;
+		this.challengeMenuButton = new cc.Sprite(res.challenge_button);
+		this.challengeMenuButton.setScaleX(challengeScaleX);
+		this.challengeMenuButton.setScaleY(challengeScaleY);
+		this.challengeMenuButton.attr({
+			"x":challengeX,
+			"y":challengeY,
+			"anchorX":.5,
+			"anchorY":.5
+		});
+		this.addChild(this.challengeMenuButton);
+		
+		this.color = cc.color(220,220,220,255);
+		this.draw();
 	},
 	
 	selectButton:function(code)

@@ -419,7 +419,7 @@ DATA.initUserData = function()
 	}
 	
 	DATA.worldMeta = d.world.meta;cc.log(DATA.worldMeta);
-  
+	
   cc.director.runScene(new MainContainerScene(DATA.worldBubbles, maxRow+1, DATA.worldMeta));
   });
   

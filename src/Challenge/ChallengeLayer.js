@@ -286,6 +286,24 @@ var ChallengeLayer = cc.Layer.extend({
 		var scaleAction = cc.scaleTo(.5,1,1);
 		var spawn = cc.spawn(moveAction, scaleAction);
 		this.challengeRewardLayer.runAction(spawn);
+	},
+	
+	openChallengeFailLayer:function()
+	{
+		this.challengeFailLayer = new ChallengeFailLayer();
+		this.challengeFailLayer.attr({
+			x:cc.winSize.width/2,
+			y: (cc.winSize.height-this.bottomUILayer.height-this.topUILayer.height) / 2,
+			anchorX:0,
+			anchorY:0
+		});
+		this.challengeFailLayer.setScale(0);
+		this.addChild(this.challengeFailLayer);
+		
+		var moveAction = cc.moveTo(.5, 25, this.bottomUILayer.height+25);
+		var scaleAction = cc.scaleTo(.5,1,1);
+		var spawn = cc.spawn(moveAction, scaleAction);
+		this.challengeFailLayer.runAction(spawn);
 	}
 	
 });

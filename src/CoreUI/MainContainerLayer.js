@@ -30,15 +30,28 @@ var MainContainerLayer = cc.Layer.extend({
 		});
 		this.addChild(this.topUILayer, 8);
 		
+		
+		
+		this.coreButtonsUI = new CoreButtonsUI(cc.winSize.width/24, cc.winSize.height, "world");
+		this.coreButtonsUI.attr({
+			x:0,
+			y:DATA.bottomUIHeight,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.coreButtonsUI);
+		
+		
 		this.curTabName = "gameplay";
+		this.menuMode = "game";
 		
 		this.bubbles = bubbles;
 		this.maxRow = maxRow;
 		cc.log(meta);
-		this.gameplayLayer = new GameplayLayer(bubbles, maxRow, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight, meta);
+		this.gameplayLayer = new GameplayLayer(bubbles, maxRow, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height, meta);
 		this.gameplayLayer.attr({
 			x:0,
-			y:DATA.bottomUIHeight,
+			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
 			anchorX:0,
 			anchorY:0
 		});
@@ -52,37 +65,79 @@ var MainContainerLayer = cc.Layer.extend({
 		
 		this.curMainLayer = this.gameplayLayer;
 		
-		this.challengeLayer = new ChallengeMenuDisplayLayer(cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight);
+		
+		this.mainEditorLayer = new EditorLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
+		this.mainEditorLayer.attr({
+			x:0,
+			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
+			anchorX:0,
+			anchorY:0
+		});
+		
+		this.editorCreatorsLayer = new CreatorsDisplayLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
+		this.editorCreatorsLayer.attr({
+			x:0,
+			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
+			anchorX:0,
+			anchorY:0
+		});
+		this.editorEventLayer = new CreatorEventLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
+		this.editorEventLayer.attr({
+			x:0,
+			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
+			anchorX:0,
+			anchorY:0
+		});
+		
+		this.editorRewardsLayer = new CreatorRewardsLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
+		this.editorRewardsLayer.attr({
+			x:0,
+			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
+			anchorX:0,
+			anchorY:0
+		});
+		
+		this.editorShopLayer = new CreatorsDisplayLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
+		this.editorShopLayer.attr({
+			x:0,
+			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
+			anchorX:0,
+			anchorY:0
+		});
+		
+		
+		
+		this.challengeLayer = new ChallengeMenuDisplayLayer(cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
 		this.challengeLayer.attr({
 			x:cc.winSize.width*-1,
-			y:DATA.bottomUIHeight,
+			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
 			anchorX:0,
 			anchorY:0
 		});
 		this.addChild(this.challengeLayer);
 		
-		this.meLayer = new MeDisplayLayer(cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight);
+		this.meLayer = new MeDisplayLayer(cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
 		this.meLayer.attr({
 			x:cc.winSize.width*-2,
-			y:DATA.bottomUIHeight,
+			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
 			anchorX:0,
 			anchorY:0
 		});
 		this.addChild(this.meLayer);
 		
-		this.friendsLayer = new FriendsDisplayLayer(cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight);
+		this.friendsLayer = new FriendsDisplayLayer(cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
 		this.friendsLayer.attr({
 			x:cc.winSize.width,
-			y:DATA.bottomUIHeight,
+			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
 			anchorX:0,
 			anchorY:0
 		});
 		this.addChild(this.friendsLayer);
 		
-		this.leagueLayer = new LeagueDisplayLayer(cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight);
+		this.leagueLayer = new LeagueDisplayLayer(cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
 		this.leagueLayer.attr({
 			x:cc.winSize.width*2,
-			y:DATA.bottomUIHeight,
+			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
 			anchorX:0,
 			anchorY:0
 		});
@@ -151,6 +206,23 @@ var MainContainerLayer = cc.Layer.extend({
 				    	{cc.log("bottom");
 				    		var botReturn = null;
 				    		botReturn = self.bottomUILayer.onTouchEnd(locationInNode);
+				    		
+				    		if(botReturn == self.curTabName)
+				    		{
+				    			if(self.menuMode == "creator")
+				    			{
+				    				self.bottomUILayer.changeToGame();
+				    				self.topUILayer.changeToGame();
+				    			}
+				    			else if(self.menuMode == "game")
+				    			{
+				    				self.bottomUILayer.changeToEditor();
+				    				self.topUILayer.changeToEditor();
+				    			}
+				    			self.swapCreatorMode();
+				    		}
+				    		else
+				    		{
 				    		if(botReturn == "challenge")
 				    		{
 				    			var moveDistance = 0;
@@ -283,15 +355,21 @@ var MainContainerLayer = cc.Layer.extend({
 				    			self.curTabName = "league";
 				    			self.bottomUILayer.selectButton(self.curTabName);
 				    		}
+				    		}
 				    	}
 				    	else if(FUNCTIONS.posWithin(touch.getLocation(), self.topUILayer))
 				    	{cc.log("topUI");
 				    		//self.openWorldMapLayer();
 				    		self.topUILayer.onTouchEnd(touch.getLocation());
 				    	}
-				    	else if(FUNCTIONS.posWithin(/*self.curMainLayer.convertToNodeSpace(touch.getLocation())*/touch.getLocation(), self.curMainLayer))
+				    	else if(/*FUNCTIONS.posWithin(touch.getLocation(), self.coreButtonsUI) ||*/ FUNCTIONS.posWithin(touch.getLocation(), self.curMainLayer))
 				    	{cc.log("curLayerrrrrr");
 				    		self.curMainLayer.onTouchEnded(touch.getLocation());
+				    	}
+				    	else if(FUNCTIONS.posWithin(touch.getLocation(), self.coreButtonsUI))
+				    	{
+				    		cc.log("CORE BUTTONS YO");
+				    		self.curMainLayer.coreUITouched(touch.getLocation());
 				    	}
 					 	
 					 	cc.log(self.curMainLayer.x+" "+
@@ -336,6 +414,84 @@ var MainContainerLayer = cc.Layer.extend({
 	openSettingsLayer:function()
 	{
 		
+	},
+	
+	swapCreatorMode:function()
+	{
+		if(this.menuMode == "game")
+		{
+			this.removeChild(this.gameplayLayer);
+			this.removeChild(this.challengeLayer);
+			this.removeChild(this.leagueLayer);
+			this.removeChild(this.friendsLayer);
+			this.removeChild(this.meLayer);
+			
+			this.mainEditorLayer.x = this.gameplayLayer.x;
+			this.editorCreatorsLayer.x = this.friendsLayer.x;
+			this.editorEventLayer.x = this.leagueLayer.x;
+			this.editorRewardsLayer.x = this.challengeLayer.x;
+			this.editorShopLayer.x = this.meLayer.x;
+			
+			this.addChild(this.mainEditorLayer);
+			this.addChild(this.editorCreatorsLayer);
+			this.addChild(this.editorEventLayer);
+			this.addChild(this.editorRewardsLayer);
+			this.addChild(this.editorShopLayer);
+			
+			if(this.curTabName == "gameplay")
+				this.curMainLayer = this.mainEditorLayer;
+			else if(this.curTabName == "me")
+				this.curMainLayer = this.editorShopLayer;
+			else if(this.curTabName == "friends")
+				this.curMainLayer = this.editorCreatorsLayer;
+			else if(this.curTabName == "league")
+				this.curMainLayer = this.editorEventLayer;
+			else if(this.curTabName == "challenge")
+				this.curMainLayer = this.editorRewardsLayer;
+				
+			this.bottomUILayer.changeToEditor();
+			this.topUILayer.changeToEditor();
+			
+			this.coreButtonsUI.hideLevelsButton();
+			this.menuMode = "creator";
+		}
+		else if(this.menuMode == "creator")
+		{
+			this.removeChild(this.mainEditorLayer);
+			this.removeChild(this.editorCreatorsLayer);
+			this.removeChild(this.editorEventLayer);
+			this.removeChild(this.editorRewardsLayer);
+			this.removeChild(this.editorShopLayer);
+			
+			this.gameplayLayer.x = this.mainEditorLayer.x;
+			this.friendsLayer.x = this.editorCreatorsLayer.x;
+			this.leagueLayer.x = this.editorEventLayer.x;
+			this.challengeLayer.x = this.editorRewardsLayer.x;
+			this.meLayer.x = this.editorShopLayer.x;
+			
+			this.addChild(this.gameplayLayer);
+			this.addChild(this.challengeLayer);
+			this.addChild(this.leagueLayer);
+			this.addChild(this.friendsLayer);
+			this.addChild(this.meLayer);
+			
+			if(this.curTabName == "gameplay")
+				this.curMainLayer = this.gameplayLayer;
+			else if(this.curTabName == "me")
+				this.curMainLayer = this.meLayer;
+			else if(this.curTabName == "friends")
+				this.curMainLayer = this.friendsLayer;
+			else if(this.curTabName == "league")
+				this.curMainLayer = this.leagueLayer;
+			else if(this.curTabName == "challenge")
+				this.curMainLayer = this.challengeLayer;
+			
+			this.bottomUILayer.changeToGame();
+			this.topUILayer.changeToGame();
+			
+			this.coreButtonsUI.showLevelsButton();
+			this.menuMode = "game";
+		}
 	},
 	
 	openWorldMapLayer:function()
@@ -393,19 +549,31 @@ var MainContainerLayer = cc.Layer.extend({
 	{
 		var moveAction = cc.moveBy(.5, cc.p(moveDistance, 0));
 		//var seq = new cc.Sequence(moveRightAction, cc.callFunc( self.gameplayLayer.removeFromParent, self.gameplayLayer ) );
-		this.gameplayLayer.runAction(moveAction);
 		
 		var moveActionB = cc.moveBy(.5, cc.p(moveDistance, 0));
-		this.challengeLayer.runAction(moveActionB);
 		
 		var moveActionC = cc.moveBy(.5, cc.p(moveDistance, 0));
-		this.meLayer.runAction(moveActionC);
 		
 		var moveActionD = cc.moveBy(.5, cc.p(moveDistance, 0));
-		this.friendsLayer.runAction(moveActionD);
 		
 		var moveActionE = cc.moveBy(.5, cc.p(moveDistance, 0));
-		this.leagueLayer.runAction(moveActionE);
+		
+		if(this.menuMode == "game")
+		{
+			this.gameplayLayer.runAction(moveAction);
+			this.challengeLayer.runAction(moveActionB);
+			this.meLayer.runAction(moveActionC);
+			this.friendsLayer.runAction(moveActionD);
+			this.leagueLayer.runAction(moveActionE);
+		}
+		else if(this.menuMode == "creator")
+		{
+			this.mainEditorLayer.runAction(moveAction);
+			this.editorRewardsLayer.runAction(moveActionB);
+			this.editorShopLayer.runAction(moveActionC);
+			this.editorCreatorsLayer.runAction(moveActionD);
+			this.editorEventLayer.runAction(moveActionE);
+		}
 	}
 	
 });

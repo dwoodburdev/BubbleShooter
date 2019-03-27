@@ -39,6 +39,8 @@ var Bubble = cc.Sprite.extend({
         this.turnRightAnimation = null;
         this.turnLeftAnimation = null;
         
+        this.shotComplete = true;
+        
         //cc.log(this.type + "  " + this.colorCode);
         
         if(this.type == -1)
@@ -1540,73 +1542,152 @@ var Bubble = cc.Sprite.extend({
 		this.dy = ddy*this.v;
 	},
 	
-	initShotAnim:function(target, targetHex, numRows, maxRows, rowHeight, bottomMostY)
+	initShotAnim:function(target, targetHex, numRows, maxRows, rowHeight, bottomMostY, bottomBub)
 	{
-		var segments = [];
+		// The separate actions to be executed
+		var actions = [];
 		
-		var leftWallX = 0;
-		var rightWallX = this.x*2;
+		this.shotComplete = false;
 		
-		//var x = this.x;
-		//var y = this.y;
+		cc.log("-TARGET HEX) " + targetHex);
+		cc.log("-NUM ROWS " + numRows);
 		
-		var diffX = this.x - target.x;
-		var diffY = this.y - target.y;
+		// BORDERS
+		var leftWallX = 0+DATA.bubbleR;
+		var rightWallX = this.parent.width-DATA.bubbleR;
+		
+		cc.log("-L Wall (bubbleR))   " + leftWallX);
+		cc.log("-R Wall)   " + rightWallX);
+		// INITIAL DISTANCES
+		
+		var x=this.x;
+		cc.log("-X   " + x);
+		//var y=((numRows*DATA.bubbleR*2)+DATA.bubbleR) + (this.parent.height - this.y - this.parent.getOverflowOffset());
+		
+		var bottomBubbleTrueDist = (numRows*rowHeight)-DATA.bubbleR;cc.log(bottomBub.y);cc.log(this.y);
+		var shooterToBottomBubDist = bottomBub.y - this.y;
+		
+		//var yPosFromTop = bottomBubbleTrueDist
+		
+		var y = bottomBubbleTrueDist + shooterToBottomBubDist /*- DATA.bubbleR + this.parent.getOverflowOffset()))*/;
+		cc.log("y)  " + y);
+		// this.height - bub.row*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset
+		
+		var finalTargetY = targetHex.y*rowHeight+DATA.bubbleR;
+		cc.log("finalTargetY  " + finalTargetY);
+		
+		var direction = "";
+		if(target.x > x)
+			direction = "right";
+		else direction = "left";
+		
+		
+		var dist = 0;
+		
 		var m = 999999;
-		if(diffX != 0)
-			m = diffY / diffX;
+		if(target.x-x != 0)
+			m=Math.abs(target.y-this.y)/Math.abs(target.x-this.x);
 		
-		//do
-		//{
+		//if(direction == "left")
+		//	m*=-1;
+		
+		cc.log("M)  "+m);
 			
-			var leftCornerM = -999999;
-			if(leftWallX-this.x != 0)
-				leftCornerM = (numRows*rowHeight + (bottomMostY-this.y) )/(leftWallX-this.x);
-			var rightCornerM = 999999;
-			if(rightWallX != 0)
-				rightCornerM = (numRows*rowHeight + (bottomMostY-this.y) )/(rightWallX-this.x);
+		var diffX=null;
+		var diffY=null;
+		var targetYFound = false;
+		
+		do
+		{
+		
+			if(direction == "left")
+				diffX = x-leftWallX;
+			else diffX = rightWallX-x;
+			cc.log("HAVE TO MOVE)   " + diffX + "to the " + direction);
+			//diffY = ;
 			
-			cc.log("Corner Ms");cc.log(leftCornerM);cc.log(rightCornerM);
 			
 			
-			cc.log("M");cc.log(m);
+			//x += diffX;
+			var prevX = x;
+			var prevY = y;
+			var prevDist = dist;
 			
-			//var y = numRows*rowHeight + (bottomMostY-this.y);
-			var y = 0;
+			y -= Math.abs(m*diffX);
+			cc.log("Y Decreases By " + Math.abs(m*diffX) + " to " + y);
+			if(direction == "left")
+				x-=diffX;
+			else x += diffX;
+			cc.log("X moves from " + prevX + " to " + x);
 			
-			if(m > leftCornerM || m < rightCornerM)
-			{
-				// Segment points at wall.
-				// Add segment to point of collision, unless past targetHex.
-				if(m < 0)
-				{
-					var wallCollisionY = m*(leftWallX-this.x) + y;cc.log("y-collision");cc.log(wallCollisionY);
-				}
-				else
-				{
-					var wallCollisionY = m*(rightWallX-this.x) + y;cc.log("y-collision");cc.log(wallCollisionY);
-				}
+			dist = Math.pow( Math.pow(Math.abs(y-prevY), 2) + Math.pow(Math.abs(diffX), 2) , .5 );cc.log(dist);
+			
+			//cc.log(y);
+			//cc.log(finalTargetY);
+			
+			if(y < finalTargetY)
+			{cc.log("---FINAL BOUNCE---");
+				targetYFound = true;
 				
-				//segmentActions.push(cc.moveTo())
+				x = prevX;
+				y = prevY;
+				dist = prevDist;
 				
-				m *= -1;
+				if(direction == "right")
+					diffX = ( targetHex.x*DATA.bubbleR*2 + DATA.bubbleR + (targetHex.y%2)*DATA.bubbleR ) - x;
+				else diffX = x - ( targetHex.x*DATA.bubbleR*2 + DATA.bubbleR + (targetHex.y%2)*DATA.bubbleR );
+				
+				cc.log("Instead, Move X " + diffX);
+				
+				//y -= Math.abs( m*diffX );
+				y =  (targetHex.y*rowHeight + DATA.bubbleR);
+				
+				if(direction == "left")
+					x-=diffX;
+				else x += diffX;
+				
+				//x = (targetHex.x*DATA.bubbleR*2 + DATA.bubbleR)
+				
+				dist = Math.pow( Math.pow(Math.abs(y-prevY), 2) + Math.pow(Math.abs(diffX), 2) , .5 );cc.log(dist);
 			}
 			else
-			{
-				// Segment points to ceililng, this will be last segment to targetHex.
-				
-				
-				//segmentActions.push(cc.moveTo())
+			{cc.log("---not final bounce---");
+				//m = 999999;
+				//if(diffX != 0)
+				//	m = diffY / diffX;
+				m*= -1;
+					
+				if(direction == "left")
+				{
+					direction = "right";
+				}
+				else direction = "left";
 			}
 			
 			
 			
+			var speed = DATA.bubbleR*2 * 1;
+			var time = dist*(1/(DATA.bubbleR*2*15));cc.log(dist);
+			//time=1;
+			cc.log("ACTION Move X) " + (x-prevX) + "   Y) "+(prevY-y));
+			var nextAction = cc.moveBy(time, (x - prevX), (prevY-y));
+			//var nextAction = cc.moveTo(time, xTarget, yTarget);
+			actions.push(nextAction);
 			
-		//} while();
+		} while(!targetYFound);
 		
-		segmentActions.push(cc.callFunc(this.parent.snapShooter, this.parent));
-		shotSeq = new cc.Sequence(segmentActions);
-		this.bubbleImg.runAction(shotSeq);
+		//actions.push(cc.callFunc(this.parent.snapShooter, this.parent));
+		actions.push(cc.callFunc(this.completeShot, this));
+		
+		var seq = new cc.Sequence(actions);
+		this.runAction(seq);
+		
+		
+	},
+	
+	completeShot:function()
+	{
+		this.shotComplete = true;
 	},
 	
 	

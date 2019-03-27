@@ -315,6 +315,13 @@ var res = {
     friends_button_locked: "res/friends-button-locked.png",
     league_button_locked: "res/league-button-locked.png",
     
+    edit_level_button: "res/edit-button-selected-1.png",
+    edit_selected_button: "res/edit-button-selected-1.png",
+    browse_button:"res/browse-button-selected-1.png",
+    browse_selected_button:"res/browse-button-selected-1.png",
+    showcase_button:"res/showcase-button-selected-1.png",
+    showcase_selected_button:"res/showcase-button-selected-1.png",
+    
     creator_button: "res/level-creator-button.png",
     back_arrow_right: "res/back-arrow-right.png",
     back_arrow_left: "res/back-arrow-left.png",
@@ -412,8 +419,9 @@ var res = {
     upleft_path_dir:"res/upleft-path-dir.png",
     
     yellow_ui_circle: "res/yellow-circle.png",
-    tutorial_arrow: "res/tutorial-arrow.png"
+    tutorial_arrow: "res/tutorial-arrow.png",
     
+    phone: "res/phone.png"
 };
 
 

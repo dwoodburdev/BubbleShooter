@@ -15,7 +15,7 @@ var CoreButtonsUI = cc.Layer.extend({
 		this.tutorialLayer = null;
 		
 		
-		
+		this.levelButtonShown = true;
 		
 		
 		this.tabName = tabName;
@@ -57,7 +57,7 @@ var CoreButtonsUI = cc.Layer.extend({
 			});
 			this.addChild(this.levelBImg);
 		}
-		this.storeButtonLabel=new cc.LabelTTF("Store","Roboto",30);
+		/*this.storeButtonLabel=new cc.LabelTTF("Store","Roboto",30);
 		this.storeButtonLabel.attr({
 			x:this.storeButton.x+this.storeButton.width/2,
 			y:this.storeButton.y+this.storeButton.height/2,
@@ -65,7 +65,7 @@ var CoreButtonsUI = cc.Layer.extend({
 			anchorY:0.5
 		});
 		this.storeButtonLabel.color=cc.color(0,0,0,255);
-		this.addChild(this.storeButtonLabel);
+		this.addChild(this.storeButtonLabel);*/
 		this.editorButtonLabel=new cc.LabelTTF("Creator","Roboto",30);
 		this.editorButtonLabel.attr({
 			x:this.editorButton.x+this.editorButton.width/2,
@@ -134,9 +134,42 @@ var CoreButtonsUI = cc.Layer.extend({
 		}
 		else if(this.posWithin(pos,this.editorButton))
 		{
-			cc.director.runScene(new cc.TransitionFade(1, new EditorScene()));
+			//cc.director.runScene(new cc.TransitionFade(1, new EditorScene()));
+			
+			return "creator";
+			
+			
+			
 		}
 	},
+	
+	
+	hideLevelsButton:function()
+	{
+		this.levelButtonShown = false;
+		//this.removeChild(this.levelAImg);
+		//this.removeChild(this.levelBImg);
+		if(this.levelAImg != null)
+			this.removeChild(this.levelAImg);
+		if(this.levelAShadow != null)
+			this.removeChild(this.levelAShadow);
+		if(this.levelBImg != null)
+			this.removeChild(this.levelBImg);
+		if(this.levelBShadow != null)
+			this.removeChild(this.levelBShadow);
+		
+		this.dn.clear();
+		this.draw();
+	},
+	showLevelsButton:function()
+	{
+		this.levelButtonShown = true;
+		
+		this.refreshLevelsUI();
+		
+		this.draw();
+	},
+	
 	posWithin:function(a,b)
 	{
 		if(a.y>b.y&&a.y<b.y+b.height&&a.x>b.x&&a.x<b.x+b.width)
@@ -214,9 +247,12 @@ var CoreButtonsUI = cc.Layer.extend({
 	
 	draw:function()
 	{
-		this.drawChallengeButton();
-		this.dn.drawRect(cc.p(this.storeButton.x,this.storeButton.y),cc.p(this.storeButton.x+this.storeButton.width,this.storeButton.y+this.storeButton.height),cc.color(255,255,0,255),5,cc.color(0,0,0,255));
 		this.dn.drawRect(cc.p(this.editorButton.x,this.editorButton.y),cc.p(this.editorButton.x+this.editorButton.width,this.editorButton.y+this.editorButton.height),cc.color(0,0,255,255),5,cc.color(0,0,0,255));
+	
+	if(this.levelButtonShown)
+	{
+		this.drawChallengeButton();
+		//this.dn.drawRect(cc.p(this.storeButton.x,this.storeButton.y),cc.p(this.storeButton.x+this.storeButton.width,this.storeButton.y+this.storeButton.height),cc.color(255,255,0,255),5,cc.color(0,0,0,255));
 	
 		var color = cc.color(0,0,0,255);
 		if(DATA.streakStep==0 && DATA.challengeTries==0)
@@ -244,6 +280,7 @@ var CoreButtonsUI = cc.Layer.extend({
 		else if(DATA.streakStep == 2 && DATA.challengeTries==0)
 			color = cc.color(0,255,0,255);
 		this.dn.drawRect(cc.p(this.challengeLightC.x,this.challengeLightC.y),cc.p(this.challengeLightC.x+this.challengeLightC.width,this.challengeLightC.y+this.challengeLightC.height),color,5,cc.color(0,0,0,255));
+	}
 	},
 	drawChallengeButton:function(){
 		var buttonColor=cc.color(100,100,100,255);

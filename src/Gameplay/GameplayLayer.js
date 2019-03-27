@@ -8,21 +8,14 @@ var GameplayLayer = cc.Layer.extend({
 		 
 		this.cardImg = null;
 		
-		this.coreButtonsUI = new CoreButtonsUI(cc.winSize.width/24, cc.winSize.height, "world");
-		this.coreButtonsUI.attr({
-			x:0,
-			y:0,
-			anchorX:0,
-			anchorY:0
-		});
-		this.addChild(this.coreButtonsUI);
+		//cc.log(bubbles);cc.log(meta);
 		
-		this.bubbleLayerHeight = this.height-this.coreButtonsUI.height;
+		this.bubbleLayerHeight = this.height;
 
-		this.bubbleLayer = new BubbleLayer(bubbles, numRows, DATA.worldBallsLeft, "world", size.width, this.height-this.coreButtonsUI.height, [], meta);	
+		this.bubbleLayer = new BubbleLayer(bubbles, numRows, DATA.worldBallsLeft, "world", size.width, this.height, [], meta);	
 		this.bubbleLayer.attr({
 			x:0,
-			y:this.coreButtonsUI.height,
+			y:0,
 			anchorX:0,
 			anchorY:0
 		});
@@ -54,6 +47,11 @@ var GameplayLayer = cc.Layer.extend({
 	{
 		this._super();
 	},*/
+	
+	getChallengeButton:function()
+	{
+		return this.parent.coreButtonsUI.challengeButton;
+	},
 	
 	executeTutorial:function(tutorial)
 	{
@@ -116,9 +114,19 @@ var GameplayLayer = cc.Layer.extend({
 		});
 		this.addChild(this.cardImg);
 		
+		this.okCardImg = new cc.Sprite(res.next_button);
+		this.okCardImg.setScale((this.cardImg.width*this.cardImg.scale)*.5 / this.okCardImg.width);
+		this.okCardImg.attr({
+			x:this.cardImg.x/*+(this.cardImg.width*this.cardImg.scale)/2*/,
+			y:this.cardImg.y-((this.cardImg.height*this.cardImg.scale)/2) + (this.cardImg.height*this.cardImg.scale)*.08,
+			anchorX:.5,
+			anchorY:0
+		});
+		this.addChild(this.okCardImg);
+		
 		var moveAction = cc.moveTo(.5, this.width/2, this.height/2);
 		
-		var callAction = cc.callFunc(this.refreshUIQuantities, this);
+		/*var callAction = cc.callFunc(this.refreshUIQuantities, this);
 		var delayAction = cc.delayTime(1.5);
 		var spawn = cc.spawn(callAction, delayAction);
 		
@@ -126,9 +134,14 @@ var GameplayLayer = cc.Layer.extend({
 		var removeAction = cc.callFunc(this.clearRewardAnim, this);
 		
 		var seq = new cc.Sequence(moveAction, spawn, moveActionB, removeAction);
-		this.cardImg.runAction(seq);
+		*/
+		//this.cardImg.runAction(seq);
+		this.cardImg.runAction(moveAction);
 		
 		
+		
+		var okMoveAction = cc.moveTo(.5, this.width/2, this.okCardImg.y);
+		this.okCardImg.runAction(okMoveAction);
 		
 		
 		if(DATA.worldIndex == 0 && this.bubbleLayer.bubbles.length > 100)
@@ -186,8 +199,13 @@ var GameplayLayer = cc.Layer.extend({
 	
 	clearRewardAnim:function()
 	{
-		this.removeChild(this.cardImg);
+		if(this.cardImg != null)
+			this.removeChild(this.cardImg);
+		if(this.okCardImg != null)
+			this.removeChild(this.okCardImg);
 		this.cardImg = null;
+		this.okCardImg = null;
+		
 		if(this.tutorialStreakTextA != null)
 		{
 			this.removeChild(this.tutorialStreakTextA);
@@ -247,7 +265,7 @@ var GameplayLayer = cc.Layer.extend({
 	
 	refreshLevelsUI:function()
 	{
-		this.coreButtonsUI.refreshLevelsUI();
+		this.parent.coreButtonsUI.refreshLevelsUI();
 	},
 	
 	isPopup:function()
@@ -257,7 +275,8 @@ var GameplayLayer = cc.Layer.extend({
 			this.buyBallsLayer == null &&
 			this.noLevelLayer == null &&
 			this.buyPreboosterLayer == null &&
-			this.worldElementLayer == null)
+			this.worldElementLayer == null &&
+			this.cardImg == null)
 		{
 			return false;
 		}
@@ -318,36 +337,8 @@ var GameplayLayer = cc.Layer.extend({
 		   		else this.bubbleLayer.onTouchEnd(locationInNode);
 		   	}
 		   	// Store/Challenge/Creator Button Interactions
-		   	else if(FUNCTIONS.posWithin(this.coreButtonsUI.convertToNodeSpace(pos), this.coreButtonsUI))
-		   	{
-		   		var returnObj = this.coreButtonsUI.onTouchEnd(this.coreButtonsUI.convertToNodeSpace(pos));
-		   		
-		   		if(returnObj == "challengeButton" && this.preLayer == null)
-		   		{
-		   			if(DATA.levelIndexA!=null)
-					{
-						this.preLayer = new PreChallengeLayer(DATA.levelIndexA,cc.winSize.width-50,this.height-50);
-						this.preLayer.attr({x:cc.winSize.width*.5,y:25,anchorX:0,anchorY:0});
-						this.addChild(this.preLayer);
-						this.preLayer.setScale(0);
-						var scaleAction = cc.scaleTo(.5, 1, 1);
-						var moveToAction = cc.moveTo(.5, cc.p(25, 25));
-						var spawn = cc.spawn(scaleAction, moveToAction);
-						this.preLayer.runAction(spawn);
-					}
-					else
-					{
-						this.noLevelLayer = new NoLevelLayer(cc.winSize.width-50, this.height-50);
-						this.noLevelLayer.attr({x:cc.winSize.width*.5,y:25,anchorX:0,anchorY:0});
-						this.addChild(this.noLevelLayer);
-						this.noLevelLayer.setScale(0);
-						var scaleAction = cc.scaleTo(.5, 1, 1);
-						var moveToAction = cc.moveTo(.5, cc.p(25, 25));
-						var spawn = cc.spawn(scaleAction, moveToAction);
-						this.noLevelLayer.runAction(spawn);
-					}
-		   		}
-		   	}
+		   	
+		   	
 		}
 		// Popup interactions
 		else
@@ -492,11 +483,72 @@ var GameplayLayer = cc.Layer.extend({
 			{
 				var returnObj = this.worldElementLayer.onTouchEnd(this.convertToNodeSpace(pos));
 			}
-			
+			else if(this.okCardImg != null && FUNCTIONS.posWithin(this.convertToNodeSpace(pos), this.okCardImg))
+			{
+				var callAction = cc.callFunc(this.refreshUIQuantities, this);
+				var delayAction = cc.delayTime(1.5);
+				var spawn = cc.spawn(callAction, delayAction);
+				
+				var moveActionB = cc.moveTo(.5, this.width + (this.cardImg.width*this.cardImg.scale)/2, this.height/2);
+				var removeAction = cc.callFunc(this.clearRewardAnim, this);
+				
+				var seq = new cc.Sequence(spawn, moveActionB, removeAction);
+				this.cardImg.runAction(seq);
+				
+				this.okCardImg.runAction(seq);
+			}
 			
 			
 		}
 	},
+	coreUITouched:function(pos)
+	{
+		//else if(FUNCTIONS.posWithin(this.parent.coreButtonsUI.convertToNodeSpace(pos), this.parent.coreButtonsUI))
+		//   	{
+		   		cc.log(this.parent);
+		   		var returnObj = this.parent.coreButtonsUI.onTouchEnd(this.parent.coreButtonsUI.convertToNodeSpace(pos));
+		   		
+		   		if(returnObj == "challengeButton" && this.preLayer == null)
+		   		{
+		   			if(DATA.levelIndexA!=null)
+					{
+						this.preLayer = new PreChallengeLayer(DATA.levelIndexA,cc.winSize.width-50,this.height-50);
+						this.preLayer.attr({x:cc.winSize.width*.5,y:25,anchorX:0,anchorY:0});
+						this.addChild(this.preLayer);
+						this.preLayer.setScale(0);
+						var scaleAction = cc.scaleTo(.5, 1, 1);
+						var moveToAction = cc.moveTo(.5, cc.p(25, 25));
+						var spawn = cc.spawn(scaleAction, moveToAction);
+						this.preLayer.runAction(spawn);
+					}
+					else
+					{
+						this.noLevelLayer = new NoLevelLayer(cc.winSize.width-50, this.height-50);
+						this.noLevelLayer.attr({x:cc.winSize.width*.5,y:25,anchorX:0,anchorY:0});
+						this.addChild(this.noLevelLayer);
+						this.noLevelLayer.setScale(0);
+						var scaleAction = cc.scaleTo(.5, 1, 1);
+						var moveToAction = cc.moveTo(.5, cc.p(25, 25));
+						var spawn = cc.spawn(scaleAction, moveToAction);
+						this.noLevelLayer.runAction(spawn);
+					}
+		   		}
+		   		else if(returnObj == "creator")
+		   		{
+		   			this.parent.swapCreatorMode();
+		   		}
+		   	//}
+	},
+	/*deleteCardData:function()
+	{
+		if(this.cardImg != null)
+			this.removeChild(this.cardImg);
+		if(this.okCardImg != null)
+			this.removeChild(this.okCardImg);
+		
+		this.cardImg = null;
+		this.okCardImg = null;
+	},*/
 	
 	openWorldRewardsLayer:function()
 	{
@@ -613,10 +665,10 @@ var GameplayLayer = cc.Layer.extend({
 				maxRow = DATA.worldBubbles[i].row;
 		}
 		cc.log(level.bubbles);
-		this.bubbleLayer = new BubbleLayer(level.bubbles, maxRow+1, DATA.worldBallsLeft, "world", cc.winSize.width, this.height-this.coreButtonsUI.height, [], DATA.worldMeta);	
+		this.bubbleLayer = new BubbleLayer(level.bubbles, maxRow+1, DATA.worldBallsLeft, "world", cc.winSize.width, this.height, [], DATA.worldMeta);	
 		this.bubbleLayer.attr({
 			x:0,
-			y:this.coreButtonsUI.height,
+			y:0,
 			anchorX:0,
 			anchorY:0
 		});

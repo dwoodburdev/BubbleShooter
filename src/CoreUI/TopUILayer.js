@@ -11,6 +11,9 @@ var TopUILayer = cc.Layer.extend({
 		//this.width = w;
 		this.height = height;
 		
+		
+		this.color = cc.color(220,220,220,255);
+		
 		this.coinImg = new cc.Sprite(res.coin);
 		this.coinImg.setScale((this.height-10)/this.coinImg.height);
 		this.coinImg.attr({
@@ -141,9 +144,20 @@ var TopUILayer = cc.Layer.extend({
 		this.coinLabel.setString(DATA.coins);
 	},
 	
+	changeToEditor:function()
+	{
+		this.color = cc.color(255,140,0,255);
+		this.draw();
+	},
+	changeToGame:function()
+	{
+		this.color = cc.color(220,220,220,255);
+		this.draw();
+	},
+	
 	draw:function(){
 		
-		this.dn.drawRect(cc.p(0,0),cc.p(this.width, this.height), cc.color(255,255,255,255),1,cc.color(0,0,0,255));
+		this.dn.drawRect(cc.p(0,0),cc.p(this.width, this.height), this.color,1,cc.color(0,0,0,255));
 		
 		//this.dn.drawRect(cc.p(this.rankBar.x, this.rankBar.y),cc.p(this.rankBar.x+this.rankBar.width, this.rankBar.y+this.rankBar.height), cc.color(255,255,255,255),2,cc.color(0,0,0,255));
 		//this.dn.drawRect(cc.p(this.rankBar.x+2,this.rankBar.y+2),cc.p(this.rankBar.x+Math.max(((this.rankBar.width-4)*(DATA.rankProgress/DATA.rankThreshold)),2),this.rankBar.y+(this.rankBar.height-2)),cc.color(0,255,0,255),0,cc.color(0,255,0,255));
