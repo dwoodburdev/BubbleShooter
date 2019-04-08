@@ -429,10 +429,10 @@ var EditorBubbleLayer = cc.Layer.extend({
 	getHexAtPos:function(pos)
 	{
 		var size = cc.winSize;
-		
+		var loc = this.convertToNodeSpace(pos);
 		var overflowOffset = this.getOverflowOffset();
-		
-		var row = Math.floor((size.height-(pos.y) + overflowOffset)/this.rowHeight);
+		cc.log(pos.y);cc.log(this.parent.height);
+		var row = Math.floor((this.height-(loc.y) + overflowOffset)/this.rowHeight);
 		
 		var colOffset = 0;
 		if(row%2 == 1)

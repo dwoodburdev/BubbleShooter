@@ -52,6 +52,7 @@
     	"src/Gameplay/BubbleLayer.js",
     	"src/Gameplay/GameplayLayer.js",
     	
+    	"src/Popups/BonusPhoneLayer.js",
     	"src/Popups/BonusRewardPickerLayer.js",
     	"src/Popups/BuyBallsLayer.js",
     	"src/Popups/BuyBoosterLayer.js",

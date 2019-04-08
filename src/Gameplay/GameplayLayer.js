@@ -39,6 +39,8 @@ var GameplayLayer = cc.Layer.extend({
 			this.triggerLevelsFullLabel();
 		else if(this.bubbleLayer.numMoves <= 0)
 			this.triggerBuyMovesLabel();
+			
+		this.rewardData = null;
 		
 		
         return true;
@@ -73,23 +75,27 @@ var GameplayLayer = cc.Layer.extend({
 			{
 				this.cardImg = new cc.Sprite(res.ten_moves_gold_card);
 				DATA.worldBallsLeft += 10;
+				this.rewardData = 10;
 			}
 			else if(rewardData.number == 1)
 			{
 				this.cardImg = new cc.Sprite(res.fifteen_coins_gold_card);
 				DATA.setCurrencies(DATA.coins+15,0);
 				DATA.worldBallsLeft += 5;
+				this.rewardData = 5;
 			}
 			else if(rewardData.number == 2)
 			{
 				this.cardImg = new cc.Sprite(res.twentyfive_coins_gold_card);
 				DATA.setCurrencies(DATA.coins+15,0);
 				DATA.worldBallsLeft += 5;
+				this.rewardData = 5;
 			}
 			else if(rewardData.number == 3)
 			{
 				this.cardImg = new cc.Sprite(res.gem_gold_card);
 				DATA.setCurrencies(DATA.coins+5,0);
+				this.rewardData = 1;
 			}
 		}
 		else if(rewardData.type == "bonus")
@@ -101,6 +107,7 @@ var GameplayLayer = cc.Layer.extend({
 			else if(rewardData.number == 5)
 				this.cardImg = new cc.Sprite(res.five_move_card);
 			DATA.worldBallsLeft += rewardData.number;
+			this.rewardData = rewardData.number;
 		}
 		
 		DATA.setDatabaseMoves(DATA.worldBallsLeft);
@@ -136,12 +143,12 @@ var GameplayLayer = cc.Layer.extend({
 		var seq = new cc.Sequence(moveAction, spawn, moveActionB, removeAction);
 		*/
 		//this.cardImg.runAction(seq);
-		this.cardImg.runAction(moveAction);
+		this.cardImg.runAction(new cc.Sequence(cc.delayTime(1), moveAction));
 		
 		
 		
 		var okMoveAction = cc.moveTo(.5, this.width/2, this.okCardImg.y);
-		this.okCardImg.runAction(okMoveAction);
+		this.okCardImg.runAction(new cc.Sequence(cc.delayTime(1), okMoveAction));
 		
 		
 		if(DATA.worldIndex == 0 && this.bubbleLayer.bubbles.length > 100)
@@ -155,7 +162,7 @@ var GameplayLayer = cc.Layer.extend({
 			if(DATA.worldIndex == 0 && this.bubbleLayer.bubbles.length > 100/*&& DATA.worldBubbles.length > 120*/)
 			{
 					//Tutorial Popup
-				this.addChild(this.popupDn);
+				/*this.addChild(this.popupDn);
 				var botPosY = this.y + 3;
 				this.dn.drawRect(cc.p(20,botPosY),
 					cc.p(this.width-20, this.cardImg.y-(this.cardImg.height*this.cardImg.scale)/2 - 3),
@@ -189,7 +196,7 @@ var GameplayLayer = cc.Layer.extend({
 					anchorX:1,
 					anchorY:.5
 				});
-				this.addChild(this.tutFace);
+				this.addChild(this.tutFace);*/
 			}
 		}
 		
@@ -270,7 +277,7 @@ var GameplayLayer = cc.Layer.extend({
 	
 	isPopup:function()
 	{
-		if(this.preLayer == null &&
+		if(/*this.preLayer == null &&*/
 			this.worldRewardsLayer == null &&
 			this.buyBallsLayer == null &&
 			this.noLevelLayer == null &&
@@ -284,10 +291,11 @@ var GameplayLayer = cc.Layer.extend({
 	},
 	
 	onTouchBegan:function(pos)
-	{
+	{cc.log("GAMEPLAY TOUCH BEGIN");
 		if(!this.isPopup() && this.bubbleLayer.numMoves > 0 && DATA.levelIndexB == null)
 	   	{
 		   	var locationInNode = this.bubbleLayer.convertToNodeSpace(pos);
+		   	cc.log(locationInNode);
 			if(FUNCTIONS.posWithin(locationInNode, this.bubbleLayer))
 	    	{
 	    		this.bubbleLayer.onTouchBegin(locationInNode);
@@ -316,14 +324,8 @@ var GameplayLayer = cc.Layer.extend({
 		   	{cc.log("withinBub");
 		   		if(DATA.levelIndexB != null)
 				{
-					this.preLayer = new PreChallengeLayer(DATA.levelIndexA,cc.winSize.width-50,this.height-50);
-					this.preLayer.attr({x:cc.winSize.width*.5,y:25,anchorX:0,anchorY:0});
-					this.addChild(this.preLayer);
-					this.preLayer.setScale(0);
-					var scaleAction = cc.scaleTo(.5, 1, 1);
-					var moveToAction = cc.moveTo(.5, cc.p(25, 25));
-					var spawn = cc.spawn(scaleAction, moveToAction);
-					this.preLayer.runAction(spawn);
+					
+					this.openPreLayer();
 				}
 				else if(this.bubbleLayer.numMoves == 0)
 				{
@@ -344,7 +346,7 @@ var GameplayLayer = cc.Layer.extend({
 		else
 		{
 			// PRE-CHALLENGE POPUP
-			if(this.preLayer != null && FUNCTIONS.posWithin(this.convertToNodeSpace(pos), this.preLayer))
+			/*if(this.preLayer != null && FUNCTIONS.posWithin(this.convertToNodeSpace(pos), this.preLayer))
 			{
 				var returnObj = this.preLayer.onTouchEnd(this.convertToNodeSpace(pos));
 				
@@ -375,7 +377,7 @@ var GameplayLayer = cc.Layer.extend({
 					this.addChild(this.buyPreboosterLayer);
 				}
 			}
-			else if(this.buyPreboosterLayer != null && FUNCTIONS.posWithin(this.convertToNodeSpace(pos), this.buyPreboosterLayer))
+			else */if(this.buyPreboosterLayer != null && FUNCTIONS.posWithin(this.convertToNodeSpace(pos), this.buyPreboosterLayer))
 			{
 				var returnObj = this.buyPreboosterLayer.onTouchEnd(this.convertToNodeSpace(pos));
 				if(returnObj == "close")
@@ -391,8 +393,8 @@ var GameplayLayer = cc.Layer.extend({
 					this.removeChild(this.buyPreboosterLayer);
 					this.buyPreboosterLayer = null;
 					
-					this.preLayer = new PreChallengeLayer(DATA.levelIndexA,cc.winSize.width-50,this.height-50);
-					this.preLayer.attr({x:25,y:25,anchorX:0,anchorY:0});
+					this.preLayer = new PreChallengeLayer(DATA.levelIndexA,cc.winSize.width-50,this.height);
+					this.preLayer.attr({x:25,y:0,anchorX:0,anchorY:0});
 					this.addChild(this.preLayer);
 					//return "openPrelayer"
 				}
@@ -423,7 +425,7 @@ var GameplayLayer = cc.Layer.extend({
 				if(returnObj == "close")
 				{
 					var scaleAction = cc.scaleTo(.5, 0, 0);
-					var moveToAction = cc.moveTo(.5, cc.p(cc.winSize.width*.5,25));
+					var moveToAction = cc.moveTo(.5, cc.p(cc.winSize.width*.5,0));
 					var spawn = cc.spawn(scaleAction,moveToAction);
 					this.noLevelLayer.setCascadeOpacityEnabled(true);
 					var seq = new cc.Sequence(spawn, cc.callFunc( this.noLevelLayer.removeFromParent, this.noLevelLayer ) );
@@ -485,21 +487,74 @@ var GameplayLayer = cc.Layer.extend({
 			}
 			else if(this.okCardImg != null && FUNCTIONS.posWithin(this.convertToNodeSpace(pos), this.okCardImg))
 			{
+				
+				var actions = [];
+				for(var i=0; i<this.rewardData; i++)
+				{
+					actions.push(cc.callFunc(this.animateMoveReward, this));
+					actions.push(cc.delayTime(.2));
+				}
+				
+				actions.push(cc.delayTime(.3));
+				actions.push(cc.callFunc(this.removeCard, this));
+				
+				var addMovesSeq = new cc.Sequence(actions);
+				this.cardImg.runAction(addMovesSeq);
+				
+				/*
 				var callAction = cc.callFunc(this.refreshUIQuantities, this);
 				var delayAction = cc.delayTime(1.5);
 				var spawn = cc.spawn(callAction, delayAction);
 				
-				var moveActionB = cc.moveTo(.5, this.width + (this.cardImg.width*this.cardImg.scale)/2, this.height/2);
+				var moveActionB = cc.moveTo(.5, this.width + (this.cardImg.width*this.cardImg.scale)/2, this.okCardImg.y);
 				var removeAction = cc.callFunc(this.clearRewardAnim, this);
 				
 				var seq = new cc.Sequence(spawn, moveActionB, removeAction);
 				this.cardImg.runAction(seq);
 				
-				this.okCardImg.runAction(seq);
+				this.okCardImg.runAction(seq);*/
 			}
 			
 			
 		}
+	},
+	animateMoveReward:function()
+	{
+		var bonusMoveImg = new cc.Sprite(res.smile_emoji);
+		bonusMoveImg.setScale(DATA.bubbleR*2 / bonusMoveImg.width);
+		bonusMoveImg.attr({
+			x:this.cardImg.x,
+			y:this.cardImg.y,
+			anchorX:.5,
+			anchorY:.5
+		});
+		this.addChild(bonusMoveImg);
+		
+		var moveAction = cc.moveTo(.5, this.bubbleLayer.queueBubble.x, this.bubbleLayer.queueBubble.y);
+		var removeAction = cc.callFunc(bonusMoveImg.removeFromParent, bonusMoveImg);
+		var updateLabelAction = cc.callFunc(this.bubbleLayer.addMoveAnim, this.bubbleLayer);
+		var endMoveSpawn = cc.spawn(removeAction, updateLabelAction);
+		var seq = new cc.Sequence(moveAction, endMoveSpawn)
+		bonusMoveImg.runAction(seq);
+	},
+	removeCard:function()
+	{
+		var moveCard = cc.moveTo(.5, this.width+(this.cardImg.width*this.cardImg.scale)/2, this.cardImg.y);
+		var moveOK = cc.moveTo(.5, this.width+(this.cardImg.width*this.cardImg.scale)/2, this.okCardImg.y);
+		
+		var remCardSeq = new cc.Sequence(moveCard, cc.callFunc(this.remCard, this));
+		var remOKSeq = new cc.Sequence(moveOK, cc.callFunc(this.remOKCard, this));
+		this.cardImg.runAction(remCardSeq);
+		this.okCardImg.runAction(remOKSeq);
+	},
+	remCard:function()
+	{
+		this.removeChild(this.cardImg);
+		this.cardImg = null;
+	},
+	remOKCard:function(){
+		this.removeChild(this.okCardImg);
+		this.okCardImg = null;
 	},
 	coreUITouched:function(pos)
 	{
@@ -512,23 +567,24 @@ var GameplayLayer = cc.Layer.extend({
 		   		{
 		   			if(DATA.levelIndexA!=null)
 					{
-						this.preLayer = new PreChallengeLayer(DATA.levelIndexA,cc.winSize.width-50,this.height-50);
-						this.preLayer.attr({x:cc.winSize.width*.5,y:25,anchorX:0,anchorY:0});
+						/*this.preLayer = new PreChallengeLayer(DATA.levelIndexA,cc.winSize.width-50,this.height);
+						this.preLayer.attr({x:cc.winSize.width*.5,y:0,anchorX:0,anchorY:0});
 						this.addChild(this.preLayer);
 						this.preLayer.setScale(0);
 						var scaleAction = cc.scaleTo(.5, 1, 1);
-						var moveToAction = cc.moveTo(.5, cc.p(25, 25));
+						var moveToAction = cc.moveTo(.5, cc.p(25, 0));
 						var spawn = cc.spawn(scaleAction, moveToAction);
-						this.preLayer.runAction(spawn);
+						this.preLayer.runAction(spawn);*/
+						this.openPreLayer();
 					}
 					else
 					{
 						this.noLevelLayer = new NoLevelLayer(cc.winSize.width-50, this.height-50);
-						this.noLevelLayer.attr({x:cc.winSize.width*.5,y:25,anchorX:0,anchorY:0});
+						this.noLevelLayer.attr({x:cc.winSize.width*.5,y:0,anchorX:0,anchorY:0});
 						this.addChild(this.noLevelLayer);
 						this.noLevelLayer.setScale(0);
 						var scaleAction = cc.scaleTo(.5, 1, 1);
-						var moveToAction = cc.moveTo(.5, cc.p(25, 25));
+						var moveToAction = cc.moveTo(.5, cc.p(25, 0));
 						var spawn = cc.spawn(scaleAction, moveToAction);
 						this.noLevelLayer.runAction(spawn);
 					}
@@ -717,13 +773,14 @@ var GameplayLayer = cc.Layer.extend({
 	
 	openPreLayer:function()
 	{
-		this.preLayer = new PreChallengeLayer(DATA.levelIndexA,cc.winSize.width-50,this.height-50);
-		this.preLayer.attr({x:cc.winSize.width*.5,y:25,anchorX:0,anchorY:0});
+		/*this.preLayer = new PreChallengeLayer(DATA.levelIndexA,cc.winSize.width-50,this.height);
+		this.preLayer.attr({x:cc.winSize.width*.5,y:0,anchorX:0,anchorY:0});
 		this.addChild(this.preLayer, 1);
 		this.preLayer.setScale(0);
 		var scaleAction = cc.scaleTo(.5, 1, 1);
-		var moveToAction = cc.moveTo(.5, cc.p(25, 25));
+		var moveToAction = cc.moveTo(.5, cc.p(25, 0));
 		var spawn = cc.spawn(scaleAction, moveToAction);
-		this.preLayer.runAction(spawn);
+		this.preLayer.runAction(spawn);*/
+		this.parent.openPreLayer();
 	}
 });

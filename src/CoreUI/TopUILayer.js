@@ -14,6 +14,11 @@ var TopUILayer = cc.Layer.extend({
 		
 		this.color = cc.color(220,220,220,255);
 		
+		/*
+		this.gradient = cc.LayerGradient.create(cc.color(170,170,170,255), cc.color(220,220,220,255) );
+		this.gradient.setContentSize(cc.size(size.width, this.height));
+    	this.addChild(this.gradient);
+		*/
 		this.coinImg = new cc.Sprite(res.coin);
 		this.coinImg.setScale((this.height-10)/this.coinImg.height);
 		this.coinImg.attr({
@@ -83,6 +88,16 @@ var TopUILayer = cc.Layer.extend({
 			anchorY:0
 		});
 		this.addChild(this.mapButton);
+		
+		this.worldLabel = new cc.LabelTTF("World "+(DATA.worldIndex+1),"Arial",24);
+		this.worldLabel.color = cc.color(0,0,0,255);
+		this.worldLabel.attr({
+			x:this.mapButton.x+(this.mapButton.width*this.mapButton.scale)+3,
+			y:0,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.worldLabel);
 		
 		/*this.rankImg = null;
 		if(DATA.rank == 1)
@@ -158,9 +173,6 @@ var TopUILayer = cc.Layer.extend({
 	draw:function(){
 		
 		this.dn.drawRect(cc.p(0,0),cc.p(this.width, this.height), this.color,1,cc.color(0,0,0,255));
-		
-		//this.dn.drawRect(cc.p(this.rankBar.x, this.rankBar.y),cc.p(this.rankBar.x+this.rankBar.width, this.rankBar.y+this.rankBar.height), cc.color(255,255,255,255),2,cc.color(0,0,0,255));
-		//this.dn.drawRect(cc.p(this.rankBar.x+2,this.rankBar.y+2),cc.p(this.rankBar.x+Math.max(((this.rankBar.width-4)*(DATA.rankProgress/DATA.rankThreshold)),2),this.rankBar.y+(this.rankBar.height-2)),cc.color(0,255,0,255),0,cc.color(0,255,0,255));
 		
 	},
 	

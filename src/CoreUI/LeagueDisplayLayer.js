@@ -8,7 +8,7 @@ var LeagueDisplayLayer = cc.Layer.extend({
 		this.height = height;
 		
 		this.dn = new cc.DrawNode();
-		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),0,cc.color(0,0,0,255));
+		this.dn.drawRect(cc.p(0,0),cc.p(this.width, this.height), cc.color(0,255,255,255),0,cc.color(0,0,0,255));
 		this.addChild(this.dn);
 		
 		
@@ -32,10 +32,12 @@ var LeagueDisplayLayer = cc.Layer.extend({
 		this.tabDescriptionLabel.color = cc.color(0,0,0,255);
 		this.addChild(this.tabDescriptionLabel);
 		
-		var bubbles = [{row:0,col:0,colorCode:"blue",binary:null,type:0,meta:null}];
-		var numRows = 1;
+		//var bubbles = [{row:0,col:0,colorCode:"blue",binary:null,type:0,meta:null}];
+		var numRows = 4;
+		var bubbles = DATA.eventData.level.bubbles;
 		
-		this.bubbleLayer = new BubbleLayer(bubbles, numRows, DATA.worldBallsLeft, "world", size.width, this.tabDescriptionLabel.y-this.tabDescriptionLabel.height-5, [], null);	
+		
+		this.bubbleLayer = new BubbleLayer(bubbles, numRows, DATA.worldBallsLeft, "side-level", size.width, this.tabDescriptionLabel.y-this.tabDescriptionLabel.height-5, [], null);	
 		this.bubbleLayer.attr({
 			x:0,
 			y:0,
@@ -47,10 +49,32 @@ var LeagueDisplayLayer = cc.Layer.extend({
 		
         //return true;
 	},
-	
-	onTouchEnd:function(pos)
+	onTouchBegan:function(pos)
 	{
-		
+		var locationInNode = this.bubbleLayer.convertToNodeSpace(pos);
+	   	cc.log(locationInNode);
+		if(FUNCTIONS.posWithin(locationInNode, this.bubbleLayer))
+    	{
+    		this.bubbleLayer.onTouchBegin(locationInNode);
+    	}
+	},
+	onTouchMoved:function(pos)
+	{
+		var locationInNode = this.bubbleLayer.convertToNodeSpace(pos);
+	   	cc.log(locationInNode);
+		if(FUNCTIONS.posWithin(locationInNode, this.bubbleLayer))
+    	{
+    		this.bubbleLayer.onTouchMove(locationInNode);
+    	}
+	},
+	onTouchEnded:function(pos)
+	{
+		var locationInNode = this.bubbleLayer.convertToNodeSpace(pos);
+	   	cc.log(locationInNode);
+		if(FUNCTIONS.posWithin(locationInNode, this.bubbleLayer))
+    	{
+    		this.bubbleLayer.onTouchEnd(locationInNode);
+    	}
 	}
 	
 });

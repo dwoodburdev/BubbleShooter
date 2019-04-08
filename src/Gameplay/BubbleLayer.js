@@ -63,6 +63,9 @@ var BubbleLayer = cc.Layer.extend({
        	
        	this.bottomMostBubbleY = 0;
        	
+       	this.shooterImpactRow = -1;
+       	this.shooterImpactCol = -1;
+       	
        	//this.nextShooterColor = this.possibleColors[Math.floor(Math.random()*this.possibleColors.length)];
        	//this.shooterColor = this.possibleColors[Math.floor(Math.random()*this.possibleColors.length)];
        	
@@ -102,6 +105,15 @@ var BubbleLayer = cc.Layer.extend({
 				//this.bubbleLayerUI.setShooterLabel("Levels Full",cc.color(255,0,0,255),this.bubbleStartHeight);
 			}
        	}
+       	else if(this.modeType == "side-level")
+       	{
+       		this.bubbleStartHeight = this.y+this.bubbleR*2;
+       		
+       		//if(DATA.worldBallAColor == null)
+       		//	DATA.setWorldShooterColor();
+       		//if(DATA.worldBallBColor == null)
+       		//	DATA.setWorldQueueColor();
+       	}
        	else if(this.modeType == "challenge" || this.modeType == "playtest")
        	{
        		this.bubbleStartHeight = this.bubbleR*3
@@ -111,6 +123,7 @@ var BubbleLayer = cc.Layer.extend({
        		if(DATA.levelBallBColor == null)
        			DATA.setLevelQueueColor();
        	}
+       	
        	
        	
        	this.queueBubble = null;
@@ -123,17 +136,20 @@ var BubbleLayer = cc.Layer.extend({
        	if(this.modeType != "preview")
 	    {cc.log(DATA.getQueueColor(this.modeType));
 	    	
-	    	this.phoneBG = new cc.Sprite(res.phone);
-	    	this.phoneBG.setScale(this.bubbleR*3 / this.phoneBG.width)
+	    	/*this.phoneBG = new cc.Sprite(res.phone);
+	    	this.phoneBG.setScale(this.bubbleR*3 / this.phoneBG.height)
 	    	this.phoneBG.attr({
 	    		x:this.width*.17,
 	    		y:this.bubbleStartHeight,
 	    		anchorX:.5,
 	    		anchorY:.5
 	    	});
-	    	this.addChild(this.phoneBG);
+	    	this.addChild(this.phoneBG);*/
 	    	
 	    	var newColor = DATA.getQueueColor(this.modeType);
+	    	if(this.modeType == "side-level")
+	    		newColor = "blue";
+	    	
 	    	if(this.tutorial != null)
 	    	{
 	    		if(this.tutorial.id <= 5)
@@ -152,10 +168,10 @@ var BubbleLayer = cc.Layer.extend({
 	       	this.queueBubble.active = true;
 	       	this.addChild(this.queueBubble);
 	       	
-	       	this.ballsLeftLabel = new cc.LabelTTF(""+this.numMoves, "Roboto", 30);
+	       	this.ballsLeftLabel = new cc.LabelTTF(""+this.numMoves+"/5", "Roboto", 30);
 			this.ballsLeftLabel.attr({
 				"x":this.queueBubble.x,
-				"y":this.phoneBG.y-(this.phoneBG.height*this.phoneBG.scale)/2 - 5,
+				"y":this.queueBubble.y-DATA.bubbleR-10/*this.phoneBG.y-(this.phoneBG.height*this.phoneBG.scale)/2 - 5*/,
 				"anchorX":.5,
 				"anchorY":1
 			});
@@ -163,7 +179,10 @@ var BubbleLayer = cc.Layer.extend({
 			this.addChild(this.ballsLeftLabel);
 			cc.log(DATA.getShooterColor(this.modeType));
 			
-			var newColor = DATA.getShooterColor(this.modeType);
+			newColor = DATA.getShooterColor(this.modeType);
+	    	if(this.modeType == "side-level")
+	    		newColor = "blue";
+	    		
 			if(this.tutorial != null)
 	    	{
 	    		if(this.tutorial.id <= 5)
@@ -182,7 +201,7 @@ var BubbleLayer = cc.Layer.extend({
 	       	this.shooter.active = true;
 	       	this.addChild(this.shooter);
 	       	
-	       	this.aimIndicator = {x:0, y:this.shooter.y+this.bubbleR*2, width:cc.winSize.width, height:(this.height-(this.bubbleR*22)) - (this.shooter.y+this.bubbleR*2) , color:cc.color(0,0,0,50) };
+	       	this.aimIndicator = {x:0, y:this.shooter.y+this.bubbleR*2, width:cc.winSize.width, height:DATA.bubbleR*7/*(this.height-(this.bubbleR*22)) - (this.shooter.y+this.bubbleR*2)*/ , color:cc.color(0,0,0,50) };
 		    this.drawAimIndicator();
 		    
 		    
@@ -364,7 +383,7 @@ var BubbleLayer = cc.Layer.extend({
 	drawAimIndicator:function()
 	{
 		this.aimDN.clear();
-		if(this.modeType == "challenge" || (this.modeType == "world" && DATA.levelIndexB == null && this.numMoves > 0))
+		if(this.modeType == "challenge" || (this.modeType == "world" && DATA.levelIndexB == null && this.numMoves > 0) || (this.modeType == "side-level"))
 		{
 			if(this.aimLine == null)
 				this.aimDN.drawRect(cc.p(this.aimIndicator.x+5, this.aimIndicator.y), cc.p(this.aimIndicator.x+this.aimIndicator.width-5, this.aimIndicator.y+this.aimIndicator.height), cc.color(0,0,0,100),1,cc.color(0,0,0,255));
@@ -416,7 +435,7 @@ var BubbleLayer = cc.Layer.extend({
 				this.numMoves++;
 				DATA.worldBallsLeft++;
 				DATA.setDatabaseMoves(DATA.worldBallsLeft);
-				this.ballsLeftLabel.setString(this.numMoves);
+				this.ballsLeftLabel.setString(this.numMoves+"/5");
 				if(this.numMoves == 1)
 				{
 					this.parent.removeBuyMovesLabel();
@@ -444,10 +463,16 @@ var BubbleLayer = cc.Layer.extend({
 		}
 	},
 	
+	addMoveAnim:function()
+	{
+		this.numMoves++;
+		this.ballsLeftLabel.setString(this.numMoves+"/5");
+	},
+	
 	addMoves:function(num)
 	{
 		this.numMoves += num;
-		this.ballsLeftLabel.setString(this.numMoves);
+		this.ballsLeftLabel.setString(this.numMoves+"/5");
 		//this.removeChild(this.ballsLeftLabel);
 		//this.addChild(this.ballsLeftLabel);
 	},
@@ -692,6 +717,51 @@ var BubbleLayer = cc.Layer.extend({
 	onTouchBegin:function(loc){cc.log("touchstart");
 		if(this.inputFrozen)
 			return;
+		
+		//cc.log(loc);
+		//cc.log(this.aimIndicator);
+			
+		if(DATA.worldIndex <= 1)
+		{
+			if(loc.y < this.aimIndicator.y+this.aimIndicator.height && loc.y > this.aimIndicator.y
+				&& loc.x < this.aimIndicator.x+this.aimIndicator.width && loc.x > this.aimIndicator.x)
+			{cc.log("WITHIN");
+				if(this.pointerVisual == null)
+				{
+					if(this.shooter.colorCode == "blue")
+						this.pointerVisual = new cc.Sprite(res.blue_ball);
+		 			else if(this.shooter.colorCode == "red")
+						this.pointerVisual = new cc.Sprite(res.red_ball);
+		 			else if(this.shooter.colorCode == "yellow")
+						this.pointerVisual = new cc.Sprite(res.yellow_ball);
+		 			else if(this.shooter.colorCode == "green")
+						this.pointerVisual = new cc.Sprite(res.green_ball);
+		 			else if(this.shooter.colorCode == "pink")
+						this.pointerVisual = new cc.Sprite(res.pink_ball);
+		 			else if(this.shooter.colorCode == "purple")
+						this.pointerVisual = new cc.Sprite(res.purple_ball);
+		 			
+		 			this.pointerVisual.setScale( (DATA.bubbleR*3) / this.pointerVisual.width);
+		 			this.pointerVisual.attr({
+		 				x:loc.x,
+		 				y:loc.y,
+		 				anchorX:.5,
+		 				anchorY:.5
+		 			});
+		 			this.addChild(this.pointerVisual);
+	 			}
+	 			else
+	 			{
+	 				
+	 				this.pointerVisual.attr({
+		 				x:loc.x,
+		 				y:loc.y,
+		 				anchorX:.5,
+		 				anchorY:.5
+		 			});
+	 			}
+ 			}
+		}
 			
 		if(this.tutorial!= null)
 		{
@@ -699,16 +769,7 @@ var BubbleLayer = cc.Layer.extend({
 				&& loc.y < this.aimIndicator.y+this.aimIndicator.height && loc.y > this.aimIndicator.y
 				&& loc.x < this.aimIndicator.x+this.aimIndicator.width && loc.x > this.aimIndicator.x)
 	 		{
-	 			/*this.pointerVisual = new cc.Sprite(res.finger_point);
-	 			this.pointerVisual.setScale((DATA.bubbleR*6) / this.width);
-	 			this.pointerVisual.attr({
-	 				x:loc.x,
-	 				y:loc.y,
-	 				anchorX:.2,
-	 				anchorY:1
-	 			});
-	 			this.pointerVisual.setRotation(-60);
-	 			this.addChild(this.pointerVisual);*/
+	 			/*
 	 			this.pointerVisual = new cc.Sprite(res.blue_ball);
 	 			this.pointerVisual.setScale( (DATA.bubbleR*3) / this.pointerVisual.width);
 	 			this.pointerVisual.attr({
@@ -718,7 +779,7 @@ var BubbleLayer = cc.Layer.extend({
 	 				anchorY:.5
 	 			});
 	 			this.addChild(this.pointerVisual);
-	 			
+	 			*/
 	 			
 	 			
 	 		}
@@ -900,6 +961,57 @@ var BubbleLayer = cc.Layer.extend({
 		if(this.inputFrozen)
 			return;
 			
+		if(DATA.worldIndex <= 1)
+		{
+			if(loc.y < this.aimIndicator.y+this.aimIndicator.height && loc.y > this.aimIndicator.y
+					&& loc.x < this.aimIndicator.x+this.aimIndicator.width && loc.x > this.aimIndicator.x)
+	 		{
+	 			if(this.pointerVisual == null)
+	 			{cc.log("ADD CIRCLE");
+	 				
+		 			if(this.shooter.colorCode == "blue")
+						this.pointerVisual = new cc.Sprite(res.blue_ball);
+		 			else if(this.shooter.colorCode == "red")
+						this.pointerVisual = new cc.Sprite(res.red_ball);
+		 			else if(this.shooter.colorCode == "yellow")
+						this.pointerVisual = new cc.Sprite(res.yellow_ball);
+		 			else if(this.shooter.colorCode == "green")
+						this.pointerVisual = new cc.Sprite(res.green_ball);
+		 			else if(this.shooter.colorCode == "pink")
+						this.pointerVisual = new cc.Sprite(res.pink_ball);
+		 			else if(this.shooter.colorCode == "purple")
+						this.pointerVisual = new cc.Sprite(res.purple_ball);
+						
+					this.pointerVisual.setScale( (DATA.bubbleR*3) / this.pointerVisual.width);
+		 			this.pointerVisual.attr({
+		 				x:loc.x,
+		 				y:loc.y,
+		 				anchorX:.5,
+		 				anchorY:.5
+		 			});
+		 			this.addChild(this.pointerVisual);
+		 			
+	 			}
+		 		else
+		 		{cc.log("MOVE CIRCLE");
+		 			//this.removeChild(this.pointerVisual);
+		 			//this.pointerVisual = null;
+		 			this.pointerVisual.attr({
+		 				x:loc.x,
+		 				y:loc.y,
+		 				anchorX:.5,
+		 				anchorY:.5
+	 				});
+		 		}
+	 		}
+ 			else if(this.pointerVisual != null)
+ 			{
+				this.removeChild(this.pointerVisual);
+				this.pointerVisual = null;
+ 			}
+ 			
+		}
+			
 		if(this.tutorial != null)
 	 	{
 	 		if(this.tutorial.type == "swap")
@@ -909,48 +1021,7 @@ var BubbleLayer = cc.Layer.extend({
 	 		
 	 		if(this.tutorial.id <= 3)
 	 		{
-		 		if(loc.y < this.aimIndicator.y+this.aimIndicator.height && loc.y > this.aimIndicator.y
-					&& loc.x < this.aimIndicator.x+this.aimIndicator.width && loc.x > this.aimIndicator.x)
-		 		{
-		 			if(this.pointerVisual == null)
-		 			{
-		 				/*this.pointerVisual = new cc.Sprite(res.finger_point);
-			 			this.pointerVisual.setScale((DATA.bubbleR*6) / this.width);
-			 			this.pointerVisual.attr({
-			 				x:loc.x,
-			 				y:loc.y,
-			 				anchorX:.2,
-			 				anchorY:1
-			 			});
-			 			this.pointerVisual.setRotation(-60);
-			 			this.addChild(this.pointerVisual);*/
-			 			
-			 			this.pointerVisual = new cc.Sprite(res.blue_ball);
-			 			this.pointerVisual.setScale( (DATA.bubbleR*3) / this.pointerVisual.width);
-			 			this.pointerVisual.attr({
-			 				x:loc.x,
-			 				y:loc.y,
-			 				anchorX:.5,
-			 				anchorY:.5
-			 			});
-			 			this.addChild(this.pointerVisual);
-			 			
-		 			}
-		 			else
-		 			{
-	 					this.pointerVisual.attr({
-			 				x:loc.x,
-			 				y:loc.y,
-			 				anchorX:.5,
-			 				anchorY:.5
-			 			});
-		 			}
-		 		}
-		 		else if(this.pointerVisual != null)
-		 		{
-		 			this.removeChild(this.pointerVisual);
-		 			this.pointerVisual = null;
-		 		}
+		 		
 	 		}
 	 	}
 			
@@ -1183,6 +1254,14 @@ var BubbleLayer = cc.Layer.extend({
 	},
 	onTouchEnd:function(loc){cc.log("touchEnd");
 	
+		if(DATA.worldIndex <= 1)
+		{
+			if(this.pointerVisual != null)
+			{
+				this.removeChild(this.pointerVisual);
+				this.pointerVisual = null;
+			}
+		}
 		if(this.tutorial != null)
 		{
 			this.aimIndicator.color = cc.color(0,0,0,50);
@@ -1192,11 +1271,7 @@ var BubbleLayer = cc.Layer.extend({
 			//if(loc.y < this.aimIndicator.y+this.aimIndicator.height && loc.y > this.aimIndicator.y
 			//	&& loc.x < this.aimIndicator.x+this.aimIndicator.width && loc.x > this.aimIndicator.x)
 	 		//{
-				if(this.pointerVisual != null)
-				{
-					this.removeChild(this.pointerVisual);
-					this.pointerVisual = null;
-				}
+				
 				
 				
 				
@@ -1505,9 +1580,10 @@ var BubbleLayer = cc.Layer.extend({
 		       	this.addChild(this.queueBubble);
 		   		
 				
-				var shooterSeq = new cc.Sequence(shooterAction, cc.callFunc(this.unfreezeInput, this));
-				this.shooter.runAction(shooterSeq);
+				var shooterSeq = new cc.Sequence(shooterAction, cc.callFunc(this.parent.parent.updatePhoneQueueBubble, this.parent.parent), cc.callFunc(this.unfreezeInput, this));
+				
 				this.queueBubble.runAction(queueAction);
+				this.shooter.runAction(shooterSeq);
 				
 		   		
 		   		
@@ -1825,10 +1901,18 @@ var BubbleLayer = cc.Layer.extend({
 	// Tracks chain of events after player makes a move.
 	triggerImpact:function(row, col)
 	{
+		this.shooterImpactRow = row;
+		this.shooterImpactCol = col;
 		if(this.modeType == "world")
 		{
 			var newBubbles = [{"y":row,"x":col,"type":this.shooter.type,"colorCode":this.shooter.colorCode}];cc.log("new bubbles");cc.log(newBubbles);
 			DATA.setAddDatabaseBubbles(newBubbles);
+			
+		}
+		else if(this.modeType == "side-level")
+		{
+			var newBubbles = [{"y":row,"x":col,"type":this.shooter.type,"colorCode":this.shooter.colorCode}];cc.log("new bubbles");cc.log(newBubbles);
+			DATA.setAddDatabaseEventBubbles(newBubbles);
 			
 		}
 		
@@ -1873,6 +1957,7 @@ var BubbleLayer = cc.Layer.extend({
 					cc.log(action.type);
 					if(action.type == "match")
 					{
+						// beachball?
 						if(this.bubbles[this.bubbleMap[action.position.y][action.position.x]].type == 11)
 						{cc.log("rainbow match exec");cc.log(action.position);
 							affectedIndices = {"destroyed":[],"triggered":[],"triggers":[]};
@@ -1898,7 +1983,15 @@ var BubbleLayer = cc.Layer.extend({
 						{
 							affectedIndices = this.executeMatch(action.position.y, action.position.x);
 							if(affectedIndices.destroyed.length > 0)
+							{cc.log("SHOOTER MATCH! REMOVE ADDED ROW IF NEEDED");
 								DATA.registerEvent({"type":"match-size","progress":1,"size":affectedIndices.destroyed.length});
+								if(action.position.y == this.shooterImpactRow && action.position.x == this.shooterImpactCol && this.rowsAdded == 1)
+								{cc.log("REMOVE ADDED ROW");
+									//this.rowsAdded = 0;
+									//this.bubbles.splice(this.bubbles.length-1, 1);
+									//this.bubbleMap.splice(this.bubbleMap.length-1, 1);
+								}
+							}
 						}
 						cc.log(affectedIndices);
 						
@@ -1979,8 +2072,13 @@ var BubbleLayer = cc.Layer.extend({
 			{
 				DATA.removeBubblesFromDatabase(databasePositionsToDestroy);
 			}
+			else if(this.modeType == "side-level")
+			{
+				DATA.removeBubblesFromEventDatabase(databasePositionsToDestroy);
+			}
 			
-			this.cullEmptyRows();
+			// REMOVE ROWS
+			this.cullEmptyRows(this.rowsAdded);
 			
 			/*if(this.rowsAdded > 0 && this.rowsCulled == 0)
 			{
@@ -1989,7 +2087,8 @@ var BubbleLayer = cc.Layer.extend({
 			}*/
 			
 			//DATA.updateWorldBubblesDatabase(this.bubbles);
-					
+				
+			// ADD ROWS	
 			if(curStepEvents.length == 0)
 			{
 				this.unschedule(this.actionStep);
@@ -1999,13 +2098,13 @@ var BubbleLayer = cc.Layer.extend({
 				this.initNextTurn();
 				this.checkTutorial();
 				
-				
+				cc.log("ROWS ADDED " + this.rowsAdded);
 				if(this.rowsAdded > 0 && this.rowsCulled == 0)
 				{
 					var overflowOffset = this.getOverflowOffset();
 		
 					if(this.rowsAdded > 0 && this.numRows >= 11)
-					{
+					{cc.log("ANIMATING ADD ROWS NOW");
 						var rowNum = 0;
 						for(var i=this.bubbleMap.length-1; i>=0 && rowNum <= 12; i--)
 						{
@@ -2139,13 +2238,13 @@ var BubbleLayer = cc.Layer.extend({
 				this.initMoveTimer();
 			}
 			if(this.numMoves > 0)
-				this.ballsLeftLabel.setString(this.numMoves);
+				this.ballsLeftLabel.setString(this.numMoves+"/5");
 			else
 			{
 				//this.buyMovesButton = ;
 				//this.
 				//this.removeChild(this.ballsLeftLabel);
-				this.ballsLeftLabel.setString(this.numMoves);
+				this.ballsLeftLabel.setString(this.numMoves+"/5");
 				
 				this.buyMovesButton = new cc.Sprite(res.buy_button);
 				this.buyMovesButton.setScale(this.bubbleR*3 / this.buyMovesButton.width);
@@ -2162,10 +2261,39 @@ var BubbleLayer = cc.Layer.extend({
 				
 			}
 		}
+		else if(this.modeType == "side-level")
+		{
+			DATA.eventMoves--;
+			DATA.setDatabaseEventMoves(DATA.eventMoves);
+			
+			if(this.numMoves > 0)
+				this.ballsLeftLabel.setString(this.numMoves);
+			else
+			{
+				//this.buyMovesButton = ;
+				//this.
+				//this.removeChild(this.ballsLeftLabel);
+				this.ballsLeftLabel.setString(this.numMoves);
+				/*
+				this.buyMovesButton = new cc.Sprite(res.buy_button);
+				this.buyMovesButton.setScale(this.bubbleR*3 / this.buyMovesButton.width);
+				this.buyMovesButton.attr({
+					x: this.width*.17,
+	       			y:this.bubbleStartHeight+this.bubbleR+3,
+					anchorX: .5,
+					anchorY: 0
+				});
+				this.addChild(this.buyMovesButton);
+				
+				if(DATA.levelIndexB == null)
+					this.parent.triggerBuyMovesLabel();
+				*/
+			}
+		}
 		else if(this.modeType == "challenge")
 		{
 			if(this.numMoves > 0)
-				this.ballsLeftLabel.setString(this.numMoves);
+				this.ballsLeftLabel.setString(this.numMoves+"/5");
 		}
 		
 		// Note: Might have to put this in actionQueue system if want it to have chain reactions
@@ -2630,6 +2758,13 @@ var BubbleLayer = cc.Layer.extend({
 
 			}
 			
+		}
+		else if(this.moveType == "side-level")
+		{
+			if(this.bubbles.length == 0)
+			{
+				
+			}
 		}
 		else if(this.modeType == "challenge")
 		{
@@ -3887,7 +4022,7 @@ var BubbleLayer = cc.Layer.extend({
 			}
 			this.bubbleMap.push(bubbleRow);
 			this.numRows++;
-			rowsAdded++;
+			rowsAdded++;cc.log("ADDING ROW RIGHT NOW");
 		}
 		
 		this.bubbleMap[row][col] = this.bubbles.length-1;
@@ -3921,7 +4056,7 @@ var BubbleLayer = cc.Layer.extend({
 		
 	},
 	
-	cullEmptyRows:function()
+	cullEmptyRows:function(rowsAdded)
 	{
 		// Shift bubbles up
 		var bubbleFound = false;
@@ -3962,7 +4097,7 @@ var BubbleLayer = cc.Layer.extend({
 			       							- i*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset});
 						*/
 						this.bubbles[this.bubbleMap[i][j]].attr({x:this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,
-			       						y:(rowsCulled)*this.rowHeight + this.height
+			       						y:(rowsCulled-rowsAdded)*this.rowHeight + this.height
 			       							- i*this.rowHeight - this.bubbleR + overflowOffset});
 						
 						

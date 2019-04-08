@@ -326,6 +326,9 @@ var res = {
     back_arrow_right: "res/back-arrow-right.png",
     back_arrow_left: "res/back-arrow-left.png",
     
+    creator_toggle:"res/creator-button.png",
+    back_to_play_button:"res/back-to-play-button.png",
+    
     coin: "res/coin.png",
     gem: "res/gem.png",
     
@@ -348,6 +351,7 @@ var res = {
     
     in_booster_bomb: "res/inbooster-bomb.png",
     in_booster_beachball: "res/inbooster-beachball.png",
+    in_booster_rocket: "res/inbooster-rocket.png",
     
     first_try_alert: "res/first-try-alert.png",
     last_try_alert: "res/last-try-alert.png",
@@ -421,7 +425,8 @@ var res = {
     yellow_ui_circle: "res/yellow-circle.png",
     tutorial_arrow: "res/tutorial-arrow.png",
     
-    phone: "res/phone.png"
+    phone: "res/phone.png",
+    phone_up:"res/phone_up.png"
 };
 
 

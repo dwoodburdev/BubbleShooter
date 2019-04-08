@@ -18,43 +18,62 @@ var ChallengeBottomUILayer = cc.Layer.extend({
 		this.boosterAImg.setScale(this.height*.75 / this.boosterAImg.height);
 		this.boosterAImg.attr({
 			"x":0,
-			"y":0,
+			"y":this.height,
 			"anchorX":0,
-			"anchorY":0
+			"anchorY":1
 		});
 		this.addChild(this.boosterAImg);
 		
 		this.boosterACounter = new cc.LabelTTF(""+DATA.boosterInventoryA, "Roboto", 15);
 		this.boosterACounter.attr({
 			"x":this.boosterAImg.x + this.boosterAImg.width*this.boosterAImg.scale/2,
-			"y":this.boosterAImg.y + this.boosterAImg.height*this.boosterAImg.scale-2,
+			"y":this.boosterAImg.y - (this.boosterAImg.height*this.boosterAImg.scale)-1,
 			"anchorX":.5,
-			"anchorY":0
+			"anchorY":1
 		});
 		this.boosterACounter.color = cc.color(0,0,0,255);
 		this.addChild(this.boosterACounter);
 		
 		this.boosterBImg = new cc.Sprite(res.in_booster_beachball);
-		this.boosterBImg.setScale(this.height / this.boosterBImg.height);
+		this.boosterBImg.setScale(this.height*.75 / this.boosterBImg.height);
 		this.boosterBImg.attr({
-			"x":this.boosterAImg.x + this.boosterBImg.width*this.boosterBImg.scale +1,
-			"y":0,
+			"x":this.boosterAImg.x + this.boosterAImg.width*this.boosterAImg.scale +1,
+			"y":this.height,
 			"anchorX":0,
-			"anchorY":0
+			"anchorY":1
 		});
 		this.addChild(this.boosterBImg);
 		
-		/*this.boosterCImg = new cc.Sprite(res.pre_booster_moves);
-		this.boosterCImg.setScale(this.height / this.boosterCImg.height);
+		this.boosterBCounter = new cc.LabelTTF(""+DATA.boosterInventoryB, "Roboto", 15);
+		this.boosterBCounter.attr({
+			"x":this.boosterBImg.x + this.boosterBImg.width*this.boosterBImg.scale/2,
+			"y":this.boosterBImg.y - (this.boosterBImg.height*this.boosterBImg.scale)-1,
+			"anchorX":.5,
+			"anchorY":1
+		});
+		this.boosterBCounter.color = cc.color(0,0,0,255);
+		this.addChild(this.boosterBCounter);
+		
+		
+		this.boosterCImg = new cc.Sprite(res.in_booster_rocket);
+		this.boosterCImg.setScale(this.height*.75 / this.boosterCImg.height);
 		this.boosterCImg.attr({
-			"x":0,
-			"y":0,
+			"x":this.boosterBImg.x + this.boosterBImg.width*this.boosterBImg.scale +1,
+			"y":this.height,
 			"anchorX":0,
-			"anchorY":0
+			"anchorY":1
 		});
 		this.addChild(this.boosterCImg);
-		*/
 		
+		this.boosterCCounter = new cc.LabelTTF(""+DATA.boosterInventoryC, "Roboto", 15);
+		this.boosterCCounter.attr({
+			"x":this.boosterCImg.x + this.boosterCImg.width*this.boosterCImg.scale/2,
+			"y":this.boosterCImg.y - (this.boosterCImg.height*this.boosterCImg.scale)-1,
+			"anchorX":.5,
+			"anchorY":1
+		});
+		this.boosterCCounter.color = cc.color(0,0,0,255);
+		this.addChild(this.boosterCCounter);
 		
 		
 		this.draw();

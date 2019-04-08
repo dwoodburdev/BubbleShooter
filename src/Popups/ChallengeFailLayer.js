@@ -1,19 +1,32 @@
 var ChallengeFailLayer = cc.Layer.extend({
-	ctor:function(){
+	ctor:function(width, height){
 		this._super();
 		//cc.associateWithNative( this, cc.Sprite );
 		
 		var size = cc.winSize;
 		
 		this.dn = new cc.DrawNode();
-		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),0,cc.color(0,0,0,255));
+		//this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),0,cc.color(0,0,0,255));
 		this.addChild(this.dn);
 		
+		this.width = width;
+		this.height = height;
 		
-		this.tabTitleLabel = new cc.LabelTTF("Challenge Failed.", "Arial", 40);
+		this.bgImage = new cc.Sprite(res.phone_up);
+		this.bgImage.setScaleX(this.width / this.bgImage.width);
+		this.bgImage.setScaleY(this.height / this.bgImage.height);
+		this.bgImage.attr({
+			x:0,
+			y:0,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.bgImage);
+		
+		this.tabTitleLabel = new cc.LabelTTF("Challenge Failed", "Arial", 40);
 		this.tabTitleLabel.attr({
-			"x":size.width/2,
-			"y":size.height-60,
+			"x":this.width/2,
+			"y":this.height-60,
 			"anchorX":.5,
 			"anchorY":1
 		});

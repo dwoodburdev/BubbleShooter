@@ -25,8 +25,8 @@ var BonusRewardPickerLayer = cc.Layer.extend({
 		this.addChild(this.tabTitleLabel);*/
 		
 		this.cardBorderWidth = 5;
-		this.cardWidth = this.width/3 - (this.cardBorderWidth*4)/3;
-		this.cardHeight = this.height/3 - (this.cardBorderWidth*4)/3;
+		this.cardWidth = (this.width - this.cardBorderWidth*4)/3;
+		this.cardHeight = (this.height - this.cardBorderWidth*4)/3;
 		
 		this.cards = [];
 		for(var i=0; i<3; i++)
@@ -48,6 +48,7 @@ var BonusRewardPickerLayer = cc.Layer.extend({
 				this.cards.push(cardImg);
 			}
 		}
+		
 		
 		/*var self = this;
 		
@@ -86,14 +87,14 @@ var BonusRewardPickerLayer = cc.Layer.extend({
 	},
 	
 	onTouchEnd: function(pos)
-	{cc.log(pos);
+	{cc.log(pos);pos = this.convertToNodeSpace(pos);
 		if(!this.cardPicked)
 		{
 			for(var i=0; i<this.cards.length; i++)
 			{
 				var card = this.cards[i];
 				if(pos.x > card.x && pos.x < card.x+(card.width*card.scaleX) && pos.y > card.y && pos.y < card.y+(card.height*card.scaleY))
-				{cc.log("w " + card.width + " h " + card.height);
+				{cc.log("CARD FOUND!!!!!");cc.log("w " + card.width + " h " + card.height);
 					var oldX = card.x;
 					var oldY = card.y;
 					this.removeChild(card);
@@ -122,6 +123,7 @@ var BonusRewardPickerLayer = cc.Layer.extend({
 					});
 					this.addChild(this.cards[i]);
 					this.cardPicked = true;
+					return "close";
 				}
 			}
 		

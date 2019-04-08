@@ -40,7 +40,7 @@ var FriendsDisplayLayer = cc.Layer.extend({
 		var friendBorder = 5;
 		var friendWidth = size.width*.9;
 		var friendHeight = ((size.width-friendBorder*4)/3)*.7;
-		for(var i=0; i<4; i++)
+		for(var i=0; i<3; i++)
 		{
 			var friendRect = {
 				x:size.width*.05,

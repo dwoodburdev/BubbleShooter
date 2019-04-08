@@ -73,8 +73,18 @@ var CoreButtonsUI = cc.Layer.extend({
 			anchorX:0.5,
 			anchorY:0.5
 		});
-		this.editorButtonLabel.color=cc.color(255,255,255,255);
-		this.addChild(this.editorButtonLabel);
+		this.editorButtonLabel.color=cc.color(0,0,0,255);
+		//this.addChild(this.editorButtonLabel);
+		
+		this.editorButtonImg = new cc.Sprite(res.creator_toggle);
+		this.editorButtonImg.setScale((32+15+7) / this.editorButtonImg.width);
+		this.editorButtonImg.attr({
+			x:this.challengeButton.x+this.challengeButton.width + (cc.winSize.width-this.challengeButton.x-this.challengeButton.width)/2,
+			y:this.challengeButton.y-5,
+			anchorX:.5,
+			anchorY:0
+		});
+		this.addChild(this.editorButtonImg);
 		
 		this.levelAShadow = null;
 		if(DATA.levelIndexA == null)
@@ -104,6 +114,10 @@ var CoreButtonsUI = cc.Layer.extend({
 			this.addChild(this.levelBShadow);
 		}
 		this.draw();
+		
+		
+		
+		
 		
 		/*if(this.tabName == "world")
 		{
@@ -143,6 +157,36 @@ var CoreButtonsUI = cc.Layer.extend({
 		}
 	},
 	
+	changeToGame:function()
+	{
+		this.removeChild(this.editorButtonImg);
+		this.editorButtonImg = null;
+		
+		this.editorButtonImg = new cc.Sprite(res.creator_toggle);
+		this.editorButtonImg.setScale((32+15+7) / this.editorButtonImg.width);
+		this.editorButtonImg.attr({
+			x:this.challengeButton.x+this.challengeButton.width + (cc.winSize.width-this.challengeButton.x-this.challengeButton.width)/2,
+			y:this.challengeButton.y-5,
+			anchorX:.5,
+			anchorY:0
+		});
+		this.addChild(this.editorButtonImg);
+	},
+	changeToEditor:function()
+	{
+		this.removeChild(this.editorButtonImg);
+		this.editorButtonImg = null;
+		
+		this.editorButtonImg = new cc.Sprite(res.back_to_play_button);
+		this.editorButtonImg.setScale((32+15+7) / this.editorButtonImg.width);
+		this.editorButtonImg.attr({
+			x:this.challengeButton.x+this.challengeButton.width + (cc.winSize.width-this.challengeButton.x-this.challengeButton.width)/2,
+			y:this.challengeButton.y-5,
+			anchorX:.5,
+			anchorY:0
+		});
+		this.addChild(this.editorButtonImg);
+	},
 	
 	hideLevelsButton:function()
 	{
@@ -247,7 +291,7 @@ var CoreButtonsUI = cc.Layer.extend({
 	
 	draw:function()
 	{
-		this.dn.drawRect(cc.p(this.editorButton.x,this.editorButton.y),cc.p(this.editorButton.x+this.editorButton.width,this.editorButton.y+this.editorButton.height),cc.color(0,0,255,255),5,cc.color(0,0,0,255));
+		//this.dn.drawRect(cc.p(this.editorButton.x,this.editorButton.y),cc.p(this.editorButton.x+this.editorButton.width,this.editorButton.y+this.editorButton.height),cc.color(255,140,0,255),5,cc.color(0,0,0,255));
 	
 	if(this.levelButtonShown)
 	{

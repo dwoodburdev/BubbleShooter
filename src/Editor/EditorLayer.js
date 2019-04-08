@@ -57,6 +57,7 @@ var EditorLayer = cc.Layer.extend({
 			anchorX:0,
 			anchorY:0
 		});
+		
 		this.viewerBubbleLayer = new EditorBubbleLayer(this.width, this.height-this.editorUILayer.height-this.midUILayer.height, [], 20);
 		this.viewerBubbleLayer.attr({
 			x:0,
@@ -94,10 +95,9 @@ var EditorLayer = cc.Layer.extend({
 	onTouchBegan:function(pos)
 		{cc.log("EDITOR TOUCH BEGAN !!!!!!!!!!");cc.log(pos);
 			//var target = event.getCurrentTarget();
-	    	//var locationInNode = this.bubbleLayer.convertToNodeSpace(touch.getLocation());
+	    	var locationInNode = this.bubbleLayer.convertToNodeSpace(pos);
 	    	//this.bubbleLayer.onTouchBegin(touch.getLocation(), this.drawType);
-	    	//if(locationInNode.y < 0)
-	    	if(pos.y < this.bubbleLayer.y)
+	    	if(locationInNode.y < 0)
 	    	{
 	    		if(this.mode == "create")
 	    		{
@@ -117,7 +117,7 @@ var EditorLayer = cc.Layer.extend({
 	    	else 
 	    	{
 	    		if(this.mode == "create")
-	    		{
+	    		{cc.log(locationInNode);
 	    			this.bubbleLayer.onTouchBegin(pos, this.drawType, this.drawColor, this.drawOrientation, this.drawBinary, this.drawMeta);
 	    		}
 	    		else if(this.mode == "view")
@@ -129,9 +129,10 @@ var EditorLayer = cc.Layer.extend({
 		onTouchMoved:function(pos)
 		{
 			//var target = event.getCurrentTarget();
-	    	//var locationInNode = this.bubbleLayer.convertToNodeSpace(pos);
+	    	var locationInNode = this.bubbleLayer.convertToNodeSpace(pos);
 	    	//this.bubbleLayer.onTouchBegin(touch.getLocation(), this.drawType);
-	    	if(pos.y < this.bubbleLayer.y)
+	    	//if(pos.y < this.bubbleLayer.y)
+	    	if(locationInNode.y < 0)
 	    	{
 	    		if(this.midUILayer.convertToNodeSpace(pos).y < 0)
 	    		{
@@ -152,11 +153,12 @@ var EditorLayer = cc.Layer.extend({
 		onTouchEnded:function(pos)
 		{
 			//var target = event.getCurrentTarget();
-		    //var locationInNode = this.bubbleLayer.convertToNodeSpace(pos);
+		    var locationInNode = this.bubbleLayer.convertToNodeSpace(pos);
 	    	//this.bubbleLayer.onTouchBegin(touch.getLocation(), this.drawType);
 	    	var returnData = null;
 	    	var uiData = null;
-	    	if(pos.y < this.bubbleLayer.y)
+	    	//if(pos.y < this.bubbleLayer.y)
+	    	if(locationInNode.y < 0)
 	    	{
 	    		if(this.midUILayer.convertToNodeSpace(pos).y < 0)
 	    		{
@@ -222,7 +224,10 @@ var EditorLayer = cc.Layer.extend({
 		   				var color = null;
 		   				if("colorCode" in bub && bub.colorCode !== undefined)
 		   					color = bub.colorCode;
-		   				bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":color,"meta":bub.meta});
+		   				var meta = null;
+		   				if("meta" in bub && bub.meta !== undefined)
+		   					meta = bub.meta;
+		   				bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":color,"meta":meta});
 		   			}
 		   		}cc.log(bubs);
 		   		

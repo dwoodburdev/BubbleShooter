@@ -66,6 +66,11 @@ var MainContainerLayer = cc.Layer.extend({
 		this.curMainLayer = this.gameplayLayer;
 		
 		
+		
+		
+		
+		
+		
 		this.mainEditorLayer = new EditorLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
 		this.mainEditorLayer.attr({
 			x:0,
@@ -76,14 +81,14 @@ var MainContainerLayer = cc.Layer.extend({
 		
 		this.editorCreatorsLayer = new CreatorsDisplayLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
 		this.editorCreatorsLayer.attr({
-			x:0,
+			x:cc.winSize.width*1,
 			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
 			anchorX:0,
 			anchorY:0
 		});
 		this.editorEventLayer = new CreatorEventLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
 		this.editorEventLayer.attr({
-			x:0,
+			x:cc.winSize.width*2,
 			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
 			anchorX:0,
 			anchorY:0
@@ -91,7 +96,7 @@ var MainContainerLayer = cc.Layer.extend({
 		
 		this.editorRewardsLayer = new CreatorRewardsLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
 		this.editorRewardsLayer.attr({
-			x:0,
+			x:cc.winSize.width*-1,
 			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
 			anchorX:0,
 			anchorY:0
@@ -99,7 +104,7 @@ var MainContainerLayer = cc.Layer.extend({
 		
 		this.editorShopLayer = new CreatorsDisplayLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
 		this.editorShopLayer.attr({
-			x:0,
+			x:cc.winSize.width*-2,
 			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
 			anchorX:0,
 			anchorY:0
@@ -143,6 +148,44 @@ var MainContainerLayer = cc.Layer.extend({
 		});
 		this.addChild(this.leagueLayer);
 		
+		this.phoneMode = "emoji";
+		
+		this.phoneBG = new cc.Sprite(res.phone);
+    	this.phoneBG.setScale(DATA.bubbleR*3 / this.phoneBG.height)
+    	this.phoneBG.attr({
+    		x:this.gameplayLayer.bubbleLayer.queueBubble.x,
+    		y:this.gameplayLayer.y+this.gameplayLayer.bubbleLayer.y+this.gameplayLayer.bubbleLayer.queueBubble.y,
+    		anchorX:.5,
+    		anchorY:.5
+    	});
+    	this.addChild(this.phoneBG);
+    	
+    	if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "red")
+    		this.queuePhoneOverlay = new cc.Sprite(res.angry_emoji);
+    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "yellow")
+    		this.queuePhoneOverlay = new cc.Sprite(res.smile_emoji);
+    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "green")
+    		this.queuePhoneOverlay = new cc.Sprite(res.sick_emoji);
+    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "blue")
+    		this.queuePhoneOverlay = new cc.Sprite(res.sad_emoji);
+    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "pink")
+    		this.queuePhoneOverlay = new cc.Sprite(res.love_emoji);
+    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "purple")
+    		this.queuePhoneOverlay = new cc.Sprite(res.evil_emoji);
+    	
+		this.queuePhoneOverlay.setScale(DATA.bubbleR*2 / this.queuePhoneOverlay.width);
+		this.queuePhoneOverlay.attr({
+			x:this.gameplayLayer.x+this.gameplayLayer.bubbleLayer.x+this.gameplayLayer.bubbleLayer.queueBubble.x,
+			y:this.gameplayLayer.y+this.gameplayLayer.bubbleLayer.y+this.gameplayLayer.bubbleLayer.queueBubble.y,
+			anchorX:.5,
+			anchorY:.5
+		});
+		this.addChild(this.queuePhoneOverlay);
+		
+		
+		
+		
+		this.preLayer = null;
 		this.settingsLayer = null;
 		this.worldMapLayer = null;
 		
@@ -152,16 +195,17 @@ var MainContainerLayer = cc.Layer.extend({
 			cc.eventManager.addListener({
 			    event: cc.EventListener.TOUCH_ONE_BY_ONE,
 			    swallowTouches:true,
-			    onTouchBegan: function(touch, event){
+			    onTouchBegan: function(touch, event){cc.log("TOUCHSTART");
 			   		var target = event.getCurrentTarget();
-			    	var locationInNode = self.curMainLayer.convertToNodeSpace(touch.getLocation());
-
+			    	var locationInNode = self.convertToNodeSpace(touch.getLocation());
+					cc.log(locationInNode);
+					cc.log(self.curMainLayer);
 					if(!self.isPopup())
-					{
+					{cc.log("nopopup");cc.log(self.curMainLayer);
 				    	if(FUNCTIONS.posWithin(locationInNode, self.curMainLayer))
-				    	{
+				    	{cc.log("IN CUR LAYER");
+				    		//self.curMainLayer.onTouchBegan(touch.getLocation());
 				    		self.curMainLayer.onTouchBegan(touch.getLocation());
-				    		
 				    	}
 			    	}
 			    	else
@@ -177,7 +221,7 @@ var MainContainerLayer = cc.Layer.extend({
 			    },
 			    onTouchMoved: function(touch, event){
 			    	var target = event.getCurrentTarget();
-			    	var locationInNode = self.curMainLayer.convertToNodeSpace(touch.getLocation());
+			    	var locationInNode = self.convertToNodeSpace(touch.getLocation());
 
 					if(!self.isPopup())
 					{
@@ -190,7 +234,7 @@ var MainContainerLayer = cc.Layer.extend({
 			    	{
 			    		if(self.worldMapLayer != null)
 						{	
-							var returnObj = self.worldMapLayer.onTouchMoved(touch.getLocation());
+							var returnObj = self.worldMapLayer.onTouchMoved(locationInNode);
 							
 						}
 			    	}
@@ -205,7 +249,7 @@ var MainContainerLayer = cc.Layer.extend({
 				    	if(FUNCTIONS.posWithin(locationInNode, self.bottomUILayer))
 				    	{cc.log("bottom");
 				    		var botReturn = null;
-				    		botReturn = self.bottomUILayer.onTouchEnd(locationInNode);
+				    		botReturn = self.bottomUILayer.onTouchEnd(touch.getLocation()/*locationInNode*/);
 				    		
 				    		if(botReturn == self.curTabName)
 				    		{
@@ -213,148 +257,180 @@ var MainContainerLayer = cc.Layer.extend({
 				    			{
 				    				self.bottomUILayer.changeToGame();
 				    				self.topUILayer.changeToGame();
+				    				self.coreButtonsUI.changeToGame();
 				    			}
 				    			else if(self.menuMode == "game")
 				    			{
 				    				self.bottomUILayer.changeToEditor();
 				    				self.topUILayer.changeToEditor();
+				    				self.coreButtonsUI.changeToEditor();
 				    			}
 				    			self.swapCreatorMode();
 				    		}
 				    		else
 				    		{
-				    		if(botReturn == "challenge")
-				    		{
-				    			var moveDistance = 0;
-				    			if(self.curTabName == "me")
-				    			{
-				    				moveDistance = cc.winSize.width*-1;
-				    			}
-				    			else if(self.curTabName == "gameplay")
-				    			{
-				    				moveDistance = cc.winSize.width*1;
-				    			}
-				    			else if(self.curTabName == "friends")
-				    			{
-				    				moveDistance = cc.winSize.width*2;
-				    			}
-				    			else if(self.curTabName == "league")
-				    			{
-				    				moveDistance = cc.winSize.width*3;
-				    			}
-				    			
-			    				self.slideTabs(moveDistance);
-			    				
-			    				self.curMainLayer = self.challengeLayer;
-			    				self.curTabName = "challenge";
-				    			self.bottomUILayer.selectButton(self.curTabName);
-				    		}
-				    		else if(botReturn == "gameplay")
-				    		{
-				    			var moveDistance = 0;
-				    			if(self.curTabName == "me")
-				    			{
-				    				moveDistance = cc.winSize.width*-2;
-				    			}
-				    			else if(self.curTabName == "challenge")
-				    			{
-				    				moveDistance = cc.winSize.width*-1;
-				    			}
-				    			else if(self.curTabName == "friends")
-				    			{
-				    				moveDistance = cc.winSize.width;
-				    			}
-				    			else if(self.curTabName == "league")
-				    			{
-				    				moveDistance = cc.winSize.width*2;
-				    			}
-				    			
-				    			self.slideTabs(moveDistance);
-				    			
-			    				//var seq = new cc.Sequence(moveLeftAction, cc.callFunc( self.challengeLayer.removeFromParent, self.challengeLayer ) );
-		
-			    				self.curMainLayer = self.gameplayLayer;
-			    				self.curTabName = "gameplay";
-				    			self.bottomUILayer.selectButton(self.curTabName);
-				    		}
-				    		else if(botReturn == "me")
-				    		{
-				    			var moveDistance = 0;
-				    			if(self.curTabName == "challenge")
-				    			{
-				    				moveDistance = cc.winSize.width;
-				    			}
-				    			else if(self.curTabName == "gameplay")
-				    			{
-				    				moveDistance = cc.winSize.width*2;
-				    			}
-				    			else if(self.curTabName == "friends")
-				    			{
-				    				moveDistance = cc.winSize.width*3;
-				    			}
-				    			else if(self.curTabName == "league")
-				    			{
-				    				moveDistance = cc.winSize.width*4;
-				    			}
-				    			
-				    			self.slideTabs(moveDistance);
-				    			
-				    			self.curMainLayer = self.meLayer;
-				    			self.curTabName = "me";
-				    			self.bottomUILayer.selectButton(self.curTabName);
-				    		}
-				    		else if(botReturn == "friends")
-				    		{
-				    			var moveDistance = 0;
-				    			if(self.curTabName == "me")
-				    			{
-				    				moveDistance = cc.winSize.width*-3;
-				    			}
-				    			else if(self.curTabName == "challenge")
-				    			{
-				    				moveDistance = cc.winSize.width*-2;
-				    			}
-				    			else if(self.curTabName == "gameplay")
-				    			{
-				    				moveDistance = cc.winSize.width*-1;
-				    			}
-				    			else if(self.curTabName == "league")
-				    			{
-				    				moveDistance = cc.winSize.width;
-				    			}
-				    			
-				    			self.slideTabs(moveDistance);
-				    			
-				    			self.curMainLayer = self.friendsLayer;
-				    			self.curTabName = "friends";
-				    			self.bottomUILayer.selectButton(self.curTabName);
-				    		}
-				    		else if(botReturn == "league")
-				    		{
-				    			var moveDistance = 0;
-				    			if(self.curTabName == "me")
-				    			{
-				    				moveDistance = cc.winSize.width*-4;
-				    			}
-				    			else if(self.curTabName == "challenge")
-				    			{
-				    				moveDistance = cc.winSize.width*-3;
-				    			}
-				    			else if(self.curTabName == "gameplay")
-				    			{
-				    				moveDistance = cc.winSize.width*-2;
-				    			}
-				    			else if(self.curTabName == "friends")
-				    			{
-				    				moveDistance = cc.winSize.width*-1;
-				    			}
-				    			
-				    			self.slideTabs(moveDistance);
-				    			
-				    			self.curMainLayer = self.leagueLayer;
-				    			self.curTabName = "league";
-				    			self.bottomUILayer.selectButton(self.curTabName);
-				    		}
+					    		if(botReturn == "challenge")
+					    		{
+					    			var moveDistance = 0;
+					    			if(self.curTabName == "me")
+					    			{
+					    				moveDistance = cc.winSize.width*-1;
+					    			}
+					    			else if(self.curTabName == "gameplay")
+					    			{
+					    				moveDistance = cc.winSize.width*1;
+					    				
+					    				if(self.menuMode == "game")
+					    					self.movePhoneDown();
+					    			}
+					    			else if(self.curTabName == "friends")
+					    			{
+					    				moveDistance = cc.winSize.width*2;
+					    			}
+					    			else if(self.curTabName == "league")
+					    			{
+					    				moveDistance = cc.winSize.width*3;
+					    			}
+					    			
+				    				self.slideTabs(moveDistance);
+				    				
+				    				if(self.menuMode == "game")
+				    					self.curMainLayer = self.challengeLayer;
+				    				else if(self.menuMode == "creator")
+				    					self.curMainLayer = self.editorRewardsLayer;
+				    				self.curTabName = "challenge";
+					    			self.bottomUILayer.selectButton(self.curTabName);
+					    		}
+					    		else if(botReturn == "gameplay")
+					    		{
+					    			var moveDistance = 0;
+					    			if(self.curTabName == "me")
+					    			{
+					    				moveDistance = cc.winSize.width*-2;
+					    			}
+					    			else if(self.curTabName == "challenge")
+					    			{
+					    				moveDistance = cc.winSize.width*-1;
+					    			}
+					    			else if(self.curTabName == "friends")
+					    			{
+					    				moveDistance = cc.winSize.width;
+					    			}
+					    			else if(self.curTabName == "league")
+					    			{
+					    				moveDistance = cc.winSize.width*2;
+					    			}
+					    			
+					    			self.slideTabs(moveDistance);
+					    			
+					    			self.movePhoneUp();
+					    			
+				    				//var seq = new cc.Sequence(moveLeftAction, cc.callFunc( self.challengeLayer.removeFromParent, self.challengeLayer ) );
+			
+									if(self.menuMode == "game")
+				    					self.curMainLayer = self.gameplayLayer;
+				    				else if(self.menuMode == "creator")
+				    					self.curMainLayer = self.mainEditorLayer;
+				    				self.curTabName = "gameplay";
+					    			self.bottomUILayer.selectButton(self.curTabName);
+					    		}
+					    		else if(botReturn == "me")
+					    		{
+					    			var moveDistance = 0;
+					    			if(self.curTabName == "challenge")
+					    			{
+					    				moveDistance = cc.winSize.width;
+					    			}
+					    			else if(self.curTabName == "gameplay")
+					    			{
+					    				moveDistance = cc.winSize.width*2;
+					    				
+					    				if(self.menuMode == "game")
+					    					self.movePhoneDown();
+					    			}
+					    			else if(self.curTabName == "friends")
+					    			{
+					    				moveDistance = cc.winSize.width*3;
+					    			}
+					    			else if(self.curTabName == "league")
+					    			{
+					    				moveDistance = cc.winSize.width*4;
+					    			}
+					    			
+					    			self.slideTabs(moveDistance);
+					    			
+					    			
+					    			if(self.menuMode == "game")
+					    				self.curMainLayer = self.meLayer;
+				    				else if(self.menuMode == "creator")
+				    					self.curMainLayer = self.editorShopLayer;
+					    			self.curTabName = "me";
+					    			self.bottomUILayer.selectButton(self.curTabName);
+					    		}
+					    		else if(botReturn == "friends")
+					    		{
+					    			var moveDistance = 0;
+					    			if(self.curTabName == "me")
+					    			{
+					    				moveDistance = cc.winSize.width*-3;
+					    			}
+					    			else if(self.curTabName == "challenge")
+					    			{
+					    				moveDistance = cc.winSize.width*-2;
+					    			}
+					    			else if(self.curTabName == "gameplay")
+					    			{
+					    				moveDistance = cc.winSize.width*-1;
+					    				
+					    				if(self.menuMode == "game")
+					    					self.movePhoneDown();
+					    			}
+					    			else if(self.curTabName == "league")
+					    			{
+					    				moveDistance = cc.winSize.width;
+					    			}
+					    			
+					    			self.slideTabs(moveDistance);
+					    			
+					    			if(self.menuMode == "game")
+					    				self.curMainLayer = self.friendsLayer;
+				    				else if(self.menuMode == "creator")
+				    					self.curMainLayer = self.editorCreatorsLayer;
+					    			self.curTabName = "friends";
+					    			self.bottomUILayer.selectButton(self.curTabName);
+					    		}
+					    		else if(botReturn == "league")
+					    		{
+					    			var moveDistance = 0;
+					    			if(self.curTabName == "me")
+					    			{
+					    				moveDistance = cc.winSize.width*-4;
+					    			}
+					    			else if(self.curTabName == "challenge")
+					    			{
+					    				moveDistance = cc.winSize.width*-3;
+					    			}
+					    			else if(self.curTabName == "gameplay")
+					    			{
+					    				moveDistance = cc.winSize.width*-2;
+					    				
+					    				if(self.menuMode == "game")
+					    					self.movePhoneDown();
+					    			}
+					    			else if(self.curTabName == "friends")
+					    			{
+					    				moveDistance = cc.winSize.width*-1;
+					    			}
+					    			
+					    			self.slideTabs(moveDistance);
+					    			
+					    			if(self.menuMode == "game")
+					    				self.curMainLayer = self.leagueLayer;
+				    				else if(self.menuMode == "creator")
+				    					self.curMainLayer = self.editorEventLayer;
+					    			self.curTabName = "league";
+					    			self.bottomUILayer.selectButton(self.curTabName);
+					    		}
 				    		}
 				    	}
 				    	else if(FUNCTIONS.posWithin(touch.getLocation(), self.topUILayer))
@@ -372,10 +448,7 @@ var MainContainerLayer = cc.Layer.extend({
 				    		self.curMainLayer.coreUITouched(touch.getLocation());
 				    	}
 					 	
-					 	cc.log(self.curMainLayer.x+" "+
-					 			self.curMainLayer.y+" "+
-					 			self.curMainLayer.width+" "+
-					 			self.curMainLayer.height);
+					 	cc.log(self.curMainLayer);
 					}
 					else
 					{
@@ -388,6 +461,36 @@ var MainContainerLayer = cc.Layer.extend({
 								self.worldMapLayer = null;
 							}
 						}
+						else if(self.preLayer != null)
+						{cc.log("CLICK IN PRELAYER");
+							var returnObj = self.preLayer.onTouchEnd(touch.getLocation());
+							if(returnObj == "close")
+							{
+								var scaleAction = cc.scaleTo(.5, 0, 0);
+								var moveToAction = cc.moveTo(.5, cc.p(cc.winSize.width*.5,25));
+								var spawn = cc.spawn(scaleAction,moveToAction);
+								self.preLayer.setCascadeOpacityEnabled(true);
+								var seq = new cc.Sequence(spawn, cc.callFunc( self.preLayer.removeFromParent, self.preLayer ) );
+								self.preLayer.runAction(seq);
+								self.preLayer = null;
+							}
+							else if(returnObj == "buy-prebooster")
+							{
+								self.removeChild(self.preLayer);
+								self.preLayer = null;
+								
+								self.buyPreboosterLayer = new BuyBoosterLayer(cc.winSize.width-50,self.height-50,"plus_five");
+								self.buyPreboosterLayer.attr({
+									x:25,
+									y:25,
+									anchorX:0,
+									anchorY:0
+								});
+								self.addChild(self.buyPreboosterLayer);
+							}
+							
+						}
+						
 					}
 					
 			    	return true;
@@ -398,6 +501,158 @@ var MainContainerLayer = cc.Layer.extend({
         //return true;
 	},
 	
+	updatePhoneQueueBubble:function()
+	{
+		this.removeChild(this.queuePhoneOverlay);
+		this.queuePhoneOverlay = null;
+		
+		if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "red")
+    		this.queuePhoneOverlay = new cc.Sprite(res.angry_emoji);
+    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "yellow")
+    		this.queuePhoneOverlay = new cc.Sprite(res.smile_emoji);
+    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "green")
+    		this.queuePhoneOverlay = new cc.Sprite(res.sick_emoji);
+    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "blue")
+    		this.queuePhoneOverlay = new cc.Sprite(res.sad_emoji);
+    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "pink")
+    		this.queuePhoneOverlay = new cc.Sprite(res.love_emoji);
+    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "purple")
+    		this.queuePhoneOverlay = new cc.Sprite(res.evil_emoji);
+    	
+		this.queuePhoneOverlay.setScale(DATA.bubbleR*2 / this.queuePhoneOverlay.width);
+		this.queuePhoneOverlay.attr({
+			x:this.gameplayLayer.x+this.gameplayLayer.bubbleLayer.x+this.gameplayLayer.bubbleLayer.queueBubble.x,
+			y:this.gameplayLayer.y+this.gameplayLayer.bubbleLayer.y+this.gameplayLayer.bubbleLayer.queueBubble.y,
+			anchorX:.5,
+			anchorY:.5
+		});
+		this.addChild(this.queuePhoneOverlay);
+	},
+	
+	movePhoneDown:function()
+	{cc.log("PHONE DOWN");
+		var moveAction = cc.moveTo(.3, this.queuePhoneOverlay.x, this.coreButtonsUI.y+(this.coreButtonsUI.height/2));
+		var movePhoneSeq = new cc.Sequence(moveAction, cc.callFunc(this.initPhoneUpdate, this));
+		this.queuePhoneOverlay.runAction(movePhoneSeq);
+		
+		
+		var phoneMoveAction = cc.moveTo(.3, this.queuePhoneOverlay.x, this.coreButtonsUI.y+(this.coreButtonsUI.height/2));
+		this.phoneBG.runAction(phoneMoveAction);
+	},
+	movePhoneUp:function()
+	{cc.log("PHONE UP");
+		if(this.phoneMode == "moves")
+		{
+			this.phoneMode = "emoji";
+			
+			var origX = this.movesPhoneOverlay.x;
+			var origY = this.movesPhoneOverlay.y;
+			this.removeChild(this.movesPhoneOverlay);
+			this.movesPhoneOverlay = null;
+			
+			if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "red")
+	    		this.queuePhoneOverlay = new cc.Sprite(res.angry_emoji);
+	    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "yellow")
+	    		this.queuePhoneOverlay = new cc.Sprite(res.smile_emoji);
+	    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "green")
+	    		this.queuePhoneOverlay = new cc.Sprite(res.sick_emoji);
+	    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "blue")
+	    		this.queuePhoneOverlay = new cc.Sprite(res.sad_emoji);
+	    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "pink")
+	    		this.queuePhoneOverlay = new cc.Sprite(res.love_emoji);
+	    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "purple")
+	    		this.queuePhoneOverlay = new cc.Sprite(res.evil_emoji);
+	    	
+			this.queuePhoneOverlay.setScale(DATA.bubbleR*2 / this.queuePhoneOverlay.width);
+			this.queuePhoneOverlay.attr({
+				//x:this.gameplayLayer.x+this.gameplayLayer.bubbleLayer.x+this.gameplayLayer.bubbleLayer.queueBubble.x,
+				x:origX,
+				//y:this.gameplayLayer.y+this.gameplayLayer.bubbleLayer.y+this.gameplayLayer.bubbleLayer.queueBubble.y,
+				y:origY,
+				anchorX:.5,
+				anchorY:.5
+			});
+			this.addChild(this.queuePhoneOverlay);
+			
+		}
+		
+		var moveAction = cc.moveTo(.3, this.queuePhoneOverlay.x, this.gameplayLayer.y+this.gameplayLayer.bubbleLayer.y+this.gameplayLayer.bubbleLayer.queueBubble.y)
+		this.queuePhoneOverlay.runAction(moveAction);
+		
+		
+		this.unschedule(this.updatePhone);
+		
+		var phoneMoveAction = cc.moveTo(.3, this.queuePhoneOverlay.x, this.gameplayLayer.y+this.gameplayLayer.bubbleLayer.y+this.gameplayLayer.bubbleLayer.queueBubble.y)
+		this.phoneBG.runAction(phoneMoveAction);
+	},
+	
+	initPhoneUpdate:function()
+	{
+		this.schedule(this.updatePhone, 3);
+	},
+	
+	updatePhone:function()
+	{
+		// Change to moves left.
+		if(this.phoneMode == "emoji")
+		{cc.log("switch to moves");
+			this.removeChild(this.queuePhoneOverlay);
+			this.queuePhoneOverlay = null;
+			
+			this.movesPhoneOverlay = new cc.LabelTTF("15/5","Arial",20);
+			this.movesPhoneOverlay.attr({
+				x:this.curMainLayer.x+this.gameplayLayer.bubbleLayer.queueBubble.x,
+				y:this.curMainLayer.y-this.coreButtonsUI.height+this.gameplayLayer.bubbleLayer.queueBubble.y,
+				anchorX:.5,
+				anchorY:.5
+			});
+			this.movesPhoneOverlay.color = cc.color(255,0,0,255);
+			this.addChild(this.movesPhoneOverlay);
+			this.phoneMode = "moves";
+		}
+		// Change to queued emoji.
+		else if(this.phoneMode == "moves")
+		{cc.log("switch to emoji");
+			this.removeChild(this.movesPhoneOverlay);
+			this.movesPhoneOverlay = null;
+			
+			if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "red")
+	    		this.queuePhoneOverlay = new cc.Sprite(res.angry_emoji);
+	    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "yellow")
+	    		this.queuePhoneOverlay = new cc.Sprite(res.smile_emoji);
+	    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "green")
+	    		this.queuePhoneOverlay = new cc.Sprite(res.sick_emoji);
+	    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "blue")
+	    		this.queuePhoneOverlay = new cc.Sprite(res.sad_emoji);
+	    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "pink")
+	    		this.queuePhoneOverlay = new cc.Sprite(res.love_emoji);
+	    	else if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "purple")
+	    		this.queuePhoneOverlay = new cc.Sprite(res.evil_emoji);
+	    	
+			this.queuePhoneOverlay.setScale(DATA.bubbleR*2 / this.queuePhoneOverlay.width);
+			this.queuePhoneOverlay.attr({
+				x:this.curMainLayer.x+this.gameplayLayer.bubbleLayer.queueBubble.x,
+				y:this.curMainLayer.y-this.coreButtonsUI.height+this.gameplayLayer.bubbleLayer.queueBubble.y,
+				anchorX:.5,
+				anchorY:.5
+			});
+			this.addChild(this.queuePhoneOverlay);
+			
+			
+			this.phoneMode = "emoji";
+		}
+		// Change to countdown timer (SKIP FOR NOW)
+		else if(this.phoneMode == "countdown")
+		{
+			this.removeChild(this.queuePhoneOverlay);
+			this.queuePhoneOverlay = null;
+			
+			
+			
+			this.phoneMode = "emoji";
+		}
+	},
+	
 	/*onEnter:function()
 	{
 		//this._super();
@@ -406,7 +661,7 @@ var MainContainerLayer = cc.Layer.extend({
 	
 	isPopup:function()
 	{
-		if(this.settingsLayer != null || this.worldMapLayer != null)
+		if(this.preLayer != null || this.settingsLayer != null || this.worldMapLayer != null)
 			return true;
 		return false;
 	},
@@ -420,17 +675,17 @@ var MainContainerLayer = cc.Layer.extend({
 	{
 		if(this.menuMode == "game")
 		{
+			this.mainEditorLayer.x = this.gameplayLayer.x;cc.log(this.mainEditorLayer.x);
+			this.editorCreatorsLayer.x = this.friendsLayer.x;cc.log(this.editorCreatorsLayer.x);
+			this.editorEventLayer.x = this.leagueLayer.x;cc.log(this.editorEventLayer.x);
+			this.editorRewardsLayer.x = this.challengeLayer.x;cc.log(this.editorRewardsLayer.x);
+			this.editorShopLayer.x = this.meLayer.x;cc.log(this.editorShopLayer.x);
+			
 			this.removeChild(this.gameplayLayer);
 			this.removeChild(this.challengeLayer);
 			this.removeChild(this.leagueLayer);
 			this.removeChild(this.friendsLayer);
 			this.removeChild(this.meLayer);
-			
-			this.mainEditorLayer.x = this.gameplayLayer.x;
-			this.editorCreatorsLayer.x = this.friendsLayer.x;
-			this.editorEventLayer.x = this.leagueLayer.x;
-			this.editorRewardsLayer.x = this.challengeLayer.x;
-			this.editorShopLayer.x = this.meLayer.x;
 			
 			this.addChild(this.mainEditorLayer);
 			this.addChild(this.editorCreatorsLayer);
@@ -448,7 +703,9 @@ var MainContainerLayer = cc.Layer.extend({
 				this.curMainLayer = this.editorEventLayer;
 			else if(this.curTabName == "challenge")
 				this.curMainLayer = this.editorRewardsLayer;
-				
+			
+			cc.log(this.curMainLayer);
+			
 			this.bottomUILayer.changeToEditor();
 			this.topUILayer.changeToEditor();
 			
@@ -457,17 +714,18 @@ var MainContainerLayer = cc.Layer.extend({
 		}
 		else if(this.menuMode == "creator")
 		{
+			this.gameplayLayer.x = this.mainEditorLayer.x;
+			this.friendsLayer.x = this.editorCreatorsLayer.x;
+			this.leagueLayer.x = this.editorEventLayer.x;
+			this.challengeLayer.x = this.editorRewardsLayer.x;
+			this.meLayer.x = this.editorShopLayer.x;
+			
 			this.removeChild(this.mainEditorLayer);
 			this.removeChild(this.editorCreatorsLayer);
 			this.removeChild(this.editorEventLayer);
 			this.removeChild(this.editorRewardsLayer);
 			this.removeChild(this.editorShopLayer);
 			
-			this.gameplayLayer.x = this.mainEditorLayer.x;
-			this.friendsLayer.x = this.editorCreatorsLayer.x;
-			this.leagueLayer.x = this.editorEventLayer.x;
-			this.challengeLayer.x = this.editorRewardsLayer.x;
-			this.meLayer.x = this.editorShopLayer.x;
 			
 			this.addChild(this.gameplayLayer);
 			this.addChild(this.challengeLayer);
@@ -492,6 +750,18 @@ var MainContainerLayer = cc.Layer.extend({
 			this.coreButtonsUI.showLevelsButton();
 			this.menuMode = "game";
 		}
+	},
+	
+	openPreLayer:function()
+	{
+		this.preLayer = new PreChallengeLayer(DATA.levelIndexA,cc.winSize.width-50,this.height-DATA.bottomUIHeight-DATA.topUIHeight-20);
+		this.preLayer.attr({x:cc.winSize.width*.5,y:DATA.bottomUIHeight+10,anchorX:0,anchorY:0});
+		this.addChild(this.preLayer, 1);
+		this.preLayer.setScale(0);
+		var scaleAction = cc.scaleTo(.5, 1, 1);
+		var moveToAction = cc.moveTo(.5, cc.p(25, DATA.bottomUIHeight+10));
+		var spawn = cc.spawn(scaleAction, moveToAction);
+		this.preLayer.runAction(spawn);
 	},
 	
 	openWorldMapLayer:function()

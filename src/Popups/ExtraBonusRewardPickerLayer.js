@@ -25,8 +25,8 @@ var ExtraBonusRewardPickerLayer = cc.Layer.extend({
 		this.addChild(this.tabTitleLabel);*/
 		
 		this.cardBorderWidth = 5;
-		this.cardWidth = this.width/3 - this.cardBorderWidth*4;
-		this.cardHeight = this.height/3 - this.cardBorderWidth*4;
+		this.cardWidth = (this.width - this.cardBorderWidth*4)/3;
+		this.cardHeight = (this.height - this.cardBorderWidth*4)/3;
 		
 		this.cards = [];
 		for(var i=0; i<3; i++)
@@ -35,53 +35,20 @@ var ExtraBonusRewardPickerLayer = cc.Layer.extend({
 			{
 				var cardImg = new cc.Sprite(res.gold_card_back);
 				
+				cardImg.setScaleX(this.cardWidth/cardImg.width);
+				cardImg.setScaleY(this.cardHeight/cardImg.height);
 				cardImg.attr({
 					"x":this.cardBorderWidth + j*this.cardBorderWidth + j*this.cardWidth,
 					"y":i*this.cardHeight - i*this.cardBorderWidth,
 					"anchorX":0,
 					"anchorY":0
 				});
-				cardImg.setScaleX(this.cardWidth/cardImg.width);
-				cardImg.setScaleY(this.cardHeight/cardImg.height);
 				this.addChild(cardImg);
 				this.cards.push(cardImg);
 			}
 		}
 		
-		/*var self = this;
 		
-		if (cc.sys.capabilities.hasOwnProperty('touches')) {
-			cc.eventManager.addListener({
-			    event: cc.EventListener.TOUCH_ONE_BY_ONE,
-			    swallowTouches:true,
-			    onTouchBegan: function(touch, event){
-			   		var target = event.getCurrentTarget();
-			    	var locationInNode = self.convertToNodeSpace(touch.getLocation());
-
-			    	
-			    	
-			    	return true;
-			    },
-			    onTouchMoved: function(touch, event){
-			    	var target = event.getCurrentTarget();
-			    	var locationInNode = self.convertToNodeSpace(touch.getLocation());
-
-			    	
-			    	
-			    	return true;
-			    },
-			    onTouchEnded: function(touch, event){
-				    var target = event.getCurrentTarget();
-				    var locationInNode = self.convertToNodeSpace(touch.getLocation());
-			    	
-			    	
-				 
-			    	return true;
-			    }
-		    },this);
-		}*/
-		
-        //return true;
 	},
 	
 	onTouchEnd: function(pos)

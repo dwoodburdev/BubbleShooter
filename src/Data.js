@@ -14,6 +14,7 @@ DATA.worldBubbles = [];
 DATA.worldMeta = {};
 DATA.challengeBubbles = [];
 DATA.bubblesToAdd = [];
+DATA.eventBubblesToAdd = [];
 
 DATA.worldIndex = 0;
 
@@ -50,7 +51,8 @@ DATA.levelBallBColor = null;
 
 DATA.preBoosterInventoryA = 1;
 DATA.boosterInventoryA = 1;
-//DATA.boosterInventoryB = 0;
+DATA.boosterInventoryB = 1;
+DATA.boosterInventoryC = 1;
 
 DATA.streakStep = 0;
 DATA.challengeTries = 0;
@@ -122,6 +124,8 @@ DATA.initUserData = function()
   			var bubble = {row:dBub.row, col:dBub.col, type:dBub.type};
   			if(dBub.colorCode != null)
   				bubble["colorCode"] = dBub.colorCode;
+  			if(dBub.meta != null)
+  				bubble["meta"] = dBub.meta;
     		bubbles.push(bubble); 
   		}
   		var queue = {type:d[i].queue.type, colors:d[i].queue.colors};
@@ -363,14 +367,14 @@ DATA.initUserData = function()
 		}
 		DATA.dailyChallenges.push(newChallenge);
 	}
-	
+	cc.log("THERE ARE " + DATA.dailyChallenges.length + " QUESTS");
 	// time last received Daily Challenge
 	// spawn new Challenge if necessary
   	DATA.timeLastChallengeReceived = d.timeOfLastChallenge;
   	curTime = (new Date()).getTime();
   	elapsedTime = curTime - DATA.timeLastChallengeReceived;
-  	if(elapsedTime >= 1000*60*60*24 && DATA.dailyChallenges.length < 3)
-  	{
+  	if(elapsedTime >= 1000*60*60*24 && /*DATA.dailyChallenges.length*/challengeKeys.length < 3)
+  	{cc.log("ADDING NEW CHALLENGE BC THERE ARE ONLY " + challengeKeys.length);
   		var newChallenge = {"coins":5,"number":5,"progress":0,"type":"level","balls":5};
   		DATA.dailyChallenges.push(newChallenge);
   		DATA.timeLastChallengeReceived = curTime;
@@ -379,7 +383,7 @@ DATA.initUserData = function()
   		DATA.database.ref("users/"+DATA.userID+"/timeOfLastChallenge").set(DATA.timeLastChallengeReceived);
   	}
   	else
-  	{
+  	{cc.log("quests full or not enough time elapsed to add quest");
   		var hours = Math.floor(elapsedTime / (1000*60*60));
   		var minutes = Math.floor( (elapsedTime-(hours*1000*60*60)) / (1000*60) );
   		var seconds = Math.floor( (elapsedTime-(hours*1000*60*60)-(minutes*1000*60)) / (1000) );
@@ -390,6 +394,8 @@ DATA.initUserData = function()
 	// Booster Inventories
 	DATA.preBoosterInventoryA = d.preBoosterInventories["0"];
 	DATA.boosterInventoryA = d.boosterInventories["0"];
+	DATA.boosterInventoryB = d.boosterInventories["0"];
+	DATA.boosterInventoryC = d.boosterInventories["0"];
 	
 	// Completed Levels (will take reworking depending on levels needed)
 	var normalLevels = d.levelsComplete.normal["0"];
@@ -408,6 +414,58 @@ DATA.initUserData = function()
 			DATA.levelsComplete[setKeys[i]].completed.push(setLevels[setKeys[i]].completed[j]);
 		}
 	}cc.log(DATA.levelsComplete);
+	
+	
+	DATA.eventType = d.eventData.type;
+	if(DATA.eventType == "side-level")
+	{
+		var bubbles = [];
+	  	var bubKeys = Object.keys(d.eventData.bubbles);cc.log("bubs");
+	  	for(var i=0; i<bubKeys.length; i++)
+	  	{
+	  		var dBub = d.eventData.bubbles[bubKeys[i]];
+	  		
+	  		var colorCode = null;
+	  		var metaData = null;
+	  		if(dBub.type == 7)
+	  		{
+	  			colorCode = [];
+	  			var colorKeys = Object.keys(dBub.colorCode);
+	  			for(var j=0; j<colorKeys.length; j++)
+	  			{
+	  				colorCode.push(dBub.colorCode[colorKeys[j]]);
+	  			}
+	  		}
+	  		else colorCode = dBub.colorCode;
+	  		
+	  		if(dBub.type == 20)
+	  		{cc.log("star");
+	  			if("id" in dBub.meta && dBub.meta.id != null)
+	  			{cc.log("star with ID "+dBub.meta.id);
+	  				metaData = dBub.meta;
+	  			}
+	  		}
+	  		
+	  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:colorCode, binary:dBub.binary, meta:metaData};
+	  		//cc.log(bubble);
+	    	bubbles.push(bubble);
+	  	}
+	  	var queue = {type:d.eventData.queue.type, colors:d.eventData.queue.colors};
+	  	DATA.eventData={};
+	  	DATA.eventData.level = {"bubbles":bubbles, "queue":queue};
+	  	
+	  	DATA.eventMoves = d.eventData.moves;
+	}
+	else if(DATA.eventType == "side-map")
+	{
+		
+	}
+	else if(DATA.eventType == "collect-the-fruit")
+	{
+		
+	}
+	
+			  	
 	
 	
 	//var bubbles = [ {  "col" : 0,  "colorCode" : "green",  "row" : 0,  "type" : 0}, {  "col" : 1,  "colorCode" : "green",  "row" : 0,  "type" : 0}, {  "col" : 2,  "colorCode" : "red",  "row" : 0,  "type" : 0}, {  "col" : 3,  "colorCode" : "red",  "row" : 0,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 0,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 0,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 0,  "type" : 0}, {  "col" : 7,  "colorCode" : "red",  "row" : 0,  "type" : 0}, {  "col" : 8,  "colorCode" : "blue",  "row" : 0,  "type" : 0}, {  "col" : 9,  "colorCode" : "blue",  "row" : 0,  "type" : 0}, {  "col" : 10,  "colorCode" : "yellow",  "row" : 0,  "type" : 0}, {  "col" : 11,  "colorCode" : "yellow",  "row" : 0,  "type" : 0}, {  "col" : 0,  "colorCode" : "yellow",  "row" : 1,  "type" : 0}, {  "col" : 1,  "colorCode" : "yellow",  "row" : 1,  "type" : 0}, {  "col" : 2,  "colorCode" : "blue",  "row" : 1,  "type" : 0}, {  "col" : 3,  "colorCode" : "blue",  "row" : 1,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 1,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 1,  "type" : 0}, {  "col" : 7,  "colorCode" : "green",  "row" : 1,  "type" : 0}, {  "col" : 8,  "colorCode" : "green",  "row" : 1,  "type" : 0}, {  "col" : 9,  "colorCode" : "red",  "row" : 1,  "type" : 0}, {  "col" : 10,  "colorCode" : "red",  "row" : 1,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 2,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 2,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 3,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 3,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 4,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 5,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 4,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 5,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 6,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 7,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 6,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 7,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 8,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 9,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 8,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 9,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 10,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 10,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 11,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 11,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 12,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 13,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 12,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 13,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 14,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 14,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 15,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 15,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 16,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 16,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 17,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 18,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 17,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 18,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 19,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 20,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 19,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 20,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 21,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 22,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 23,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 24,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 24,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 23,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 22,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 21,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 25,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 26,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 27,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 28,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 29,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 30,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 31,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 32,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 33,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 34,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 35,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 36,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 25,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 26,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 27,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 28,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 29,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 30,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 31,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 32,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 33,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 34,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 35,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 36,  "type" : 0}, {  "col" : 7,  "colorCode" : "green",  "row" : 13,  "type" : 0}, {  "col" : 8,  "colorCode" : "green",  "row" : 13,  "type" : 0}, {  "col" : 9,  "colorCode" : "yellow",  "row" : 13,  "type" : 0}, {  "col" : 10,  "colorCode" : "yellow",  "row" : 13,  "type" : 0}, {  "col" : 3,  "colorCode" : "red",  "row" : 13,  "type" : 0}, {  "col" : 2,  "colorCode" : "red",  "row" : 13,  "type" : 0}, {  "col" : 1,  "colorCode" : "blue",  "row" : 13,  "type" : 0}, {  "col" : 0,  "colorCode" : "blue",  "row" : 13,  "type" : 0}, {  "col" : 0,  "colorCode" : "green",  "row" : 12,  "type" : 0}, {  "col" : 1,  "colorCode" : "green",  "row" : 12,  "type" : 0}, {  "col" : 2,  "colorCode" : "yellow",  "row" : 12,  "type" : 0}, {  "col" : 3,  "colorCode" : "yellow",  "row" : 12,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 12,  "type" : 0}, {  "col" : 7,  "colorCode" : "yellow",  "row" : 12,  "type" : 0}, {  "col" : 8,  "colorCode" : "red",  "row" : 12,  "type" : 0}, {  "col" : 9,  "colorCode" : "red",  "row" : 12,  "type" : 0}, {  "col" : 10,  "colorCode" : "green",  "row" : 12,  "type" : 0}, {  "col" : 11,  "colorCode" : "green",  "row" : 12,  "type" : 0}, {  "col" : 7,  "colorCode" : "green",  "row" : 26,  "type" : 0}, {  "col" : 8,  "colorCode" : "blue",  "row" : 26,  "type" : 0}, {  "col" : 9,  "colorCode" : "blue",  "row" : 26,  "type" : 0}, {  "col" : 10,  "colorCode" : "red",  "row" : 26,  "type" : 0}, {  "col" : 11,  "colorCode" : "red",  "row" : 26,  "type" : 0}, {  "col" : 7,  "colorCode" : "yellow",  "row" : 27,  "type" : 0}, {  "col" : 8,  "colorCode" : "yellow",  "row" : 27,  "type" : 0}, {  "col" : 9,  "colorCode" : "green",  "row" : 27,  "type" : 0}, {  "col" : 10,  "colorCode" : "green",  "row" : 27,  "type" : 0}, {  "col" : 3,  "colorCode" : "red",  "row" : 27,  "type" : 0}, {  "col" : 2,  "colorCode" : "red",  "row" : 27,  "type" : 0}, {  "col" : 1,  "colorCode" : "blue",  "row" : 27,  "type" : 0}, {  "col" : 0,  "colorCode" : "blue",  "row" : 27,  "type" : 0}, {  "col" : 1,  "colorCode" : "red",  "row" : 26,  "type" : 0}, {  "col" : 2,  "colorCode" : "green",  "row" : 26,  "type" : 0}, {  "col" : 3,  "colorCode" : "green",  "row" : 26,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 26,  "type" : 0}, {  "col" : 0,  "colorCode" : "red",  "row" : 26,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 37,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 38,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 37,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 38,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 39,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 39,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 38,  "type" : 0}, {  "col" : 3,  "colorCode" : "blue",  "row" : 38,  "type" : 0}, {  "col" : 2,  "colorCode" : "blue",  "row" : 38,  "type" : 0}, {  "col" : 1,  "colorCode" : "green",  "row" : 38,  "type" : 0}, {  "col" : 0,  "colorCode" : "green",  "row" : 38,  "type" : 0}, {  "col" : 0,  "colorCode" : "red",  "row" : 39,  "type" : 0}, {  "col" : 1,  "colorCode" : "red",  "row" : 39,  "type" : 0}, {  "col" : 2,  "colorCode" : "yellow",  "row" : 39,  "type" : 0}, {  "col" : 3,  "colorCode" : "yellow",  "row" : 39,  "type" : 0}, {  "col" : 7,  "colorCode" : "blue",  "row" : 39,  "type" : 0}, {  "col" : 8,  "colorCode" : "blue",  "row" : 39,  "type" : 0}, {  "col" : 9,  "colorCode" : "green",  "row" : 39,  "type" : 0}, {  "col" : 10,  "colorCode" : "green",  "row" : 39,  "type" : 0}, {  "col" : 11,  "colorCode" : "red",  "row" : 38,  "type" : 0}, {  "col" : 10,  "colorCode" : "red",  "row" : 38,  "type" : 0}, {  "col" : 9,  "colorCode" : "yellow",  "row" : 38,  "type" : 0}, {  "col" : 8,  "colorCode" : "yellow",  "row" : 38,  "type" : 0}, {  "col" : 7,  "colorCode" : "green",  "row" : 38,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 40,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 40,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 41,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 41,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 42,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 42,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 43,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 44,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 44,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 43,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 45,  "type" : 0}, {  "col" : 5,  "colorCode" : "yellow",  "row" : 46,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 45,  "type" : 0}, {  "col" : 6,  "colorCode" : "blue",  "row" : 46,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 47,  "type" : 0}, {  "col" : 5,  "colorCode" : "green",  "row" : 48,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 47,  "type" : 0}, {  "col" : 6,  "colorCode" : "red",  "row" : 48,  "type" : 0}, {  "col" : 4,  "colorCode" : "blue",  "row" : 49,  "type" : 0}, {  "col" : 5,  "colorCode" : "blue",  "row" : 50,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 49,  "type" : 0}, {  "col" : 6,  "colorCode" : "green",  "row" : 50,  "type" : 0}, {  "col" : 4,  "colorCode" : "red",  "row" : 51,  "type" : 0}, {  "col" : 5,  "colorCode" : "red",  "row" : 52,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 52,  "type" : 0}, {  "col" : 6,  "colorCode" : "yellow",  "row" : 51,  "type" : 0}, {  "col" : 4,  "colorCode" : "yellow",  "row" : 28,  "type" : 0}, {  "col" : 7,  "colorCode" : "blue",  "row" : 28,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 14,  "type" : 0}, {  "col" : 7,  "colorCode" : "red",  "row" : 14,  "type" : 0}, {  "col" : 4,  "colorCode" : "green",  "row" : 2,  "type" : 0}, {  "col" : 7,  "colorCode" : "blue",  "row" : 2,  "type" : 0}, {  "col" : 5,  "row" : 49,  "type" : 20}, {  "col" : 5,  "row" : 45,  "type" : 20}, {  "col" : 5,  "row" : 35,  "type" : 20}, {  "col" : 5,  "row" : 31,  "type" : 20}, {  "col" : 5,  "row" : 25,  "type" : 20}, {  "col" : 5,  "row" : 19,  "type" : 20}, {  "col" : 5,  "row" : 13,  "type" : 20}, {  "col" : 5,  "row" : 7,  "type" : 20}, {  "col" : 5,  "row" : 1,  "type" : 20} ];
@@ -581,6 +639,31 @@ DATA.spawnNewDailyChallenge = function()
 	  	DATA.database.ref("users/"+DATA.userID+"/world").set({bubbles:capturedBubbles, queue:d.queue});
   	});
   };
+  
+  DATA.removeBubblesFromEventDatabase = function(delPositions)
+  {
+  	DATA.database.ref("users/"+DATA.userID+"/eventData").once("value").then(function(snapshot){
+  		var d = snapshot.val();
+	  	var capturedBubbles = d.bubbles;
+	  	
+	  	/*for(var i=0; i<DATA.bubblesToAdd.length; i++)
+  		{
+  			var key = DATA.bubblesToAdd[i].y+"_"+DATA.bubblesToAdd[i].x;
+  			capturedBubbles[key] = {"col":DATA.bubblesToAdd[i].x,"row":DATA.bubblesToAdd[i].y,"type":DATA.bubblesToAdd[i].type,"colorCode":DATA.bubblesToAdd[i].colorCode};
+  		}
+  		DATA.bubblesToAdd = [];*/
+	  	
+	  	for(var i=0; i<delPositions.length; i++)
+	  	{
+	  		var key = ""+delPositions[i].y+"_"+delPositions[i].x;
+	  		delete capturedBubbles[key];
+	  	}
+	  	
+	  	DATA.database.ref("users/"+DATA.userID+"/eventData/bubbles").set(capturedBubbles);
+	  	//DATA.database.ref("users/"+DATA.userID+"/eventData/queue").set(d.queue);
+  	});
+  };
+  
   // Sets bubbles to add to world in database.
   DATA.setAddDatabaseBubbles = function(newBubbles)
   {
@@ -590,6 +673,16 @@ DATA.spawnNewDailyChallenge = function()
 		DATA.bubblesToAdd.push({"x":newBubbles[i].x,"y":newBubbles[i].y,"type":newBubbles[i].type,"colorCode":newBubbles[i].colorCode});
 	}
   };
+  // Sets bubbles to add to world in database.
+  DATA.setAddDatabaseEventBubbles = function(newBubbles)
+  {
+	for(var i=0; i<newBubbles.length; i++)
+	{
+		var key = newBubbles[i].y+"_"+newBubbles[i].x;
+		DATA.eventBubblesToAdd.push({"x":newBubbles[i].x,"y":newBubbles[i].y,"type":newBubbles[i].type,"colorCode":newBubbles[i].colorCode});
+	}
+  };
+  
   // Directly adds bubbles to world in database.
   DATA.addBubblesToDatabase = function(newBubbles)
   {
@@ -637,7 +730,7 @@ DATA.spawnNewDailyChallenge = function()
    */
   DATA.isAdmin = function(){return true;};
   DATA.saveNewLevelToDatabase = function(newBubbles, newWorldMeta)
-  {
+  {cc.log(newBubbles);cc.log(newWorldMeta);
   	DATA.database.ref("levels/userLevels/"+DATA.userID).once("value").then(function(snapshot){
   		var d = snapshot.val();
   		
@@ -650,7 +743,7 @@ DATA.spawnNewDailyChallenge = function()
   						"bubbles":newBubbles,
   						"meta":newWorldMeta};
   						
-  		var dKeys = Object.keys(d);
+  		var dKeys = Object.keys(d);cc.log(dKeys.length);cc.log(dKeys);
   		if(dKeys.length == 1 && dKeys[0] == "00")
   		{
   			d[""+0] = newLevel;
@@ -658,6 +751,7 @@ DATA.spawnNewDailyChallenge = function()
   		}
   		else
   		{
+  			d[""+dKeys.length] = null;
   			d[""+dKeys.length] = newLevel;
   		}
   		cc.log(DATA.userID);cc.log(d);
@@ -755,7 +849,10 @@ DATA.updateDatabaseStreak = function()
   	}
   };
   
-  
+  DATA.setDatabaseEventMoves = function(num)
+  {
+  	DATA.database.ref("users/"+DATA.userID+"/eventData/moves").set(num);
+  };
   
  /*
   * GENERAL FUNCTIONS
@@ -976,10 +1073,12 @@ DATA.setCurrencies = function(coins, gems)
  /*
   * INVENTORIES
   */
- DATA.setBoosterInventories = function(invA)
+ DATA.setBoosterInventories = function(invA,invB,invC)
  {
  	DATA.boosterInventoryA = invA;
- 	DATA.database.ref("users/"+DATA.userID+"/boosterInventories").set({"0":DATA.boosterInventoryA});
+ 	DATA.boosterInventoryB = invB;
+ 	DATA.boosterInventoryC = invC;
+ 	DATA.database.ref("users/"+DATA.userID+"/boosterInventories").set({"0":DATA.boosterInventoryA,"1":DATA.boosterInventoryB,"2":DATA.boosterInventoryC});
  };
  DATA.setPreBoosterInventories = function(invA)
  {
@@ -1043,7 +1142,12 @@ DATA.deleteChallenge = function(num)
 	{
 		challengeObject[""+i] = DATA.dailyChallenges[i];
 	}
+		
 	DATA.database.ref("users/"+DATA.userID+"/dailyChallenges").set(challengeObject);
+	
+	DATA.questChestProgress++;
+	DATA.database.ref("users/"+DATA.userID+"/questChestProgress").set(DATA.questChestProgress);
+	
 };
 
 DATA.registerEvent = function(obj)

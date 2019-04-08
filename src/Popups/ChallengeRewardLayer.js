@@ -9,14 +9,26 @@ var ChallengeRewardLayer = cc.Layer.extend({
 		this.height = height;
 		
 		this.dn = new cc.DrawNode();
-		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),5,cc.color(0,0,0,255));
+		//this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),5,cc.color(0,0,0,255));
 		this.addChild(this.dn);
 		
 		
-		this.tabTitleLabel = new cc.LabelTTF("Level Complete!", "Arial", 40);
+		this.bgImage = new cc.Sprite(res.phone_up);
+		this.bgImage.setScaleX(this.width / this.bgImage.width);
+		this.bgImage.setScaleY(this.height / this.bgImage.height);
+		this.bgImage.attr({
+			x:0,
+			y:0,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.bgImage);
+		
+		
+		this.tabTitleLabel = new cc.LabelTTF("Win!", "Arial", 40);
 		this.tabTitleLabel.attr({
 			"x":this.width/2,
-			"y":this.height-5,
+			"y":this.height*.86+2,
 			"anchorX":.5,
 			"anchorY":1
 		});
@@ -50,11 +62,12 @@ var ChallengeRewardLayer = cc.Layer.extend({
 		
 		this.summaryDisplayLayer = new ChallengeWinSummaryLayer(
 			this.width, 
-			this.tabTitleLabel.y-(this.tabTitleLabel.height*this.tabTitleLabel.scale) - (this.nextButton.y+(this.nextButton.height*this.nextButton.scale))
+			this.height
+			//this.tabTitleLabel.y-(this.tabTitleLabel.height*this.tabTitleLabel.scale) - (this.nextButton.y+(this.nextButton.height*this.nextButton.scale))
 		);
 		this.summaryDisplayLayer.attr({
 			x:0,
-			y:this.nextButton.y+(this.nextButton.height*this.nextButton.scale),
+			y:0,//this.nextButton.y+(this.nextButton.height*this.nextButton.scale),
 			anchorX:0,
 			anchorY:0
 		});
@@ -82,12 +95,13 @@ var ChallengeRewardLayer = cc.Layer.extend({
 				if(DATA.streakStep == 1)
 				{
 					this.rewardPicker = new BonusRewardPickerLayer(
-						this.width,
-						this.tabTitleLabel.y-(this.tabTitleLabel.height*this.tabTitleLabel.scale)
+						this.width*.81,
+						//this.tabTitleLabel.y-(this.tabTitleLabel.height*this.tabTitleLabel.scale)
+						this.height*.72
 					);
 					this.rewardPicker.attr({
-						x:0,
-						y:0,
+						x:this.width*.095,
+						y:this.height*.14,
 						anchorX:0,
 						anchorY:0
 					});
@@ -98,12 +112,13 @@ var ChallengeRewardLayer = cc.Layer.extend({
 				else if(DATA.streakStep == 2)
 				{
 					this.rewardPicker = new ExtraBonusRewardPickerLayer(
-						this.width,
-						this.tabTitleLabel.y-(this.tabTitleLabel.height*this.tabTitleLabel.scale)
+						this.width*.81,
+						//this.tabTitleLabel.y-(this.tabTitleLabel.height*this.tabTitleLabel.scale)
+						this.height*.72
 					);
 					this.rewardPicker.attr({
-						x:0,
-						y:0,
+						x:this.width*.095,
+						y:this.height*.14,
 						anchorX:0,
 						anchorY:0
 					});
@@ -155,10 +170,11 @@ var ChallengeRewardLayer = cc.Layer.extend({
 		else if(this.rewardPicker != null && FUNCTIONS.posWithin(pos, this.rewardPicker))
 		{
 			this.rewardPicker.onTouchEnd(pos);
-			//return "close";
-			//var seq = new cc.Sequence(cc.delayTime(2), cc.callFunc(this.switchTabsAfterRewardPicker, this));
-			var seq = new cc.Sequence(cc.delayTime(2), cc.callFunc(this.parent.goBackToGameplay, this.parent));
-			this.runAction(seq);
+			
+			//var seq = new cc.Sequence(cc.delayTime(2), cc.callFunc(this.parent.goBackToGameplay, this.parent));
+			//this.runAction(seq);
+			
+			return "close";
 		//return "close";
 		}
 		

@@ -50,32 +50,32 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 			height: chestHeight
 		};
 		
-		var chestAImage = new cc.Sprite(res.regular_chest);
-		chestAImage.setScale(this.chestASquare.width*.7 / chestAImage.width);
-		chestAImage.attr({
+		this.chestAImage = new cc.Sprite(res.card_back);
+		this.chestAImage.setScale(this.chestASquare.width*.7 / this.chestAImage.width);
+		this.chestAImage.attr({
 			x:this.chestASquare.x+this.chestASquare.width/2,
 			y:this.chestASquare.y+this.chestASquare.height-15,
 			anchorX:.5,
 			anchorY:1
 		});
-		this.addChild(chestAImage);
+		this.addChild(this.chestAImage);
 		
-		var chestALabel = new cc.LabelTTF("Daily Gift", "Arial", 20);
-		chestALabel.attr({
-			"x":chestAImage.x,
-			"y":chestAImage.y-(chestAImage.height*chestAImage.scale) - 10,
+		this.chestALabel = new cc.LabelTTF("Daily Gift", "Arial", 20);
+		this.chestALabel.attr({
+			"x":this.chestAImage.x,
+			"y":this.chestAImage.y-(this.chestAImage.height*this.chestAImage.scale) - 10,
 			"anchorX":.5,
 			"anchorY":1
 		});
-		chestALabel.color = cc.color(0,0,0,255);
-		this.addChild(chestALabel);
+		this.chestALabel.color = cc.color(0,0,0,255);
+		this.addChild(this.chestALabel);
 		cc.log(((new Date()).getTime() - DATA.timeLastChestOpened) - (24*60*60*1000));
 		if((new Date()).getTime() - DATA.timeLastChestOpened >= (24*60*60*1000))
 		{	
 			this.chestAButton = new cc.Sprite(res.get_button);
-			this.chestAButton.setScale( (chestALabel.y-(chestALabel.height*chestALabel.scale)-10-this.chestASquare.y) / this.chestAButton.height);
+			this.chestAButton.setScale( (this.chestALabel.y-(this.chestALabel.height*this.chestALabel.scale)-10-this.chestASquare.y) / this.chestAButton.height);
 			this.chestAButton.attr({
-				x:chestAImage.x,
+				x:this.chestAImage.x,
 				y:this.chestASquare.y+5,
 				anchorX:.5,
 				anchorY:0
@@ -99,7 +99,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 	   		
 			this.chestATimer = new cc.LabelTTF(""+hours+":"+minutesStr+":"+secondsStr, "Roboto", 35);
 			this.chestATimer.attr({
-				"x":chestAImage.x,
+				"x":this.chestAImage.x,
 				"y":this.chestASquare.y+5,
 				"anchorX":.5,
 				"anchorY":0
@@ -109,35 +109,6 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 			
 			this.schedule(this.updateChestTimers, 1);
 		}
-		
-		var chestBImage = new cc.Sprite(res.regular_silver_chest);
-		chestBImage.setScale(this.chestBSquare.width*.7 / chestBImage.width);
-		chestBImage.attr({
-			x:this.chestBSquare.x+this.chestBSquare.width/2,
-			y:this.chestBSquare.y+this.chestBSquare.height-15,
-			anchorX:.5,
-			anchorY:1
-		});
-		this.addChild(chestBImage);
-		
-		var chestBLabel = new cc.LabelTTF("World", "Arial", 20);
-		chestBLabel.attr({
-			"x":chestBImage.x,
-			"y":chestBImage.y-(chestBImage.height*chestBImage.scale) - 10,
-			"anchorX":.5,
-			"anchorY":1
-		});
-		chestBLabel.color = cc.color(255,255,255,255);
-		this.addChild(chestBLabel);
-		
-		this.chestBProgBar = new ProgressBar(this.chestBSquare.x + this.chestBSquare.width/2 - (chestBImage.width*chestBImage.scale)/2, this.chestBSquare.y + 10, chestBImage.width*chestBImage.scale, 20);
-		this.chestBProgBar.attr({
-			x:this.chestBSquare.x + this.chestBSquare.width/2 - (chestBImage.width*chestBImage.scale)/2,
-			y:this.chestBSquare.y + 10,
-			anchorX:0,anchorY:0
-		});
-		this.addChild(this.chestBProgBar);
-		this.chestBProgBar.setProg((DATA.totalWorldBubbles-DATA.worldBubblesLeft) / DATA.totalWorldBubbles);
 		
 		var chestCImage = new cc.Sprite(res.regular_gold_chest);
 		chestCImage.setScale(this.chestCSquare.width*.7 / chestCImage.width);
@@ -149,15 +120,15 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 		});
 		this.addChild(chestCImage);
 		
-		var chestCLabel = new cc.LabelTTF(""+DATA.questChestProgress+"/"+DATA.questChestNumber+" Quests", "Arial", 20);
-		chestCLabel.attr({
+		this.chestCLabel = new cc.LabelTTF(""+DATA.questChestProgress+"/"+DATA.questChestNumber+" Quests", "Arial", 20);
+		this.chestCLabel.attr({
 			"x":chestCImage.x,
 			"y":chestCImage.y-(chestCImage.height*chestCImage.scale) - 10,
 			"anchorX":.5,
 			"anchorY":1
 		});
-		chestCLabel.color = cc.color(255,255,255,255);
-		this.addChild(chestCLabel);
+		this.chestCLabel.color = cc.color(255,255,255,255);
+		this.addChild(this.chestCLabel);
 		
 		this.chestCProgBar = new ProgressBar(this.chestCSquare.x + this.chestCSquare.width/2 - (chestCImage.width*chestCImage.scale)/2, this.chestCSquare.y + 10, chestCImage.width*chestCImage.scale, 20);
 		this.chestCProgBar.attr({
@@ -584,9 +555,9 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 		if(timeRem.hours < 0)
 		{
 			this.chestAButton = new cc.Sprite(res.get_button);
-			this.chestAButton.setScale( (chestALabel.y-(chestALabel.height*chestALabel.scale)-10-this.chestASquare.y) / this.chestAButton.height);
+			this.chestAButton.setScale( (this.chestALabel.y-(this.chestALabel.height*this.chestALabel.scale)-10-this.chestASquare.y) / this.chestAButton.height);
 			this.chestAButton.attr({
-				x:chestAImage.x,
+				x:this.chestAImage.x,
 				y:this.chestASquare.y+5,
 				anchorX:.5,
 				anchorY:0
@@ -629,7 +600,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 		}
 		if(timeRem.hours < 0)
 		{
-			DATA.spawnNewDailyChallenge();
+			//DATA.spawnNewDailyChallenge();
 			DATA.refreshTimeUntilNextChallenge();
 		}
 		
@@ -665,7 +636,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 	draw:function()
 	{
 		this.dn.drawRect(cc.p(this.chestASquare.x, this.chestASquare.y),cc.p(this.chestASquare.x+this.chestASquare.width,this.chestASquare.y+this.chestASquare.height),this.chestASquare.color,2,cc.color(0,0,0,255));
-		this.dn.drawRect(cc.p(this.chestBSquare.x, this.chestBSquare.y),cc.p(this.chestBSquare.x+this.chestBSquare.width,this.chestBSquare.y+this.chestBSquare.height),cc.color(255,0,0,255),2,cc.color(0,0,0,255));
+		//this.dn.drawRect(cc.p(this.chestBSquare.x, this.chestBSquare.y),cc.p(this.chestBSquare.x+this.chestBSquare.width,this.chestBSquare.y+this.chestBSquare.height),cc.color(255,0,0,255),2,cc.color(0,0,0,255));
 		this.dn.drawRect(cc.p(this.chestCSquare.x, this.chestCSquare.y),cc.p(this.chestCSquare.x+this.chestCSquare.width,this.chestCSquare.y+this.chestCSquare.height),cc.color(255,0,0,255),2,cc.color(0,0,0,255));
 		
 		this.dn.drawRect(cc.p(this.challengeARect.x, this.challengeARect.y), cc.p(this.challengeARect.x+this.challengeARect.width, this.challengeARect.y+this.challengeARect.height),cc.color(0,255,0,255),2,cc.color(0,0,0,255));
@@ -674,19 +645,32 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 	
 		//this.dn.drawRect(cc.p(this.starASquare.x, this.starASquare.y), cc.p(this.starASquare.x+this.starASquare.width, this.starASquare.y+this.starASquare.height),cc.color(255,255,0,255),2,cc.color(0,0,0,255));
 	},
+	onTouchBegan:function(pos)
+	{
+		
+	},
+	onTouchMoved:function(pos)
+	{
+		
+	},
 	
-	onTouchEnd:function(pos)
+	onTouchEnded:function(pos)
 	{cc.log(pos);
 		if(!this.isPopup())
-		{
-			if(FUNCTIONS.posWithin(pos, this.chestASquare))
-			{
-				if((new Date()).getTime() - DATA.lastTimeChestOpened >= (24*60*60*1000))
+		{cc.log(this.chestASquare);
+			cc.log(this.challengeARect);
+			
+			var loc = this.convertToNodeSpace(pos);
+			
+			if(FUNCTIONS.posWithin(loc, this.chestASquare))
+			{cc.log("DAILY TOUCH");cc.log((new Date()).getTime() - DATA.timeLastChestOpened);cc.log(24*60*60*1000);
+				if((new Date()).getTime() - DATA.timeLastChestOpened >= (24*60*60*1000))
 				{
-					this.dailyChallengePopup = new WorldRewardsLayer(cc.winSize.width-50,this.height-50);
+					//this.dailyChallengePopup = new BonusRewardPickerLayer(cc.winSize.width-50,this.height-50);//new WorldRewardsLayer(cc.winSize.width-50,this.height-50);
+					this.dailyChallengePopup = new BonusPhoneLayer(cc.winSize.width-50, this.height-20, "bonus");
 					this.dailyChallengePopup.attr({
 						x:25,
-						y:25,
+						y:10,
 						anchorX:0,
 						anchorY:0
 					});
@@ -695,8 +679,8 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 					DATA.setLastTimeDailyChestOpened();
 				}
 			}
-			else if(FUNCTIONS.posWithin(pos, this.challengeARect) && this.collectRewardAButton != null)
-			{
+			else if(FUNCTIONS.posWithin(loc, this.challengeARect) && this.collectRewardAButton != null)
+			{cc.log("TOP RECT CLICKED");
 				//var rankReturn = DATA.checkRankUp(DATA.dailyChallenges[0].xp);
 				DATA.setCurrencies(DATA.coins+DATA.dailyChallenges[0].coins, DATA.gems);
 				
@@ -713,8 +697,10 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 				this.addChild(challengeARemText);
 				
 				DATA.deleteChallenge(0);
+				this.chestCLabel.setString(""+DATA.questChestProgress+"/"+DATA.questChestNumber+" Quests");
+				
 			}
-			else if(FUNCTIONS.posWithin(pos, this.challengeBRect) && this.collectRewardBButton != null)
+			else if(FUNCTIONS.posWithin(loc, this.challengeBRect) && this.collectRewardBButton != null)
 			{
 				//var rankReturn = DATA.checkRankUp(DATA.dailyChallenges[1].xp);
 				DATA.setCurrencies(DATA.coins+DATA.dailyChallenges[1].coins, DATA.gems);
@@ -733,7 +719,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 				
 				DATA.deleteChallenge(1);
 			}
-			else if(FUNCTIONS.posWithin(pos, this.challengeCRect) && this.collectRewardCButton != null)
+			else if(FUNCTIONS.posWithin(loc, this.challengeCRect) && this.collectRewardCButton != null)
 			{
 				//var rankReturn = DATA.checkRankUp(DATA.dailyChallenges[2].xp);
 				DATA.setCurrencies(DATA.coins+DATA.dailyChallenges[2].coins, DATA.gems);
@@ -763,6 +749,82 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 				this.dailyChallengePopup = null;
 			}
 		}
+	},
+	
+	deleteDailyChestLayer:function()
+	{cc.log("Deleting daily chest layer...");
+		this.removeChild(this.dailyChallengePopup);
+		this.dailyChallengePopup = null;
+		
+		
+		/*
+		var chestAImage = new cc.Sprite(res.card_back);
+		chestAImage.setScale(this.chestASquare.width*.7 / chestAImage.width);
+		chestAImage.attr({
+			x:this.chestASquare.x+this.chestASquare.width/2,
+			y:this.chestASquare.y+this.chestASquare.height-15,
+			anchorX:.5,
+			anchorY:1
+		});
+		this.addChild(chestAImage);
+		
+		var chestALabel = new cc.LabelTTF("Daily Gift", "Arial", 20);
+		chestALabel.attr({
+			"x":chestAImage.x,
+			"y":chestAImage.y-(chestAImage.height*chestAImage.scale) - 10,
+			"anchorX":.5,
+			"anchorY":1
+		});
+		chestALabel.color = cc.color(0,0,0,255);
+		this.addChild(chestALabel);
+		*/
+		cc.log(((new Date()).getTime() - DATA.timeLastChestOpened) - (24*60*60*1000));
+		/*if((new Date()).getTime() - DATA.timeLastChestOpened >= (24*60*60*1000))
+		{	
+			this.chestAButton = new cc.Sprite(res.get_button);
+			this.chestAButton.setScale( (chestALabel.y-(chestALabel.height*chestALabel.scale)-10-this.chestASquare.y) / this.chestAButton.height);
+			this.chestAButton.attr({
+				x:chestAImage.x,
+				y:this.chestASquare.y+5,
+				anchorX:.5,
+				anchorY:0
+			});
+			this.addChild(this.chestAButton);
+			this.chestASquare.color = cc.color(255,255,0,255);
+		}*/
+		
+		//else
+		//{
+			var timeTilChestSpawn = DATA.timeLastChestOpened+(1000*60*60*24);
+			var timeElapsed = timeTilChestSpawn - (new Date()).getTime();
+			var hours = Math.floor(timeElapsed / (1000*60*60));
+			var minutes = Math.floor((timeElapsed - hours*60*60*1000)/(1000*60));
+			var minutesStr = ""+minutes;
+			if(minutes <= 9)
+				minutesStr = "0"+minutes;
+   			var seconds = Math.floor((timeElapsed - (hours*60*60*1000) - (minutes*60*1000))/(1000));
+   			var secondsStr = ""+seconds;
+	   		if(seconds <= 9)
+	   			secondsStr = "0"+seconds
+	   		
+			this.chestATimer = new cc.LabelTTF(""+hours+":"+minutesStr+":"+secondsStr, "Roboto", 35);
+			this.chestATimer.attr({
+				"x":this.chestAImage.x,
+				"y":this.chestASquare.y+5,
+				"anchorX":.5,
+				"anchorY":0
+			});
+			this.chestATimer.color = cc.color(255,255,255,255);
+			this.addChild(this.chestATimer);
+			
+			this.chestASquare.color = cc.color(255,0,0,255);
+			
+			this.draw();
+			
+			//this.schedule(this.updateChestTimers, 1);
+		//}
+		
+		
 	}
 	
 });

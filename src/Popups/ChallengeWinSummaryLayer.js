@@ -57,10 +57,58 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 		this.addChild(this.nextButton);*/
 		
 		
-		var circleR = (this.y+80 - this.y ) / 2;
-		var circleY = this.y + circleR;
-		//circleR -= 2;
-		circleR = 20;
+		
+		this.tryAlert = null;
+		if(DATA.streakStep==DATA.challengeTries)
+		{
+			this.tryAlert = new cc.Sprite(res.last_try_card);
+			this.tryAlert.setScale(this.width*.25 / this.tryAlert.width);
+			this.tryAlert.attr({
+				x:this.width*.092+5,
+				y:this.height*.14+5,
+				anchorX:0,
+				anchorY:0
+			});
+			this.addChild(this.tryAlert);
+		}
+		else if(DATA.challengeTries == 0)
+		{
+			this.tryAlert = new cc.Sprite(res.first_try_card);
+			this.tryAlert.setScale(this.width*.25 / this.tryAlert.width);
+			this.tryAlert.attr({
+				x:this.width*.092+5,
+				y:this.height*.14+5,
+				anchorX:0,
+				anchorY:0
+			});
+			this.addChild(this.tryAlert);
+		}
+		else
+		{
+			this.tryAlert = new cc.Sprite(res.card_back);
+			this.tryAlert.setScale(this.width*.25 / this.tryAlert.width);
+			this.tryAlert.attr({
+				x:this.width*.092+5,
+				y:this.height*.14+5,
+				anchorX:0,
+				anchorY:0
+			});
+			this.addChild(this.tryAlert);
+		}
+		
+		
+		var xSpace = this.width*.908 - (this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale));
+		var borderSpace = (.1*xSpace)/4;
+		xSpace *= .9; // space between;
+		var mB = 1.25; // how much bigger are circles
+		var mC = 1.5;
+		var spaceA = xSpace / (1 + mB + mC);
+		var spaceB = spaceA * mB;
+		var spaceC = spaceA * mC;
+		
+		//var circleY = this.tryAlert.y+(this.tryAlert.height*this.tryAlert.scale)/2;
+		var circleY = this.tryAlert.y+spaceC/2;
+		
 		// Circles' lit color
 		var circleColor = cc.color(255,0,0,255);
 		if((DATA.streakStep == 1 && DATA.challengeTries == 0)
@@ -73,20 +121,96 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 			circleColor = cc.color(0,255,0,255);
 		}
 		
-		this.dn.drawDot({x:this.width/2 - circleR*2 - 5, y:circleY}, circleR, circleColor);
+		this.faceA = null;
+		this.faceB = null;
+		this.faceC = null;
 		
-		if((DATA.streakStep == 1 && DATA.challengeTries == 0) || (DATA.streakStep == 2 && DATA.challengeTries <= 1))
-			this.dn.drawDot({x:this.width/2, y:circleY}, circleR, circleColor);
-		else if(DATA.streakStep > 0)
-			this.dn.drawDot({x:this.width/2, y:circleY}, circleR, cc.color(100,100,100,255));
-		else
-			this.dn.drawDot({x:this.width/2, y:circleY}, circleR, cc.color(0,0,0,255));
-			
-		if(DATA.streakStep == 2 && DATA.challengeTries == 0)
-			this.dn.drawDot({x:this.width/2 + circleR*2 + 5, y:circleY}, circleR, circleColor);
+		// Face 1
+		var yOffset = 0;
+		if(DATA.streakStep == 0)
+		{
+			this.faceA = new cc.Sprite(res.concerned_face);
+			this.faceA.setScale(spaceA / this.faceA.width);
+		}
+		else if(DATA.streakStep == 1)
+		{
+			this.faceA = new cc.Sprite(res.sunglass_face);
+			this.faceA.setScale(spaceA / this.faceA.width);
+		}
 		else if(DATA.streakStep == 2)
-			this.dn.drawDot({x:this.width/2 + circleR*2 + 5, y:circleY}, circleR, cc.color(100,100,100,255));
-		else this.dn.drawDot({x:this.width/2 + circleR*2 + 5, y:circleY}, circleR, cc.color(0,0,0,255));
+		{
+			this.faceA = new cc.Sprite(res.crown_face);
+			this.faceA.setScale(spaceA / this.faceA.width);
+			yOffset = this.faceA.height*this.faceA.scale*.16;
+		}
+		this.faceA.attr({
+			x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + spaceA/2 + borderSpace,
+			y:circleY+yOffset,
+			anchorX:.5,
+			anchorY:.5
+		});
+		this.addChild(this.faceA);
+		//this.dn.drawDot({x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + spaceA/2 + borderSpace, y:circleY}, spaceA/2, circleColor);
+		
+		// Face 2
+		yOffset = 0;
+		if(DATA.streakStep == 0)
+		{// black dot
+			this.dn.drawDot({x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + (spaceA+(spaceB/2)) + borderSpace*2, y:circleY}, spaceB/2, cc.color(0,0,0,255));
+		}
+		else if((DATA.streakStep == 1 && DATA.challengeTries == 1) || (DATA.streakStep == 2 && DATA.challengeTries == 2))
+		{// sad face
+			
+		}
+		else
+		{// other face
+			if(DATA.streakStep == 1)
+			{
+				this.faceB = new cc.Sprite(res.sunglass_face);
+				this.faceB.setScale(spaceB / this.faceB.width);
+			}
+			else if(DATA.streakStep == 2)
+			{
+				this.faceB = new cc.Sprite(res.crown_face);
+				this.faceB.setScale(spaceB / this.faceB.width);
+				yOffset = this.faceB.height*this.faceB.scale*.16;
+			}
+			
+			this.faceB.attr({
+				x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + spaceA + spaceB/2 + borderSpace*2,
+				y:circleY+yOffset,
+				anchorX:.5,
+				anchorY:.5
+			});
+			this.addChild(this.faceB);
+		}
+		
+			
+		// Face 3
+		
+		if(DATA.streakStep < 2)
+		{// black dot
+			this.dn.drawDot({x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + (spaceA+spaceB+(spaceC/2)) + borderSpace*3, y:circleY}, spaceC/2, cc.color(0,0,0,255));
+		}
+		else if(DATA.streakStep == 2 && DATA.challengeTries >= 1)
+		{// sad face
+			
+		}
+		else
+		{// other face
+			this.faceC = new cc.Sprite(res.crown_face);
+			
+			
+			this.faceC.setScale(spaceC / this.faceC.width);
+			this.faceC.attr({
+				x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + spaceA + spaceB + spaceC/2 + borderSpace*3,
+				y:circleY + this.faceC.height*this.faceC.scale*.16,
+				anchorX:.5,
+				anchorY:.5
+			});
+			this.addChild(this.faceC);
+		}
+			
 		
 		
 		
@@ -94,13 +218,13 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 		this.streakUpAlert.setScale(this.width/3 / this.streakUpAlert.width);
 		this.streakUpAlert.attr({
 			x: this.width/2,
-			y: circleY+circleR+5,
+			y: this.streakDescription.y-(this.streakDescription.height*this.streakDescription.scale)-2,
 			anchorX:.5,
-			anchorY:0
+			anchorY:1
 		});
 		this.addChild(this.streakUpAlert);
 		
-		
+		/*
 		this.popupDn = new cc.DrawNode();
 		this.tutorialStreakTextA = null;
 		this.tutorialStreakTextB = null;
@@ -141,7 +265,7 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 				anchorY:.5
 			});
 			this.addChild(this.tutFace);
-		}
+		}*/
 		
 	},
 	

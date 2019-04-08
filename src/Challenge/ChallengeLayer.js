@@ -192,6 +192,7 @@ var ChallengeLayer = cc.Layer.extend({
 								DATA.updateDatabaseStreak();
 								
 								cc.director.runScene(new ChallengeFailScene());
+								self.openChallengeFailLayer();
 					    	}
 				   		}
 				   		else if(self.buyBoosterLayer != null)
@@ -221,20 +222,18 @@ var ChallengeLayer = cc.Layer.extend({
 				   			
 				   			if(returnObj == "close")
 				   			{
-				   				/*var moveAction = cc.moveTo(.5, cc.winSize.width/2, (cc.winSize.height-self.bottomUILayer.height-self.topUILayer.height) / 2);
-				   				var scaleAction = cc.scaleTo(.5, 0,0);
-				   				var spawn = cc.spawn(moveAction, scaleAction);
-				   				//var seq;
-				   				self.challengeRewardLayer.runAction(spawn);*/
 				   				
-				   				var maxRow = 0;
+				   				
+				   				/*var maxRow = 0;
 								for(var i=0; i<DATA.worldBubbles.length; i++)
 								{
 									if(DATA.worldBubbles[i].row > maxRow)
 										maxRow = DATA.worldBubbles[i].row;
 								}
 							  
-							  cc.director.runScene(new MainContainerScene(DATA.worldBubbles, maxRow+1));
+							  cc.director.runScene( new cc.TransitionSlideInT( 1.0, new MainContainerScene(DATA.worldBubbles, maxRow+1) ) );*/
+							 
+							 	self.runAction(new cc.Sequence(cc.delayTime(.5), cc.callFunc(self.goBackToGameplay, self)));
 				   			}
 				   			
 				   		}
@@ -257,7 +256,7 @@ var ChallengeLayer = cc.Layer.extend({
 				maxRow = DATA.worldBubbles[i].row;
 		}
 	  
-	  	cc.director.runScene(new MainContainerScene(DATA.worldBubbles, maxRow+1));
+	  	cc.director.runScene( new cc.TransitionSlideInT( 1.0, new MainContainerScene(DATA.worldBubbles, maxRow+1) ) );
 	},
 	
 	isPopUp:function()
@@ -272,7 +271,7 @@ var ChallengeLayer = cc.Layer.extend({
 	
 	openChallengeRewardLayer:function()
 	{
-		this.challengeRewardLayer = new ChallengeRewardLayer(cc.winSize.width-50, cc.winSize.height-this.bottomUILayer.height-this.topUILayer.height-50);
+		this.challengeRewardLayer = new ChallengeRewardLayer(cc.winSize.width-50, cc.winSize.height-this.bottomUILayer.height-this.topUILayer.height-20);
 		this.challengeRewardLayer.attr({
 			x:cc.winSize.width/2,
 			y: (cc.winSize.height-this.bottomUILayer.height-this.topUILayer.height) / 2,
@@ -282,7 +281,7 @@ var ChallengeLayer = cc.Layer.extend({
 		this.challengeRewardLayer.setScale(0);
 		this.addChild(this.challengeRewardLayer);
 		
-		var moveAction = cc.moveTo(.5, 25, this.bottomUILayer.height+25);
+		var moveAction = cc.moveTo(.5, 25, this.bottomUILayer.height+10);
 		var scaleAction = cc.scaleTo(.5,1,1);
 		var spawn = cc.spawn(moveAction, scaleAction);
 		this.challengeRewardLayer.runAction(spawn);
@@ -290,7 +289,7 @@ var ChallengeLayer = cc.Layer.extend({
 	
 	openChallengeFailLayer:function()
 	{
-		this.challengeFailLayer = new ChallengeFailLayer();
+		this.challengeFailLayer = new ChallengeFailLayer(cc.winSize.width-50, cc.winSize.height-this.bottomUILayer.height-this.topUILayer.height-50);
 		this.challengeFailLayer.attr({
 			x:cc.winSize.width/2,
 			y: (cc.winSize.height-this.bottomUILayer.height-this.topUILayer.height) / 2,
