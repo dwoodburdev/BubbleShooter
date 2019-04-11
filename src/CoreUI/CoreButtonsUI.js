@@ -77,12 +77,12 @@ var CoreButtonsUI = cc.Layer.extend({
 		//this.addChild(this.editorButtonLabel);
 		
 		this.editorButtonImg = new cc.Sprite(res.creator_toggle);
-		this.editorButtonImg.setScale((32+15+7) / this.editorButtonImg.width);
+		this.editorButtonImg.setScale( ( this.width - (this.challengeButton.x+this.challengeButton.width+5) )*.9 / this.editorButtonImg.width);
 		this.editorButtonImg.attr({
-			x:this.challengeButton.x+this.challengeButton.width + (cc.winSize.width-this.challengeButton.x-this.challengeButton.width)/2,
-			y:this.challengeButton.y-5,
+			x:this.challengeButton.x+this.challengeButton.width + (this.width-(this.challengeButton.x+this.challengeButton.width))/2,//this.challengeButton.x+this.challengeButton.width + 5 +  (this.editorButtonImg.width*this.editorButtonImg.scale)/2,
+			y:this.challengeButton.y+5+(this.challengeButton.height/2),	//(this.challengeLightA.height)/2,
 			anchorX:.5,
-			anchorY:0
+			anchorY:.5
 		});
 		this.addChild(this.editorButtonImg);
 		

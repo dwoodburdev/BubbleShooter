@@ -176,7 +176,7 @@ var BubbleLayer = cc.Layer.extend({
 				"anchorY":1
 			});
 			this.ballsLeftLabel.color = cc.color(0,0,0,255);
-			this.addChild(this.ballsLeftLabel);
+			//this.addChild(this.ballsLeftLabel);
 			cc.log(DATA.getShooterColor(this.modeType));
 			
 			newColor = DATA.getShooterColor(this.modeType);
@@ -2893,14 +2893,20 @@ var BubbleLayer = cc.Layer.extend({
 	executeMeta:function(row, col)
 	{cc.log("executing meta");
 		var bubble = this.bubbles[this.bubbleMap[row][col]];cc.log(bubble);
-		if(bubble.type == 20)
+		if(bubble.type == 20 || bubble.type == 31)
 		{
 			// Look up level, add it to inventory.
 			var metaId = null;
 			if(bubble.meta != null && "id" in bubble.meta && bubble.meta.id != null)
 				metaId = bubble.meta.id;
 			cc.log(metaId);
-			DATA.retrieveLevel(metaId);
+			var challengeType = "";
+			if(bubble.type == 20)
+				challengeType = "normal";
+			else if(bubble.type == 31 && bubble.colorCode == "red")
+				challengeType = "challenge";
+			else challengeType = "normal";
+			DATA.retrieveLevel(metaId, challengeType);
 			if(DATA.levelIndexB != null)
 			{
 				this.parent.triggerLevelsFullLabel();
@@ -2909,7 +2915,25 @@ var BubbleLayer = cc.Layer.extend({
 			//this.parent.refreshLevelsUI();
 			//this.parent.openPreLayer();
 			
-			var starImg = new cc.Sprite(res.star_emoji);
+			var starImg = null;
+			if(bubble.type == 20)
+				starImg = new cc.Sprite(res.rainbow_star_emoji);
+			else if(bubble.type == 31)
+			{
+				if(bubble.colorCode == "red")
+					starImg = new cc.Sprite(res.red_star_emoji);
+				else if(bubble.colorCode == "yellow")
+					starImg = new cc.Sprite(res.yellow_star_emoji);
+				else if(bubble.colorCode == "green")
+					starImg = new cc.Sprite(res.green_star_emoji);
+				else if(bubble.colorCode == "blue")
+					starImg = new cc.Sprite(res.blue_star_emoji);
+				else if(bubble.colorCode == "pink")
+					starImg = new cc.Sprite(res.pink_star_emoji);
+				else if(bubble.colorCode == "purple")
+					starImg = new cc.Sprite(res.purple_star_emoji);
+				
+			}
 			starImg.setScale(this.bubbleR*2 / starImg.width);
 			starImg.attr({
 				x:bubble.x,

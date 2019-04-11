@@ -9,9 +9,19 @@ var WorldMapLayer = cc.Layer.extend({
 		this.height = height;
 		
 		this.dn = new cc.DrawNode();
-		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),5,cc.color(0,0,0,255));
+		//this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),5,cc.color(0,0,0,255));
 		this.addChild(this.dn);
 		
+		this.bgImage = new cc.Sprite(res.phone_up);
+		this.bgImage.setScaleX(this.width / this.bgImage.width);
+		this.bgImage.setScaleY(this.height / this.bgImage.height);
+		this.bgImage.attr({
+			x:0,
+			y:0,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.bgImage);
 		
         this.closeButton = new cc.Sprite(res.red_x_button);
         this.closeButton.setScale(this.width/10 / this.closeButton.width);
@@ -154,19 +164,19 @@ var WorldMapLayer = cc.Layer.extend({
 			}
 			else if(worldNumber == 14)
 			{
-				rewardImg = new cc.Sprite(res.green_lantern_emoji);
+				rewardImg = new cc.Sprite(res.yellow_soapbar_emoji);
 			}
 			else if(worldNumber == 16)
 			{
-				rewardImg = new cc.Sprite(res.yellow_soapbar_emoji);
+				rewardImg = new cc.Sprite(res.pink_balloon_emoji);
 			}
 			else if(worldNumber == 18)
 			{
-				rewardImg = new cc.Sprite(res.pink_balloon_emoji);
+				rewardImg = new cc.Sprite(res.blue_siren_emoji);
 			}
 			else if(worldNumber == 20)
 			{
-				rewardImg = new cc.Sprite(res.blue_siren_emoji);
+				rewardImg = new cc.Sprite(res.green_lantern_emoji);
 			}
 			else if(worldNumber == 22)
 			{

@@ -535,6 +535,10 @@ DATA.checkTutorial = function(numBubbles)
 		if(numBubbles == 204)
 		{
 			DATA.tutorial = {type:"target-positions",id:7,positions:[{x:5,y:18},{x:6,y:18}]};
+		} // -73
+		else if(DATA.numBubbles == 131)
+		{
+			DATA.tutorial = {type:"target-positions",id:8,positions:[{x:5,y:12},{x:6,y:12}]};
 		}
 	}
 	
@@ -543,7 +547,15 @@ DATA.checkTutorial = function(numBubbles)
 		if(numBubbles == 252)
 		{
 			DATA.tutorial = {type:"target-positions",id:8,positions:[{x:5,y:30},{x:6,y:30}]};
-		}
+		}// -29-23 - 6
+	}
+	else if(DATA.worldIndex == 4)
+	{
+		// dice
+	}
+	else if(DATA.worldIndex == 5)
+	{
+		// beachball
 	}
 	
 	return DATA.tutorial;
@@ -775,7 +787,7 @@ DATA.spawnNewDailyChallenge = function()
    * LEVEL INDICES
    */
   
-DATA.retrieveLevel = function(levelId)
+DATA.retrieveLevel = function(levelId, challengeType)
 {
 	if(DATA.levelIndexA == null)
 	{
@@ -786,7 +798,7 @@ DATA.retrieveLevel = function(levelId)
 				DATA.levelIndexA = levelId;
 			}
 			else DATA.levelIndexA = Math.floor(Math.random()*DATA.challenges.length);
-			DATA.levelIndexAType = "normal";
+			DATA.levelIndexAType = challengeType;
 		//}
 		/*else
 		{
@@ -805,7 +817,7 @@ DATA.retrieveLevel = function(levelId)
 				DATA.levelIndexA = levelId;
 			}
 			else DATA.levelIndexB = Math.floor(Math.random()*DATA.challenges.length);
-			DATA.levelIndexBType = "normal";
+			DATA.levelIndexBType = challengeType;
 		//}
 		/*else
 		{

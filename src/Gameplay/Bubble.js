@@ -529,7 +529,21 @@ var Bubble = cc.Sprite.extend({
         	
         	this.matchable = true;
         }
-        
+         // Colored Star - use meta effect for onhit, onmatch, etc, to reward level via Data.js
+        else if(this.type == 31)
+        {
+        	//var destroyShooterEffect = {"type":"destroy", "rule":"shooter"};
+        	var metaLevelEffect = {"type":"meta", "meta":"new-level"};
+        	
+        	this.onHit = metaLevelEffect;
+        	this.onMatch = metaLevelEffect;
+        	this.onAdjMatch = null;
+        	this.onClear = metaLevelEffect;
+        	this.onTurn = null;
+        	
+        	this.isAnchor = false;
+        	
+        }
         
         
         this.dx = 1;
@@ -868,6 +882,22 @@ var Bubble = cc.Sprite.extend({
 				else if(this.colorCode == "purple")
 					this.bubbleImg = new cc.Sprite(res.purple_ball);
 			}
+			// Colored Star
+			else if(this.type == 31)
+			{
+				if(this.colorCode == "red")
+					this.bubbleImg = new cc.Sprite(res.red_star_emoji);
+				else if(this.colorCode == "yellow")
+					this.bubbleImg = new cc.Sprite(res.yellow_star_emoji);
+				else if(this.colorCode == "green")
+					this.bubbleImg = new cc.Sprite(res.green_star_emoji);
+				else if(this.colorCode == "blue")
+					this.bubbleImg = new cc.Sprite(res.blue_star_emoji);
+				else if(this.colorCode == "pink")
+					this.bubbleImg = new cc.Sprite(res.pink_star_emoji);
+				else if(this.colorCode == "purple")
+					this.bubbleImg = new cc.Sprite(res.purple_star_emoji);
+			}
 			
 		}
 		else if(this.colorCode == null)
@@ -886,7 +916,7 @@ var Bubble = cc.Sprite.extend({
 			
 			// Egg (Poof)
 			else if(this.type == 4)
-				this.bubbleImg = new cc.Sprite(res.cd_emoji);
+				this.bubbleImg = new cc.Sprite(res.bubble_wrap_emoji);
 			// (Soap)
 			else if(this.type == 5)
 				this.bubbleImg = new cc.Sprite(res.soap_emoji);
@@ -943,7 +973,7 @@ var Bubble = cc.Sprite.extend({
 			else if(this.type == 20)
 			{
 				var self = this;
-				this.bubbleImg = new cc.Sprite(res.star_emoji);
+				this.bubbleImg = new cc.Sprite(res.rainbow_star_emoji);
 				
 				var spinAction = cc.rotateBy(3,360);
 	        	var repeatAction = new cc.CallFunc(function()

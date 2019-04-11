@@ -50,6 +50,13 @@ var res = {
     right_fist_emoji : "res/right-fist.png",
     left_fist_emoji : "res/left-fist.png",
     star_emoji : "res/star-1.png",
+    rainbow_star_emoji: "res/rainbow-star.png",
+    yellow_star_emoji: "res/star-1.png",
+    red_star_emoji: "res/red-star.png",
+    green_star_emoji: "res/green-star.png",
+    blue_star_emoji: "res/blue-star.png",
+    pink_star_emoji: "res/pink-star.png",
+    purple_star_emoji: "res/purple-star.png",
     star_shadow : "res/star-shadow.png",
     orb_emoji : "res/orb.png",
     blank_bulb_emoji : "res/blank-bulb.png",
@@ -78,7 +85,7 @@ var res = {
     tumbleweed_emoji : "res/tumbleweed.png",
     spike_emoji : "res/fire.png",
     neutral_rubiks_emoji : "res/neutral-rubiks.png",
-    soap_emoji : "res/soap.png",
+    soap_emoji : "res/soap-0.png",
     disco_emoji : "res/disco.png",
     gumball_emoji : "res/gumball.png",
     burst_gumball_emoji : "res/burst-gumball.png",
@@ -426,7 +433,15 @@ var res = {
     tutorial_arrow: "res/tutorial-arrow.png",
     
     phone: "res/phone.png",
-    phone_up:"res/phone_up.png"
+    phone_up:"res/phone_up.png",
+    red_phone_up:"res/red_phone_up.png",
+    yellow_phone_up:"res/yellow_phone_up.png",
+    green_phone_up:"res/green_phone_up.png",
+    blue_phone_up:"res/blue_phone_up.png",
+    pink_phone_up:"res/pink_phone_up.png",
+    purple_phone_up:"res/purple_phone_up.png",
+    
+    bubble_wrap_emoji:"res/bubble-wrap.png"
 };
 
 

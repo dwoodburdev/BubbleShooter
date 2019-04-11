@@ -17,7 +17,6 @@ var MainContainerLayer = cc.Layer.extend({
 			anchorX: 0,
 			anchorY: 0
 		});
-		this.addChild(this.bottomUILayer);
 		this.bottomUILayer.selectButton("gameplay");
 		
 		DATA.topUIHeight = size.height/15;
@@ -81,14 +80,14 @@ var MainContainerLayer = cc.Layer.extend({
 		
 		this.editorCreatorsLayer = new CreatorsDisplayLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
 		this.editorCreatorsLayer.attr({
-			x:cc.winSize.width*1,
+			x:cc.winSize.width*2,
 			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
 			anchorX:0,
 			anchorY:0
 		});
 		this.editorEventLayer = new CreatorEventLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
 		this.editorEventLayer.attr({
-			x:cc.winSize.width*2,
+			x:cc.winSize.width*1,
 			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
 			anchorX:0,
 			anchorY:0
@@ -132,7 +131,7 @@ var MainContainerLayer = cc.Layer.extend({
 		
 		this.friendsLayer = new FriendsDisplayLayer(cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
 		this.friendsLayer.attr({
-			x:cc.winSize.width,
+			x:cc.winSize.width*2,
 			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
 			anchorX:0,
 			anchorY:0
@@ -141,7 +140,7 @@ var MainContainerLayer = cc.Layer.extend({
 		
 		this.leagueLayer = new LeagueDisplayLayer(cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
 		this.leagueLayer.attr({
-			x:cc.winSize.width*2,
+			x:cc.winSize.width*1,
 			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
 			anchorX:0,
 			anchorY:0
@@ -150,11 +149,11 @@ var MainContainerLayer = cc.Layer.extend({
 		
 		this.phoneMode = "emoji";
 		
-		this.phoneBG = new cc.Sprite(res.phone);
-    	this.phoneBG.setScale(DATA.bubbleR*3 / this.phoneBG.height)
+		this.phoneBG = new cc.Sprite(res.phone_up);
+    	this.phoneBG.setScale(DATA.bubbleR*5 / this.phoneBG.height)
     	this.phoneBG.attr({
     		x:this.gameplayLayer.bubbleLayer.queueBubble.x,
-    		y:this.gameplayLayer.y+this.gameplayLayer.bubbleLayer.y+this.gameplayLayer.bubbleLayer.queueBubble.y,
+    		y:this.gameplayLayer.y+this.gameplayLayer.bubbleLayer.y+this.gameplayLayer.bubbleLayer.queueBubble.y - (this.phoneBG.height*this.phoneBG.scale)*.1,
     		anchorX:.5,
     		anchorY:.5
     	});
@@ -182,7 +181,20 @@ var MainContainerLayer = cc.Layer.extend({
 		});
 		this.addChild(this.queuePhoneOverlay);
 		
+		this.emojiMoveLabel = new cc.LabelTTF(this.gameplayLayer.bubbleLayer.numMoves);
+    	this.emojiMoveLabel.attr({
+    		x:this.phoneBG.x,
+    		y:this.queuePhoneOverlay.y-DATA.bubbleR-1,
+    		anchorX:.5,
+    		anchorY:1
+    	});
+    	this.emojiMoveLabel.color = cc.color(0,0,0,255);
+    	this.addChild(this.emojiMoveLabel);
+    	
 		
+		
+		
+		this.addChild(this.bottomUILayer);
 		
 		
 		this.preLayer = null;
@@ -283,11 +295,11 @@ var MainContainerLayer = cc.Layer.extend({
 					    				if(self.menuMode == "game")
 					    					self.movePhoneDown();
 					    			}
-					    			else if(self.curTabName == "friends")
+					    			else if(self.curTabName == "league")
 					    			{
 					    				moveDistance = cc.winSize.width*2;
 					    			}
-					    			else if(self.curTabName == "league")
+					    			else if(self.curTabName == "friends")
 					    			{
 					    				moveDistance = cc.winSize.width*3;
 					    			}
@@ -312,11 +324,11 @@ var MainContainerLayer = cc.Layer.extend({
 					    			{
 					    				moveDistance = cc.winSize.width*-1;
 					    			}
-					    			else if(self.curTabName == "friends")
+					    			else if(self.curTabName == "league")
 					    			{
 					    				moveDistance = cc.winSize.width;
 					    			}
-					    			else if(self.curTabName == "league")
+					    			else if(self.curTabName == "friends")
 					    			{
 					    				moveDistance = cc.winSize.width*2;
 					    			}
@@ -348,11 +360,11 @@ var MainContainerLayer = cc.Layer.extend({
 					    				if(self.menuMode == "game")
 					    					self.movePhoneDown();
 					    			}
-					    			else if(self.curTabName == "friends")
+					    			else if(self.curTabName == "league")
 					    			{
 					    				moveDistance = cc.winSize.width*3;
 					    			}
-					    			else if(self.curTabName == "league")
+					    			else if(self.curTabName == "friends")
 					    			{
 					    				moveDistance = cc.winSize.width*4;
 					    			}
@@ -367,7 +379,7 @@ var MainContainerLayer = cc.Layer.extend({
 					    			self.curTabName = "me";
 					    			self.bottomUILayer.selectButton(self.curTabName);
 					    		}
-					    		else if(botReturn == "friends")
+					    		else if(botReturn == "league")
 					    		{
 					    			var moveDistance = 0;
 					    			if(self.curTabName == "me")
@@ -385,7 +397,7 @@ var MainContainerLayer = cc.Layer.extend({
 					    				if(self.menuMode == "game")
 					    					self.movePhoneDown();
 					    			}
-					    			else if(self.curTabName == "league")
+					    			else if(self.curTabName == "friends")
 					    			{
 					    				moveDistance = cc.winSize.width;
 					    			}
@@ -396,10 +408,10 @@ var MainContainerLayer = cc.Layer.extend({
 					    				self.curMainLayer = self.friendsLayer;
 				    				else if(self.menuMode == "creator")
 				    					self.curMainLayer = self.editorCreatorsLayer;
-					    			self.curTabName = "friends";
+					    			self.curTabName = "league";
 					    			self.bottomUILayer.selectButton(self.curTabName);
 					    		}
-					    		else if(botReturn == "league")
+					    		else if(botReturn == "friends")
 					    		{
 					    			var moveDistance = 0;
 					    			if(self.curTabName == "me")
@@ -417,7 +429,7 @@ var MainContainerLayer = cc.Layer.extend({
 					    				if(self.menuMode == "game")
 					    					self.movePhoneDown();
 					    			}
-					    			else if(self.curTabName == "friends")
+					    			else if(self.curTabName == "league")
 					    			{
 					    				moveDistance = cc.winSize.width*-1;
 					    			}
@@ -428,7 +440,7 @@ var MainContainerLayer = cc.Layer.extend({
 					    				self.curMainLayer = self.leagueLayer;
 				    				else if(self.menuMode == "creator")
 				    					self.curMainLayer = self.editorEventLayer;
-					    			self.curTabName = "league";
+					    			self.curTabName = "friends";
 					    			self.bottomUILayer.selectButton(self.curTabName);
 					    		}
 				    		}
@@ -529,14 +541,37 @@ var MainContainerLayer = cc.Layer.extend({
 		this.addChild(this.queuePhoneOverlay);
 	},
 	
-	movePhoneDown:function()
-	{cc.log("PHONE DOWN");
-		var moveAction = cc.moveTo(.3, this.queuePhoneOverlay.x, this.coreButtonsUI.y+(this.coreButtonsUI.height/2));
+	movePhoneToCenter:function()
+	{
+		var yOff = this.queuePhoneOverlay.y - this.phoneBG.y;
+		var yTarget = this.coreButtonsUI.y + (this.phoneBG.height*this.phoneBG.scale)/2 - (this.phoneBG.height*this.phoneBG.scale)*.1;
+		
+	
+		var moveAction = cc.moveTo(.3, this.coreButtonsUI.challengeButton.x+(this.phoneBG.width*this.phoneBG.scale)/2, yTarget + yOff);
 		var movePhoneSeq = new cc.Sequence(moveAction, cc.callFunc(this.initPhoneUpdate, this));
 		this.queuePhoneOverlay.runAction(movePhoneSeq);
 		
+		var moveLabelAction = cc.moveTo(.3, this.coreButtonsUI.challengeButton.x+(this.phoneBG.width*this.phoneBG.scale)/2, yTarget + yOff - DATA.bubbleR-1);
+		this.emojiMoveLabel.runAction(moveLabelAction);
 		
-		var phoneMoveAction = cc.moveTo(.3, this.queuePhoneOverlay.x, this.coreButtonsUI.y+(this.coreButtonsUI.height/2));
+		var phoneMoveAction = cc.moveTo(.3, this.coreButtonsUI.challengeButton.x+(this.phoneBG.width*this.phoneBG.scale)/2, yTarget);
+		this.phoneBG.runAction(phoneMoveAction);
+	},
+	
+	movePhoneDown:function()
+	{cc.log("PHONE DOWN");
+		var yOff = this.queuePhoneOverlay.y - this.phoneBG.y;
+		var yTarget = this.coreButtonsUI.y + (this.phoneBG.height*this.phoneBG.scale)/2 - (this.phoneBG.height*this.phoneBG.scale)*.1;
+		
+	
+		var moveAction = cc.moveTo(.3, this.queuePhoneOverlay.x, yTarget + yOff);
+		var movePhoneSeq = new cc.Sequence(moveAction, cc.callFunc(this.initPhoneUpdate, this));
+		this.queuePhoneOverlay.runAction(movePhoneSeq);
+		
+		var moveLabelAction = cc.moveTo(.3, this.emojiMoveLabel.x, yTarget + yOff - DATA.bubbleR-1);
+		this.emojiMoveLabel.runAction(moveLabelAction);
+		
+		var phoneMoveAction = cc.moveTo(.3, this.queuePhoneOverlay.x, yTarget);
 		this.phoneBG.runAction(phoneMoveAction);
 	},
 	movePhoneUp:function()
@@ -544,9 +579,9 @@ var MainContainerLayer = cc.Layer.extend({
 		if(this.phoneMode == "moves")
 		{
 			this.phoneMode = "emoji";
-			
 			var origX = this.movesPhoneOverlay.x;
 			var origY = this.movesPhoneOverlay.y;
+			
 			this.removeChild(this.movesPhoneOverlay);
 			this.movesPhoneOverlay = null;
 			
@@ -565,30 +600,43 @@ var MainContainerLayer = cc.Layer.extend({
 	    	
 			this.queuePhoneOverlay.setScale(DATA.bubbleR*2 / this.queuePhoneOverlay.width);
 			this.queuePhoneOverlay.attr({
-				//x:this.gameplayLayer.x+this.gameplayLayer.bubbleLayer.x+this.gameplayLayer.bubbleLayer.queueBubble.x,
-				x:origX,
-				//y:this.gameplayLayer.y+this.gameplayLayer.bubbleLayer.y+this.gameplayLayer.bubbleLayer.queueBubble.y,
-				y:origY,
+				x:this.gameplayLayer.x+this.gameplayLayer.bubbleLayer.x+this.gameplayLayer.bubbleLayer.queueBubble.x,
+				//x:origX,
+				y:this.gameplayLayer.y+this.gameplayLayer.bubbleLayer.y+this.gameplayLayer.bubbleLayer.queueBubble.y,
+				//y:origY,
 				anchorX:.5,
 				anchorY:.5
 			});
 			this.addChild(this.queuePhoneOverlay);
 			
+			/*this.emojiMoveLabel = new cc.LabelTTF(this.gameplayLayer.bubbleLayer.numMoves);
+	    	this.emojiMoveLabel.attr({
+	    		x:this.phoneBG.x,
+	    		y:this.queuePhoneOverlay.y-DATA.bubbleR-1,
+	    		anchorX:.5,
+	    		anchorY:1
+	    	});
+	    	this.emojiMoveLabel.color = cc.color(0,0,0,255);
+	    	this.addChild(this.emojiMoveLabel);*/
+			
 		}
 		
-		var moveAction = cc.moveTo(.3, this.queuePhoneOverlay.x, this.gameplayLayer.y+this.gameplayLayer.bubbleLayer.y+this.gameplayLayer.bubbleLayer.queueBubble.y)
+		var moveAction = cc.moveTo(.3, this.width*.17, this.gameplayLayer.y+this.gameplayLayer.bubbleLayer.y+this.gameplayLayer.bubbleLayer.queueBubble.y/* - (this.phoneBG.height*this.phoneBG.scale)*.1*/)
 		this.queuePhoneOverlay.runAction(moveAction);
+		
+		var moveLabelAction = cc.moveTo(.3, this.width*.17, this.gameplayLayer.y+this.gameplayLayer.bubbleLayer.y+this.gameplayLayer.bubbleLayer.queueBubble.y /*- (this.phoneBG.height*this.phoneBG.scale)*.1*/ - DATA.bubbleR-1)
+		this.emojiMoveLabel.runAction(moveLabelAction);
 		
 		
 		this.unschedule(this.updatePhone);
 		
-		var phoneMoveAction = cc.moveTo(.3, this.queuePhoneOverlay.x, this.gameplayLayer.y+this.gameplayLayer.bubbleLayer.y+this.gameplayLayer.bubbleLayer.queueBubble.y)
+		var phoneMoveAction = cc.moveTo(.3, this.width*.17, this.gameplayLayer.y+this.gameplayLayer.bubbleLayer.y+this.gameplayLayer.bubbleLayer.queueBubble.y - (this.phoneBG.height*this.phoneBG.scale)*.1)
 		this.phoneBG.runAction(phoneMoveAction);
 	},
 	
 	initPhoneUpdate:function()
 	{
-		this.schedule(this.updatePhone, 3);
+		//this.schedule(this.updatePhone, 3);
 	},
 	
 	updatePhone:function()
@@ -598,6 +646,8 @@ var MainContainerLayer = cc.Layer.extend({
 		{cc.log("switch to moves");
 			this.removeChild(this.queuePhoneOverlay);
 			this.queuePhoneOverlay = null;
+			this.removeChild(this.emojiMoveLabel);
+			this.emojiMoveLabel = null;
 			
 			this.movesPhoneOverlay = new cc.LabelTTF("15/5","Arial",20);
 			this.movesPhoneOverlay.attr({
@@ -637,6 +687,16 @@ var MainContainerLayer = cc.Layer.extend({
 				anchorY:.5
 			});
 			this.addChild(this.queuePhoneOverlay);
+			
+			this.emojiMoveLabel = new cc.LabelTTF(this.gameplayLayer.bubbleLayer.numMoves);
+	    	this.emojiMoveLabel.attr({
+	    		x:this.phoneBG.x,
+	    		y:this.queuePhoneOverlay.y-DATA.bubbleR-1,
+	    		anchorX:.5,
+	    		anchorY:1
+	    	});
+	    	this.emojiMoveLabel.color = cc.color(0,0,0,255);
+	    	this.addChild(this.emojiMoveLabel);
 			
 			
 			this.phoneMode = "emoji";
@@ -709,7 +769,8 @@ var MainContainerLayer = cc.Layer.extend({
 			this.bottomUILayer.changeToEditor();
 			this.topUILayer.changeToEditor();
 			
-			this.coreButtonsUI.hideLevelsButton();
+			this.movePhoneToCenter();
+			//this.coreButtonsUI.hideLevelsButton();
 			this.menuMode = "creator";
 		}
 		else if(this.menuMode == "creator")
@@ -747,14 +808,23 @@ var MainContainerLayer = cc.Layer.extend({
 			this.bottomUILayer.changeToGame();
 			this.topUILayer.changeToGame();
 			
-			this.coreButtonsUI.showLevelsButton();
+			this.movePhoneUp();
+			//this.coreButtonsUI.showLevelsButton();
 			this.menuMode = "game";
 		}
 	},
 	
 	openPreLayer:function()
 	{
-		this.preLayer = new PreChallengeLayer(DATA.levelIndexA,cc.winSize.width-50,this.height-DATA.bottomUIHeight-DATA.topUIHeight-20);
+		if(DATA.levelIndexAType == "challenge")
+		{
+			this.preLayer = new PreChallengePinkLayer(DATA.levelIndexA,cc.winSize.width-50,this.height-DATA.bottomUIHeight-DATA.topUIHeight-20);
+		
+		}
+		else
+		{
+			this.preLayer = new PreChallengeLayer(DATA.levelIndexA,cc.winSize.width-50,this.height-DATA.bottomUIHeight-DATA.topUIHeight-20);
+		}
 		this.preLayer.attr({x:cc.winSize.width*.5,y:DATA.bottomUIHeight+10,anchorX:0,anchorY:0});
 		this.addChild(this.preLayer, 1);
 		this.preLayer.setScale(0);

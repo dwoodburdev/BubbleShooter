@@ -51,27 +51,27 @@ var BottomUILayer = cc.Layer.extend({
 		});
 		this.addChild(this.playButton);
 		
-		this.friendsButton = new cc.Sprite(res.friends_button);
-		this.friendsButton.setScaleX(this.appWidth/this.friendsButton.width);
-		this.friendsButton.setScaleY(this.appWidth/this.friendsButton.height);
-		this.friendsButton.attr({
+		this.leagueButton = new cc.Sprite(res.league_button);
+		this.leagueButton.setScaleX(this.appWidth/this.leagueButton.width);
+		this.leagueButton.setScaleY(this.appWidth/this.leagueButton.height);
+		this.leagueButton.attr({
 			"x":this.buttonWidth*7/2,
 			"y":this.height/2,
 			"anchorX":.5,
 			"anchorY":.5
 		});
-		this.addChild(this.friendsButton);
+		this.addChild(this.leagueButton);
 		
-		this.leagueButton = new cc.Sprite(res.league_button);
-		this.leagueButton.setScaleX(this.appWidth/this.leagueButton.width);
-		this.leagueButton.setScaleY(this.appWidth/this.leagueButton.height);
-		this.leagueButton.attr({
+		this.friendsButton = new cc.Sprite(res.friends_button);
+		this.friendsButton.setScaleX(this.appWidth/this.friendsButton.width);
+		this.friendsButton.setScaleY(this.appWidth/this.friendsButton.height);
+		this.friendsButton.attr({
 			"x":this.buttonWidth*9/2,
 			"y":this.height/2,
 			"anchorX":.5,
 			"anchorY":.5
 		});
-		this.addChild(this.leagueButton);
+		this.addChild(this.friendsButton);
 		
 		this.curTabName = "gameplay";
 		
@@ -377,11 +377,11 @@ var BottomUILayer = cc.Layer.extend({
 		}
 		else if(pos.x > this.buttonWidth*3 && pos.x < this.buttonWidth*4)
 		{
-			return "friends";
+			return "league";
 		}
 		else if(pos.x > this.buttonWidth*4 && pos.x < this.buttonWidth*5)
 		{
-			return "league";
+			return "friends";
 		}
 		
 	}

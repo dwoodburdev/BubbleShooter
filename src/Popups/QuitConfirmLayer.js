@@ -12,6 +12,16 @@ var QuitConfirmLayer = cc.Layer.extend({
 		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),5,cc.color(0,0,0,255));
 		this.addChild(this.dn);
 		
+		/*this.bgImage = new cc.Sprite(res.phone_up);
+		this.bgImage.setScaleX(this.width / this.bgImage.width);
+		this.bgImage.setScaleY(this.height / this.bgImage.height);
+		this.bgImage.attr({
+			x:0,
+			y:0,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.bgImage);*/
 		
         this.closeButton = new cc.Sprite(res.red_x_button);
         this.closeButton.setScale(this.width/10 / this.closeButton.width);
