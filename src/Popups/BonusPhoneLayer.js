@@ -26,7 +26,7 @@ var BonusPhoneLayer = cc.Layer.extend({
 		this.addChild(this.bgImage);
 		
 		
-		this.tabTitleLabel = new cc.LabelTTF("Pick", "Arial", 40);
+		this.tabTitleLabel = new cc.LabelTTF("Spin", "Arial", 40);
 		this.tabTitleLabel.attr({
 			"x":this.width/2,
 			"y":this.height*.86+2,
@@ -50,7 +50,8 @@ var BonusPhoneLayer = cc.Layer.extend({
 		
 		if(this.bonusType == "bonus")
 		{
-		this.bonusPicker = new BonusRewardPickerLayer(
+		//this.bonusPicker = new BonusRewardPickerLayer(
+		this.bonusPicker = new BonusSlotLayer(
 			this.width*.81, 
 			this.height*.72
 			//this.tabTitleLabel.y-(this.tabTitleLabel.height*this.tabTitleLabel.scale) - (this.nextButton.y+(this.nextButton.height*this.nextButton.scale))
@@ -58,7 +59,8 @@ var BonusPhoneLayer = cc.Layer.extend({
 		}
 		else if(this.bonusType == "extra")
 		{
-			this.bonusPicker = new ExtraBonusRewardPickerLayer(
+			//this.bonusPicker = new ExtraBonusRewardPickerLayer(
+			this.bonusPicker = new BonusSlotLayer(
 				this.width*.81, 
 				this.height*.72
 			);
@@ -77,7 +79,7 @@ var BonusPhoneLayer = cc.Layer.extend({
 	{cc.log("BonusPhoneLayer click");
 		 var loc = this.convertToNodeSpace(pos);
 		if(this.bonusPicker != null && FUNCTIONS.posWithin(loc, this.bonusPicker))
-		{cc.log("within bonus picker");
+		{
 			var returnObj = this.bonusPicker.onTouchEnd(pos);
 			
 			if(returnObj == "close")

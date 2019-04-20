@@ -21,6 +21,7 @@
     	"src/CoreUI/ChallengeMenuDisplayLayer.js",
     	"src/CoreUI/ChallengeMenuLayer.js",
     	"src/CoreUI/CoreButtonsUI.js",
+    	"src/CoreUI/CounterLayer.js",
     	"src/CoreUI/CreatorEventLayer.js",
     	"src/CoreUI/CreatorRewardsLayer.js",
     	"src/CoreUI/CreatorsDisplayLayer.js",
@@ -36,7 +37,9 @@
     	"src/CoreUI/ShopDisplayLayer.js",
     	"src/CoreUI/ShopLayer.js",
     	"src/CoreUI/SignInLayer.js",
+    	"src/CoreUI/SlotLayer.js",
     	"src/CoreUI/TopUILayer.js",
+    	"src/CoreUI/WinStreakVisLayer.js",
     	
     	"src/Editor/EditorBubbleLayer.js",
     	"src/Editor/EditorLayer.js",

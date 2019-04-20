@@ -1,5 +1,5 @@
 var ChallengeBottomUILayer = cc.Layer.extend({
-	ctor:function(height){
+	ctor:function(height,mode){
 		this._super();
 		cc.associateWithNative( this, cc.Sprite );
 		
@@ -10,6 +10,12 @@ var ChallengeBottomUILayer = cc.Layer.extend({
 		
 		//this.width = w;
 		this.height = height;
+		this.mode = mode;
+		if(this.mode == "normal")
+			this.bgColor = cc.color(140,140,140,255);
+		else if(this.mode == "challenge")
+			this.bgColor = cc.color(255,164,180,255);
+		else this.bgColor = cc.color(255,255,255,255);
 		
 		this.buttonWidth = size.width/5;
 		this.buttonHeight = this.height;
@@ -81,7 +87,7 @@ var ChallengeBottomUILayer = cc.Layer.extend({
 	
 	draw:function(){
 		
-		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),1,cc.color(0,0,0,255));
+		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), this.bgColor,1,cc.color(0,0,0,255));
 		
 	},
 	
@@ -105,12 +111,24 @@ var ChallengeBottomUILayer = cc.Layer.extend({
 	},
 	
 	onTouchEnd:function(pos)
-	{
-		if(this.posWithinScaled(pos, this.boosterAImg))
-		{
+	{cc.log(pos);
+		if(FUNCTIONS.posWithinScaled(pos, this.boosterAImg))
+		{cc.log("beachball");
 			if(DATA.boosterInventoryA > 0)
 			{
 				DATA.boosterInventoryA--;
+				return "beachball-booster";
+			}
+			else
+			{
+				return "beachball-booster-empty";
+			}
+		}
+		else if(FUNCTIONS.posWithinScaled(pos, this.boosterBImg))
+		{cc.log("bomb");
+			if(DATA.boosterInventoryB > 0)
+			{
+				DATA.boosterInventoryB--;
 				return "bomb-booster";
 			}
 			else
@@ -118,17 +136,20 @@ var ChallengeBottomUILayer = cc.Layer.extend({
 				return "bomb-booster-empty";
 			}
 		}
-		
-	},
-	
-	posWithinScaled:function(pos, square)
-	{
-		if(pos.x > square.x && pos.x < square.x+square.width*square.scale &&
-			pos.y > square.y && pos.y < square.y+square.height*square.scale)
-		{
-			return true;
+		else if(FUNCTIONS.posWithinScaled(pos, this.boosterCImg))
+		{cc.log("rocket");
+			if(DATA.boosterInventoryC > 0)
+			{
+				DATA.boosterInventoryC--;
+				return "rocket-booster";
+			}
+			else
+			{
+				return "rocket-booster-empty";
+			}
 		}
-		return false;
+		
+		
 	}
 	
 });

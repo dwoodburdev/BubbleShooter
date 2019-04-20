@@ -278,6 +278,7 @@ var res = {
     
     //dynamite_1_emoji: "res/double-rocket-1.png",
     dynamite_1_emoji: "res/horiz_dual_swords.png",
+    horiz_rocket_emoji: "res/horiz_dual_swords.png",
     dynamite_2_emoji: "res/double-rocket-2.png",
     dynamite_3_emoji: "res/double-rocket-3.png",
     
@@ -434,6 +435,7 @@ var res = {
     
     phone: "res/phone.png",
     phone_up:"res/phone_up.png",
+    phone_up_overlay:"res/phone_up_overlay.png",
     red_phone_up:"res/red_phone_up.png",
     yellow_phone_up:"res/yellow_phone_up.png",
     green_phone_up:"res/green_phone_up.png",
@@ -441,7 +443,25 @@ var res = {
     pink_phone_up:"res/pink_phone_up.png",
     purple_phone_up:"res/purple_phone_up.png",
     
-    bubble_wrap_emoji:"res/bubble-wrap.png"
+    bubble_wrap_emoji:"res/bubble-wrap.png",
+    
+    pink_smirk_emoji: "res/pink-smirk-face.png",
+    pink_kiss_emoji: "res/pink-kiss-face.png",
+    pink_love_emoji: "res/pink-love-face.png",
+    pink_grin_emoji: "res/pink-grin-face.png",
+    pink_blush_emoji: "res/pink-blush-face.png",
+    
+    anguished_emoji: "res/anguished-face.png",
+    
+    shot_at_love_head: "res/shot-at-love-head.png",
+    
+    black_button:"res/black-button.png",
+    red_button:"res/red-button.png",
+    
+    slot_machine:"res/slot-machine.png",
+    slot_machine_dual:"res/slot-machine-dual.png",
+    slot_machine_blank:"res/slot-machine-blank.png",
+    slot_machine_overlay:"res/slot-machine-overlay.png"
 };
 
 

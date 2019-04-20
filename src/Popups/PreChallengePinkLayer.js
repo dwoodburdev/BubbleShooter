@@ -13,7 +13,6 @@ var PreChallengePinkLayer = cc.Layer.extend({
 		
 		// rocket booster tutorial
 		this.bgImage = new cc.Sprite(res.pink_phone_up);
-		
 		this.bgImage.setScaleX(this.width / this.bgImage.width);
 		this.bgImage.setScaleY(this.height / this.bgImage.height);
 		this.bgImage.attr({
@@ -100,7 +99,7 @@ var PreChallengePinkLayer = cc.Layer.extend({
 		this.levelType = DATA.levelIndexAType;
 		
 		
-		var headerString = "Impress Your Lover";
+		/*var headerString = "Shot at Love";
 		this.levelHeader = new cc.LabelTTF(headerString,"Arial",36);
 		this.levelHeader.attr({
 			x:this.width/2,
@@ -109,23 +108,33 @@ var PreChallengePinkLayer = cc.Layer.extend({
 			anchorY:0
 		});
 		this.levelHeader.color = cc.color(0,0,0,255);
-		this.addChild(this.levelHeader);
+		this.addChild(this.levelHeader);*/
+		
+		this.headerImg = new cc.Sprite(res.shot_at_love_head);
+		this.headerImg.setScale((this.height*.092)*.9 / this.headerImg.height);
+		this.headerImg.attr({
+			x:this.width/2,
+			y:this.height*.86 + (this.height*.092)*.5,
+			anchorX:.5,
+			anchorY:.3
+		});
+		this.addChild(this.headerImg);
 		
 		
-		this.characterEmoji = new cc.Sprite(res.smile_emoji);
+		this.characterEmoji = new cc.Sprite(res.anguished_emoji);
 		this.characterEmoji.setScale( (this.width*.816)*.25 / this.characterEmoji.width);
 		this.characterEmoji.attr({
-			x:this.width*1/3,
+			x:this.width*2/3,
 			y:this.height*.86 - 25,//this.height*.5 + (this.characterEmoji.height*this.characterEmoji.scale)/2,
 			anchorX:.5,
 			anchorY:1
 		});
 		this.addChild(this.characterEmoji);
 	
-		this.loveEmoji = new cc.Sprite(res.love_emoji);
+		this.loveEmoji = new cc.Sprite(res.pink_smirk_emoji);
 		this.loveEmoji.setScale( (this.width*.816)*.25 / this.loveEmoji.width);
 		this.loveEmoji.attr({
-			x:this.width*2/3,
+			x:this.width*1/3,
 			y:this.height*.86 - 25,//this.height*.5 + (this.loveEmoji.height*this.loveEmoji.scale)/2,
 			anchorX:.5,
 			anchorY:1
@@ -159,7 +168,7 @@ var PreChallengePinkLayer = cc.Layer.extend({
 		};
 		this.draw();
 		
-		this.medalAImg = new cc.Sprite(res.love_emoji);
+		this.medalAImg = new cc.Sprite(res.pink_love_emoji);
 		this.medalAImg.setScale((this.width*.816)*.2 / this.medalAImg.width);
 		this.medalAImg.attr({
 			x:this.progressBar.x+5,
@@ -169,7 +178,7 @@ var PreChallengePinkLayer = cc.Layer.extend({
 		});
 		this.addChild(this.medalAImg);
 		
-		this.medalBImg = new cc.Sprite(res.love_emoji);
+		this.medalBImg = new cc.Sprite(res.pink_kiss_emoji);
 		this.medalBImg.setScale((this.width*.816)*.2 / this.medalBImg.width);
 		this.medalBImg.attr({
 			x:this.progressBar.x+5,
@@ -179,7 +188,7 @@ var PreChallengePinkLayer = cc.Layer.extend({
 		});
 		this.addChild(this.medalBImg);
 		
-		this.medalCImg = new cc.Sprite(res.love_emoji);
+		this.medalCImg = new cc.Sprite(res.pink_blush_emoji);
 		this.medalCImg.setScale((this.width*.816)*.2 / this.medalCImg.width);
 		this.medalCImg.attr({
 			x:this.progressBar.x+5,
@@ -202,7 +211,7 @@ var PreChallengePinkLayer = cc.Layer.extend({
 		});
 		this.addChild(this.rewardAImg);
 		
-		this.rewardBImg = new cc.Sprite(res.regular_chest);
+		this.rewardBImg = new cc.Sprite(res.card_back);
 		this.rewardBImg.setScale((this.width*.816)*.2 / this.rewardBImg.height);
 		this.rewardBImg.attr({
 			x:this.medalBImg.x+(this.medalBImg.width*this.medalBImg.scale)+5,

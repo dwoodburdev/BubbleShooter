@@ -42,6 +42,8 @@ var GameplayLayer = cc.Layer.extend({
 			
 		this.rewardData = null;
 		
+
+		
 		
         return true;
 	},
@@ -579,14 +581,7 @@ var GameplayLayer = cc.Layer.extend({
 					}
 					else
 					{
-						this.noLevelLayer = new NoLevelLayer(cc.winSize.width-50, this.height-50);
-						this.noLevelLayer.attr({x:cc.winSize.width*.5,y:0,anchorX:0,anchorY:0});
-						this.addChild(this.noLevelLayer);
-						this.noLevelLayer.setScale(0);
-						var scaleAction = cc.scaleTo(.5, 1, 1);
-						var moveToAction = cc.moveTo(.5, cc.p(25, 0));
-						var spawn = cc.spawn(scaleAction, moveToAction);
-						this.noLevelLayer.runAction(spawn);
+						this.parent.openNoLevelLayer();
 					}
 		   		}
 		   		else if(returnObj == "creator")

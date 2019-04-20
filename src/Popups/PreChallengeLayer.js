@@ -139,7 +139,7 @@ var PreChallengeLayer = cc.Layer.extend({
 			this.addChild(this.tabTitleLabel);
 		}
 		
-		
+		/*
 		this.tryAlert = null;
 		if(DATA.streakStep==DATA.challengeTries)
 		{
@@ -176,11 +176,11 @@ var PreChallengeLayer = cc.Layer.extend({
 				anchorY:0
 			});
 			this.addChild(this.tryAlert);
-		}
+		}*/
 		
 		this.levelMovesNumber = new cc.LabelTTF(""+DATA.challenges[this.challengeIndex].moves, "Arial", 36);
 		this.levelMovesNumber.attr({
-			"x":this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale)/2/*this.width*.908-20*/,
+			"x":this.width*.5,
 			"y":this.bubblePreview.y-2,
 			"anchorX":.5,
 			"anchorY":1
@@ -198,7 +198,8 @@ var PreChallengeLayer = cc.Layer.extend({
 		this.levelMovesLabel.color = cc.color(0,0,0,255);
 		this.addChild(this.levelMovesLabel,12);
 		
-		var xSpace = this.width*.908 - (this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale));
+		
+		var xSpace = this.width*.908 - this.width*.25;
 		var borderSpace = (.1*xSpace)/4;
 		xSpace *= .9; // space between;
 		var mB = 1.25; // how much bigger are circles
@@ -206,9 +207,45 @@ var PreChallengeLayer = cc.Layer.extend({
 		var spaceA = xSpace / (1 + mB + mC);
 		var spaceB = spaceA * mB;
 		var spaceC = spaceA * mC;
+		//var startX = this.width*.908 - xSpace - borderSpace*4;
+		var startX = this.width*.092 + (this.width*.816 - (xSpace+borderSpace*4))/2;
+		
+		this.winStreakVisLayer = new WinStreakVisLayer(this.width*.908-this.width*.25, spaceC, "pre");
+		this.winStreakVisLayer.attr({
+			x:startX,
+			y:this.height*.14+5,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.winStreakVisLayer);
+		
+		var tryText = " tries left";
+		if(DATA.streakStep-DATA.challengeTries+1 == 1)
+			tryText = " try left";
+		this.triesTextLabel = new cc.LabelTTF(""+(DATA.streakStep-DATA.challengeTries+1)+tryText, "Arial",16);
+		this.triesTextLabel.attr({
+			x:this.width/2,
+			y:this.winStreakVisLayer.y+this.winStreakVisLayer.height+1,
+			anchorX:.5,
+			anchorY:0
+		});
+		this.triesTextLabel.color = cc.color(0,0,0,255);
+		this.addChild(this.triesTextLabel);
+		
+		/*
+		var xSpace = this.width*.908 - this.width*.25;
+		var borderSpace = (.1*xSpace)/4;
+		xSpace *= .9; // space between;
+		var mB = 1.25; // how much bigger are circles
+		var mC = 1.5;
+		var spaceA = xSpace / (1 + mB + mC);
+		var spaceB = spaceA * mB;
+		var spaceC = spaceA * mC;
+		//var startX = this.width*.908 - xSpace - borderSpace*4;
+		var startX = this.width*.092 + (this.width*.816 - (xSpace+borderSpace*4))/2;
 		
 		//var circleY = this.tryAlert.y+(this.tryAlert.height*this.tryAlert.scale)/2;
-		var circleY = this.tryAlert.y+spaceC/2;
+		var circleY = this.height*.14+spaceC/2;
 		
 		// Circles' lit color
 		var circleColor = cc.color(255,0,0,255);
@@ -245,7 +282,7 @@ var PreChallengeLayer = cc.Layer.extend({
 			yOffset = this.faceA.height*this.faceA.scale*.16;
 		}
 		this.faceA.attr({
-			x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + spaceA/2 + borderSpace,
+			x:startX + spaceA/2 + borderSpace,
 			y:circleY+yOffset,
 			anchorX:.5,
 			anchorY:.5
@@ -257,7 +294,7 @@ var PreChallengeLayer = cc.Layer.extend({
 		yOffset = 0;
 		if(DATA.streakStep == 0)
 		{// black dot
-			this.dn.drawDot({x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + (spaceA+(spaceB/2)) + borderSpace*2, y:circleY}, spaceB/2, cc.color(0,0,0,255));
+			this.dn.drawDot({x:startX + (spaceA+(spaceB/2)) + borderSpace*2, y:circleY}, spaceB/2, cc.color(0,0,0,255));
 		}
 		else if((DATA.streakStep == 1 && DATA.challengeTries == 1) || (DATA.streakStep == 2 && DATA.challengeTries == 2))
 		{// sad face
@@ -278,7 +315,7 @@ var PreChallengeLayer = cc.Layer.extend({
 			}
 			
 			this.faceB.attr({
-				x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + spaceA + spaceB/2 + borderSpace*2,
+				x:startX + spaceA + spaceB/2 + borderSpace*2,
 				y:circleY+yOffset,
 				anchorX:.5,
 				anchorY:.5
@@ -291,7 +328,7 @@ var PreChallengeLayer = cc.Layer.extend({
 		
 		if(DATA.streakStep < 2)
 		{// black dot
-			this.dn.drawDot({x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + (spaceA+spaceB+(spaceC/2)) + borderSpace*3, y:circleY}, spaceC/2, cc.color(0,0,0,255));
+			this.dn.drawDot({x:startX + (spaceA+spaceB+(spaceC/2)) + borderSpace*3, y:circleY}, spaceC/2, cc.color(0,0,0,255));
 		}
 		else if(DATA.streakStep == 2 && DATA.challengeTries >= 1)
 		{// sad face
@@ -304,7 +341,7 @@ var PreChallengeLayer = cc.Layer.extend({
 			
 			this.faceC.setScale(spaceC / this.faceC.width);
 			this.faceC.attr({
-				x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + spaceA + spaceB + spaceC/2 + borderSpace*3,
+				x:startX + spaceA + spaceB + spaceC/2 + borderSpace*3,
 				y:circleY + this.faceC.height*this.faceC.scale*.16,
 				anchorX:.5,
 				anchorY:.5
@@ -314,18 +351,24 @@ var PreChallengeLayer = cc.Layer.extend({
 			
 		if(DATA.streakStep == 2 && DATA.challengeTries == 0)
 		{
-			this.dn.drawDot({x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + (spaceA+spaceB+(spaceC/2)) + borderSpace*3, y:circleY}, spaceC/2, circleColor);
+			this.dn.drawDot({x:startX + (spaceA+spaceB+(spaceC/2)) + borderSpace*3, y:circleY}, spaceC/2, circleColor);
 		}
 		else if(DATA.streakStep == 2)
 		{
-			this.dn.drawDot({x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + (spaceA+spaceB+(spaceC/2)) + borderSpace*3, y:circleY}, spaceC/2, cc.color(100,100,100,255));
+			this.dn.drawDot({x:startX + (spaceA+spaceB+(spaceC/2)) + borderSpace*3, y:circleY}, spaceC/2, cc.color(100,100,100,255));
 		}
 		else 
 		{
-			this.dn.drawDot({x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + (spaceA+spaceB+(spaceC/2)) + borderSpace*3, y:circleY}, spaceC/2, cc.color(0,0,0,255));
+			this.dn.drawDot({x:startX + (spaceA+spaceB+(spaceC/2)) + borderSpace*3, y:circleY}, spaceC/2, cc.color(0,0,0,255));
 		}
+		*/
+		
+		
+		
 		var playX = ((this.x+this.width/2 - spaceC - 5)-(spaceC/2));
 		
+		
+		/*
 		var streakNumText = ""+DATA.streakStep;
 		if(DATA.streakStep == 2)
 			streakNumText = "MAX";
@@ -333,34 +376,36 @@ var PreChallengeLayer = cc.Layer.extend({
 		this.streakText.color = cc.color(0,0,0,255);
 		this.streakText.attr({
 			//x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale)+4,
-			x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + spaceA+(spaceB/2)+(borderSpace*2),
+			x:this.width*.25 + spaceA+(spaceB/2)+(borderSpace*2),
 			y:this.tryAlert.y+(this.tryAlert.height*this.tryAlert.scaleY)-10,
 			anchorX:.5,
 			anchorY:1
 		});
 		this.addChild(this.streakText);
+		*/
+		
 		
 		this.preBoosterHeadLabel = new cc.LabelTTF("Boosters", "Arial", 18);
 		this.preBoosterHeadLabel.attr({
-			x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale)+4 + (this.width*.81 - ((this.tryAlert.width*this.tryAlert.scale)+4))/2,
+			x:this.width*.25+4 + (this.width*.81 - (this.width*.25+4))/2,
 			y:this.bubblePreview.y+1,
 			anchorX:.5,
 			anchorY:1
 		});
 		this.preBoosterHeadLabel.color = cc.color(0,255,0,255);
-		this.addChild(this.preBoosterHeadLabel);
+		//this.addChild(this.preBoosterHeadLabel);
 		
 		var preBoosterSize = (xSpace*.9)/3;
 		
 		this.preBoosterA = new cc.Sprite(res.pre_booster_moves);
 		this.preBoosterA.setScale(preBoosterSize / this.preBoosterA.width);
 		this.preBoosterA.attr({
-			x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale)+4,
+			x:this.width*.25+4,
 			y:this.preBoosterHeadLabel.y-this.preBoosterHeadLabel.height-1,
 			anchorX:0,
 			anchorY:1
 		});
-		this.addChild(this.preBoosterA);
+		//this.addChild(this.preBoosterA);
 		
 		this.preBoosterACounter = new cc.LabelTTF(""+DATA.preBoosterInventoryA, "Roboto", 15);
 		this.preBoosterACounter.attr({
@@ -370,7 +415,7 @@ var PreChallengeLayer = cc.Layer.extend({
 			"anchorY":1
 		});
 		this.preBoosterACounter.color = cc.color(0,0,0,255);
-		this.addChild(this.preBoosterACounter);
+		//this.addChild(this.preBoosterACounter);
 			
 		
 		
@@ -538,7 +583,35 @@ var PreChallengeLayer = cc.Layer.extend({
     		var numMoves = 0;
     		if(DATA.levelIndexAType == "normal")
     		{
-    			bubbles = DATA.challenges[this.challengeIndex].bubbles;
+    			for(var i=0; i<DATA.challenges[this.challengeIndex].bubbles.length; i++)
+    			{
+    				var dBub = DATA.challenges[this.challengeIndex].bubbles[i];
+			  		
+			  		var colorCode = null;
+			  		var metaData = null;
+			  		if(dBub.type == 7)
+			  		{
+			  			colorCode = [];
+			  			var colorKeys = Object.keys(dBub.colorCode);
+			  			for(var j=0; j<colorKeys.length; j++)
+			  			{
+			  				colorCode.push(dBub.colorCode[colorKeys[j]]);
+			  			}
+			  		}
+			  		else colorCode = dBub.colorCode;
+			  		
+			  		if(dBub.type == 20)
+			  		{cc.log("star");
+			  			if("id" in dBub.meta && dBub.meta.id != null)
+			  			{cc.log("star with ID "+dBub.meta.id);
+			  				metaData = dBub.meta;
+			  			}
+			  		}
+			  		
+			  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:colorCode, binary:dBub.binary, meta:metaData};
+    				bubbles.push(bubble);
+    			}
+
     			numMoves = DATA.challenges[this.challengeIndex].moves;
     		}
     		else

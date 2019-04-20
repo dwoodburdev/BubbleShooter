@@ -25,14 +25,14 @@ var ChallengeRewardLayer = cc.Layer.extend({
 		this.addChild(this.bgImage);
 		
 		
-		this.tabTitleLabel = new cc.LabelTTF("Win!", "Arial", 40);
+		this.tabTitleLabel = new cc.LabelTTF("Success", "Arial", 40);
 		this.tabTitleLabel.attr({
 			"x":this.width/2,
-			"y":this.height*.86+2,
+			"y":this.height*.86+this.tabTitleLabel.height/2,
 			"anchorX":.5,
-			"anchorY":1
+			"anchorY":.5
 		});
-		this.tabTitleLabel.color = cc.color(0,0,0,255);
+		this.tabTitleLabel.color = cc.color(255,255,255,255);
 		this.addChild(this.tabTitleLabel);
 		
 		/*
@@ -82,9 +82,23 @@ var ChallengeRewardLayer = cc.Layer.extend({
 	{
 		//var loc = this.convertToNodeSpace(pos);
 		
+		
+		
 		if(this.nextButton != null && FUNCTIONS.posWithinScaled(pos, this.nextButton))
-		{
-			if(this.summaryDisplayLayer != null)
+		{cc.log("NEXTBUTTONYO");
+			
+			if(!this.summaryDisplayLayer.rewardSpun && !this.summaryDisplayLayer.rewardSpinning)
+			{
+				this.summaryDisplayLayer.slotLayer.initSpin();
+			}
+			else if(this.summaryDisplayLayer.rewardSpun)
+			{cc.log("should close");
+				return "close";
+			}
+			
+			
+			
+			/*if(this.summaryDisplayLayer != null)
 			{
 				this.removeChild(this.summaryDisplayLayer);
 				this.summaryDisplayLayer = null;
@@ -92,90 +106,17 @@ var ChallengeRewardLayer = cc.Layer.extend({
 				this.removeChild(this.nextButton);
 				this.nextButton = null;
 				
-				if(DATA.streakStep == 1)
-				{
-					this.rewardPicker = new BonusRewardPickerLayer(
-						this.width*.81,
-						//this.tabTitleLabel.y-(this.tabTitleLabel.height*this.tabTitleLabel.scale)
-						this.height*.72
-					);
-					this.rewardPicker.attr({
-						x:this.width*.095,
-						y:this.height*.14,
-						anchorX:0,
-						anchorY:0
-					});
-					this.addChild(this.rewardPicker);
-					
-					this.tabTitleLabel.setString("Pick Reward!");
-				}
-				else if(DATA.streakStep == 2)
-				{
-					this.rewardPicker = new ExtraBonusRewardPickerLayer(
-						this.width*.81,
-						//this.tabTitleLabel.y-(this.tabTitleLabel.height*this.tabTitleLabel.scale)
-						this.height*.72
-					);
-					this.rewardPicker.attr({
-						x:this.width*.095,
-						y:this.height*.14,
-						anchorX:0,
-						anchorY:0
-					});
-					this.addChild(this.rewardPicker);
-					
-					this.tabTitleLabel.setString("Pick Reward!");
-				}
-				
-			}
-			/*else if(this.rewardPickerLayer != null)
-			{
-				
-				this.dailyDisplayLayer = new ChallengeWinDailyLayer(
-					this.width, 
-					this.tabTitleLabel.y-(this.tabTitleLabel.height*this.tabTitleLabel.scale) - (this.nextButton.y+(this.nextButton.height*this.nextButton.scale))
-				);
-				this.dailyDisplayLayer.attr({
-					x:0,
-					y:this.nextButton.y+(this.nextButton.height*this.nextButton.scale),
-					anchorX:0,
-					anchorY:0
-				});
-				this.addChild(this.dailyDisplayLayer);
+				//transition to next screen in win flow if necessary
 			}*/
-			else if(this.dailyDisplayLayer != null)
-			{
-				this.removeChild(this.dailyDisplayLayer);
-				this.dailyDisplayLayer = null;
-				
-				/*this.puzzleDisplayLayer = new ChallengeWinPuzzleLayer(
-					this.width, 
-					this.tabTitleLabel.y-(this.tabTitleLabel.height*this.tabTitleLabel.scale) - (this.nextButton.y+(this.nextButton.height*this.nextButton.scale))
-				);
-				this.puzzleDisplayLayer.attr({
-					x:0,
-					y:this.nextButton.y+(this.nextButton.height*this.nextButton.scale),
-					anchorX:0,
-					anchorY:0
-				});
-				this.addChild(this.puzzleDisplayLayer);*/
-			//}
-			//else
-			//{
-				return "close";
-			}
+			
 			
 			
 		}
-		else if(this.rewardPicker != null && FUNCTIONS.posWithin(pos, this.rewardPicker))
-		{
-			this.rewardPicker.onTouchEnd(pos);
-			
-			//var seq = new cc.Sequence(cc.delayTime(2), cc.callFunc(this.parent.goBackToGameplay, this.parent));
-			//this.runAction(seq);
-			
-			return "close";
-		//return "close";
+		else if(this.summaryDisplayLayer != null && 
+			FUNCTIONS.posWithin(pos, this.summaryDisplayLayer) && !this.summaryDisplayLayer.rewardSpun
+		)
+		{cc.log("SUMDISPLAYLAYAER")
+			this.summaryDisplayLayer.onTouchEnd(pos);
 		}
 		
 		

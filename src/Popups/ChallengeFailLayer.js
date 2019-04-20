@@ -35,7 +35,6 @@ var ChallengeFailLayer = cc.Layer.extend({
 		
 		
 		
-		this.emojiFace = null;
 		this.emojiFace = new cc.Sprite(res.sad_emoji);
 		this.emojiFace.setScale(this.width/3 / this.emojiFace.width);
 		this.emojiFace.attr({
@@ -44,9 +43,9 @@ var ChallengeFailLayer = cc.Layer.extend({
 			anchorX:.5,
 			anchorY:1
 		});
-		this.addChild(this.emojiFace);
+		//this.addChild(this.emojiFace);
 		
-		/*this.streakDescription = new cc.LabelTTF((DATA.streakStep+1)+" tries per level!", "Roboto",18);
+		this.streakDescription = new cc.LabelTTF((DATA.streakStep+1)+" tries per level", "Roboto",18);
 		this.streakDescription.attr({
 			x:this.width/2,
 			y:this.emojiFace.y-(this.emojiFace.height*this.emojiFace.scale)-3,
@@ -54,10 +53,10 @@ var ChallengeFailLayer = cc.Layer.extend({
 			anchorY:1
 		});
 		this.streakDescription.color = cc.color(0,0,0,255);
-		this.addChild(this.streakDescription);*/
+		//this.addChild(this.streakDescription);
 		
 		
-		this.nextButton = new cc.Sprite(res.next_button);
+		/*this.nextButton = new cc.Sprite(res.next_button);
 		this.nextButton.setScale(this.width/3 / this.nextButton.width)
 		this.nextButton.attr({
 			x:this.width/2,
@@ -65,50 +64,12 @@ var ChallengeFailLayer = cc.Layer.extend({
 			anchorX:.5,
 			anchorY:0
 		});
-		this.addChild(this.nextButton);
+		this.addChild(this.nextButton);*/
 		
 		
 		
-		this.tryAlert = null;
-		if(DATA.streakStep==DATA.challengeTries)
-		{
-			this.tryAlert = new cc.Sprite(res.last_try_card);
-			this.tryAlert.setScale(this.width*.25 / this.tryAlert.width);
-			this.tryAlert.attr({
-				x:this.width*.092+5,
-				y:this.height*.14+5,
-				anchorX:0,
-				anchorY:0
-			});
-			this.addChild(this.tryAlert);
-		}
-		else if(DATA.challengeTries == 0)
-		{
-			this.tryAlert = new cc.Sprite(res.first_try_card);
-			this.tryAlert.setScale(this.width*.25 / this.tryAlert.width);
-			this.tryAlert.attr({
-				x:this.width*.092+5,
-				y:this.height*.14+5,
-				anchorX:0,
-				anchorY:0
-			});
-			this.addChild(this.tryAlert);
-		}
-		else
-		{
-			this.tryAlert = new cc.Sprite(res.card_back);
-			this.tryAlert.setScale(this.width*.25 / this.tryAlert.width);
-			this.tryAlert.attr({
-				x:this.width*.092+5,
-				y:this.height*.14+5,
-				anchorX:0,
-				anchorY:0
-			});
-			this.addChild(this.tryAlert);
-		}
 		
-		
-		var xSpace = this.width*.908 - (this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale));
+		var xSpace = this.width*.908 - this.width*.25;
 		var borderSpace = (.1*xSpace)/4;
 		xSpace *= .9; // space between;
 		var mB = 1.25; // how much bigger are circles
@@ -116,106 +77,24 @@ var ChallengeFailLayer = cc.Layer.extend({
 		var spaceA = xSpace / (1 + mB + mC);
 		var spaceB = spaceA * mB;
 		var spaceC = spaceA * mC;
+		//var startX = this.width*.908 - xSpace - borderSpace*4;
+		var startX = this.width*.092 + (this.width*.816 - (xSpace+borderSpace*4))/2;
 		
-		//var circleY = this.tryAlert.y+(this.tryAlert.height*this.tryAlert.scale)/2;
-		var circleY = this.tryAlert.y+spaceC/2;
-		
-		// Circles' lit color
-		var circleColor = cc.color(255,0,0,255);
-		if((DATA.streakStep == 1 && DATA.challengeTries == 0)
-			|| (DATA.streakStep == 2 && DATA.challengeTries == 1))
-		{
-			circleColor = cc.color(255,255,0,255);
-		}
-		else if(DATA.streakStep == 2 && DATA.challengeTries == 0)
-		{
-			circleColor = cc.color(0,255,0,255);
-		}
-		
-		this.faceA = null;
-		this.faceB = null;
-		this.faceC = null;
-		
-		// Face 1
-		var yOffset = 0;
-		
-			this.faceA = new cc.Sprite(res.sad_emoji);
-			this.faceA.setScale(spaceA / this.faceA.width);
-			yOffset = this.faceA.height*this.faceA.scale*.16;
-		
-		this.faceA.attr({
-			x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + spaceA/2 + borderSpace,
-			y:circleY+yOffset,
-			anchorX:.5,
-			anchorY:.5
+		this.winStreakVisLayer = new WinStreakVisLayer(this.width*.908-this.width*.25, spaceC, "lose");
+		this.winStreakVisLayer.attr({
+			x:startX,
+			y:this.height*.14+5,
+			anchorX:0,
+			anchorY:0
 		});
-		this.addChild(this.faceA);
-		//this.dn.drawDot({x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + spaceA/2 + borderSpace, y:circleY}, spaceA/2, circleColor);
-		
-		// Face 2
-		yOffset = 0;
-		if(DATA.streakStep == 0)
-		{// black dot
-			this.dn.drawDot({x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + (spaceA+(spaceB/2)) + borderSpace*2, y:circleY}, spaceB/2, cc.color(0,0,0,255));
-		}
-		
-		else
-		{// other face
-			
-				this.faceB = new cc.Sprite(res.sad_emoji);
-				this.faceB.setScale(spaceB / this.faceB.width);
-			
-			this.faceB.attr({
-				x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + spaceA + spaceB/2 + borderSpace*2,
-				y:circleY+yOffset,
-				anchorX:.5,
-				anchorY:.5
-			});
-			this.addChild(this.faceB);
-		}
-		
-			
-		// Face 3
-		
-		if(DATA.streakStep < 2)
-		{// black dot
-			this.dn.drawDot({x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + (spaceA+spaceB+(spaceC/2)) + borderSpace*3, y:circleY}, spaceC/2, cc.color(0,0,0,255));
-		}
-		else
-		{// other face
-			this.faceC = new cc.Sprite(res.sad_emoji);
-			
-			
-			this.faceC.setScale(spaceC / this.faceC.width);
-			this.faceC.attr({
-				x:this.tryAlert.x+(this.tryAlert.width*this.tryAlert.scale) + spaceA + spaceB + spaceC/2 + borderSpace*3,
-				y:circleY + this.faceC.height*this.faceC.scale*.16,
-				anchorX:.5,
-				anchorY:.5
-			});
-			this.addChild(this.faceC);
-		}
-			
-		
-		
-		
-		/*this.streakUpAlert = new cc.Sprite(res.streak_up_alert);
-		this.streakUpAlert.setScale(this.width/3 / this.streakUpAlert.width);
-		this.streakUpAlert.attr({
-			x: this.width/2,
-			y: this.streakDescription.y-(this.streakDescription.height*this.streakDescription.scale)-2,
-			anchorX:.5,
-			anchorY:1
-		});
-		this.addChild(this.streakUpAlert);*/
-		
+		this.addChild(this.winStreakVisLayer);
 	},
 		
 		
-    onTouchEnded: function(touch, event){
-	    var target = event.getCurrentTarget();
-	    var locationInNode = self.convertToNodeSpace(touch.getLocation());
-    	
+    onTouchEnded: function(pos){
+	    //var target = event.getCurrentTarget();
+	    //var locationInNode = self.convertToNodeSpace(touch.getLocation());
+    	/*
     	var maxRow = 0;
 		for(var i=0; i<DATA.worldBubbles.length; i++)
 		{
@@ -223,17 +102,11 @@ var ChallengeFailLayer = cc.Layer.extend({
 				maxRow = DATA.worldBubbles[i].row;
 		}
 	  
-		cc.director.runScene(new MainContainerScene(DATA.worldBubbles, maxRow+1));
+		cc.director.runScene(new MainContainerScene(DATA.worldBubbles, maxRow+1));*/
+		return "close";
 	 }
 			   	
 			 
 		
 	
-});
-var ChallengeFailScene = cc.Scene.extend({
-	onEnter:function(){
-		this._super();
-		var layer = new ChallengeFailLayer();
-		this.addChild(layer);
-	}
 });

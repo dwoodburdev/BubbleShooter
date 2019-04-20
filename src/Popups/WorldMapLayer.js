@@ -31,7 +31,7 @@ var WorldMapLayer = cc.Layer.extend({
         	"anchorX":0,
         	"anchorY":0
         });
-		this.addChild(this.closeButton);
+		//this.addChild(this.closeButton);
 		
 		this.titleLabel = new cc.LabelTTF("World Map", "Roboto", 35);
 		this.titleLabel.attr({
@@ -52,7 +52,7 @@ var WorldMapLayer = cc.Layer.extend({
 		this.nodes = [];
 		this.worldNumberLabels = [];	
 		
-		var mapWidth = this.width - 30;
+		var mapWidth = this.width*.816 - 30;
 		
 		var nodeWidth = mapWidth/5;
 		
@@ -124,31 +124,31 @@ var WorldMapLayer = cc.Layer.extend({
 			}*/
 			else if(worldNumber == 2)
 			{
-				rewardImg = new cc.Sprite(res.dynamite_1_emoji);
+				rewardImg = new cc.Sprite(res.bubble_wrap);
 			}
 			else if(worldNumber == 3)
 			{
-				rewardImg = new cc.Sprite(res.yellow_bulb_emoji);
+				rewardImg = new cc.Sprite(res.dynamite_1_emoji);
 			}
 			else if(worldNumber == 4)
 			{
-				rewardImg = new cc.Sprite(res.bomb_emoji);
+				rewardImg = new cc.Sprite(res.yellow_bulb_emoji);
 			}
 			else if(worldNumber == 5)
 			{
-				rewardImg = new cc.Sprite(res.lightblue_die_emoji);
+				rewardImg = new cc.Sprite(res.bomb_emoji);
 			}
 			else if(worldNumber == 6)
 			{
-				rewardImg = new cc.Sprite(res.beachball_emoji);
+				rewardImg = new cc.Sprite(res.lightblue_die_emoji);
 			}
 			else if(worldNumber == 7)
 			{
-				rewardImg = new cc.Sprite(res.dagger_top_right_emoji);
+				rewardImg = new cc.Sprite(res.beachball_emoji);
 			}
 			else if(worldNumber == 8)
 			{
-				rewardImg = new cc.Sprite(res.neutral_orb_emoji);
+				rewardImg = new cc.Sprite(res.dagger_top_right_emoji);
 			}
 			/*else if(worldNumber == 9)
 			{
@@ -160,19 +160,19 @@ var WorldMapLayer = cc.Layer.extend({
 			}
 			else if(worldNumber == 12)
 			{
-				rewardImg = new cc.Sprite(res.egg_emoji);
+				rewardImg = new cc.Sprite(res.yellow_soapbar_emoji);
 			}
 			else if(worldNumber == 14)
 			{
-				rewardImg = new cc.Sprite(res.yellow_soapbar_emoji);
+				rewardImg = new cc.Sprite(res.egg_emoji);
 			}
 			else if(worldNumber == 16)
 			{
-				rewardImg = new cc.Sprite(res.pink_balloon_emoji);
+				rewardImg = new cc.Sprite(res.cloud_emoji);
 			}
 			else if(worldNumber == 18)
 			{
-				rewardImg = new cc.Sprite(res.blue_siren_emoji);
+				rewardImg = new cc.Sprite(res.neutral_orb_emoji);
 			}
 			else if(worldNumber == 20)
 			{
@@ -180,7 +180,8 @@ var WorldMapLayer = cc.Layer.extend({
 			}
 			else if(worldNumber == 22)
 			{
-				rewardImg = new cc.Sprite(res.purple_note_emoji);
+				//rewardImg = new cc.Sprite(res.purple_note_emoji);
+				rewardImg = new cc.Sprite(res.red_tv_emoji);
 			}
 			else if(worldNumber == 25)
 			{
@@ -188,31 +189,36 @@ var WorldMapLayer = cc.Layer.extend({
 			}
 			else if(worldNumber == 28)
 			{
-				rewardImg = new cc.Sprite(res.pink_flowerpot_emoji);
+				//rewardImg = new cc.Sprite(res.pink_flowerpot_emoji);
+				rewardImg = new cc.Sprite(res.pink_balloon_emoji);
 			}
 			else if(worldNumber == 31)
 			{
-				rewardImg = new cc.Sprite(res.spiderweb_emoji);
+				rewardImg = new cc.Sprite(res.red_tv_emoji);
 			}
 			else if(worldNumber == 34)
 			{
-				rewardImg = new cc.Sprite(res.red_tv_emoji);
+				rewardImg = new cc.Sprite(res.smile_emoji);
 			}
 			else if(worldNumber == 37)
 			{
-				rewardImg = new cc.Sprite(res.flashlight_topleft_emoji);
+				
+				rewardImg = new cc.Sprite(res.spiderweb_emoji);
 			}
 			else if(worldNumber == 40)
 			{
-				rewardImg = new cc.Sprite(res.magnet_topright_emoji);
+				//rewardImg = new cc.Sprite(res.magnet_topright_emoji);
+				rewardImg = new cc.Sprite(res.purple_note_emoji);
 			}
 			else if(worldNumber == 43)
 			{
-				rewardImg = new cc.Sprite(res.crayon_red_bottomleft_emoji);
+				//rewardImg = new cc.Sprite(res.crayon_red_bottomleft_emoji);
+				rewardImg = new cc.Sprite(res.flashlight_topleft_emoji);
 			}
 			else if(worldNumber == 46)
 			{
-				rewardImg = new cc.Sprite(res.red_glove_emoji);
+				//rewardImg = new cc.Sprite(res.red_glove_emoji);
+				rewardImg = new cc.Sprite(res.red_tv_emoji);
 			}
 			else if(worldNumber == 50)
 			{
@@ -305,6 +311,22 @@ var WorldMapLayer = cc.Layer.extend({
 		} while(worldNumber <= 50);//(nodeY < this.y+this.height);
 		//} while(nodeY < this.titleLabel.y-this.titleLabel.height);
 		
+		
+		
+		this.fgImage = new cc.Sprite(res.phone_up_overlay);
+		this.fgImage.setScaleX(this.width / this.fgImage.width);
+		this.fgImage.setScaleY(this.height / this.fgImage.height);
+		this.fgImage.attr({
+			x:0,
+			y:0,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.fgImage);
+		
+		this.addChild(this.closeButton);
+		
+		
 	},
 	
 	isRedNode:function(num)
@@ -344,6 +366,18 @@ var WorldMapLayer = cc.Layer.extend({
 		this.avatarImg.runAction(seq);
 	},
 	
+	scroll:function(dist)
+	{
+		/*for(var i=0; i<this.nodes.length; i++)
+		{
+			this.nodes[i].y += dist;
+			
+			var obj = this.nodes[i];
+			objBot = obj.y;
+			objTop = obj.y+(obj.height*obj.scale);
+		}*/
+	}
+	/*
 	scroll:function(dist)
 	{
 		for(var i=0; i<this.nodes.length; i++)
@@ -427,13 +461,9 @@ var WorldMapLayer = cc.Layer.extend({
 			objTop = obj.y+(obj.height*obj.scale);
 			if(objBot < 5)
 			{
-				/*obj.setTextureRect(
-					cc.rect(0,0,obj.width,obj.height-(objBot-5)),
-					false,
-					cc.size(obj.width, obj.height)
-				);*/
+				
 			}
 		}
 	}
-	
+	*/
 });

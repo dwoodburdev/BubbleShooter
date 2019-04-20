@@ -32,7 +32,13 @@ var BubbleLayer = cc.Layer.extend({
 		this.addChild(this.dn);
 		this.bgColor = cc.color(255,255,255,255);
 		if(this.modeType == "challenge")
-			this.bgColor = cc.color(220,220,220,255);
+		{
+			if(DATA.levelIndexAType == "challenge")
+			{
+				this.bgColor = cc.color(255,164,180,255);
+			}
+			else this.bgColor = cc.color(220,220,220,255);
+		}
 		this.draw = function(){this.dn.drawRect(cc.p(this.x,this.y), cc.p(this.width,this.height), this.bgColor, 0, cc.color(0,0,0,255));};
 		this.draw();
 		
@@ -126,6 +132,7 @@ var BubbleLayer = cc.Layer.extend({
        	
        	
        	
+       	
        	this.queueBubble = null;
        	this.ballsLeftLabel = null;
        	this.shooter = null;
@@ -167,6 +174,7 @@ var BubbleLayer = cc.Layer.extend({
 	       	});
 	       	this.queueBubble.active = true;
 	       	this.addChild(this.queueBubble);
+	       	
 	       	
 	       	this.ballsLeftLabel = new cc.LabelTTF(""+this.numMoves+"/5", "Roboto", 30);
 			this.ballsLeftLabel.attr({
@@ -243,6 +251,15 @@ var BubbleLayer = cc.Layer.extend({
        	this.prevShooterColor = DATA.getShooterColor(this.modeType);
        	this.targetHex = null;
 		//this.previewBubble = null;
+		
+		
+		/*if(this.modeType == "challenge")
+		{
+			if(DATA.levelIndexAType == "challenge")
+			{
+				this.characterA = new cc.Sprite()
+			}
+		}*/
        	
        	this.turnNumber = 0;
        	
@@ -308,7 +325,32 @@ var BubbleLayer = cc.Layer.extend({
 				if(bub.row >= this.topActiveRow && bub.row <= this.bottomActiveRow)
 				{
 					bub.active = true;
-					this.addChild(bub);
+					
+					if(bub.type == 20 || bub.type == 31)
+						this.addChild(bub, 2);
+					else this.addChild(bub);
+					
+					if(this.bubbles[i].type == 20 || this.bubbles[i].type == 31)
+	       			{
+	       				var scaleFactor = 1.5;
+	       				var scaleUp = cc.scaleBy(.3,scaleFactor,scaleFactor);
+						var scaleDown = cc.scaleBy(.5,1/scaleFactor,1/scaleFactor);
+						var seq = new cc.Sequence(scaleUp, scaleDown);
+						var repeatSeq = new cc.RepeatForever(seq);
+					
+						this.bubbles[i].bubbleImg.runAction(repeatSeq);
+	       			}
+					
+					// Initial scroll
+					if(DATA.worldIndex == 0 && this.bubbles.length >= 242)
+					{
+						bub.attr({
+							y: bub.y + DATA.bubbleR*23
+						});
+						var scrollBubAction = cc.moveTo(2.5, bub.x, this.height - bub.row*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset);
+						bub.runAction(scrollBubAction);
+					}
+					
 				}
 				
 				if(bub.y < this.bottomMostBubbleY)
@@ -740,6 +782,7 @@ var BubbleLayer = cc.Layer.extend({
 						this.pointerVisual = new cc.Sprite(res.pink_ball);
 		 			else if(this.shooter.colorCode == "purple")
 						this.pointerVisual = new cc.Sprite(res.purple_ball);
+					else this.pointerVisual = new cc.Sprite(res.black_circle);
 		 			
 		 			this.pointerVisual.setScale( (DATA.bubbleR*3) / this.pointerVisual.width);
 		 			this.pointerVisual.attr({
@@ -824,7 +867,8 @@ var BubbleLayer = cc.Layer.extend({
 		    	this.targetHex = this.predictTarget(trajectory);cc.log(this.targetHex);
 		    	
 		    	//this.targetBubble = new Bubble(this.bubbleR, null, -1, null, null, null, this.targetHex.x, this.targetHex.y);
-		   		this.targetBubble = new Bubble(this.bubbleR, this.shooter.colorCode, 0, null, null, null, this.targetHex.x, this.targetHex.y);
+		   		
+		   		this.targetBubble = new Bubble(this.bubbleR, this.shooter.colorCode, this.shooter.type, null, null, null, this.targetHex.x, this.targetHex.y);
 		   		this.targetBubble.attr({
 		   			x: this.bubbleR+this.targetHex.x*this.bubbleR*2 + (this.targetHex.y%2)*this.bubbleR,
 		   			y: this.height - this.targetHex.y*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
@@ -1197,7 +1241,7 @@ var BubbleLayer = cc.Layer.extend({
 					this.holdLabel.attr({x:this.width/2});
 					
 					this.fingerAnim = new cc.Sprite(res.finger_point);
-					this.fingerAnim.setScale(DATA.bubbleR*3 / this.fingerAnim.width);
+					this.fingerAnim.setScale(DATA.bubbleR*4 / this.fingerAnim.width);
 					this.fingerAnim.attr({
 						x:this.aimIndicator.x,
 						y:this.aimIndicator.y+DATA.bubbleR*2,
@@ -1376,7 +1420,7 @@ var BubbleLayer = cc.Layer.extend({
 							this.drawAimIndicator();
 							
 							this.fingerAnim = new cc.Sprite(res.finger_point);
-							this.fingerAnim.setScale(DATA.bubbleR*3 / this.fingerAnim.width);
+							this.fingerAnim.setScale(DATA.bubbleR*4 / this.fingerAnim.width);
 							this.fingerAnim.attr({
 								x:this.aimIndicator.x,
 								y:this.aimIndicator.y+DATA.bubbleR*2,
@@ -1512,35 +1556,10 @@ var BubbleLayer = cc.Layer.extend({
 			 			this.removeChild(this.tutorialArrow);
 			 			this.tutorialArrow = null;
 			 			
+			 			this.parent.parent.stopPhoneIndication();
 			 		}
 			 	}
-		   	/*
-		   		this.removeChild(this.shooter);
-		   		this.removeChild(this.queueBubble);
-		   		
-		   		DATA.swapBubbleColors(this.modeType);
-		   		this.prevShooterColor = DATA.getShooterColor(this.modeType);
-		   		cc.log("SHOOTER BUBBLE");
-		   		this.shooter = new Bubble(this.bubbleR, DATA.getShooterColor(this.modeType), 0, null, null, null, null, null);
-		       	this.shooter.attr({
-		       		x: this.width/2,
-		       		y: this.bubbleStartHeight,
-		       		anchorX:.5,
-		       		anchorY:.5
-		       	});
-		       	this.shooter.active = true;
-		       	this.addChild(this.shooter);
-				
-		       	this.queueBubble = new Bubble(this.bubbleR, DATA.getQueueColor(this.modeType), 0, null, null, null, null, null);
-		       	this.queueBubble.attr({
-		       		x:this.width/4,
-		       		y:this.bubbleStartHeight,
-		       		anchorX:.5,
-		       		anchorY:.5
-		       	});
-		       	this.queueBubble.active = true;
-		       	this.addChild(this.queueBubble);
-		   */
+		   	
 		  
 		  		this.inputFrozen = true;
 		      
@@ -1585,8 +1604,11 @@ var BubbleLayer = cc.Layer.extend({
 				this.queueBubble.runAction(queueAction);
 				this.shooter.runAction(shooterSeq);
 				
+		   		//this.parent.parent.updatePhoneQueueBubble();
+		   		this.runAction(cc.callFunc(this.parent.parent.removePhoneQueueBubble, this.parent.parent));
+		   		this.runAction(new cc.Sequence(cc.delayTime(.3),cc.callFunc(this.parent.parent.updatePhoneQueueBubble, this.parent.parent)));
 		   		
-		   		
+		   		this.parent.parent.pulsePhone();
 
 		   }
 		   /*else if(this.levelAImg != null && loc.x > this.levelAImg.x-this.bubbleR && loc.x < this.levelAImg.x+this.bubbleR)
@@ -1843,7 +1865,7 @@ var BubbleLayer = cc.Layer.extend({
        	}
        	this.queueBubble = new Bubble(this.bubbleR, newColor, 0, null, null, null, null, null);
        	this.queueBubble.attr({
-       		x:0-DATA.bubbleR,
+       		x:this.width*.17,
        		y:this.bubbleStartHeight,
        		anchorX:.5,
        		anchorY:.5
@@ -1851,22 +1873,27 @@ var BubbleLayer = cc.Layer.extend({
        	this.queueBubble.active = true;
        	this.addChild(this.queueBubble);
        	
-       	var queueAction = cc.moveTo(.4,this.width*.17, this.queueBubble.y);
-       	this.queueBubble.runAction(queueAction);
+       	if(this.modeType == "world")
+			this.parent.parent.updatePhoneQueueBubble();
+	       	
+       	//var queueAction = cc.moveTo(.4,this.width*.17, this.queueBubble.y);
+       	//this.queueBubble.runAction(queueAction);
        	
        	if(this.tutorial != null && this.tutorial.type == "swap")
        	{
        		var scaleUpAction = cc.scaleBy(.5,2,2);
 			var scaleDownAction = cc.scaleBy(.5,.5,.5);
 			var seq = new cc.Sequence(scaleUpAction, scaleDownAction);
-			
-			
 			this.queueBubble.runAction(new cc.RepeatForever(seq));
+			
+			this.parent.parent.indicatePhoneAnim();
+			
+			var distBetweenBubs = this.shooter.x - this.queueBubble.x;
 			
 			this.tutorialArrow = new cc.Sprite(res.tutorial_arrow);
 			this.tutorialArrow.setScale(DATA.bubbleR*3 / this.tutorialArrow.height);
 			this.tutorialArrow.attr({
-				x:this.width/2,
+				x:this.width*.45,//this.shooter.x,
 				y:this.aimIndicator.y + this.aimIndicator.height/2,
 				anchorX:.5,
 				anchorY:.5
@@ -1876,7 +1903,7 @@ var BubbleLayer = cc.Layer.extend({
 			
 			this.addChild(this.tutorialArrow);
 			
-			var moveDist = ( (this.tutorialArrow.x-(this.tutorialArrow.width*this.tutorialArrow.scale)/2) - (this.width/4 + DATA.bubbleR) ) * .6;
+			var moveDist = DATA.bubbleR*3;
 			var moveAAction = cc.moveBy(.4, -1*moveDist, -1*moveDist);
 			var moveBAction = cc.moveBy(.6, moveDist, moveDist);
 			
@@ -2292,8 +2319,14 @@ var BubbleLayer = cc.Layer.extend({
 		}
 		else if(this.modeType == "challenge")
 		{
-			if(this.numMoves > 0)
-				this.ballsLeftLabel.setString(this.numMoves+"/5");
+			//if(this.numMoves > 0)
+			//	this.ballsLeftLabel.setString(this.numMoves+"/5");
+			if(this.numMoves > 4)
+				this.parent.animateCounter();
+			else if(this.numMoves > 2)
+				this.parent.initSlowlyPulseCounter();
+			else if(this.numMoves > 0)
+				this.parent.initQuicklyPulseCounter();
 		}
 		
 		// Note: Might have to put this in actionQueue system if want it to have chain reactions
@@ -2474,7 +2507,7 @@ var BubbleLayer = cc.Layer.extend({
 			if(DATA.worldIndex == 0 && ( (this.bubbles.length > 179) || (this.bubbles.length==127 && DATA.tutorialCompleted != 5) ) )
 			{
 			this.fingerAnim = new cc.Sprite(res.finger_point);
-			this.fingerAnim.setScale(DATA.bubbleR*3 / this.fingerAnim.width);
+			this.fingerAnim.setScale(DATA.bubbleR*4 / this.fingerAnim.width);
 			this.fingerAnim.attr({
 				x:this.aimIndicator.x,
 				y:this.aimIndicator.y+DATA.bubbleR*2,
@@ -2535,7 +2568,7 @@ var BubbleLayer = cc.Layer.extend({
 					highlightBubs.push(this.bubbleMap[19][2]);
 					highlightBubs.push(this.bubbleMap[19][3]);
 					
-					this.highlightScaleBubbles(highlightBubs, 1.3);
+					this.highlightScaleBubbles(highlightBubs, 1.6);
 					
 				}
 				else if(this.tutorial.id == 3)
@@ -2546,7 +2579,7 @@ var BubbleLayer = cc.Layer.extend({
 					highlightBubs.push(this.bubbleMap[15][9]);
 					highlightBubs.push(this.bubbleMap[15][10]);
 					
-					this.highlightScaleBubbles(highlightBubs, 1.3);
+					this.highlightScaleBubbles(highlightBubs, 1.6);
 				}
 				// FIRST STAR
 				else if(this.tutorial.id == 5)
@@ -2614,7 +2647,10 @@ var BubbleLayer = cc.Layer.extend({
 						anchorY:1
 					});
 					this.addChild(this.upArrow);
-				
+					
+					var moveArrowDown = cc.moveBy(.5,0,-DATA.bubbleR);
+					var moveArrowUp = cc.moveBy(.5,0,DATA.bubbleR);
+					this.upArrow.runAction(new cc.RepeatForever(new cc.Sequence(moveArrowDown, moveArrowUp)));
 				}
 				
 				else if(this.tutorial.id == 7)
@@ -2639,7 +2675,7 @@ var BubbleLayer = cc.Layer.extend({
 				this.swapTutorialTextB = new cc.LabelTTF("Swap!","Roboto",20);
 				this.swapTutorialTextB.attr({
 					x:this.queueBubble.x,
-					y:this.queueBubble.y+DATA.bubbleR*2,
+					y:this.queueBubble.y+DATA.bubbleR*3,
 					anchorX:.5,
 					anchorY:0
 				});
@@ -2720,7 +2756,7 @@ var BubbleLayer = cc.Layer.extend({
 			//if(this.tutorial.id == 5)
 			//{
 				for(var i=0; i<highlightBubs.length; i++)
-				{
+				{// Does this even work? didn't for stars
 					this.bubbles[highlightBubs[i]].removeChild(this.bubbles[highlightBubs[i]].bubbleImg);
 					this.bubbles[highlightBubs[i]].addChild(this.bubbles[highlightBubs[i]].bubbleImg);
 					
@@ -2734,8 +2770,8 @@ var BubbleLayer = cc.Layer.extend({
 		
 		for(var i=0; i<highlightBubs.length; i++)
 		{
-			var scaleUp = cc.scaleBy(1,scaleFactor,scaleFactor);
-			var scaleDown = cc.scaleBy(1,1/scaleFactor,1/scaleFactor);
+			var scaleUp = cc.scaleBy(.3,scaleFactor,scaleFactor);
+			var scaleDown = cc.scaleBy(.5,1/scaleFactor,1/scaleFactor);
 			var seq = new cc.Sequence(scaleUp, scaleDown);
 			var repeatSeq = new cc.RepeatForever(seq);
 		
@@ -4136,8 +4172,20 @@ var BubbleLayer = cc.Layer.extend({
 			       			
 			       			
 			       			
+			       			if(this.bubbles[this.bubbleMap[i][j]].type==20 || this.bubbles[this.bubbleMap[i][j]].type==31)
+			       				this.addChild(this.bubbles[this.bubbleMap[i][j]], 2);
+			       			else this.addChild(this.bubbles[this.bubbleMap[i][j]]);
 			       			
-			       			this.addChild(this.bubbles[this.bubbleMap[i][j]]);
+			       			if(this.bubbles[this.bubbleMap[i][j]].type == 20 || this.bubbles[this.bubbleMap[i][j]].type == 31)
+			       			{
+			       				var scaleFactor = 1.5;
+			       				var scaleUp = cc.scaleBy(.3,scaleFactor,scaleFactor);
+								var scaleDown = cc.scaleBy(.5,1/scaleFactor,1/scaleFactor);
+								var seq = new cc.Sequence(scaleUp, scaleDown);
+								var repeatSeq = new cc.RepeatForever(seq);
+							
+								this.bubbles[this.bubbleMap[i][j]].bubbleImg.runAction(repeatSeq);
+			       			}
 			       		}
 			       			
 				       		var actionMove = cc.moveTo(.1*rowsCulled, cc.p(this.bubbleR+j*this.bubbleR*2 + (i%2)*this.bubbleR,

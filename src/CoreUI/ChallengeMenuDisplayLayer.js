@@ -6,10 +6,14 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 		var size = cc.winSize;
 		
 		this.height = height;
+		this.width = size.width;
 		this.yMin = yMin;
 		
+		
+		this.bgDn = new cc.DrawNode();
+		this.bgDn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),0,cc.color(0,0,0,255));
+		this.addChild(this.bgDn);
 		this.dn = new cc.DrawNode();
-		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),0,cc.color(0,0,0,255));
 		this.addChild(this.dn);
 		
 		this.dailyChallengePopup = null;
@@ -17,63 +21,54 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 		DATA.refreshTimeUntilNextChallenge();
 		
 		
-		this.tabTitleLabel = new cc.LabelTTF("Rewards", "Arial", 40);
+		
+		this.tabTitleLabel = new cc.LabelTTF("Daily Spin", "Arial", 32);
 		this.tabTitleLabel.attr({
 			"x":size.width/2,
-			"y":this.height,
+			"y":this.height-3,
 			"anchorX":.5,
 			"anchorY":1
 		});
 		this.tabTitleLabel.color = cc.color(0,0,0,255);
 		this.addChild(this.tabTitleLabel);
 		
+		
+		
+		//this.chestAImage = new cc.Sprite(res.card_back);
+		this.slotLayer = new SlotLayer(this.width, this.height*.42, "daily");
+		this.slotLayer.attr({
+			x:this.width/2 - (this.slotLayer.slotImage.width*this.slotLayer.slotImage.scale)/2,
+			y:this.tabTitleLabel.y-this.tabTitleLabel.height-2 - (this.slotLayer.slotImage.height*this.slotLayer.slotImage.scale),
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.slotLayer);
+		
+		
+		this.maskDn = new cc.DrawNode();
+		this.maskDn.drawRect(cc.p(this.slotLayer.x, this.slotLayer.y),
+						cc.p(this.slotLayer.x+this.slotLayer.slotImage.width*this.slotLayer.slotImage.scale, this.slotLayer.y-(this.slotLayer.emojiWidthFactor*this.slotLayer.slotWidth)/2)-3,
+						cc.color(255,0,0,255),0,cc.color(255,255,255,255)
+		);
+		this.maskDn.drawRect(cc.p(this.slotLayer.x, this.slotLayer.y+this.slotLayer.height),
+						cc.p(this.slotLayer.x+this.slotLayer.slotImage.width*this.slotLayer.slotImage.scale, this.slotLayer.y+this.slotLayer.height+(this.slotLayer.emojiWidthFactor*this.slotLayer.slotWidth)/2)+3,
+						cc.color(255,0,0,255),0,cc.color(255,255,255,255)
+		);
+		this.addChild(this.maskDn);
+		
+	
+		
 		var chestBorder = 5;
 		var chestWidth = (size.width-chestBorder*4)/3;
 		var chestHeight = chestWidth*1.3;
-		this.chestASquare = {
-			x: chestBorder,
-			y: this.tabTitleLabel.y-this.tabTitleLabel.height - 5 - chestHeight,
-			width: chestWidth,
-			height: chestHeight,
-			color: cc.color(255,0,0,255)
-		};
-		this.chestBSquare = {
-			x: chestBorder*2 + chestWidth,
-			y: this.tabTitleLabel.y-this.tabTitleLabel.height - 5 - chestHeight,
-			width: chestWidth,
-			height: chestHeight
-		};
-		this.chestCSquare = {
-			x: chestBorder*3 + chestWidth*2,
-			y: this.tabTitleLabel.y-this.tabTitleLabel.height - 5 - chestHeight,
-			width: chestWidth,
-			height: chestHeight
-		};
 		
-		this.chestAImage = new cc.Sprite(res.card_back);
-		this.chestAImage.setScale(this.chestASquare.width*.7 / this.chestAImage.width);
-		this.chestAImage.attr({
-			x:this.chestASquare.x+this.chestASquare.width/2,
-			y:this.chestASquare.y+this.chestASquare.height-15,
-			anchorX:.5,
-			anchorY:1
-		});
-		this.addChild(this.chestAImage);
 		
-		this.chestALabel = new cc.LabelTTF("Daily Gift", "Arial", 20);
-		this.chestALabel.attr({
-			"x":this.chestAImage.x,
-			"y":this.chestAImage.y-(this.chestAImage.height*this.chestAImage.scale) - 10,
-			"anchorX":.5,
-			"anchorY":1
-		});
-		this.chestALabel.color = cc.color(0,0,0,255);
-		this.addChild(this.chestALabel);
+		
 		cc.log(((new Date()).getTime() - DATA.timeLastChestOpened) - (24*60*60*1000));
 		if((new Date()).getTime() - DATA.timeLastChestOpened >= (24*60*60*1000))
 		{	
-			this.chestAButton = new cc.Sprite(res.get_button);
-			this.chestAButton.setScale( (this.chestALabel.y-(this.chestALabel.height*this.chestALabel.scale)-10-this.chestASquare.y) / this.chestAButton.height);
+			/*this.chestAButton = new cc.Sprite(res.get_button);
+			this.chestAButton.setScale( (this.chestAImage.y-(this.chestAImage.height*this.chestAImage.scale)-10-this.chestASquare.y) / this.chestAButton.height);
 			this.chestAButton.attr({
 				x:this.chestAImage.x,
 				y:this.chestASquare.y+5,
@@ -81,10 +76,20 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 				anchorY:0
 			});
 			this.addChild(this.chestAButton);
-			this.chestASquare.color = cc.color(255,255,0,255);
+			this.chestASquare.color = cc.color(255,255,0,255);*/
 		}
 		else
 		{
+			/*this.chestALabel = new cc.LabelTTF("Daily Spin", "Arial", 20);
+			this.chestALabel.attr({
+				"x":this.chestAImage.x,
+				"y":this.chestAImage.y-(this.chestAImage.height*this.chestAImage.scale) - 10,
+				"anchorX":.5,
+				"anchorY":1
+			});
+			this.chestALabel.color = cc.color(0,0,0,255);
+			this.addChild(this.chestALabel);*/
+			
 			var timeTilChestSpawn = DATA.timeLastChestOpened+(1000*60*60*24);
 			var timeElapsed = timeTilChestSpawn - (new Date()).getTime();
 			var hours = Math.floor(timeElapsed / (1000*60*60));
@@ -97,6 +102,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 	   		if(seconds <= 9)
 	   			secondsStr = "0"+seconds
 	   		
+	   		/*
 			this.chestATimer = new cc.LabelTTF(""+hours+":"+minutesStr+":"+secondsStr, "Roboto", 35);
 			this.chestATimer.attr({
 				"x":this.chestAImage.x,
@@ -108,13 +114,14 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 			this.addChild(this.chestATimer);
 			
 			this.schedule(this.updateChestTimers, 1);
+			*/
 		}
-		
+		/*
 		var chestCImage = new cc.Sprite(res.regular_gold_chest);
 		chestCImage.setScale(this.chestCSquare.width*.7 / chestCImage.width);
 		chestCImage.attr({
-			x:this.chestCSquare.x+this.chestCSquare.width/2,
-			y:this.chestCSquare.y+this.chestCSquare.height-15,
+			x:this.width/2,
+			y:,
 			anchorX:.5,
 			anchorY:1
 		});
@@ -138,13 +145,14 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 		});
 		this.addChild(this.chestCProgBar);
 		this.chestCProgBar.setProg(DATA.questChestProgress / DATA.questChestNumber);
+		*/
 		
 		
 		this.dailyChallengeLabel = new cc.LabelTTF("Quests", "Arial", 25);
 		this.dailyChallengeLabel.attr({
-			"x":size.width/2,
-			"y":this.chestASquare.y-5,
-			"anchorX":.5,
+			"x":5,
+			"y":this.slotLayer.y-15,
+			"anchorX":0,
 			"anchorY":1
 		});
 		this.dailyChallengeLabel.color = cc.color(0,0,0,255);
@@ -152,7 +160,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 		
 		var challengeBorder = 5;
 		var challengeWidth = size.width-10;
-		var challengeHeight = (this.height - this.dailyChallengeLabel.y-this.dailyChallengeLabel.height - challengeBorder*4)/3;
+		var challengeHeight = (this.dailyChallengeLabel.y-this.dailyChallengeLabel.height - 10 - challengeBorder*4)/3;
 		this.challengeARect = {
 			x: 5,
 			y: this.dailyChallengeLabel.y-this.dailyChallengeLabel.height - 5 - challengeHeight,
@@ -635,9 +643,17 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 	
 	draw:function()
 	{
-		this.dn.drawRect(cc.p(this.chestASquare.x, this.chestASquare.y),cc.p(this.chestASquare.x+this.chestASquare.width,this.chestASquare.y+this.chestASquare.height),this.chestASquare.color,2,cc.color(0,0,0,255));
-		//this.dn.drawRect(cc.p(this.chestBSquare.x, this.chestBSquare.y),cc.p(this.chestBSquare.x+this.chestBSquare.width,this.chestBSquare.y+this.chestBSquare.height),cc.color(255,0,0,255),2,cc.color(0,0,0,255));
-		this.dn.drawRect(cc.p(this.chestCSquare.x, this.chestCSquare.y),cc.p(this.chestCSquare.x+this.chestCSquare.width,this.chestCSquare.y+this.chestCSquare.height),cc.color(255,0,0,255),2,cc.color(0,0,0,255));
+		/*
+		this.dn.drawRect(cc.p(this.slotLayer.x, this.slotLayer.y),
+						cc.p(this.slotLayer.x+this.slotLayer.slotImage.width*this.slotLayer.slotImage.scale, this.slotLayer.y-(this.slotLayer.emojiWidthFactor*this.slotLayer.slotWidth)/2)-3,
+						cc.color(255,255,0,255),0,cc.color(255,255,255,255)
+		);
+		this.dn.drawRect(cc.p(this.slotLayer.x, this.slotLayer.y+this.slotLayer.height),
+						cc.p(this.slotLayer.x+this.slotLayer.slotImage.width*this.slotLayer.slotImage.scale, this.slotLayer.y+this.slotLayer.height+(this.slotLayer.emojiWidthFactor*this.slotLayer.slotWidth)/2)+3,
+						cc.color(255,255,0,255),0,cc.color(255,255,255,255)
+		);
+		*/
+		
 		
 		this.dn.drawRect(cc.p(this.challengeARect.x, this.challengeARect.y), cc.p(this.challengeARect.x+this.challengeARect.width, this.challengeARect.y+this.challengeARect.height),cc.color(0,255,0,255),2,cc.color(0,0,0,255));
 		this.dn.drawRect(cc.p(this.challengeBRect.x, this.challengeBRect.y), cc.p(this.challengeBRect.x+this.challengeBRect.width, this.challengeBRect.y+this.challengeBRect.height),cc.color(0,255,0,255),2,cc.color(0,0,0,255));
@@ -662,22 +678,16 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 			
 			var loc = this.convertToNodeSpace(pos);
 			
-			if(FUNCTIONS.posWithin(loc, this.chestASquare))
+			if(FUNCTIONS.posWithin(loc, this.slotLayer))
 			{cc.log("DAILY TOUCH");cc.log((new Date()).getTime() - DATA.timeLastChestOpened);cc.log(24*60*60*1000);
 				if((new Date()).getTime() - DATA.timeLastChestOpened >= (24*60*60*1000))
 				{
 					//this.dailyChallengePopup = new BonusRewardPickerLayer(cc.winSize.width-50,this.height-50);//new WorldRewardsLayer(cc.winSize.width-50,this.height-50);
-					this.dailyChallengePopup = new BonusPhoneLayer(cc.winSize.width-50, this.height-20, "bonus");
-					this.dailyChallengePopup.attr({
-						x:25,
-						y:10,
-						anchorX:0,
-						anchorY:0
-					});
-					this.addChild(this.dailyChallengePopup);
+					
 					
 					DATA.setLastTimeDailyChestOpened();
 				}
+				this.slotLayer.initSpin();
 			}
 			else if(FUNCTIONS.posWithin(loc, this.challengeARect) && this.collectRewardAButton != null)
 			{cc.log("TOP RECT CLICKED");

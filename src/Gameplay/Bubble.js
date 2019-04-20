@@ -952,7 +952,7 @@ var Bubble = cc.Sprite.extend({
 			}
 			else if(this.type == 13)
 			{
-				this.bubbleImg = new cc.Sprite(res.dynamite_1_emoji);
+				this.bubbleImg = new cc.Sprite(res.horiz_rocket_emoji);
 			}
 			else if(this.type == 14)
 			{
@@ -983,6 +983,21 @@ var Bubble = cc.Sprite.extend({
 	        	});
 	        	var seq = new cc.Sequence(spinAction, repeatAction);
 	        	this.runAction(seq);
+	        	
+	        	/*
+	        	var emitterImg = cc.textureCache.addImage("res/yellow-ball.png");
+	        	this.emitter = cc.ParticleSystem.createWithTotalParticles(50);
+	        	this.emitter.setTexture(emitterImg);
+	        	this.emitter.setDuration(-1);
+	        	this.emitter.setLife(5.0);
+	        	this.emitter.setPosition(this.width/2, this.height/2);
+	        	this.emitter.setEmissionRate(100);
+	        	this.emitter.setAngle(90);
+	        	this.emitter.setEmitterMode(0);
+	        	this.emitter.setStartSize(50);
+				this.addChild(this.emitter);
+				*/
+			
 			}
 			else if(this.type == 21)
 			{

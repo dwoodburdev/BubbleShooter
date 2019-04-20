@@ -1081,6 +1081,11 @@ DATA.setCurrencies = function(coins, gems)
  	//if(gems != null)
  	//	DATA.database.ref("users/"+DATA.userID+"/gems").set(gems);
   };
+  DATA.setCoins = function(coins) {
+  	DATA.coins = coins;
+  	if(coins != null)
+  		DATA.database.ref("users/"+DATA.userID+"/coins").set(coins);
+  };
   
  /*
   * INVENTORIES

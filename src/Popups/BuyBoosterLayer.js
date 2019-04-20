@@ -10,9 +10,19 @@ var BuyBoosterLayer = cc.Layer.extend({
 		this.boosterType = boosterType;
 		
 		this.dn = new cc.DrawNode();
-		this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),5,cc.color(0,0,0,255));
+		//this.dn.drawRect(cc.p(this.x,this.y),cc.p(this.x+this.width, this.y+this.height), cc.color(255,255,255,255),5,cc.color(0,0,0,255));
 		this.addChild(this.dn);
 		
+		this.bgImage = new cc.Sprite(res.phone_up);
+		this.bgImage.setScaleX(this.width / this.bgImage.width);
+		this.bgImage.setScaleY(this.height / this.bgImage.height);
+		this.bgImage.attr({
+			x:0,
+			y:0,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.bgImage);
 		
         this.closeButton = new cc.Sprite(res.red_x_button);
         this.closeButton.setScale(this.width/10 / this.closeButton.width);
@@ -35,14 +45,23 @@ var BuyBoosterLayer = cc.Layer.extend({
 		this.addChild(this.titleLabel);
 		
 		this.boosterImg = null;
-		if(this.boosterType == "bomb")
+		if(this.boosterType == "beachball")
+		{
+			this.boosterImg = new cc.Sprite(res.beachball_emoji);
+		}
+		else if(this.boosterType == "bomb")
 		{
 			this.boosterImg = new cc.Sprite(res.bomb_emoji);
+		}
+		else if(this.boosterType == "rocket")
+		{
+			this.boosterImg = new cc.Sprite(res.horiz_rocket_emoji);
 		}
 		else if(this.boosterType == "plus_five")
 		{
 			this.boosterImg = new cc.Sprite(res.plus_five_moves_icon);
 		}
+		
 		this.boosterImg.setScale(this.width/2 / this.boosterImg.width);
 		this.boosterImg.attr({
 			x:this.x+this.width/2,

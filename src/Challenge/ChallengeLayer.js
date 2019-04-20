@@ -6,7 +6,7 @@ var ChallengeLayer = cc.Layer.extend({
         
 		 var size = cc.winSize;
 		
-		this.bottomUILayer = new ChallengeBottomUILayer(size.height/12);
+		this.bottomUILayer = new ChallengeBottomUILayer(size.height/12,DATA.levelIndexAType);
 		this.bottomUILayer.attr({
 			x: 0,
 			y: 0,
@@ -39,7 +39,43 @@ var ChallengeLayer = cc.Layer.extend({
 		this.quitConfirmLayer = null;
 		this.buyBoosterLayer = null;
 		this.challengeRewardLayer = null;
+		this.challengeFailLayer = null;
 		
+		
+		if(DATA.levelIndexAType == "challenge")
+		{
+			this.loveEmoji = new cc.Sprite(res.love_emoji);
+			this.loveEmoji.setScale(DATA.bubbleR*3 / this.loveEmoji.width);
+			this.loveEmoji.attr({
+				x:this.width-2,
+				y:this.bubbleLayer.queueBubble.y - DATA.bubbleR*3/2,
+				anchorX:1,
+				anchorY:.5
+			});
+			this.addChild(this.loveEmoji);
+			
+			this.rewardImg = new cc.Sprite(res.regular_chest);
+			this.rewardImg.setScale(DATA.bubbleR*3 / this.rewardImg.width);
+			this.rewardImg.attr({
+				x:this.loveEmoji.x-(this.loveEmoji.width*this.loveEmoji.scale)-2,
+				y:this.loveEmoji.y,
+				anchorX:1,
+				anchorY:.5
+			});
+			this.addChild(this.rewardImg);
+		}
+		else
+		{
+			this.counterLayer = new CounterLayer(DATA.bubbleR*3, numMoves);
+			this.counterLayer.attr({
+				x:this.width*.83 - DATA.bubbleR*1.5,
+				y:this.bubbleLayer.y+this.bubbleLayer.queueBubble.y - DATA.bubbleR*1.5,
+				anchorX:.5,
+				anchorY:.5
+			});
+			this.addChild(this.counterLayer);
+			
+		}
 		
 		var self = this;
 		
@@ -111,13 +147,43 @@ var ChallengeLayer = cc.Layer.extend({
 						    {
 						    	var loc = self.bottomUILayer.convertToNodeSpace(touch.getLocation());
 						    	var returnObj = self.bottomUILayer.onTouchEnd(loc);
-						    	if(returnObj == "bomb-booster")
+						    	if(returnObj == "beachball-booster")
+						    	{
+						    		self.bubbleLayer.changeShooter(11);
+						    	}
+						    	else if(returnObj == "beachball-booster-empty")
+						    	{
+						    		self.buyBoosterLayer = new BuyBoosterLayer(size.width-50, size.height-50, "beachball");
+						    		self.buyBoosterLayer.attr({
+						    			x:25,
+						    			y:25,
+						    			anchorX:0,
+						    			anchorY:0
+						    		});
+						    		self.addChild(self.buyBoosterLayer);
+						    	}
+						    	else if(returnObj == "bomb-booster")
 						    	{
 						    		self.bubbleLayer.changeShooter(1);
 						    	}
 						    	else if(returnObj == "bomb-booster-empty")
 						    	{
 						    		self.buyBoosterLayer = new BuyBoosterLayer(size.width-50, size.height-50, "bomb");
+						    		self.buyBoosterLayer.attr({
+						    			x:25,
+						    			y:25,
+						    			anchorX:0,
+						    			anchorY:0
+						    		});
+						    		self.addChild(self.buyBoosterLayer);
+						    	}
+						    	else if(returnObj == "rocket-booster")
+						    	{
+						    		self.bubbleLayer.changeShooter(13);
+						    	}
+						    	else if(returnObj == "rocket-booster-empty")
+						    	{
+						    		self.buyBoosterLayer = new BuyBoosterLayer(size.width-50, size.height-50, "rocket");
 						    		self.buyBoosterLayer.attr({
 						    			x:25,
 						    			y:25,
@@ -191,7 +257,7 @@ var ChallengeLayer = cc.Layer.extend({
 								DATA.updateDatabaseLevelIndices();
 								DATA.updateDatabaseStreak();
 								
-								cc.director.runScene(new ChallengeFailScene());
+								//cc.director.runScene(new ChallengeFailScene());
 								self.openChallengeFailLayer();
 					    	}
 				   		}
@@ -204,10 +270,30 @@ var ChallengeLayer = cc.Layer.extend({
 					    		self.removeChild(self.buyBoosterLayer);
 					    		self.buyBoosterLayer = null;
 					    	}
+					    	else if(returnObj == "buy-beachball")
+					    	{
+					    		DATA.setCurrencies(DATA.coins-1,DATA.gems);
+					    		DATA.setBoosterInventories(DATA.boosterInventoryA+3,DATA.boosterInventoryB,DATA.boosterInventoryC);
+					    		
+					    		self.removeChild(self.buyBoosterLayer);
+					    		self.buyBoosterLayer = null;
+					    		
+					    		self.bubbleLayer.changeShooter(1);
+					    	}
 					    	else if(returnObj == "buy-bomb")
 					    	{
 					    		DATA.setCurrencies(DATA.coins-1,DATA.gems);
-					    		DATA.setBoosterInventories(DATA.boosterInventoryA);
+					    		DATA.setBoosterInventories(DATA.boosterInventoryA,DATA.boosterInventoryB+3,DATA.boosterInventoryC);
+					    		
+					    		self.removeChild(self.buyBoosterLayer);
+					    		self.buyBoosterLayer = null;
+					    		
+					    		self.bubbleLayer.changeShooter(1);
+					    	}
+					    	else if(returnObj == "buy-rocket")
+					    	{
+					    		DATA.setCurrencies(DATA.coins-1,DATA.gems);
+					    		DATA.setBoosterInventories(DATA.boosterInventoryA,DATA.boosterInventoryB,DATA.boosterInventoryC+3);
 					    		
 					    		self.removeChild(self.buyBoosterLayer);
 					    		self.buyBoosterLayer = null;
@@ -237,6 +323,16 @@ var ChallengeLayer = cc.Layer.extend({
 				   			}
 				   			
 				   		}
+				   		else if(self.challengeFailLayer != null)
+				   		{
+				   			var loc = self.challengeFailLayer.convertToNodeSpace(touch.getLocation());
+					    	var returnObj = self.challengeFailLayer.onTouchEnded(loc);
+					    	if(returnObj == "close")
+					    	{
+					    		self.runAction(new cc.Sequence(cc.delayTime(.5), cc.callFunc(self.goBackToGameplay, self)));
+					    	}
+				   			
+				   		}
 				   	}
 			    	return true;
 			    }
@@ -245,6 +341,46 @@ var ChallengeLayer = cc.Layer.extend({
 		
 		
         return true;
+	},
+	
+	animateCounter:function()
+	{
+		var counterSeq = new cc.Sequence(cc.scaleTo(.2, 1.75, 1.75), 
+										cc.callFunc(this.counterLayer.updateMoves, this.counterLayer), 
+										cc.scaleTo(.2, 1, 1));
+		this.counterLayer.runAction(counterSeq);
+	},
+	
+	initSlowlyPulseCounter:function()
+	{
+		var counterSeq = new cc.Sequence(cc.scaleTo(.15,1.75,1.75),
+							cc.callFunc(this.counterLayer.updateMoves, this.counterLayer),
+							cc.scaleTo(.45, 1, 1),
+							cc.callFunc(this.slowlyPulseCounter, this));
+		this.counterLayer.runAction(counterSeq)
+	},
+	
+	slowlyPulseCounter:function()
+	{
+		var counterSeq = new cc.Sequence(cc.scaleTo(.15, 1.75, 1.75),
+										cc.scaleTo(.45, 1, 1));
+		this.counterLayer.runAction(new cc.RepeatForever(counterSeq));
+	},
+	
+	initQuicklyPulseCounter:function()
+	{
+		var counterSeq = new cc.Sequence(cc.scaleTo(.15, 1.75, 1.75),
+										cc.callFunc(this.counterLayer.updateMoves, this.counterLayer),
+										cc.scaleTo(.15, 1, 1),
+										cc.callFunc(this.quicklyPulseCounter, this));
+		this.counterLayer.runAction(counterSeq);
+	},
+	
+	quicklyPulseCounter:function()
+	{
+		var counterSeq = new cc.Sequence(cc.scaleTo(.15, 1.75, 1.75),
+										cc.scaleTo(.15, 1, 1));
+		this.counterLayer.runAction(new cc.RepeatForever(counterSeq));
 	},
 	
 	goBackToGameplay:function()
@@ -264,7 +400,8 @@ var ChallengeLayer = cc.Layer.extend({
 		if(this.settingsLayer == null && 
 			this.quitConfirmLayer == null &&
 			this.buyBoosterLayer == null &&
-			this.challengeRewardLayer == null)
+			this.challengeRewardLayer == null &&
+			this.challengeFailLayer == null)
 			return false;
 		return true;
 	},

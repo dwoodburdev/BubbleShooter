@@ -200,6 +200,7 @@ var MainContainerLayer = cc.Layer.extend({
 		this.preLayer = null;
 		this.settingsLayer = null;
 		this.worldMapLayer = null;
+		this.noLevelLayer = null;
 		
 		var self = this;
 		
@@ -502,6 +503,20 @@ var MainContainerLayer = cc.Layer.extend({
 							}
 							
 						}
+						else if(self.noLevelLayer != null)
+						{
+							var returnObject = self.noLevelLayer.onTouchEnd(touch.getLocation());
+							if(returnObject == "close")
+							{
+								var scaleAction = cc.scaleTo(.5, 0, 0);
+								var moveToAction = cc.moveTo(.5, cc.p(cc.winSize.width*.5,25));
+								var spawn = cc.spawn(scaleAction,moveToAction);
+								self.noLevelLayer.setCascadeOpacityEnabled(true);
+								var seq = new cc.Sequence(spawn, cc.callFunc( self.noLevelLayer.removeFromParent, self.noLevelLayer ) );
+								self.noLevelLayer.runAction(seq);
+								self.noLevelLayer = null;
+							}
+						}
 						
 					}
 					
@@ -513,9 +528,53 @@ var MainContainerLayer = cc.Layer.extend({
         //return true;
 	},
 	
+	pulsePhone:function()
+	{
+		var dur = .15;
+		var maxScale = 1.5;
+		var scaleAction = cc.scaleTo(dur, maxScale*this.phoneBG.scale, maxScale*this.phoneBG.scale);
+		var scaleBack = cc.scaleTo(dur, 1*this.phoneBG.scale, 1*this.phoneBG.scale);
+		
+		this.phoneBG.runAction(new cc.Sequence(scaleAction, scaleBack));
+			
+	},
+	
+	indicatePhoneAnim:function()
+	{
+		var phoneScaleUpAction = cc.scaleTo(.5,1.5*this.phoneBG.scale,1.5*this.phoneBG.scale);
+		var phoneScaleDownAction = cc.scaleTo(.5,1*this.phoneBG.scale,this.phoneBG.scale);
+		var phoneSeq = new cc.Sequence(phoneScaleUpAction, phoneScaleDownAction);
+		this.phoneBG.runAction(new cc.RepeatForever(phoneSeq));
+		
+		var queueScaleUpAction = cc.scaleTo(.5,1.5*this.queuePhoneOverlay.scale,1.5*this.queuePhoneOverlay.scale);
+		var queueScaleDownAction = cc.scaleTo(.5,this.queuePhoneOverlay.scale,this.queuePhoneOverlay.scale);
+		var queueSeq = new cc.Sequence(queueScaleUpAction, queueScaleDownAction);
+		this.queuePhoneOverlay.runAction(new cc.RepeatForever(queueSeq));
+		
+		var curMovesY = this.emojiMoveLabel.y
+		var movesDownAction = cc.moveTo(.5,this.emojiMoveLabel.x, this.queuePhoneOverlay.y-(this.queuePhoneOverlay.height*this.queuePhoneOverlay.scale*1.5)/2);
+		var movesUpAction = cc.moveTo(.5,this.emojiMoveLabel.x, curMovesY);
+		var movesSeq = new cc.Sequence(movesDownAction, movesUpAction);
+		this.emojiMoveLabel.runAction(new cc.RepeatForever(movesSeq));
+		
+	},
+	
+	stopPhoneIndication:function()
+	{
+		//this.phoneBG.stopAction(this.curPhoneAction);
+		this.phoneBG.stopAllActions();
+		this.phoneBG.setScale(DATA.bubbleR*5 / this.phoneBG.height)
+		
+		this.emojiMoveLabel.stopAllActions();
+		this.emojiMoveLabel.attr({
+			y:this.queuePhoneOverlay.y-(this.queuePhoneOverlay.height*this.queuePhoneOverlay.scale)/2
+		});
+	},
+	
 	updatePhoneQueueBubble:function()
 	{
-		this.removeChild(this.queuePhoneOverlay);
+		if(this.queuePhoneOverlay != null)
+			this.removeChild(this.queuePhoneOverlay);
 		this.queuePhoneOverlay = null;
 		
 		if(this.gameplayLayer.bubbleLayer.queueBubble.colorCode == "red")
@@ -539,6 +598,12 @@ var MainContainerLayer = cc.Layer.extend({
 			anchorY:.5
 		});
 		this.addChild(this.queuePhoneOverlay);
+	},
+	
+	removePhoneQueueBubble:function()
+	{
+		this.removeChild(this.queuePhoneOverlay);
+		this.queuePhoneOverlay = null;
 	},
 	
 	movePhoneToCenter:function()
@@ -721,7 +786,7 @@ var MainContainerLayer = cc.Layer.extend({
 	
 	isPopup:function()
 	{
-		if(this.preLayer != null || this.settingsLayer != null || this.worldMapLayer != null)
+		if(this.preLayer != null || this.settingsLayer != null || this.worldMapLayer != null || this.noLevelLayer != null)
 			return true;
 		return false;
 	},
@@ -834,16 +899,33 @@ var MainContainerLayer = cc.Layer.extend({
 		this.preLayer.runAction(spawn);
 	},
 	
+	openNoLevelLayer:function()
+	{
+		this.noLevelLayer = new NoLevelLayer(cc.winSize.width-50, this.height-DATA.bottomUIHeight-DATA.topUIHeight-20);
+		this.noLevelLayer.attr({x:cc.winSize.width*.5,y:25,anchorX:0,anchorY:0});
+		this.addChild(this.noLevelLayer);
+		this.noLevelLayer.setScale(0);
+		var scaleAction = cc.scaleTo(.5, 1, 1);
+		var moveToAction = cc.moveTo(.5, cc.p(25, DATA.bottomUIHeight+10));
+		var spawn = cc.spawn(scaleAction, moveToAction);
+		this.noLevelLayer.runAction(spawn);
+	},
+	
 	openWorldMapLayer:function()
 	{
-		this.worldMapLayer = new WorldMapLayer(cc.winSize.width-50,cc.winSize.height-50);
+		this.worldMapLayer = new WorldMapLayer(cc.winSize.width-50,cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-20);
 		this.worldMapLayer.attr({
-			x:25,
-			y:25,
+			x:this.topUILayer.mapButton.x+(this.topUILayer.mapButton.width*this.topUILayer.mapButton.scale)/2,
+			y:this.topUILayer.y+this.topUILayer.mapButton.y+(this.topUILayer.mapButton.height*this.topUILayer.mapButton.scale)/2,
 			anchorX:0,
 			anchorY:0
 		});
 		this.addChild(this.worldMapLayer, 9);
+		this.worldMapLayer.setScale(0);
+		var scaleAction = cc.scaleTo(.5, 1, 1);
+		var moveToAction = cc.moveTo(.5, cc.p(25, DATA.bottomUIHeight+10));
+		var spawn = cc.spawn(scaleAction, moveToAction);
+		this.worldMapLayer.runAction(spawn);
 		
 		
 	},
