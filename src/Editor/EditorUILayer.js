@@ -24,6 +24,9 @@ var EditorUILayer = cc.Layer.extend({
 		
 		this.sidemenuMode = null;
 		
+		this.scrollSpeed = 4;
+		this.scrollY = 0;
+		
 		
 		this.allEmojiNames = [
 			["red_emoji","yellow_emoji","green_emoji","blue_emoji","pink_emoji","purple_emoji"],
@@ -74,7 +77,7 @@ var EditorUILayer = cc.Layer.extend({
 		this.leftDownButton.setScale(size.width/12 / this.leftDownButton.width);
 		this.leftDownButton.attr({
 			x:this.dividerX,
-			y:this.height-(6*(size.width/12)),
+			y:0+DATA.bubbleR*2,
 			anchorX:1,
 			anchorY:0
 		});
@@ -178,7 +181,9 @@ var EditorUILayer = cc.Layer.extend({
 					anchorY:1
 				});
 				img.setScale((imgWidth)/img.width);
-				this.addChild(img);
+				
+				if(img.y > DATA.bubbleR*2.5)
+					this.addChild(img);
 				this.imgButtons.push(img);
 			}
 		}
@@ -208,13 +213,78 @@ var EditorUILayer = cc.Layer.extend({
 		if(name == "delete")
 			return new cc.Sprite(res.red_x);
 	},
-	
-	onTouchBegin:function(pos)
+	scrollButtonsDown:function()
 	{
+		if(this.imgButtons[0].y-this.scrollSpeed < this.height)
+		{
+			this.stopScrollDown();
+			this.scrollDownFlag = false;
+		}
+		else
+		{
+			for(var i=0; i<this.imgButtons.length; i++)
+			{
+				this.imgButtons[i].attr({y:this.imgButtons[i].y-this.scrollSpeed});
+			}
+		}
 		
 	},
-	onTouchMoved:function(pos)
+	stopScrollDown:function()
 	{
+		//this.stopAction(this.scrollButtonsDown);
+		//this.stopAllActions();
+		//cc.director.getInstance().getActionManager().pauseTarget(this.scrollButtonsDown);
+		this.unschedule(this.scrollButtonsDown);
+	},
+	
+	scrollButtonsUp:function()
+	{cc.log(this.scrollUpFlag);
+		if(this.imgButtons[this.imgButtons.length-1].y+this.scrollSpeed > 0)
+		{
+			this.stopScrollUp();
+			this.scrollUpFlag = false;
+		}
+		else
+		{
+			for(var i=0; i<this.imgButtons.length; i++)
+			{
+				this.imgButtons[i].attr({y:this.imgButtons[i].y+this.scrollSpeed});
+			}
+		}
+	},
+	stopScrollUp:function()
+	{
+		//this.stopAction(this.scrollButtonsUp);
+		//this.stopAllActions();
+		//cc.director.getInstance().getActionManager().pauseTarget(this.scrollButtonsUp);
+		this.unschedule(this.scrollButtonsUp);
+	},
+	
+	onTouchBegin:function(pos)
+	{cc.log("TOUCH BEGIN UIUIUI");
+		if(FUNCTIONS.posWithinScaled(pos, this.leftDownButton))
+		{cc.log("left down");
+			this.schedule(this.scrollButtonsUp, .03);
+			this.scrollUpFlag = true;
+		}
+		else if(FUNCTIONS.posWithinScaled(pos, this.leftUpButton))
+		{
+			this.schedule(this.scrollButtonsDown, .03);
+			this.scrollDownFlag = true;
+		}
+	},
+	onTouchMoved:function(pos)
+	{cc.log("TOUCH MOVE UIUIUI");
+		if(this.scrollUpFlag && !FUNCTIONS.posWithinScaled(pos, this.leftDownButton))
+		{
+			this.scrollUpFlag = false;
+			this.stopScrollUp();
+		}
+		else if(this.scrollDownFlag && !FUNCTIONS.posWithinScaled(pos, this.leftUpButton))
+		{
+			this.scrollDownFlag = false;
+			this.stopScrollDown();
+		}
 		
 	},
 	onTouchEnded:function(pos)
@@ -269,6 +339,23 @@ var EditorUILayer = cc.Layer.extend({
 				this.resetBulbIcons();
 			}
 		}
+		else if(FUNCTIONS.posWithinScaled(pos, this.leftUpButton))
+		{
+			if(this.scrollDownFlag)
+			{
+				this.scrollDownFlag = false;
+				this.stopScrollDown();
+			}
+		}
+		else if(FUNCTIONS.posWithinScaled(pos, this.leftDownButton))
+		{
+			if(this.scrollUpFlag)
+			{
+				this.scrollUpFlag = false;
+				this.stopScrollUp();
+			}
+		}
+		
 		// Left Menu
 		else if(pos.x < this.dividerX)
 		{
@@ -279,6 +366,9 @@ var EditorUILayer = cc.Layer.extend({
 		{
 			return this.rightMenuTouch(pos);
 		}
+		
+		
+		
 		
 	},
 	

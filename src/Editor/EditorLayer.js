@@ -82,6 +82,11 @@ var EditorLayer = cc.Layer.extend({
 		
 	},
 	
+	openCreatedLevel:function()
+	{
+		cc.log("Open created level functionality needed");
+	},
+	
 	coreUITouched:function(pos)
 	{
 		var returnObj = this.parent.coreButtonsUI.onTouchEnd(this.parent.coreButtonsUI.convertToNodeSpace(pos));
@@ -102,7 +107,7 @@ var EditorLayer = cc.Layer.extend({
 	    		if(this.mode == "create")
 	    		{
 	    			if(this.midUILayer.convertToNodeSpace(pos).y < 0)
-	    				this.editorUILayer.onTouchBegin(pos);
+	    				this.editorUILayer.onTouchBegin(this.editorUILayer.convertToNodeSpace(pos));
 	    			else this.midUILayer.onTouchBegin(pos);
 	    		}
 	    		else if(this.mode == "view")
@@ -138,7 +143,7 @@ var EditorLayer = cc.Layer.extend({
 	    		{
 	    			if(this.mode == "create")
 	    			{
-	    				this.editorUILayer.onTouchMoved(pos);
+	    				this.editorUILayer.onTouchMoved(this.editorUILayer.convertToNodeSpace(pos));
 	    			}
 	    			else if(this.mode == "view")
 	    			{

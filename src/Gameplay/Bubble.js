@@ -1592,6 +1592,9 @@ var Bubble = cc.Sprite.extend({
 		// The separate actions to be executed
 		var actions = [];
 		
+		// Track points for aimLine
+		//this.aimlinePoints = [];
+		
 		this.shotComplete = false;
 		
 		cc.log("-TARGET HEX) " + targetHex);

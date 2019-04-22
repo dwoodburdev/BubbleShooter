@@ -70,41 +70,41 @@ var MainContainerLayer = cc.Layer.extend({
 		
 		
 		
-		this.mainEditorLayer = new EditorLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
+		this.mainEditorLayer = new EditorLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight);
 		this.mainEditorLayer.attr({
 			x:0,
-			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
+			y:DATA.bottomUIHeight,//+this.coreButtonsUI.height,
 			anchorX:0,
 			anchorY:0
 		});
 		
-		this.editorCreatorsLayer = new CreatorsDisplayLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
+		this.editorCreatorsLayer = new CreatorsDisplayLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight);
 		this.editorCreatorsLayer.attr({
 			x:cc.winSize.width*2,
-			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
+			y:DATA.bottomUIHeight,
 			anchorX:0,
 			anchorY:0
 		});
-		this.editorEventLayer = new CreatorEventLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
+		this.editorEventLayer = new CreatorEventLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight);
 		this.editorEventLayer.attr({
 			x:cc.winSize.width*1,
-			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
+			y:DATA.bottomUIHeight,
 			anchorX:0,
 			anchorY:0
 		});
 		
-		this.editorRewardsLayer = new CreatorRewardsLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
+		this.editorRewardsLayer = new CreatorRewardsLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight);
 		this.editorRewardsLayer.attr({
 			x:cc.winSize.width*-1,
-			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
+			y:DATA.bottomUIHeight,
 			anchorX:0,
 			anchorY:0
 		});
 		
-		this.editorShopLayer = new CreatorsDisplayLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-this.coreButtonsUI.height);
+		this.editorShopLayer = new CreatorsDisplayLayer(cc.winSize.width, cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight);
 		this.editorShopLayer.attr({
 			x:cc.winSize.width*-2,
-			y:DATA.bottomUIHeight+this.coreButtonsUI.height,
+			y:DATA.bottomUIHeight,
 			anchorX:0,
 			anchorY:0
 		});
@@ -284,165 +284,23 @@ var MainContainerLayer = cc.Layer.extend({
 				    		{
 					    		if(botReturn == "challenge")
 					    		{
-					    			var moveDistance = 0;
-					    			if(self.curTabName == "me")
-					    			{
-					    				moveDistance = cc.winSize.width*-1;
-					    			}
-					    			else if(self.curTabName == "gameplay")
-					    			{
-					    				moveDistance = cc.winSize.width*1;
-					    				
-					    				if(self.menuMode == "game")
-					    					self.movePhoneDown();
-					    			}
-					    			else if(self.curTabName == "league")
-					    			{
-					    				moveDistance = cc.winSize.width*2;
-					    			}
-					    			else if(self.curTabName == "friends")
-					    			{
-					    				moveDistance = cc.winSize.width*3;
-					    			}
-					    			
-				    				self.slideTabs(moveDistance);
-				    				
-				    				if(self.menuMode == "game")
-				    					self.curMainLayer = self.challengeLayer;
-				    				else if(self.menuMode == "creator")
-				    					self.curMainLayer = self.editorRewardsLayer;
-				    				self.curTabName = "challenge";
-					    			self.bottomUILayer.selectButton(self.curTabName);
+					    			self.uiSlideToChallenge();
 					    		}
 					    		else if(botReturn == "gameplay")
 					    		{
-					    			var moveDistance = 0;
-					    			if(self.curTabName == "me")
-					    			{
-					    				moveDistance = cc.winSize.width*-2;
-					    			}
-					    			else if(self.curTabName == "challenge")
-					    			{
-					    				moveDistance = cc.winSize.width*-1;
-					    			}
-					    			else if(self.curTabName == "league")
-					    			{
-					    				moveDistance = cc.winSize.width;
-					    			}
-					    			else if(self.curTabName == "friends")
-					    			{
-					    				moveDistance = cc.winSize.width*2;
-					    			}
-					    			
-					    			self.slideTabs(moveDistance);
-					    			
-					    			self.movePhoneUp();
-					    			
-				    				//var seq = new cc.Sequence(moveLeftAction, cc.callFunc( self.challengeLayer.removeFromParent, self.challengeLayer ) );
-			
-									if(self.menuMode == "game")
-				    					self.curMainLayer = self.gameplayLayer;
-				    				else if(self.menuMode == "creator")
-				    					self.curMainLayer = self.mainEditorLayer;
-				    				self.curTabName = "gameplay";
-					    			self.bottomUILayer.selectButton(self.curTabName);
+					    			self.uiSlideToGame();
 					    		}
 					    		else if(botReturn == "me")
 					    		{
-					    			var moveDistance = 0;
-					    			if(self.curTabName == "challenge")
-					    			{
-					    				moveDistance = cc.winSize.width;
-					    			}
-					    			else if(self.curTabName == "gameplay")
-					    			{
-					    				moveDistance = cc.winSize.width*2;
-					    				
-					    				if(self.menuMode == "game")
-					    					self.movePhoneDown();
-					    			}
-					    			else if(self.curTabName == "league")
-					    			{
-					    				moveDistance = cc.winSize.width*3;
-					    			}
-					    			else if(self.curTabName == "friends")
-					    			{
-					    				moveDistance = cc.winSize.width*4;
-					    			}
-					    			
-					    			self.slideTabs(moveDistance);
-					    			
-					    			
-					    			if(self.menuMode == "game")
-					    				self.curMainLayer = self.meLayer;
-				    				else if(self.menuMode == "creator")
-				    					self.curMainLayer = self.editorShopLayer;
-					    			self.curTabName = "me";
-					    			self.bottomUILayer.selectButton(self.curTabName);
+					    			self.uiSlideToMe();
 					    		}
 					    		else if(botReturn == "league")
 					    		{
-					    			var moveDistance = 0;
-					    			if(self.curTabName == "me")
-					    			{
-					    				moveDistance = cc.winSize.width*-3;
-					    			}
-					    			else if(self.curTabName == "challenge")
-					    			{
-					    				moveDistance = cc.winSize.width*-2;
-					    			}
-					    			else if(self.curTabName == "gameplay")
-					    			{
-					    				moveDistance = cc.winSize.width*-1;
-					    				
-					    				if(self.menuMode == "game")
-					    					self.movePhoneDown();
-					    			}
-					    			else if(self.curTabName == "friends")
-					    			{
-					    				moveDistance = cc.winSize.width;
-					    			}
-					    			
-					    			self.slideTabs(moveDistance);
-					    			
-					    			if(self.menuMode == "game")
-					    				self.curMainLayer = self.friendsLayer;
-				    				else if(self.menuMode == "creator")
-				    					self.curMainLayer = self.editorCreatorsLayer;
-					    			self.curTabName = "league";
-					    			self.bottomUILayer.selectButton(self.curTabName);
+					    			self.uiSlideToLeague();
 					    		}
 					    		else if(botReturn == "friends")
 					    		{
-					    			var moveDistance = 0;
-					    			if(self.curTabName == "me")
-					    			{
-					    				moveDistance = cc.winSize.width*-4;
-					    			}
-					    			else if(self.curTabName == "challenge")
-					    			{
-					    				moveDistance = cc.winSize.width*-3;
-					    			}
-					    			else if(self.curTabName == "gameplay")
-					    			{
-					    				moveDistance = cc.winSize.width*-2;
-					    				
-					    				if(self.menuMode == "game")
-					    					self.movePhoneDown();
-					    			}
-					    			else if(self.curTabName == "league")
-					    			{
-					    				moveDistance = cc.winSize.width*-1;
-					    			}
-					    			
-					    			self.slideTabs(moveDistance);
-					    			
-					    			if(self.menuMode == "game")
-					    				self.curMainLayer = self.leagueLayer;
-				    				else if(self.menuMode == "creator")
-				    					self.curMainLayer = self.editorEventLayer;
-					    			self.curTabName = "friends";
-					    			self.bottomUILayer.selectButton(self.curTabName);
+					    			self.uiSlideToFriends();
 					    		}
 				    		}
 				    	}
@@ -451,9 +309,21 @@ var MainContainerLayer = cc.Layer.extend({
 				    		//self.openWorldMapLayer();
 				    		self.topUILayer.onTouchEnd(touch.getLocation());
 				    	}
-				    	else if(/*FUNCTIONS.posWithin(touch.getLocation(), self.coreButtonsUI) ||*/ FUNCTIONS.posWithin(touch.getLocation(), self.curMainLayer))
+				    	else if( FUNCTIONS.posWithin(touch.getLocation(), self.curMainLayer))
 				    	{cc.log("curLayerrrrrr");
-				    		self.curMainLayer.onTouchEnded(touch.getLocation());
+				    		var returnObj = self.curMainLayer.onTouchEnded(touch.getLocation());
+				    		if(self.curTabName=="challenge" && self.menuMode=="creator")
+				    		{
+				    			if(returnObj.type == "edit")
+				    			{
+				    				var newLevelNum = returnObj.number;
+				    				self.mainEditorLayer.openCreatedLevel(newLevelNum);
+				    				
+				    				
+				    				
+				    				self.uiSlideToGame();
+				    			}
+				    		}
 				    	}
 				    	else if(FUNCTIONS.posWithin(touch.getLocation(), self.coreButtonsUI))
 				    	{
@@ -526,6 +396,171 @@ var MainContainerLayer = cc.Layer.extend({
 		}
 		
         //return true;
+	},
+	
+	uiSlideToChallenge:function()
+	{
+		var moveDistance = 0;
+		if(this.curTabName == "me")
+		{
+			moveDistance = cc.winSize.width*-1;
+		}
+		else if(this.curTabName == "gameplay")
+		{
+			moveDistance = cc.winSize.width*1;
+			
+			if(this.menuMode == "game")
+				this.movePhoneDown();
+		}
+		else if(this.curTabName == "league")
+		{
+			moveDistance = cc.winSize.width*2;
+		}
+		else if(this.curTabName == "friends")
+		{
+			moveDistance = cc.winSize.width*3;
+		}
+		
+		this.slideTabs(moveDistance);
+		
+		if(this.menuMode == "game")
+			this.curMainLayer = this.challengeLayer;
+		else if(this.menuMode == "creator")
+			this.curMainLayer = this.editorRewardsLayer;
+		this.curTabName = "challenge";
+		this.bottomUILayer.selectButton(this.curTabName);
+	},
+	
+	uiSlideToMe:function()
+	{
+		var moveDistance = 0;
+		if(this.curTabName == "challenge")
+		{
+			moveDistance = cc.winSize.width;
+		}
+		else if(this.curTabName == "gameplay")
+		{
+			moveDistance = cc.winSize.width*2;
+			
+			if(this.menuMode == "game")
+				this.movePhoneDown();
+		}
+		else if(this.curTabName == "league")
+		{
+			moveDistance = cc.winSize.width*3;
+		}
+		else if(this.curTabName == "friends")
+		{
+			moveDistance = cc.winSize.width*4;
+		}
+		
+		this.slideTabs(moveDistance);
+		
+		
+		if(this.menuMode == "game")
+			this.curMainLayer = this.meLayer;
+		else if(this.menuMode == "creator")
+			this.curMainLayer = this.editorShopLayer;
+		this.curTabName = "me";
+		this.bottomUILayer.selectButton(this.curTabName);
+	},
+	
+	uiSlideToGame:function()
+	{
+		var moveDistance = 0;
+		if(this.curTabName == "me")
+		{
+			moveDistance = cc.winSize.width*-2;
+		}
+		else if(this.curTabName == "challenge")
+		{
+			moveDistance = cc.winSize.width*-1;
+		}
+		else if(this.curTabName == "league")
+		{
+			moveDistance = cc.winSize.width;
+		}
+		else if(this.curTabName == "friends")
+		{
+			moveDistance = cc.winSize.width*2;
+		}
+		
+		this.slideTabs(moveDistance);
+		
+		this.movePhoneUp();
+		
+		//var seq = new cc.Sequence(moveLeftAction, cc.callFunc( this.challengeLayer.removeFromParent, this.challengeLayer ) );
+
+		if(this.menuMode == "game")
+			this.curMainLayer = this.gameplayLayer;
+		else if(this.menuMode == "creator")
+			this.curMainLayer = this.mainEditorLayer;
+		this.curTabName = "gameplay";
+		this.bottomUILayer.selectButton(this.curTabName);
+	},
+	uiSlideToLeague:function()
+	{
+		var moveDistance = 0;
+		if(this.curTabName == "me")
+		{
+			moveDistance = cc.winSize.width*-3;
+		}
+		else if(this.curTabName == "challenge")
+		{
+			moveDistance = cc.winSize.width*-2;
+		}
+		else if(this.curTabName == "gameplay")
+		{
+			moveDistance = cc.winSize.width*-1;
+			
+			if(this.menuMode == "game")
+				this.movePhoneDown();
+		}
+		else if(this.curTabName == "friends")
+		{
+			moveDistance = cc.winSize.width;
+		}
+		
+		this.slideTabs(moveDistance);
+		
+		if(this.menuMode == "game")
+			this.curMainLayer = this.friendsLayer;
+		else if(this.menuMode == "creator")
+			this.curMainLayer = this.editorCreatorsLayer;
+		this.curTabName = "league";
+		this.bottomUILayer.selectButton(this.curTabName);
+	},
+	uiSlideToFriends:function()
+	{
+		var moveDistance = 0;
+		if(this.curTabName == "me")
+		{
+			moveDistance = cc.winSize.width*-4;
+		}
+		else if(this.curTabName == "challenge")
+		{
+			moveDistance = cc.winSize.width*-3;
+		}
+		else if(this.curTabName == "gameplay")
+		{
+			moveDistance = cc.winSize.width*-2;
+			
+			if(this.menuMode == "game")
+				this.movePhoneDown();
+		}
+		else if(this.curTabName == "league")
+		{
+			moveDistance = cc.winSize.width*-1;
+		}
+		
+		this.slideTabs(moveDistance);
+		
+		if(this.menuMode == "game")
+			this.curMainLayer = this.leagueLayer;
+		else if(this.menuMode == "creator")
+			this.curMainLayer = this.editorEventLayer;
+		this.curTabName = "friends";
+		this.bottomUILayer.selectButton(this.curTabName);
 	},
 	
 	pulsePhone:function()
@@ -610,16 +645,17 @@ var MainContainerLayer = cc.Layer.extend({
 	{
 		var yOff = this.queuePhoneOverlay.y - this.phoneBG.y;
 		var yTarget = this.coreButtonsUI.y + (this.phoneBG.height*this.phoneBG.scale)/2 - (this.phoneBG.height*this.phoneBG.scale)*.1;
-		
+		//var xTarget = this.coreButtonsUI.challengeButton.x+(this.phoneBG.width*this.phoneBG.scale)/2;
+		var xTarget = this.width*4/5;
 	
-		var moveAction = cc.moveTo(.3, this.coreButtonsUI.challengeButton.x+(this.phoneBG.width*this.phoneBG.scale)/2, yTarget + yOff);
+		var moveAction = cc.moveTo(.3, xTarget, yTarget + yOff);
 		var movePhoneSeq = new cc.Sequence(moveAction, cc.callFunc(this.initPhoneUpdate, this));
 		this.queuePhoneOverlay.runAction(movePhoneSeq);
 		
-		var moveLabelAction = cc.moveTo(.3, this.coreButtonsUI.challengeButton.x+(this.phoneBG.width*this.phoneBG.scale)/2, yTarget + yOff - DATA.bubbleR-1);
+		var moveLabelAction = cc.moveTo(.3, xTarget, yTarget + yOff - DATA.bubbleR-1);
 		this.emojiMoveLabel.runAction(moveLabelAction);
 		
-		var phoneMoveAction = cc.moveTo(.3, this.coreButtonsUI.challengeButton.x+(this.phoneBG.width*this.phoneBG.scale)/2, yTarget);
+		var phoneMoveAction = cc.moveTo(.3, xTarget, yTarget);
 		this.phoneBG.runAction(phoneMoveAction);
 	},
 	
@@ -837,6 +873,8 @@ var MainContainerLayer = cc.Layer.extend({
 			this.movePhoneToCenter();
 			//this.coreButtonsUI.hideLevelsButton();
 			this.menuMode = "creator";
+			
+			this.removeChild(this.coreButtonsUI);
 		}
 		else if(this.menuMode == "creator")
 		{
@@ -876,6 +914,8 @@ var MainContainerLayer = cc.Layer.extend({
 			this.movePhoneUp();
 			//this.coreButtonsUI.showLevelsButton();
 			this.menuMode = "game";
+			
+			this.addChild(this.coreButtonsUI);
 		}
 	},
 	

@@ -45,6 +45,69 @@ var BubbleLayer = cc.Layer.extend({
 		this.aimDN = new cc.DrawNode();
 		this.addChild(this.aimDN);
 		
+		
+		this.aimlinePoints = [];
+		
+		this.aimlineDN = new cc.DrawNode();
+		this.addChild(this.aimlineDN);
+		this.drawAimline = function()
+		{
+			this.aimlineDN.clear();
+			
+			if(this.modeType == "world")
+			{
+				for(var i=0; i<this.aimlinePoints.length-1; i++)
+				{
+					var origin = {x:this.aimlinePoints[i].x, y:this.aimlinePoints[i].y};
+					var target = {x:this.aimlinePoints[i+1].x, y:this.aimlinePoints[i+1].y};
+					this.aimlineDN.drawSegment(cc.p(origin.x,origin.y),cc.p(target.x, target.y),DATA.bubbleR/8,cc.color(0,0,0,255));
+				}
+			}
+			else if(this.modeType == "challenge")
+			{
+				if(this.aimlinePoints.length == 2)
+				{
+					var origin = {x:this.aimlinePoints[0].x, y:this.aimlinePoints[0].y};
+					var target = {x:this.aimlinePoints[1].x, y:this.aimlinePoints[1].y};
+					this.aimlineDN.drawSegment(cc.p(origin.x,origin.y),cc.p(target.x, target.y),DATA.bubbleR/8,cc.color(0,0,0,255));
+				}
+				else
+				{
+					var origin = {x:this.aimlinePoints[0].x, y:this.aimlinePoints[0].y};
+					var target = {x:this.aimlinePoints[1].x, y:this.aimlinePoints[1].y};
+					this.aimlineDN.drawSegment(cc.p(origin.x,origin.y),cc.p(target.x, target.y),DATA.bubbleR/8,cc.color(0,0,0,255));
+					
+					var nextTarget = {x:this.aimlinePoints[2].x, y:this.aimlinePoints[2].y};
+					var xDiff = Math.abs(nextTarget.x - target.x);
+					var yDiff = Math.abs(nextTarget.y - target.y);
+					var dist = Math.sqrt(Math.pow(xDiff, 2)+Math.pow(yDiff, 2));
+					
+					var reflectionDistance = DATA.bubbleR*4
+					
+					if(dist <= reflectionDistance)
+					{
+						this.aimlineDN.drawSegment(cc.p(target.x,target.y),cc.p(nextTarget.x,nextTarget.y),DATA.bubbleR/8, cc.color(0,0,0,255));
+					}
+					else
+					{
+						var slope = Math.abs(yDiff/xDiff);
+						var xEnd = reflectionDistance/Math.sqrt(1+slope);
+						var yEnd = slope*xEnd;
+						if(target.x > this.width/2)
+							xEnd *= -1;
+						var shortenedTarget = {x:target.x+xEnd, y:target.y+yEnd};
+						this.aimlineDN.drawSegment(cc.p(target.x,target.y),cc.p(shortenedTarget.x,shortenedTarget.y),DATA.bubbleR/8,cc.color(0,0,0,255));
+					}
+				}
+				
+			}
+		};
+		this.clearAimline = function()
+		{
+			this.aimlineDN.clear();
+		};
+		
+		
 		this.evenRowAdjacents = [{"x":-1,"y":0}, {"x":1,"y":0}, {"x":0,"y":1}, {"x":-1,"y":1}, {"x":0,"y":-1}, {"x":-1,"y":-1}];
 		this.oddRowAdjacents = [{"x":-1,"y":0}, {"x":1,"y":0}, {"x":0,"y":1}, {"x":1,"y":1}, {"x":0,"y":-1}, {"x":1,"y":-1}];
 		
@@ -762,6 +825,9 @@ var BubbleLayer = cc.Layer.extend({
 		
 		//cc.log(loc);
 		//cc.log(this.aimIndicator);
+		
+		this.aimlinePoints = [];
+		this.aimlinePoints.push({x:this.shooter.x,y:this.shooter.y});
 			
 		if(DATA.worldIndex <= 1)
 		{
@@ -878,7 +944,7 @@ var BubbleLayer = cc.Layer.extend({
 		   		this.targetBubble.bubbleImg.setOpacity(122);
 		   		this.addChild(this.targetBubble);
 		   		
-		   		
+		   		this.drawAimline();
 		   		
 		   	}
 		 }
@@ -1005,6 +1071,9 @@ var BubbleLayer = cc.Layer.extend({
 		if(this.inputFrozen)
 			return;
 			
+		this.aimlinePoints = [];
+		this.aimlinePoints.push({x:this.shooter.x,y:this.shooter.y});
+			
 		if(DATA.worldIndex <= 1)
 		{
 			if(loc.y < this.aimIndicator.y+this.aimIndicator.height && loc.y > this.aimIndicator.y
@@ -1097,11 +1166,13 @@ var BubbleLayer = cc.Layer.extend({
 			   			anchorY:.5
 			   		});
 			   		
+			   		this.drawAimline();
 			   		
 			   	}
 		   	}
 	   		else if(this.aimLine != null)
 	   		{cc.log("REMOVE");
+	   			this.clearAimline();
 	   			this.aimLine.clear();
 		   		this.removeChild(this.aimLine);
 		   		this.aimLine = null;
@@ -1225,6 +1296,7 @@ var BubbleLayer = cc.Layer.extend({
 		}
 		else if(this.aimLine != null)
 		{
+			this.clearAimline();
 			this.aimLine.clear();
 	   		this.removeChild(this.aimLine);
 	   		this.aimLine = null;
@@ -1297,6 +1369,10 @@ var BubbleLayer = cc.Layer.extend({
 		}
 	},
 	onTouchEnd:function(loc){cc.log("touchEnd");
+	
+		this.aimlinePoints = [];
+	
+		this.clearAimline();
 	
 		if(DATA.worldIndex <= 1)
 		{
@@ -1660,8 +1736,10 @@ var BubbleLayer = cc.Layer.extend({
 			x += dx;
 			y += dy;
 			if((x+this.shooter.r >= this.width && dx > 0) || (x-this.shooter.r <= 0 && dx < 0))
+			{
+				this.aimlinePoints.push({x:x, y:y});
 				dx *= -1;
-			
+			}
 			centerRow = Math.floor((this.height-y + overflowOffset) / (this.rowHeight));
 			//var centerRow = Math.floor((this.height-y) / (this.rowHeight)) + Math.max(this.numRows-this.maxRows, 0);
 			centerCol = Math.abs( Math.floor( (x - (centerRow%2)*r ) / (r*2) ));
@@ -1683,6 +1761,7 @@ var BubbleLayer = cc.Layer.extend({
 				{
 					collisionFound = true;
 					//cc.log("TARGET: row "+centerRow+" col "+centerCol);
+					this.aimlinePoints.push({x:x, y:y});
 				}
 			}
 			
@@ -1710,6 +1789,8 @@ var BubbleLayer = cc.Layer.extend({
 		
 		if((this.shooter.x+this.shooter.r >= this.width && this.shooter.dx > 0) || (this.shooter.x-this.shooter.r <= 0 && this.shooter.dx < 0))
 		{
+			//this.aimlinePoints.push({x:this.shooter.x,y:this.shooter.y});
+			
 			if(this.shooter.dx > 0)
 				this.shooter.x -= (this.shooter.x+this.shooter.r)-this.width;
 			else if(this.shooter.dx < 0)

@@ -54,7 +54,7 @@ var MidUILayer = cc.Layer.extend({
 		this.scrollDownImg.setScale((imgWidth)/this.scrollDownImg.width);
 		this.addChild(this.scrollDownImg);
 		
-		this.createLabel = new cc.LabelTTF("EDIT", "Roboto", Math.floor(this.height*.7));
+		this.createLabel = new cc.LabelTTF("DRAW", "Roboto", Math.floor(this.height*.7));
 		this.createLabel.attr({
 			"x":5,
 			"y":this.height/2,
@@ -64,7 +64,7 @@ var MidUILayer = cc.Layer.extend({
 		this.createLabel.color = cc.color(0,255,0,255);
 		this.addChild(this.createLabel);
 		
-		this.viewLabel = new cc.LabelTTF("VIEW", "Roboto", Math.floor(this.height*.7));
+		this.viewLabel = new cc.LabelTTF("SAVE", "Roboto", Math.floor(this.height*.7));
 		this.viewLabel.attr({
 			"x":this.createLabel.x+this.createLabel.width+12,
 			"y":this.height/2,
