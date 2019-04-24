@@ -82,9 +82,31 @@ var EditorLayer = cc.Layer.extend({
 		
 	},
 	
-	openCreatedLevel:function()
+	openCreatedLevel:function(levelNum)
 	{
-		cc.log("Open created level functionality needed");
+		/*var newBubbles = [];
+		for(var i=0; i<newBubbles.length; i++)
+		{
+			var bub = newBubbles[i];
+			var drawType = bub.type;
+			var drawColor = bub.color;
+			var drawOrientation = bub.orientation;
+			var drawBinary = bub.binary;
+			var drawMeta = bub.meta;
+			this.bubbleLayer.paintHex({}, drawType, drawColor, drawOrientation, drawBinary, drawMeta);
+		}*/
+		var maxRow = 0;cc.log(levelNum);
+		var bubs = DATA.createdLevels[levelNum].bubbles;
+		for(var i=0; i<bubs.length; i++)
+		{
+			if(bubs[i].row > maxRow)
+				maxRow = bubs[i].row;
+		}
+		var metaData = DATA.createdLevels[0].meta;
+		this.bubbleLayer.initLevel(bubs, maxRow+1, {type:"edit",number:levelNum});
+		
+		
+		
 	},
 	
 	coreUITouched:function(pos)
@@ -238,9 +260,11 @@ var EditorLayer = cc.Layer.extend({
 		   		
 		   		var meta = {bulbData:this.editorUILayer.bulbData};
 		   		
-		   		DATA.saveNewLevelToDatabase(bubs, meta);
-		   		
-		   		
+		   		if(this.bubbleLayer.levelStatus.type == "new")
+		   			DATA.saveNewLevelToDatabase(bubs, meta);
+		   		else if(this.bubbleLayer.levelStatus.type == "edit")
+		   			DATA.overwriteCreatedLevel(bubs, meta, this.bubbleLayer.levelStatus.number);
+		   		else cc.log(this.bubbleLayer.levelStatus);
 		   	}
 		   	else if(returnData != null)
 		   	{

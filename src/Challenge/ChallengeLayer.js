@@ -1,12 +1,12 @@
 var ChallengeLayer = cc.Layer.extend({
-	ctor:function(bubbles, numRows, numMoves, preboosters){
+	ctor:function(bubbles, numRows, numMoves, preboosters, boosters){
 		this._super();
 		//cc.associateWithNative( this, cc.Sprite );
 		
         
 		 var size = cc.winSize;
-		
-		this.bottomUILayer = new ChallengeBottomUILayer(size.height/12,DATA.levelIndexAType);
+		cc.log(boosters);
+		this.bottomUILayer = new ChallengeBottomUILayer(size.height/12,DATA.levelIndexAType,boosters);
 		this.bottomUILayer.attr({
 			x: 0,
 			y: 0,
@@ -24,8 +24,6 @@ var ChallengeLayer = cc.Layer.extend({
 		});
 		this.addChild(this.topUILayer);
 
-				
-
 		this.bubbleLayer = new BubbleLayer(bubbles, numRows, numMoves, "challenge", size.width, size.height-this.bottomUILayer.height-this.topUILayer.height, preboosters);	
 		this.bubbleLayer.attr({
 			x:0,
@@ -41,41 +39,78 @@ var ChallengeLayer = cc.Layer.extend({
 		this.challengeRewardLayer = null;
 		this.challengeFailLayer = null;
 		
+		var counterNum = numMoves;
+		if(DATA.levelIndexA == 5)
+			counterNum = numMoves[0];
 		
+		this.counterLayer = new CounterLayer(DATA.bubbleR*3, counterNum);
+		this.counterLayer.attr({
+			x:this.width*.83 - DATA.bubbleR*1.5,
+			y:this.bubbleLayer.y+this.bubbleLayer.queueBubble.y - DATA.bubbleR*1.5,
+			anchorX:0,
+			anchorY:0
+		});
+			
 		if(DATA.levelIndexAType == "challenge")
 		{
+			
+			
+			//this.rewardImg = new cc.Sprite(res.regular_chest);
+			//this.rewardImg.setScale(DATA.bubbleR*2.5 / this.rewardImg.width);
 			this.loveEmoji = new cc.Sprite(res.love_emoji);
 			this.loveEmoji.setScale(DATA.bubbleR*3 / this.loveEmoji.width);
-			this.loveEmoji.attr({
-				x:this.width-2,
-				y:this.bubbleLayer.queueBubble.y - DATA.bubbleR*3/2,
+			
+			/*this.rewardImg.attr({
+				x:this.counterLayer.x+this.counterLayer.width/2-(this.loveEmoji.width*this.loveEmoji.scale)/2,
+				y:this.counterLayer.y-this.counterLayer.height/2,
 				anchorX:1,
-				anchorY:.5
+				anchorY:1
+			});
+			this.addChild(this.rewardImg);*/
+			
+			this.grassBG = new cc.Sprite(res.grass_bg);
+			this.grassBG.setScale((this.counterLayer.y+this.counterLayer.height) / this.grassBG.height);
+			this.grassBG.attr({
+				x:this.counterLayer.x+this.counterLayer.width/2,
+				y:0,
+				anchorX:.5,
+				anchorY:0
+			});
+			this.addChild(this.grassBG);
+			
+			this.loveEmoji.attr({
+				x:this.counterLayer.x+this.counterLayer.width/2 - (this.loveEmoji.width*this.loveEmoji.scale)/2 - 5,
+				y:this.counterLayer.y-this.counterLayer.height/2,
+				anchorX:.5,
+				anchorY:1
 			});
 			this.addChild(this.loveEmoji);
 			
-			this.rewardImg = new cc.Sprite(res.regular_chest);
-			this.rewardImg.setScale(DATA.bubbleR*3 / this.rewardImg.width);
-			this.rewardImg.attr({
-				x:this.loveEmoji.x-(this.loveEmoji.width*this.loveEmoji.scale)-2,
-				y:this.loveEmoji.y,
-				anchorX:1,
-				anchorY:.5
+			this.avatarEmoji = new cc.Sprite(res.anguished_emoji);
+			this.avatarEmoji.setScale(DATA.bubbleR*3 / this.avatarEmoji.width);
+			this.avatarEmoji.attr({
+				x:this.loveEmoji.x+(this.loveEmoji.width*this.loveEmoji.scale)/2 + 10,
+				y:this.counterLayer.y-this.counterLayer.height/2,
+				anchorX:0,
+				anchorY:1
 			});
-			this.addChild(this.rewardImg);
-		}
-		else
-		{
-			this.counterLayer = new CounterLayer(DATA.bubbleR*3, numMoves);
-			this.counterLayer.attr({
-				x:this.width*.83 - DATA.bubbleR*1.5,
-				y:this.bubbleLayer.y+this.bubbleLayer.queueBubble.y - DATA.bubbleR*1.5,
-				anchorX:.5,
-				anchorY:.5
-			});
-			this.addChild(this.counterLayer);
+			this.addChild(this.avatarEmoji);
+			
 			
 		}
+		else if(DATA.levelIndexAType == "normal")
+		{
+			this.winStreakVisLayer = new WinStreakVisLayer(this.width/3, this.counterLayer.y, "pre");
+			this.winStreakVisLayer.attr({
+				x:this.width-this.winStreakVisLayer.width,
+				y:0,
+				anchorX:0,
+				anchorY:0
+			});
+			this.addChild(this.winStreakVisLayer);
+		}
+		
+		this.addChild(this.counterLayer);
 		
 		var self = this;
 		
@@ -343,6 +378,11 @@ var ChallengeLayer = cc.Layer.extend({
         return true;
 	},
 	
+	nextMoveReady:function()
+	{
+		this.bottomUILayer.nextMoveReady();
+	},
+	
 	animateCounter:function()
 	{
 		var counterSeq = new cc.Sequence(cc.scaleTo(.2, 1.75, 1.75), 
@@ -444,16 +484,17 @@ var ChallengeLayer = cc.Layer.extend({
 	
 });
 var ChallengeScene = cc.Scene.extend({
-	ctor:function(bubbles, numRows, numMoves, preBoosters){
+	ctor:function(bubbles, numRows, numMoves, preBoosters, boosters){
 		this._super();
 		this.bubbles = bubbles;
 		this.numRows = numRows;
 		this.numMoves = numMoves;
 		this.preBoosters = preBoosters;
+		this.boosters = boosters;
 	},
 	onEnter:function(){
 		this._super();
-		var layer = new ChallengeLayer(this.bubbles, this.numRows, this.numMoves, this.preBoosters);
+		var layer = new ChallengeLayer(this.bubbles, this.numRows, this.numMoves, this.preBoosters, this.boosters);
 		this.addChild(layer);
 	}
 });

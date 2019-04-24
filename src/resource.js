@@ -432,6 +432,7 @@ var res = {
     
     yellow_ui_circle: "res/yellow-circle.png",
     tutorial_arrow: "res/tutorial-arrow.png",
+    tutorial_arrow_left: "res/tutorial-arrow-left.png",
     
     phone: "res/phone.png",
     phone_up:"res/phone_up.png",
@@ -461,7 +462,13 @@ var res = {
     slot_machine:"res/slot-machine.png",
     slot_machine_dual:"res/slot-machine-dual.png",
     slot_machine_blank:"res/slot-machine-blank.png",
-    slot_machine_overlay:"res/slot-machine-overlay.png"
+    slot_machine_small_blank:"res/slot-machine-small-blank.png",
+    slot_machine_large_blank:"res/slot-machine-large-blank.png",
+    slot_machine_overlay:"res/slot-machine-overlay.png",
+    slot_machine_small_overlay:"res/slot-machine-small-overlay.png",
+    slot_machine_large_overlay:"res/slot-machine-large-overlay.png",
+    
+    grass_bg:"res/grass-bg.png"
 };
 
 

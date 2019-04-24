@@ -155,7 +155,7 @@ var CreatorRewardsLayer = cc.Layer.extend({
 				maxRow = bubs[i].row;
 		}
 		var metaData = DATA.createdLevels[0].meta;
-		
+		cc.log(metaData);
 		//this.bubbleLayer = new EditorBubbleLayer(this.width, this.height-(this.levelBoxes[0].y+this.levelBoxes[0].height), 
 		//	bubs, 20);	
 		this.bubbleLayer = new BubbleLayer(bubs, maxRow+1, 0, "viewer", this.width, this.height-(this.levelBox.y+this.levelBox.height)-15, [], metaData);	
@@ -236,13 +236,40 @@ var CreatorRewardsLayer = cc.Layer.extend({
 			{
 				this.topBoxIndex-=1;
 				var maxRow = 0;
-				var bubs = DATA.createdLevels[this.topBoxIndex].bubbles;
-				for(var i=0; i<bubs.length; i++)
+				var bubData = DATA.createdLevels[this.topBoxIndex].bubbles;
+				var bubs = [];
+				for(var i=0; i<bubData.length; i++)
 				{
-					if(bubs[i].row > maxRow)
-						maxRow = bubs[i].row;
+					var dBub = bubData[i];
+					if(dBub.row > maxRow)
+						maxRow = dBub.row;
+			  		
+			  		var colorCode = null;
+			  		var metaData = null;
+			  		if(dBub.type == 7)
+			  		{
+			  			colorCode = [];
+			  			var colorKeys = Object.keys(dBub.colorCode);
+			  			for(var j=0; j<colorKeys.length; j++)
+			  			{
+			  				colorCode.push(dBub.colorCode[colorKeys[j]]);
+			  			}
+			  		}
+			  		else colorCode = dBub.colorCode;
+			  		
+			  		if(dBub.type == 20)
+			  		{cc.log("star");cc.log(dBub);cc.log("hi");
+			  			if("meta" in dBub && "id" in dBub.meta && dBub.meta.id != null)
+			  			{cc.log("star with ID "+dBub.meta.id);
+			  				metaData = dBub.meta;
+			  			}
+			  		}
+			  		
+			  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:colorCode, binary:dBub.binary, meta:metaData};
+			  		//cc.log(bubble);
+			    	bubs.push(bubble);
 				}
-				var metaData = DATA.createdLevels[0].meta;
+				var metaData = DATA.createdLevels[this.topBoxIndex].meta;
 				
 				//this.bubbleLayer = new EditorBubbleLayer(this.width, this.height-(this.levelBoxes[0].y+this.levelBoxes[0].height), 
 				//	bubs, 20);	
@@ -266,13 +293,44 @@ var CreatorRewardsLayer = cc.Layer.extend({
 			{
 				this.topBoxIndex+=1;
 				var maxRow = 0;
-				var bubs = DATA.createdLevels[this.topBoxIndex].bubbles;
-				for(var i=0; i<bubs.length; i++)
+				var bubData = DATA.createdLevels[this.topBoxIndex].bubbles;
+				var metaData = DATA.createdLevels[this.topBoxIndex].meta;
+				var bubs = [];
+				for(var i=0; i<bubData.length; i++)
 				{
-					if(bubs[i].row > maxRow)
-						maxRow = bubs[i].row;
+					var dBub = bubData[i];
+					if(dBub.row > maxRow)
+						maxRow = dBub.row;
+			  		
+			  		var colorCode = null;
+			  		//var metaData = null;
+			  		if(dBub.type == 7)
+			  		{cc.log(metaData);
+			  			colorCode = [];cc.log(dBub);
+			  			/*var colorKeys = Object.keys(dBub.colorCode);
+			  			for(var j=0; j<colorKeys.length; j++)
+			  			{
+			  				colorCode.push(dBub.colorCode[colorKeys[j]]);
+			  			}cc.log(colorCode);*/
+			  			for(var j=0; j<metaData.bulbData[dBub.colorCode].length; j++)
+			  			{
+			  				colorCode.push(metaData.bulbData[dBub.colorCode][j]);
+			  			}cc.log(colorCode);
+			  		}
+			  		else colorCode = dBub.colorCode;
+			  		
+			  		if(dBub.type == 20)
+			  		{cc.log("star");cc.log(dBub);cc.log("hi");
+			  			if("meta" in dBub && dBub.meta != null && "id" in dBub.meta && dBub.meta.id != null)
+			  			{cc.log("star with ID "+dBub.meta.id);
+			  				metaData = dBub.meta;
+			  			}
+			  		}
+			  		
+			  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:colorCode, binary:dBub.binary, meta:metaData};
+			  		//cc.log(bubble);
+			    	bubs.push(bubble);
 				}
-				var metaData = DATA.createdLevels[0].meta;
 				
 				//this.bubbleLayer = new EditorBubbleLayer(this.width, this.height-(this.levelBoxes[0].y+this.levelBoxes[0].height), 
 				//	bubs, 20);	
@@ -295,17 +353,17 @@ var CreatorRewardsLayer = cc.Layer.extend({
 			if(FUNCTIONS.posWithinScaled(loc, this.editButton))
 			{
 				cc.log("edit");
-				return {"type":"edit","number":this.curSelectedLevel};
+				return {"type":"edit","number":this.topBoxIndex};
 			}
-			/*else if(FUNCTIONS.posWithinScaled(pos, this.testButton))
+			else if(FUNCTIONS.posWithinScaled(loc, this.testButton))
 			{
 				cc.log("test");
-				return {"type":"test","number":this.curSelectedLevel};
+				return {"type":"test","number":this.topBoxIndex};
 			}
-			else if(FUNCTIONS.posWithinScaled(pos, this.shareButton))
+			/*else if(FUNCTIONS.posWithinScaled(pos, this.shareButton))
 			{
 				cc.log("share");
-				return {"type":"share","number":this.curSelectedLevel};
+				return {"type":"share","number":this.topBoxIndex};
 			}*/
 		}
 		this.draw();

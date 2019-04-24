@@ -58,8 +58,10 @@ var EditorBubbleLayer = cc.Layer.extend({
        	this.bottomActiveRow = this.maxRows;
        	this.curRow = this.numRows-this.maxRows-1;
        	
+       	this.levelStatus = {type:"new"};
        	
-		this.initLevel(bubbles);
+       	
+		this.initLevel(bubbles, this.numRows, this.levelStatus);
 	},
 	
 	setMove:function(moveNum)
@@ -94,8 +96,32 @@ var EditorBubbleLayer = cc.Layer.extend({
 		//return this.numRows;
 	},
 	
-	initLevel:function(bubbles)
+	initLevel:function(bubbles, numRows, levelStatus)
 	{
+		this.numRows = numRows;
+		
+       	this.topActiveRow = 0;
+       	this.bottomActiveRow = this.maxRows;
+       	this.curRow = this.numRows-this.maxRows-1;
+       	
+       	this.levelStatus = levelStatus;
+       	
+		this.bubbleMap = [];
+		for(var i=0; i<this.bubbles.length; i++)
+		{
+			if(this.bubbles[i].active)
+				this.removeChild(this.bubbles[i]);
+		}
+		this.bubbles = [];
+		
+		this.hexMap = [];
+		for(var i=0; i<this.hexes.length; i++)
+		{
+			if(this.hexes[i].active)
+				this.removeChild(this.hexes[i]);
+		}
+		this.hexes = [];
+		
 		for(var i=0; i<this.numRows+1; i++)
 		{
 			var bubbleRow = [];

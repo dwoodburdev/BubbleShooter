@@ -153,8 +153,8 @@ cc.game.onStart = function(){
 			  		else colorCode = dBub.colorCode;
 			  		
 			  		if(dBub.type == 20)
-			  		{cc.log("star");
-			  			if("id" in dBub.meta && dBub.meta.id != null)
+			  		{cc.log("star");cc.log(dBub);cc.log("hi");
+			  			if("meta" in dBub && "id" in dBub.meta && dBub.meta.id != null)
 			  			{cc.log("star with ID "+dBub.meta.id);
 			  				metaData = dBub.meta;
 			  			}

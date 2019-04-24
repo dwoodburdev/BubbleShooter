@@ -6,7 +6,7 @@ var PlaytestLayer = cc.Layer.extend({
         
 		 var size = cc.winSize;
 		
-		this.bottomUILayer = new ChallengeBottomUILayer(size.height/12);
+		this.bottomUILayer = new ChallengeBottomUILayer(size.height/12, "test",[]);
 		this.bottomUILayer.attr({
 			x: 0,
 			y: 0,

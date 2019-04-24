@@ -206,9 +206,26 @@ DATA.initUserData = function()
 				
 			//var meta = {bulbData:[]};
 			//for(var i=0; i<d.meta)
-			if("meta" in dLevel)
-				cc.log(dLevel.meta);
-			DATA.createdLevels.push({"bubbles":bubbles, "queue":queue, "meta":dLevel.meta});
+			var meta = {};cc.log(dLevel);
+			if(dLevel.meta != null)
+			{cc.log("a");
+				if(dLevel.meta.bulbData != null)
+				{cc.log("b");
+					meta.bulbData = [];
+					var bulbKeys = Object.keys(dLevel.meta.bulbData);
+					for(var j=0; j<bulbKeys.length; j++)
+					{
+						meta.bulbData.push([]);
+						var iterKeys = Object.keys(dLevel.meta.bulbData[bulbKeys[j]]);
+						for(var k=0; k<iterKeys.length; k++)
+						{
+							meta.bulbData[j].push(dLevel.meta.bulbData[bulbKeys[j]][iterKeys[k]])
+						}
+					}
+				}
+			}
+cc.log(meta);
+			DATA.createdLevels.push({"bubbles":bubbles, "queue":queue, "meta":meta});
 		//}
 	}
   });
@@ -741,6 +758,21 @@ DATA.spawnNewDailyChallenge = function()
    * LEVEL EDITOR
    */
   DATA.isAdmin = function(){return true;};
+  DATA.overwriteCreatedLevel = function(bubbles, meta, number)
+  {
+  	cc.log(number);
+  		var bubbleContainer = {};
+  		for(var i=0; i<bubbles.length; i++)
+  		{
+  			bubbleContainer[""+i] = bubbles[i];
+  		}
+  		var newLevel = {"queue":{"type":"bucket","colors":{"0":1,"1":1,"2":1,"3":1,"4":1,"5":1}},
+  						"bubbles":bubbles,
+  						"meta":meta};
+  						
+  		
+  		DATA.database.ref("levels/userLevels/"+DATA.userID+"/"+number).set(newLevel);
+  };
   DATA.saveNewLevelToDatabase = function(newBubbles, newWorldMeta)
   {cc.log(newBubbles);cc.log(newWorldMeta);
   	DATA.database.ref("levels/userLevels/"+DATA.userID).once("value").then(function(snapshot){

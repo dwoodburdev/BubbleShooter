@@ -641,7 +641,7 @@ var PreChallengeLayer = cc.Layer.extend({
 			if(this.preBoosterABool)
 				preBoosterArray.push("plus_five");
 		
-    		cc.director.runScene( new cc.TransitionSlideInB( 1.0, new ChallengeScene(bubbles, maxRow+1, numMoves, preBoosterArray) ) );
+    		cc.director.runScene( new cc.TransitionSlideInB( 1.0, new ChallengeScene(bubbles, maxRow+1, numMoves, preBoosterArray, [0,1,2]) ) );
     	}
     	else if(this.posWithin(loc, 
     		{"x":this.closeButton.x-(this.closeButton.width*this.closeButton.scale)/2,

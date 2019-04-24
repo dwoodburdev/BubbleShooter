@@ -314,14 +314,71 @@ var MainContainerLayer = cc.Layer.extend({
 				    		var returnObj = self.curMainLayer.onTouchEnded(touch.getLocation());
 				    		if(self.curTabName=="challenge" && self.menuMode=="creator")
 				    		{
-				    			if(returnObj.type == "edit")
+				    			if(returnObj != null)
 				    			{
-				    				var newLevelNum = returnObj.number;
-				    				self.mainEditorLayer.openCreatedLevel(newLevelNum);
-				    				
-				    				
-				    				
-				    				self.uiSlideToGame();
+					    			if(returnObj.type == "edit")
+					    			{
+					    				var newLevelNum = returnObj.number;
+					    				self.mainEditorLayer.openCreatedLevel(newLevelNum);
+					    				
+					    				
+					    				
+					    				self.uiSlideToGame();
+					    			}
+					    			else if(returnObj.type == "test")
+					    			{
+					    				var testLevelNum = returnObj.number;
+					    				
+					    				var bubData = self.editorRewardsLayer.bubbleLayer.getBubbles();
+					    				var bubbles = [];
+							    		var numMoves = 0;
+						    			for(var i=0; i<bubData.length; i++)
+						    			{
+						    				var dBub = bubData[i];
+									  		
+									  		var colorCode = null;
+									  		var metaData = null;
+									  		if(dBub.type == 7)
+									  		{
+									  			colorCode = [];
+									  			var colorKeys = Object.keys(dBub.colorCode);
+									  			for(var j=0; j<colorKeys.length; j++)
+									  			{
+									  				colorCode.push(dBub.colorCode[colorKeys[j]]);
+									  			}
+									  		}
+									  		else colorCode = dBub.colorCode;
+									  		
+									  		/*if(dBub.type == 20)
+									  		{cc.log("star");
+									  			if("id" in dBub.meta && dBub.meta.id != null)
+									  			{cc.log("star with ID "+dBub.meta.id);
+									  				metaData = dBub.meta;
+									  			}
+									  		}*/
+									  		
+									  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:colorCode, binary:dBub.binary, meta:metaData};
+						    				bubbles.push(bubble);
+						    			}
+						
+						    			numMoves = 99;
+						    		
+							    		
+							    		var maxRow = 0;
+							    		var bubbleData = [];
+							    		for(var i=0; i<bubbles.length; i++)
+							    		{
+							    			if(bubbles[i].row > maxRow)
+							    				maxRow = bubbles[i].row;
+							    		}
+										
+										
+										DATA.setLevelQueue(DATA.challenges[1].queue);
+										
+										
+									
+							    		cc.director.runScene( new cc.TransitionSlideInB( 1.0, new PlaytestScene(bubbles, maxRow+1, numMoves, {}) ) );
+					    			}
 				    			}
 				    		}
 				    	}

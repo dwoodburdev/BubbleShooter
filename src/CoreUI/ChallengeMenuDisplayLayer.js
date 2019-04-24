@@ -35,7 +35,7 @@ var ChallengeMenuDisplayLayer = cc.Layer.extend({
 		
 		
 		//this.chestAImage = new cc.Sprite(res.card_back);
-		this.slotLayer = new SlotLayer(this.width, this.height*.42, "daily");
+		this.slotLayer = new SlotLayer(this.width, this.height*.42, "daily", 2+DATA.streakStep);
 		this.slotLayer.attr({
 			x:this.width/2 - (this.slotLayer.slotImage.width*this.slotLayer.slotImage.scale)/2,
 			y:this.tabTitleLabel.y-this.tabTitleLabel.height-2 - (this.slotLayer.slotImage.height*this.slotLayer.slotImage.scale),

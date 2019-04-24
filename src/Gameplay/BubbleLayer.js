@@ -25,6 +25,12 @@ var BubbleLayer = cc.Layer.extend({
 		
 		this.numRows = numRows;
 		this.numMoves = numMoves;
+		this.loveMoves = [];
+		if(this.modeType == "challenge" && DATA.levelIndexA == 5)
+		{
+			this.numMoves = numMoves[0];
+			this.loveMoves = numMoves;
+		}
 		
 		this.inputFrozen = false;
 		
@@ -359,14 +365,16 @@ var BubbleLayer = cc.Layer.extend({
 				//cc.log("TYPE: " + this.bubbles[i].type);
 				var colorData = null;
 				if(this.bubbles[i].type == 7)
-				{
+				{cc.log(this.bubbles[i].colorCode);
 					colorData = [];
 					//colorData = this.bulbData[colorData];
-					var localColorCodes = ["red","yellow","green","blue","pink","purple"];
-					var rawBulbData = this.bulbData[this.bubbles[i].colorCode];
-					for(var j=0; j<rawBulbData.length && rawBulbData[j] != 0; j++)
+					var localColorCodes = ["purple","red","yellow","green","blue","pink","purple"];cc.log(this.bulbData);cc.log(this.bubbles[i].colorCode);
+					//var rawBulbData = this.bulbData[this.bubbles[i].colorCode];cc.log("RAWWWW");cc.log(rawBulbData);
+					//for(var j=0; j<rawBulbData.length && rawBulbData[j] != 0; j++)
+					for(var j=0; j<this.bubbles[i].colorCode.length; j++)
 					{
-						colorData.push(localColorCodes[rawBulbData[j]-1]);
+						//colorData.push(localColorCodes[rawBulbData[j]-1]);
+						colorData.push(localColorCodes[this.bubbles[i].colorCode[j]]);
 					}
 					//cc.log(colorData);
 				}
@@ -464,6 +472,11 @@ var BubbleLayer = cc.Layer.extend({
 		
 	
 		    
+	},
+	
+	getBubbles:function()
+	{
+		return this.bubbles;
 	},
 	
 	triggerRandomIdle:function()
@@ -1997,6 +2010,11 @@ var BubbleLayer = cc.Layer.extend({
 			if(this.fingerAnim != null)
 				this.removeChild(this.fingerAnim);
        	}
+       	
+       	if(this.modeType == "challenge")
+       	{
+       		this.parent.nextMoveReady();
+       	}
 	},
 	
 ////////////////////////////////////////////////////////	
@@ -2028,6 +2046,10 @@ var BubbleLayer = cc.Layer.extend({
 		if(this.shooterMod == null)
 			this.futureActionQueue = [ [{"type":"match", "position":{"x":col, "y":row} }, {"type":"hit", "position":{"x":col, "y":row} }], [] ];
 		else if(this.shooterMod == "bomb")
+			this.futureActionQueue = [ [ {"type":"clear", "position":{"x":col, "y":row} } ], [] ];
+		//else if(this.shooterMod == "beachball")
+		//	this.futureActionQueue = [ [ {"type":"match", "position":{"x":col, "y":row} } ], [] ];
+		else if(this.shooterMod == "rocket")
 			this.futureActionQueue = [ [ {"type":"clear", "position":{"x":col, "y":row} } ], [] ];
 		this.actionStep();
 	},
@@ -2399,9 +2421,7 @@ var BubbleLayer = cc.Layer.extend({
 			}
 		}
 		else if(this.modeType == "challenge")
-		{
-			//if(this.numMoves > 0)
-			//	this.ballsLeftLabel.setString(this.numMoves+"/5");
+		{cc.log(this.numMoves);
 			if(this.numMoves > 4)
 				this.parent.animateCounter();
 			else if(this.numMoves > 2)
@@ -4284,7 +4304,10 @@ var BubbleLayer = cc.Layer.extend({
 	{
 		if(type == 1)
 			this.shooterMod = "bomb";
-		
+		// if(type == 11)
+		//	this.shooterMod = "beachball";
+		else if(type == 13)
+			this.shooterMod = "rocket";
 		this.removeChild(this.shooter);
 		this.shooter = null;
 		this.shooter = new Bubble(this.bubbleR, null, type, null, null, null, null, null);

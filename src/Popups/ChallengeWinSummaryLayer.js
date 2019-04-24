@@ -94,10 +94,10 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 		});
 		this.addChild(this.streakUpAlert);
 		
-		this.slotLayer = new SlotLayer(this.width, this.height*.3, "win");
+		this.slotLayer = new SlotLayer(this.width*.816, this.height*.3, "win", 1+DATA.streakStep);
 		this.slotLayer.attr({
 			x:this.width/2 - (this.slotLayer.slotImage.width*this.slotLayer.slotImage.scale)/2,
-			y:this.height*.86 - 4 - (this.slotLayer.slotImage.height*this.slotLayer.slotImage.scale),
+			y:this.height*.86 - 4 - (this.slotLayer.slotImage.height*this.slotLayer.slotImage.scaleY),
 			anchorX:0,
 			anchorY:0
 		});

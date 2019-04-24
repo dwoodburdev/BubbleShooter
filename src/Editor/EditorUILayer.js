@@ -26,7 +26,7 @@ var EditorUILayer = cc.Layer.extend({
 		
 		this.scrollSpeed = 4;
 		this.scrollY = 0;
-		
+		this.buttonFlags = [];
 		
 		this.allEmojiNames = [
 			["red_emoji","yellow_emoji","green_emoji","blue_emoji","pink_emoji","purple_emoji"],
@@ -124,7 +124,7 @@ var EditorUILayer = cc.Layer.extend({
 		});
 		this.addChild(this.rightDownButton);
 		
-        this.backHomeButton = new cc.Sprite(res.quit_button);
+        /*this.backHomeButton = new cc.Sprite(res.quit_button);
         this.backHomeButton.setScaleX((DATA.bubbleR*5-1) / this.backHomeButton.width);
         this.backHomeButton.setScaleY(DATA.bubbleR*2 / this.backHomeButton.height)
         this.backHomeButton.attr({
@@ -144,7 +144,7 @@ var EditorUILayer = cc.Layer.extend({
 			anchorX:1,
 			anchorY:0
 		});
-		this.addChild(this.saveButton);
+		this.addChild(this.saveButton);*/
 		
 		this.draw();
 	},
@@ -183,7 +183,11 @@ var EditorUILayer = cc.Layer.extend({
 				img.setScale((imgWidth)/img.width);
 				
 				if(img.y > DATA.bubbleR*2.5)
+				{
 					this.addChild(img);
+					this.buttonFlags.push(true);
+				}
+				else this.buttonFlags.push(false);
 				this.imgButtons.push(img);
 			}
 		}
@@ -225,6 +229,16 @@ var EditorUILayer = cc.Layer.extend({
 			for(var i=0; i<this.imgButtons.length; i++)
 			{
 				this.imgButtons[i].attr({y:this.imgButtons[i].y-this.scrollSpeed});
+				if(!this.buttonFlags[i] && this.imgButtons[i].y <this.height+DATA.bubbleR*2 && this.imgButtons[i].y > this.height)
+				{
+					this.addChild(this.imgButtons[i]);
+					this.buttonFlags[i] = true;
+				}
+				else if(this.buttonFlags[i] && this.imgButtons[i].y < 0)
+				{
+					this.removeChild(this.imgButtons[i]);
+					this.buttonFlags[i] = false;
+				}
 			}
 		}
 		
@@ -239,7 +253,7 @@ var EditorUILayer = cc.Layer.extend({
 	
 	scrollButtonsUp:function()
 	{cc.log(this.scrollUpFlag);
-		if(this.imgButtons[this.imgButtons.length-1].y+this.scrollSpeed > 0)
+		if(this.imgButtons[this.imgButtons.length-1].y+this.scrollSpeed > DATA.bubbleR*4)
 		{
 			this.stopScrollUp();
 			this.scrollUpFlag = false;
@@ -249,6 +263,16 @@ var EditorUILayer = cc.Layer.extend({
 			for(var i=0; i<this.imgButtons.length; i++)
 			{
 				this.imgButtons[i].attr({y:this.imgButtons[i].y+this.scrollSpeed});
+				if(!this.buttonFlags[i] && this.imgButtons[i].y > DATA.bubbleR*2 && this.imgButtons[i].y < DATA.bubbleR*4)
+				{
+					this.addChild(this.imgButtons[i]);
+					this.buttonFlags[i] = true;
+				}
+				else if(this.buttonFlags[i] && this.imgButtons[i].y > this.height+DATA.bubbleR*2)
+				{
+					this.removeChild(this.imgButtons[i]);
+					this.buttonFlags[i] = false;
+				}
 			}
 		}
 	},
@@ -425,6 +449,8 @@ var EditorUILayer = cc.Layer.extend({
 				|| type == 28 || type == 22 || type == 30
 				 || type == 24 || type == 25 || type == 27)
 			{
+				if(type == 19)
+					return "save";
 				this.sidemenuMode = "colorPicker";
 				this.openPickerSidemenu(drawData[drawIndex]);
 			}
@@ -442,7 +468,7 @@ var EditorUILayer = cc.Layer.extend({
 	rightMenuTouch:function(pos)
 	{
 		// Buttons
-		if(FUNCTIONS.posWithinScaled(pos, this.backHomeButton))
+		/*if(FUNCTIONS.posWithinScaled(pos, this.backHomeButton))
 		{
 			var maxRow = 0;
 			for(var i=0; i<DATA.worldBubbles.length; i++)
@@ -458,11 +484,11 @@ var EditorUILayer = cc.Layer.extend({
 		else if(FUNCTIONS.posWithinScaled(pos, this.saveButton))
 		{
 			return "save";
-		}
+		}*/
 		
 		// Special Inputs touched (Functionality is Mode-Dependent)
-		else
-		{
+		//else
+		//{
 			if(this.sidemenuMode == "bulb")
 			{
 				return this.rightMenuBulbTouch(pos);	
@@ -476,7 +502,7 @@ var EditorUILayer = cc.Layer.extend({
 				return this.rightMenuPathTouch(pos);
 			}
 			
-		}
+		//}
 	},
 	
 	rightMenuBulbTouch:function(pos)
@@ -484,7 +510,7 @@ var EditorUILayer = cc.Layer.extend({
 		var rowClicked = Math.floor((this.height-pos.y)/(DATA.bubbleR*2));
 		var bulbIterClicked = Math.floor(rowClicked/2);
 		if(pos.x > this.dividerX+(DATA.bubbleR*2) && pos.x < this.width-(DATA.bubbleR*2)
-			&& pos.y < this.height && pos.y > DATA.bubbleR*2)
+			&& pos.y < this.height && pos.y > 0)
 		{
 			var colClicked = Math.floor((pos.x - (this.dividerX+(DATA.bubbleR*2)))/(DATA.bubbleR*2));
 			var bulbIterClicked = Math.floor(rowClicked/2);
@@ -1138,12 +1164,12 @@ var EditorUILayer = cc.Layer.extend({
 		
 		if(this.sidemenuMode=="bulb")
 		{
-			this.dn.drawRect(cc.p(this.dividerX+DATA.bubbleR*2, DATA.bubbleR*2),cc.p(this.dividerX+DATA.bubbleR*2, this.height),
+			this.dn.drawRect(cc.p(this.dividerX+DATA.bubbleR*2, 0),cc.p(this.dividerX+DATA.bubbleR*2, this.height),
 						cc.color(255,255,255,255),1,cc.color(0,0,0,255));
 						
-			this.dn.drawRect(cc.p(this.dividerX, DATA.bubbleR*6),cc.p(this.width-DATA.bubbleR*2, DATA.bubbleR*6),
+			this.dn.drawRect(cc.p(this.dividerX, DATA.bubbleR*4),cc.p(this.width-DATA.bubbleR*2, DATA.bubbleR*4),
 						cc.color(255,255,255,255),1,cc.color(0,0,0,255));
-			this.dn.drawRect(cc.p(this.dividerX, DATA.bubbleR*10),cc.p(this.width-DATA.bubbleR*2, DATA.bubbleR*10),
+			this.dn.drawRect(cc.p(this.dividerX, DATA.bubbleR*8),cc.p(this.width-DATA.bubbleR*2, DATA.bubbleR*8),
 						cc.color(255,255,255,255),1,cc.color(0,0,0,255));
 			
 		}
