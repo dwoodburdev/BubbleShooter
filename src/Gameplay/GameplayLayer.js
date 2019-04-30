@@ -670,7 +670,30 @@ var GameplayLayer = cc.Layer.extend({
 		DATA.worldBubbles = [];
 		for(var i=0; i<level.bubbles.length; i++)
 		{
-			DATA.worldBubbles.push(level.bubbles[i]);
+			//DATA.worldBubbles.push(level.bubbles[i]);
+			var dBub = level.bubbles[i];
+			var colorCode = null;
+	  		var metaData = null;
+	  		if(dBub.type == 7)
+	  		{
+	  			colorCode = [];
+	  			for(var j=0; j<dBub.colorCode.length; j++)
+	  			{
+	  				colorCode.push(dBub.colorCode[j]);
+	  			}
+	  		}
+	  		else colorCode = dBub.colorCode;
+	  		
+	  		if(dBub.type == 20)
+	  		{cc.log("star");cc.log(dBub);cc.log("hi");
+	  			if("meta" in dBub && "id" in dBub.meta && dBub.meta.id != null)
+	  			{cc.log("star with ID "+dBub.meta.id);
+	  				metaData = dBub.meta;
+	  			}
+	  		}
+	  		
+	  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:colorCode, binary:dBub.binary, meta:metaData};
+	  		DATA.worldBubbles.push(bubble);
 		}
 		DATA.worldQueue = {type:"bucket",colors:[]};
 		for(var i=0; i<level.queue.colors.length; i++)
@@ -715,8 +738,8 @@ var GameplayLayer = cc.Layer.extend({
 			if(DATA.worldBubbles[i].row > maxRow)
 				maxRow = DATA.worldBubbles[i].row;
 		}
-		cc.log(level.bubbles);
-		this.bubbleLayer = new BubbleLayer(level.bubbles, maxRow+1, DATA.worldBallsLeft, "world", cc.winSize.width, this.height, [], DATA.worldMeta);	
+		
+		this.bubbleLayer = new BubbleLayer(DATA.worldBubbles, maxRow+1, DATA.worldBallsLeft, "world", cc.winSize.width, this.height, [], DATA.worldMeta);	
 		this.bubbleLayer.attr({
 			x:0,
 			y:0,

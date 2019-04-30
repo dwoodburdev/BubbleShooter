@@ -133,11 +133,31 @@ cc.game.onStart = function(){
 			
 			DATA.database.ref("users/"+DATA.userID+"/world").once("value").then(function(snapshot){
 				var d = snapshot.val();
+				
+				var meta = {};
+				if(d.meta != null)
+				{
+					if(d.meta.bulbData != null)
+					{
+						meta.bulbData = [];
+						var bulbKeys = Object.keys(d.meta.bulbData);
+						for(var j=0; j<bulbKeys.length; j++)
+						{
+							meta.bulbData.push([]);
+							var iterKeys = Object.keys(d.meta.bulbData[bulbKeys[j]]);
+							for(var k=0; k<iterKeys.length; k++)
+							{
+								meta.bulbData[j].push(d.meta.bulbData[bulbKeys[j]][iterKeys[k]])
+							}
+						}
+					}
+				}
+				
 				var bubbles = [];
 			  	var bubKeys = Object.keys(d.bubbles);cc.log("bubs");
 			  	for(var i=0; i<bubKeys.length; i++)
 			  	{
-			  		var dBub = d.bubbles[bubKeys[i]];
+			  		var dBub = d.bubbles[bubKeys[i]];cc.log(dBub);
 			  		
 			  		var colorCode = null;
 			  		var metaData = null;
@@ -146,8 +166,8 @@ cc.game.onStart = function(){
 			  			colorCode = [];
 			  			var colorKeys = Object.keys(dBub.colorCode);
 			  			for(var j=0; j<colorKeys.length; j++)
-			  			{
-			  				colorCode.push(dBub.colorCode[colorKeys[j]]);
+			  			{cc.log(meta.bulbData);cc.log(dBub.colorCode[colorKeys[j]]);
+			  				colorCode.push(meta.bulbData[dBub.colorCode[colorKeys[j]]]);
 			  			}
 			  		}
 			  		else colorCode = dBub.colorCode;
@@ -165,7 +185,7 @@ cc.game.onStart = function(){
 			    	bubbles.push(bubble);
 			  	}
 			  	var queue = {type:d.queue.type, colors:d.queue.colors};
-			  	DATA.worldLevel = {"bubbles":bubbles, "queue":queue};
+			  	DATA.worldLevel = {"bubbles":bubbles, "queue":queue, "meta":meta};
 			  	
 			  	//var bubbles = DATA.worldLevel.bubbles;
 			

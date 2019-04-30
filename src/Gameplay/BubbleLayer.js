@@ -842,7 +842,7 @@ var BubbleLayer = cc.Layer.extend({
 		this.aimlinePoints = [];
 		this.aimlinePoints.push({x:this.shooter.x,y:this.shooter.y});
 			
-		if(DATA.worldIndex <= 1)
+		if(DATA.worldIndex < 1)
 		{
 			if(loc.y < this.aimIndicator.y+this.aimIndicator.height && loc.y > this.aimIndicator.y
 				&& loc.x < this.aimIndicator.x+this.aimIndicator.width && loc.x > this.aimIndicator.x)
@@ -1087,10 +1087,12 @@ var BubbleLayer = cc.Layer.extend({
 		this.aimlinePoints = [];
 		this.aimlinePoints.push({x:this.shooter.x,y:this.shooter.y});
 			
-		if(DATA.worldIndex <= 1)
+		if(DATA.worldIndex < 1)
 		{
-			if(loc.y < this.aimIndicator.y+this.aimIndicator.height && loc.y > this.aimIndicator.y
-					&& loc.x < this.aimIndicator.x+this.aimIndicator.width && loc.x > this.aimIndicator.x)
+			//if(loc.y < this.aimIndicator.y+this.aimIndicator.height && loc.y > this.aimIndicator.y
+			//		&& loc.x < this.aimIndicator.x+this.aimIndicator.width && loc.x > this.aimIndicator.x)
+	 		//{
+	 		if(loc.y > this.shooter.y+DATA.bubbleR)
 	 		{
 	 			if(this.pointerVisual == null)
 	 			{cc.log("ADD CIRCLE");
@@ -1197,7 +1199,8 @@ var BubbleLayer = cc.Layer.extend({
 	   		}
 	   	}
 	   	
-	   	if(FUNCTIONS.posWithin(loc, this.aimIndicator))
+	   	//if(FUNCTIONS.posWithin(loc, this.aimIndicator))
+	   	if(loc.y > this.aimIndicator.y)
 	   	{
 	   		
 	   		
@@ -1474,7 +1477,7 @@ var BubbleLayer = cc.Layer.extend({
 	   		
 	   		//if(this.tutorial != null)
 	   		//{
-	   			if(/*this.tutorial.type == "hold" ||*/ DATA.worldIndex <= 1)
+	   			if(/*this.tutorial.type == "hold" ||*/ DATA.worldIndex < 1)
 	   			{
 	   				this.removeChild(this.holdLabel);
 	   				this.holdLabel = null;
@@ -2889,7 +2892,8 @@ var BubbleLayer = cc.Layer.extend({
 				DATA.updateWorldIndexDatabase(DATA.worldIndex+1);
 				this.unschedule(this.triggerRandomIdle);
 				//cc.director.runScene(new RewardScene());
-				this.parent.openWorldRewardsLayer();
+				//this.parent.openWorldRewardsLayer();
+				this.parent.parent.openWorldMapLayerAfterCompletion();
 				//DATA.worldColorsEliminated = [];
 				DATA.resetForNewWorld();
 
@@ -3040,7 +3044,7 @@ var BubbleLayer = cc.Layer.extend({
 			var challengeType = "";
 			if(bubble.type == 20)
 				challengeType = "normal";
-			else if(bubble.type == 31 && bubble.colorCode == "red")
+			else if(bubble.type == 31 && bubble.colorCode == "red" || bubble.colorCode == "pink")
 				challengeType = "challenge";
 			else challengeType = "normal";
 			DATA.retrieveLevel(metaId, challengeType);

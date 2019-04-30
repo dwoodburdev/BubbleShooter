@@ -603,18 +603,18 @@ var Bubble = cc.Sprite.extend({
 				else if(this.colorCode == "pink")
 					this.bubbleImg = new cc.Sprite(res.pink_bulb_emoji);
 				else if(this.colorCode == "purple")
-					this.bubbleImg = new cc.Sprite(res.purple_bulb_emoji);*/
-				if(this.colorCode == "red")
+					this.bubbleImg = new cc.Sprite(res.purple_bulb_emoji);*/cc.log(this.colorCode);
+				if(this.colorCode == "red" || this.colorCode == 0)
 					this.bubbleImg = new cc.Sprite(res.red_bulb_emoji);
-				else if(this.colorCode == "yellow")
+				else if(this.colorCode == "yellow" || this.colorCode == 1)
 					this.bubbleImg = new cc.Sprite(res.yellow_bulb_emoji);
-				else if(this.colorCode == "green")
+				else if(this.colorCode == "green" || this.colorCode == 3)
 					this.bubbleImg = new cc.Sprite(res.green_bulb_emoji);
-				else if(this.colorCode == "blue")
+				else if(this.colorCode == "blue" || this.colorCode == 2)
 					this.bubbleImg = new cc.Sprite(res.blue_bulb_emoji);
-				else if(this.colorCode == "pink")
+				else if(this.colorCode == "pink" || this.colorCode == 4)
 					this.bubbleImg = new cc.Sprite(res.pink_bulb_emoji);
-				else if(this.colorCode == "purple")
+				else if(this.colorCode == "purple" || this.colorCode == 5)
 					this.bubbleImg = new cc.Sprite(res.purple_bulb_emoji);
 				else cc.log("wtf");
 				cc.log(this.bubbleImg);

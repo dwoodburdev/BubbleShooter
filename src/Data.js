@@ -129,11 +129,69 @@ DATA.initUserData = function()
     		bubbles.push(bubble); 
   		}
   		var queue = {type:d[i].queue.type, colors:d[i].queue.colors};
-  		var meta = d[i].meta;
+  		var meta = {};
+		if(d[i].meta != null)
+		{
+			if(d[i].meta.bulbData != null)
+			{
+				meta.bulbData = [];
+				var bulbKeys = Object.keys(d[i].meta.bulbData);
+				for(var j=0; j<bulbKeys.length; j++)
+				{
+					meta.bulbData.push([]);
+					var iterKeys = Object.keys(d[i].meta.bulbData[bulbKeys[j]]);
+					for(var k=0; k<iterKeys.length; k++)
+					{
+						meta.bulbData[j].push(d[i].meta.bulbData[bulbKeys[j]][iterKeys[k]])
+					}
+				}
+			}
+		}
     	var level = {"queue":queue,"bubbles":bubbles,"meta":meta};
   		DATA.levels.push(level);
   	}cc.log(DATA.levels);
   	
+				//var d = snapshot.val();
+			
+			/*for(var h=0; h<d.length; h++)
+			{
+				var bubbles = [];
+			  	var bubKeys = Object.keys(d.bubbles);
+			  	for(var i=0; i<bubKeys.length; i++)
+			  	{
+			  		var dBub = d.bubbles[bubKeys[i]];
+			  		
+			  		var colorCode = null;
+			  		var metaData = null;
+			  		if(dBub.type == 7)
+			  		{
+			  			colorCode = [];
+			  			var colorKeys = Object.keys(dBub.colorCode);
+			  			for(var j=0; j<colorKeys.length; j++)
+			  			{
+			  				colorCode.push(dBub.colorCode[colorKeys[j]]);
+			  			}
+			  		}
+			  		else colorCode = dBub.colorCode;
+			  		
+			  		if(dBub.type == 20)
+			  		{cc.log("star");cc.log(dBub);cc.log("hi");
+			  			if("meta" in dBub && "id" in dBub.meta && dBub.meta.id != null)
+			  			{cc.log("star with ID "+dBub.meta.id);
+			  				metaData = dBub.meta;
+			  			}
+			  		}
+			  		
+			  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:colorCode, binary:dBub.binary, meta:metaData};
+			  		//cc.log(bubble);
+			    	bubbles.push(bubble);
+			  	}
+			}
+		  	var queue = {type:d.queue.type, colors:d.queue.colors};
+		  	var meta = d[i].meta;
+	    	var level = {"queue":queue,"bubbles":bubbles,"meta":meta};
+	  		DATA.levels.push(level);
+*/
   	
   });
   
@@ -547,7 +605,7 @@ DATA.checkTutorial = function(numBubbles)
 			DATA.tutorial = {type:"pick-path-callout", id:6};
 		}
 	}
-	else if(DATA.worldIndex == 1)
+	/*else if(DATA.worldIndex == 1)
 	{
 		if(numBubbles == 204)
 		{
@@ -573,7 +631,7 @@ DATA.checkTutorial = function(numBubbles)
 	else if(DATA.worldIndex == 5)
 	{
 		// beachball
-	}
+	}*/
 	
 	return DATA.tutorial;
 };
@@ -1343,7 +1401,7 @@ FUNCTIONS.coordIn = function(coord, list)
 DATA.resetWorld = function()
 {cc.log("reset");
 DATA.tutorialCompleted = -1;
-	DATA.database.ref("worlds/levels/"+DATA.worldIndex).once("value").then(function(snapshot){
+	DATA.database.ref("worlds/levels/2"/*+DATA.worldIndex*/).once("value").then(function(snapshot){
 		
 		//var demBubsObj = {};
 		var demBubsObj = {};
@@ -1358,5 +1416,5 @@ DATA.tutorialCompleted = -1;
 	});
 };
 
-DATA.resetWorld();
+//DATA.resetWorld();
  
