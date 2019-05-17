@@ -151,47 +151,7 @@ DATA.initUserData = function()
   		DATA.levels.push(level);
   	}cc.log(DATA.levels);
   	
-				//var d = snapshot.val();
 			
-			/*for(var h=0; h<d.length; h++)
-			{
-				var bubbles = [];
-			  	var bubKeys = Object.keys(d.bubbles);
-			  	for(var i=0; i<bubKeys.length; i++)
-			  	{
-			  		var dBub = d.bubbles[bubKeys[i]];
-			  		
-			  		var colorCode = null;
-			  		var metaData = null;
-			  		if(dBub.type == 7)
-			  		{
-			  			colorCode = [];
-			  			var colorKeys = Object.keys(dBub.colorCode);
-			  			for(var j=0; j<colorKeys.length; j++)
-			  			{
-			  				colorCode.push(dBub.colorCode[colorKeys[j]]);
-			  			}
-			  		}
-			  		else colorCode = dBub.colorCode;
-			  		
-			  		if(dBub.type == 20)
-			  		{cc.log("star");cc.log(dBub);cc.log("hi");
-			  			if("meta" in dBub && "id" in dBub.meta && dBub.meta.id != null)
-			  			{cc.log("star with ID "+dBub.meta.id);
-			  				metaData = dBub.meta;
-			  			}
-			  		}
-			  		
-			  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:colorCode, binary:dBub.binary, meta:metaData};
-			  		//cc.log(bubble);
-			    	bubbles.push(bubble);
-			  	}
-			}
-		  	var queue = {type:d.queue.type, colors:d.queue.colors};
-		  	var meta = d[i].meta;
-	    	var level = {"queue":queue,"bubbles":bubbles,"meta":meta};
-	  		DATA.levels.push(level);
-*/
   	
   });
   
@@ -600,10 +560,10 @@ DATA.checkTutorial = function(numBubbles)
 		{
 			DATA.tutorial = {type:"target-positions", id:5, positions:[{x:5,y:11}, {x:6,y:11}] };
 		}
-		else if(numBubbles == 64 && DATA.tutorialCompleted < 6)
-		{
-			DATA.tutorial = {type:"pick-path-callout", id:6};
-		}
+		//else if(numBubbles == 64 && DATA.tutorialCompleted < 6)
+		//{
+		//	DATA.tutorial = {type:"pick-path-callout", id:6};
+		//}
 	}
 	/*else if(DATA.worldIndex == 1)
 	{
@@ -723,7 +683,9 @@ DATA.spawnNewDailyChallenge = function()
 	  		delete capturedBubbles[key];
 	  	}
 	  	
-	  	DATA.database.ref("users/"+DATA.userID+"/world").set({bubbles:capturedBubbles, queue:d.queue});
+	  	//DATA.database.ref("users/"+DATA.userID+"/world").set({bubbles:capturedBubbles, queue:d.queue, meta:d.meta});
+  		DATA.database.ref("users/"+DATA.userID+"/world/bubbles").set(capturedBubbles);
+  	
   	});
   };
   
@@ -807,7 +769,7 @@ DATA.spawnNewDailyChallenge = function()
   			capturedBubbles[key] = {"col":newBubbles[i].col,"row":newBubbles[i].row,"type":newBubbles[i].type};
   			if(newBubbles[i].colorCode != null)
   				capturedBubbles[key]["colorCode"] = newBubbles[i].colorCode;
-  		}
+  		}cc.log(newMeta);cc.log("IF THIS IS NULL IT WILL DELETE THE META YO");
   		DATA.database.ref("users/"+DATA.userID+"/world").set({bubbles:capturedBubbles, queue:newQueue, meta:newMeta});
   	});
   };
@@ -1401,7 +1363,7 @@ FUNCTIONS.coordIn = function(coord, list)
 DATA.resetWorld = function()
 {cc.log("reset");
 DATA.tutorialCompleted = -1;
-	DATA.database.ref("worlds/levels/2"/*+DATA.worldIndex*/).once("value").then(function(snapshot){
+	DATA.database.ref("worlds/levels/0"/*+DATA.worldIndex*/).once("value").then(function(snapshot){
 		
 		//var demBubsObj = {};
 		var demBubsObj = {};
@@ -1412,7 +1374,7 @@ DATA.tutorialCompleted = -1;
 			demBubsObj[""+bub.row+"_"+bub.col] = bub;
 		}cc.log(demBubsObj);
 		DATA.database.ref("users/"+DATA.userID+"/world/bubbles").set(demBubsObj);
-		
+		//DATA.database.ref("users/"+DATA.userID+"/world/meta").set(snapshot.val().meta);
 	});
 };
 

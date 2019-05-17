@@ -39,6 +39,8 @@ var SlotLayer = cc.Layer.extend({
 		this.startingSpinnerIndex = 0;
 		this.numRotations = 0;
 		
+		this.numberOfSmiles = 0;
+		
 		this.emojis = [];
 		
 		this.xDenom = 512;
@@ -123,7 +125,17 @@ var SlotLayer = cc.Layer.extend({
 		this.numRotations++;
 		if(this.numRotations == 10)
 		{
-			var emoji = new cc.Sprite(res.love_emoji);
+			var emoji = null;
+			if(Math.random() > .5)
+			{
+				emoji = new cc.Sprite(res.smile_emoji);
+				this.numberOfSmiles++;
+			}
+			else
+			{
+				emoji = new cc.Sprite(res.sad_emoji);
+			}
+			
 			emoji.setScale( (this.emojiWidthFactor)*this.slotWidth / emoji.width);
 			emoji.attr({
 				x:(95/this.xDenom)*this.slotWidth /*+ (158/512)*this.slotWidth*i*/,
@@ -139,7 +151,17 @@ var SlotLayer = cc.Layer.extend({
 		}
 		else if(this.numRotations == 15)
 		{
-			var emoji = new cc.Sprite(res.love_emoji);
+			var emoji = null;
+			if(Math.random() > .5)
+			{
+				emoji = new cc.Sprite(res.smile_emoji);
+				this.numberOfSmiles++;
+			}
+			else
+			{
+				emoji = new cc.Sprite(res.sad_emoji);
+			}
+			
 			emoji.setScale( (this.emojiWidthFactor)*this.slotWidth / emoji.width);
 			emoji.attr({
 				x:(95/this.xDenom)*this.slotWidth + (158/this.xDenom)*this.slotWidth*1,
@@ -155,7 +177,17 @@ var SlotLayer = cc.Layer.extend({
 		}
 		else if(this.numRotations == 20)
 		{
-			var emoji = new cc.Sprite(res.love_emoji);
+			var emoji = null;
+			if(Math.random() > .5)
+			{
+				emoji = new cc.Sprite(res.smile_emoji);
+				this.numberOfSmiles++;
+			}
+			else
+			{
+				emoji = new cc.Sprite(res.sad_emoji);
+			}
+			
 			emoji.setScale( (this.emojiWidthFactor)*this.slotWidth / emoji.width);
 			emoji.attr({
 				x:(95/this.xDenom)*this.slotWidth + (158/this.xDenom)*this.slotWidth*2,
@@ -172,7 +204,18 @@ var SlotLayer = cc.Layer.extend({
 		}
 		else if(this.numRotations == 25)
 		{
-			var emoji = new cc.Sprite(res.love_emoji);
+			var emoji = null;
+			if(Math.random() > .5)
+			{
+				emoji = new cc.Sprite(res.smile_emoji);
+				this.numberOfSmiles++;
+			}
+			else
+			{
+				emoji = new cc.Sprite(res.sad_emoji);
+			}
+			
+			
 			emoji.setScale( (this.emojiWidthFactor)*this.slotWidth / emoji.width);
 			emoji.attr({
 				x:(95/this.xDenom)*this.slotWidth + (158/this.xDenom)*this.slotWidth*3,
@@ -243,8 +286,17 @@ var SlotLayer = cc.Layer.extend({
 						this.numRotations = 0;
 						if(this.slotType == "win")
 						{
+							var numBonusMoves = 0;
+							if(this.numberOfSmiles == 1)
+								numBonusMoves = 1;
+							else if(this.numberOfSmiles == 2)
+								numBonusMoves = 3;
+							else if(this.numberOfSmiles == 3)
+								numBonusMoves = 6;
+							else if(this.numberOfSmiles == 4)
+								numBonusMoves = 10;
 							
-							this.parent.rewardMoves(5);
+							this.parent.rewardMoves(numBonusMoves);
 							
 						}
 						else if(this.slotType == "daily")

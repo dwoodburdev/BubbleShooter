@@ -367,15 +367,18 @@ var BubbleLayer = cc.Layer.extend({
 				if(this.bubbles[i].type == 7)
 				{cc.log(this.bubbles[i].colorCode);
 					colorData = [];
+					colorData = this.bubbles[i].colorCode;
+					//for(var j=0; j<this.bubbles[i].colorCode; j++)
+					//	colorData.push(this.bubbles[i].colorCode[j]);
+					
 					//colorData = this.bulbData[colorData];
-					var localColorCodes = ["purple","red","yellow","green","blue","pink","purple"];cc.log(this.bulbData);cc.log(this.bubbles[i].colorCode);
 					//var rawBulbData = this.bulbData[this.bubbles[i].colorCode];cc.log("RAWWWW");cc.log(rawBulbData);
 					//for(var j=0; j<rawBulbData.length && rawBulbData[j] != 0; j++)
-					for(var j=0; j<this.bubbles[i].colorCode.length; j++)
-					{
-						//colorData.push(localColorCodes[rawBulbData[j]-1]);
-						colorData.push(localColorCodes[this.bubbles[i].colorCode[j]]);
-					}
+					//var localColorCodes = ["purple","red","yellow","green","blue","pink","purple"];cc.log(this.bulbData);cc.log(this.bubbles[i].colorCode);
+					//for(var j=0; j<this.bubbles[i].colorCode.length; j++)
+					//{
+					//	colorData.push(localColorCodes[this.bubbles[i].colorCode[j]]);
+					//}
 					//cc.log(colorData);
 				}
 				else
@@ -383,6 +386,7 @@ var BubbleLayer = cc.Layer.extend({
 					colorData = this.bubbles[i].colorCode;
 					//cc.log(colorData);
 				}
+				cc.log(colorData);
 				//cc.log("TYPE: " + this.bubbles[i].type);
 				var bub = new Bubble(this.bubbleR, colorData, this.bubbles[i].type, null, null, this.bubbles[i].meta, this.bubbles[i].row, this.bubbles[i].col);
 				this.bubbles[i] = bub;if(this.bubbles[i].type == 20){ cc.log(this.bubbles[i].meta);}
@@ -413,7 +417,7 @@ var BubbleLayer = cc.Layer.extend({
 	       			}
 					
 					// Initial scroll
-					if(DATA.worldIndex == 0 && this.bubbles.length >= 242)
+					if(this.modeType == "world" /*this.bubbles.length >= 242*/)
 					{
 						bub.attr({
 							y: bub.y + DATA.bubbleR*23
@@ -1767,17 +1771,30 @@ var BubbleLayer = cc.Layer.extend({
 			{
 				var adjX = adjacents[i].x;
 				var adjY = adjacents[i].y;
-				if(this.bubbles[this.bubbleMap[adjY][adjX]] == null)
+				var bub = this.bubbles[this.bubbleMap[adjY][adjX]];
+				if(bub == null)
 				{
 					cc.log("UNDEFINED AT " + adjX + ", " + adjY);
 					cc.log(this.bubbleMap[adjY][adjX]);
 					cc.log(this.bubbles.length-1);
 				}
-				if(this.dist(this.bubbles[this.bubbleMap[adjY][adjX]], {"x":x,"y":y}) <= r*2*this.collisionRatio)
+				
+				if(this.dist(bub, {"x":x,"y":y}) <= r*2*this.collisionRatio)
 				{
-					collisionFound = true;
-					//cc.log("TARGET: row "+centerRow+" col "+centerCol);
-					this.aimlinePoints.push({x:x, y:y});
+					if(bub.collidable)
+					{
+						collisionFound = true;
+						//cc.log("TARGET: row "+centerRow+" col "+centerCol);
+						this.aimlinePoints.push({x:x, y:y});
+					}
+					else
+					{cc.log(bub);
+						if(bub.type == 29)
+						{console.log("clear web");
+							//this.triggerWebClear(y, x);
+							
+						}
+					}
 				}
 			}
 			
@@ -1862,7 +1879,8 @@ var BubbleLayer = cc.Layer.extend({
 				cc.log(this.bubbleMap[y][x]);
 				cc.log(this.bubbles.length-1);
 			}
-			if(this.dist(this.bubbles[this.bubbleMap[y][x]], this.shooter) <= this.shooter.r*2*this.collisionRatio)
+			if(this.dist(this.bubbles[this.bubbleMap[y][x]].collidable && 
+				this.bubbles[this.bubbleMap[y][x]], this.shooter) <= this.shooter.r*2*this.collisionRatio)
 			{
 				collisionFound = true;
 				
@@ -2055,6 +2073,32 @@ var BubbleLayer = cc.Layer.extend({
 		else if(this.shooterMod == "rocket")
 			this.futureActionQueue = [ [ {"type":"clear", "position":{"x":col, "y":row} } ], [] ];
 		this.actionStep();
+	},
+	
+	triggerWebClear:function(row, col)
+	{
+		
+		var databasePositionsToDestroy = [{"x":col, "y":row}];
+		
+		databasePositionsToDestroy = databasePositionsToDestroy.concat(this.cullUnconnected());
+			
+		// Remove bubbles from database
+		if(this.modeType == "world")
+		{
+			DATA.removeBubblesFromDatabase(databasePositionsToDestroy);
+		}
+		else if(this.modeType == "side-level")
+		{
+			DATA.removeBubblesFromEventDatabase(databasePositionsToDestroy);
+		}
+		
+		// REMOVE ROWS
+		this.cullEmptyRows(this.rowsAdded);
+	},
+	
+	executeTrespass:function()
+	{
+		
 	},
 	
 	actionStep:function()
@@ -2445,12 +2489,12 @@ var BubbleLayer = cc.Layer.extend({
 				if(this.bubbles[i].type == 24)
 				{
 					if(this.bubbles[i].binary)
-					{
-						leftSnails.push({x:this.bubbles[i].col, y:this.bubbles[i].row, index:i});
+					{cc.log("Add left bubble " + this.bubbles[i].col + " "+this.bubbles[i].row);
+						leftSnails.push({col:this.bubbles[i].col, row:this.bubbles[i].row, index:i});
 					}
 					else
-					{
-						rightSnails.push({x:this.bubbles[i].col, y:this.bubbles[i].row, index:i});
+					{cc.log("Add right bubble " + this.bubbles[i].col + " "+this.bubbles[i].row);
+						rightSnails.push({col:this.bubbles[i].col, row:this.bubbles[i].row, index:i});
 					}
 				}
 				// Lanterns
@@ -2534,48 +2578,66 @@ var BubbleLayer = cc.Layer.extend({
 		
 		
 		// sort left snails by x left->right
-		leftSnails.sort(function(a,b){return b.x-a.x;});
+		leftSnails.sort(function(a,b){return b.col-a.col;});
 		
 		// move left snails (possibly flip)
 		for(var i=0; i<leftSnails.length; i++)
 		{
 			var snail = leftSnails[i];
-			if(snail.x-1 >= 0 && this.bubbleMap[snail.y][snail.x-1] == -1)
+			if(snail.col-1 >= 0 && this.bubbleMap[snail.row][snail.col-1] == -1)
 			{
 				var moveAction = cc.moveBy(.5, -2*DATA.bubbleR, 0);
 				this.bubbles[snail.index].bubbleImg.runAction(moveAction);
+				this.bubbleMap[snail.row][snail.col-1] = snail.index;
+				this.bubbleMap[snail.row][snail.col] = -1;
 				this.bubbles[snail.index].col--;
-				this.bubbleMap[snail.y][snail.x-1] = snail.index;
-				this.bubbleMap[snail.y][snail.x] = -1;
 			}
 			else
 			{
-				rightSnails.push({x:snail.x, y:snail.y, index:snail.index});
+				//rightSnails.push({x:snail.x, y:snail.y, index:snail.index});
 				this.bubbles[snail.index].binary = !this.bubbles[snail.index].binary;
-				this.bubbles[snail.index].updateSnailSprite();
+				//this.bubbles[snail.index].updateSnailSprite();
+				if(snail.col+1 <= 11-(snail.row%2) && this.bubbleMap[snail.row][snail.col] == -1)
+				{
+					var moveAction = cc.moveBy(.5, 2*DATA.bubbleR, 0);
+					this.bubbles[snail.index].bubbleImg.runAction(moveAction);
+					this.bubbleMap[snail.row][snail.col+1] = snail.index;
+					this.bubbleMap[snail.row][snail.col] = -1;
+					this.bubbles[snail.index].col++;
+				}
 			}
 		}
 		
 		// sort right snails by x right->left
-		rightSnails.sort(function(a,b){return a.x-b.x;});
+		rightSnails.sort(function(a,b){return a.col-b.col;});
 		
 		// move right snails (possibly flip)
 		for(var i=0; i<rightSnails.length; i++)
 		{
-			var snail = rightSnails[i];
-			if(snail.x+1 <= 11-(snail.y%2) && this.bubbleMap[snail.y][snail.x+1] == -1)
-			{
+			var snail = rightSnails[i];cc.log(snail);cc.log(this.bubbleMap);
+			if(snail.col+1 <= 11-(snail.row%2) && this.bubbleMap[snail.row][snail.col+1] == -1)
+			{cc.log("MORE RIGHT");
 				var moveAction = cc.moveBy(.5, 2*DATA.bubbleR, 0);
-				this.bubbles[snail.index].bubbleImg.runAction(moveAction);
+				this.bubbleMap[snail.row][snail.col+1] = snail.index;
+				this.bubbleMap[snail.row][snail.col] = -1;
 				this.bubbles[snail.index].col++;
-				this.bubbleMap[snail.y][snail.x+1] = snail.index;
-				this.bubbleMap[snail.y][snail.x] = -1;
+				this.bubbles[snail.index].bubbleImg.runAction(moveAction);
 			}
 			else
-			{
+			{cc.log("SWITCH DIR")
 				this.bubbles[snail.index].binary = !this.bubbles[snail.index].binary;
-				this.bubbles[snail.index].updateSnailSprite();
+				this.bubbles[snail.index].setFlippedX(true);
+				//this.bubbles[snail.index].updateSnailSprite();
+				if(snail.col-1 >= 0 && this.bubbleMap[snail.row][snail.col-1] == -1)
+				{cc.log("AND MOVE FORWARD");
+					var moveAction = cc.moveBy(.5, -2*DATA.bubbleR, 0);
+					this.bubbleMap[snail.row][snail.col-1] = snail.index;
+					this.bubbleMap[snail.row][snail.col] = -1;
+					this.bubbles[snail.index].col--;
+					this.bubbles[snail.index].bubbleImg.runAction(moveAction);
+				}
 			}
+			cc.log(snail);
 		}
 		
 		
@@ -2924,8 +2986,9 @@ var BubbleLayer = cc.Layer.extend({
 				//var rankReturn = DATA.checkRankUp();
 				
 				//var rewardScene = new ChallengeRewardScene();
-				
-				
+				var addStreak = 0;
+				if(DATA.streakStep == 2)
+					addStreak = 1;
 				DATA.streakStep = Math.min(DATA.streakStep+1, 2);
 				DATA.challengeTries = 0;
 				
@@ -2935,7 +2998,7 @@ var BubbleLayer = cc.Layer.extend({
 				
 				//cc.director.runScene(rewardScene);
 				
-				this.parent.openChallengeRewardLayer();
+				this.parent.openChallengeRewardLayer(DATA.streakStep+1+addStreak);
 			}
 			else if(this.numMoves <= 1)
 			{

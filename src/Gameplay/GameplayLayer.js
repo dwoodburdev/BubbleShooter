@@ -108,6 +108,7 @@ var GameplayLayer = cc.Layer.extend({
 				this.cardImg = new cc.Sprite(res.three_move_card);
 			else if(rewardData.number == 5)
 				this.cardImg = new cc.Sprite(res.five_move_card);
+			else this.cardImg = new cc.Sprite(res.one_move_card);
 			DATA.worldBallsLeft += rewardData.number;
 			this.rewardData = rewardData.number;
 		}
@@ -667,6 +668,27 @@ var GameplayLayer = cc.Layer.extend({
 		this.bubbleLayer = null;
 		
 		var level = DATA.levels[DATA.worldIndex];
+		
+		DATA.worldMeta = {bulbData:[]};
+		if("meta" in level)
+		//if(level.meta != null)
+		{
+			if("bulbData" in level.meta)
+			//if(level.meta.bulbData != null)
+			{
+			
+				for(var i=0; i<level.meta.bulbData.length; i++)
+				{
+					DATA.worldMeta.bulbData.push([]);
+					for(var j=0; j<level.meta.bulbData[i].length; j++)
+					{
+						DATA.worldMeta.bulbData[i].push(level.meta.bulbData[i][j]);
+					}
+				}
+			}
+		}
+		
+		
 		DATA.worldBubbles = [];
 		for(var i=0; i<level.bubbles.length; i++)
 		{
@@ -677,9 +699,13 @@ var GameplayLayer = cc.Layer.extend({
 	  		if(dBub.type == 7)
 	  		{
 	  			colorCode = [];
-	  			for(var j=0; j<dBub.colorCode.length; j++)
+	  			for(var j=0; j<DATA.worldMeta.bulbData[dBub.colorCode].length; j++)
 	  			{
-	  				colorCode.push(dBub.colorCode[j]);
+	  				//colorCode.push(dBub.colorCode[j]);
+	  				var code = DATA.worldMeta.bulbData[dBub.colorCode][j];
+	  				var colors = ["purple","red","yellow","green","blue","pink","purple"];
+	  				if(code != 0)
+	  					colorCode.push(colors[code]);
 	  			}
 	  		}
 	  		else colorCode = dBub.colorCode;
@@ -704,23 +730,8 @@ var GameplayLayer = cc.Layer.extend({
 		
 		cc.log(level);
 		
-		DATA.worldMeta = {bulbData:[]};
-		if("meta" in level)
-		{
-			if("bulbData" in level.meta)
-			{
-			
-				for(var i=0; i<level.meta.bulbData.length; i++)
-				{
-					DATA.worldMeta.bulbData.push([]);
-					for(var j=0; j<level.meta.bulbData[i].length; j++)
-					{
-						DATA.worldMeta.bulbData[i].push(level.meta.bulbData[i][j]);
-					}
-				}
-			}
-		}
 		
+		cc.log(DATA.worldMeta);cc.log("IF THIS IS NULL IT WILL DELETE THE META");
 		DATA.setWorldDatabaseBubbles(DATA.worldBubbles, DATA.worldQueue, DATA.worldMeta);
 		
 		//var queue = {type:level.queue.type, colors:level.queue.colors};

@@ -133,7 +133,7 @@ cc.game.onStart = function(){
 			
 			DATA.database.ref("users/"+DATA.userID+"/world").once("value").then(function(snapshot){
 				var d = snapshot.val();
-				
+				cc.log(d);
 				var meta = {};
 				if(d.meta != null)
 				{
@@ -152,23 +152,31 @@ cc.game.onStart = function(){
 						}
 					}
 				}
-				
+				cc.log(meta);
 				var bubbles = [];
-			  	var bubKeys = Object.keys(d.bubbles);cc.log("bubs");
+			  	var bubKeys = Object.keys(d.bubbles);cc.log("bubs");cc.log("hola here");
 			  	for(var i=0; i<bubKeys.length; i++)
 			  	{
 			  		var dBub = d.bubbles[bubKeys[i]];cc.log(dBub);
 			  		
 			  		var colorCode = null;
-			  		var metaData = null;
+			  		var metaData = null;cc.log("hola");
 			  		if(dBub.type == 7)
 			  		{
 			  			colorCode = [];
-			  			var colorKeys = Object.keys(dBub.colorCode);
-			  			for(var j=0; j<colorKeys.length; j++)
-			  			{cc.log(meta.bulbData);cc.log(dBub.colorCode[colorKeys[j]]);
-			  				colorCode.push(meta.bulbData[dBub.colorCode[colorKeys[j]]]);
+			  			for(var j=0; j<meta.bulbData[dBub.colorCode].length; j++)
+			  			{
+			  				var code = meta.bulbData[dBub.colorCode][j];
+			  				var colors = ["purple","red","yellow","green","blue","pink","purple"];
+			  				if(code != 0)
+			  					colorCode.push(colors[code]);
+			  					//cc.log(colors[code]);
 			  			}
+			  			//for(var j=0; j<colorKeys.length; j++)
+			  			//{
+			  			//	colorCode.push(meta.bulbData[dBub.colorCode[colorKeys[j]]]);
+			  			//}
+			  			cc.log(colorCode);
 			  		}
 			  		else colorCode = dBub.colorCode;
 			  		
@@ -186,7 +194,7 @@ cc.game.onStart = function(){
 			  	}
 			  	var queue = {type:d.queue.type, colors:d.queue.colors};
 			  	DATA.worldLevel = {"bubbles":bubbles, "queue":queue, "meta":meta};
-			  	
+			  	cc.log(DATA.worldLevel);
 			  	//var bubbles = DATA.worldLevel.bubbles;
 			
 				var maxRow = 0;

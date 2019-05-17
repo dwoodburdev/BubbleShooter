@@ -400,6 +400,16 @@ var MainContainerLayer = cc.Layer.extend({
 								self.removeChild(self.worldMapLayer);
 								self.worldMapLayer = null;
 							}
+							else if(returnObj == "next")
+							{
+								//self.removeChild(self.worldMapLayer);
+								//self.worldMapLayer = null;
+								
+								self.closeWorldMapAfterCompletion();
+								
+								
+								
+							}
 						}
 						else if(self.preLayer != null)
 						{cc.log("CLICK IN PRELAYER");
@@ -1010,7 +1020,7 @@ var MainContainerLayer = cc.Layer.extend({
 	
 	openWorldMapLayer:function()
 	{
-		this.worldMapLayer = new WorldMapLayer(cc.winSize.width-50,cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-20);
+		this.worldMapLayer = new WorldMapLayer(cc.winSize.width-50,cc.winSize.height-DATA.bottomUIHeight-DATA.topUIHeight-20, "normal");
 		this.worldMapLayer.attr({
 			x:this.topUILayer.mapButton.x+(this.topUILayer.mapButton.width*this.topUILayer.mapButton.scale)/2,
 			y:this.topUILayer.y+this.topUILayer.mapButton.y+(this.topUILayer.mapButton.height*this.topUILayer.mapButton.scale)/2,
@@ -1029,7 +1039,7 @@ var MainContainerLayer = cc.Layer.extend({
 	
 	openWorldMapLayerAfterCompletion:function()
 	{
-		this.worldMapLayer = new WorldMapLayer(this.width-50, this.height-50);
+		this.worldMapLayer = new WorldMapLayer(this.width-50, this.height-50, "complete");
 		this.worldMapLayer.attr({
 			x:25,
 			y:25,

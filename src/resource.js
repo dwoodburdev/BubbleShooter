@@ -468,7 +468,9 @@ var res = {
     slot_machine_small_overlay:"res/slot-machine-small-overlay.png",
     slot_machine_large_overlay:"res/slot-machine-large-overlay.png",
     
-    grass_bg:"res/grass-bg.png"
+    grass_bg:"res/grass-bg.png",
+    
+    button_spin:"res/button_spin.png"
 };
 
 

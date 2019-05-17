@@ -1,5 +1,5 @@
 var ChallengeWinSummaryLayer = cc.Layer.extend({
-	ctor:function(width, height){
+	ctor:function(width, height, streak){
 		this._super();
 		//cc.associateWithNative( this, cc.Sprite );
 		
@@ -94,7 +94,7 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 		});
 		this.addChild(this.streakUpAlert);
 		
-		this.slotLayer = new SlotLayer(this.width*.816, this.height*.3, "win", 1+DATA.streakStep);
+		this.slotLayer = new SlotLayer(this.width*.816, this.height*.3, "win", streak);
 		this.slotLayer.attr({
 			x:this.width/2 - (this.slotLayer.slotImage.width*this.slotLayer.slotImage.scale)/2,
 			y:this.height*.86 - 4 - (this.slotLayer.slotImage.height*this.slotLayer.slotImage.scaleY),
@@ -102,7 +102,16 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 			anchorY:0
 		});
 		this.addChild(this.slotLayer);
-
+		
+		this.spinButton = new cc.Sprite(res.button_spin);
+		this.spinButton.setScale(this.slotLayer.width/3 / this.spinButton.width);
+		this.spinButton.attr({
+			x:this.slotLayer.x+this.slotLayer.width/2,
+			y:this.slotLayer.y-2,
+			anchorX:.5,
+			anchorY:1
+		});
+		this.addChild(this.spinButton);
 		
 		/*
 		this.popupDn = new cc.DrawNode();
@@ -154,6 +163,19 @@ var ChallengeWinSummaryLayer = cc.Layer.extend({
 		this.rewardSpun = true;
 		this.rewardSpinning = false;
 		DATA.gameplayRewardOnReturn = {"type":"bonus","number":numMoves};
+		
+		this.removeChild(this.spinButton);
+		this.spinButton = null;
+		
+		this.rewardText = new cc.LabelTTF("+"+numMoves+" Moves!", "Arial", 40);
+		this.rewardText.color = cc.color(0,0,0,255);
+		this.rewardText.attr({
+			x:this.width/2,
+			y:this.slotLayer.y-2,
+			anchorX:.5,
+			anchorY:1
+		});
+		this.addChild(this.rewardText);
 	},
 	
 	draw:function()

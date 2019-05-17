@@ -59,6 +59,8 @@ var Bubble = cc.Sprite.extend({
 			this.onClear = bubbleClearEffect;
         	this.onTurn = null;
         	
+        	
+        	this.collidable = true;
         	this.matchable = true;
         	
         	
@@ -161,6 +163,8 @@ var Bubble = cc.Sprite.extend({
         	this.onAdjMatch = null;
        		this.onClear = bombEffect;
         	this.onTurn = null;
+        	
+        	this.collidable = true;
         }
         // Steel
         else if(this.type == 2)
@@ -170,6 +174,8 @@ var Bubble = cc.Sprite.extend({
         	this.onAdjMatch = null;
         	this.onClear = null;
         	this.onTurn = null;
+        	
+        	this.collidable = true;
         }
         // Rock
         else if(this.type == 3)
@@ -180,6 +186,8 @@ var Bubble = cc.Sprite.extend({
         	this.onAdjMatch = null;
         	this.onClear = clearEffect;
         	this.onTurn = null;
+        	
+        	this.collidable = true;
         }
         // Poof
         else if(this.type == 4)
@@ -190,6 +198,8 @@ var Bubble = cc.Sprite.extend({
         	this.onAdjMatch = null;
         	this.onClear = clearEffect;
         	this.onTurn = null;
+        	
+        	this.collidable = true;
         }
         // Soap
         else if(this.type == 5)
@@ -200,6 +210,8 @@ var Bubble = cc.Sprite.extend({
         	this.onAdjMatch = null;
         	this.onClear = clusterClearEffect;
         	this.onTurn = null;
+        	
+        	this.collidable = true;
         }
         // Pin
         else if(this.type == 6)
@@ -210,6 +222,8 @@ var Bubble = cc.Sprite.extend({
         	this.onAdjMatch = null;
         	this.onClear = pinSuperEffect;
         	this.onTurn = null;
+        	
+        	this.collidable = true;
         }
         // Lightbulb (used to be Pinwheel)
         else if(this.type == 7)
@@ -234,6 +248,8 @@ var Bubble = cc.Sprite.extend({
         	this.colorCode = this.colorQueue[0];
         	cc.log(this.colorCode);
         	
+        	
+        	this.collidable = true;
         	this.matchable = true;
         	
         }
@@ -253,6 +269,8 @@ var Bubble = cc.Sprite.extend({
         	if(this.colorCode == null)
         		this.colorCode = this.colorQueue[Math.floor(Math.random()*this.colorQueue.length)];
         	
+        	
+        	this.collidable = true;
         	this.matchable = true;
         }
         // Clones (Orb)
@@ -267,6 +285,8 @@ var Bubble = cc.Sprite.extend({
         	this.onClear = clearEffect;
         	this.onTurn = null;
         	
+        	
+        	this.collidable = true;
         	this.matchable = true;
         }
         // Disco
@@ -279,6 +299,8 @@ var Bubble = cc.Sprite.extend({
         	this.onAdjMatch = bombEffect;
         	this.onClear = bombEffect; // ?
         	this.onTurn = null;
+        	
+        	this.collidable = true;
         }
         // Beachball (Changed from onAdjMatch Gumball)
         else if(this.type == 11)
@@ -292,6 +314,8 @@ var Bubble = cc.Sprite.extend({
         	this.onClear = clearMatches;
         	this.onTurn = null;
         	
+        	
+        	this.collidable = true;
         	this.matchable = true;
         }
         // 2-r bomb
@@ -303,6 +327,8 @@ var Bubble = cc.Sprite.extend({
         	this.onAdjMatch = null;
        		this.onClear = bombEffect;
         	this.onTurn = null;
+        	
+        	this.collidable = true;
         }
         // line clear
         else if(this.type == 13)
@@ -313,6 +339,8 @@ var Bubble = cc.Sprite.extend({
         	this.onAdjMatch = null;
        		this.onClear = bombEffect;
         	this.onTurn = null;
+        	
+        	this.collidable = true;
         }
         // electric orb - on adj-match, takes out (random or nearest?) match on-screen
         else if(this.type == 14)
@@ -323,6 +351,8 @@ var Bubble = cc.Sprite.extend({
         	this.onAdjMatch = bombEffect;
        		this.onClear = null;
         	this.onTurn = null;
+        	
+        	this.collidable = true;
         }
         // flowerpot
         else if(this.type == 15)
@@ -336,6 +366,8 @@ var Bubble = cc.Sprite.extend({
         	this.onClear = clearEffect;
         	this.onTurn = null;
         	
+        	
+        	this.collidable = true;
         	this.matchable = true;
         }
         // spike (now fire)
@@ -348,6 +380,8 @@ var Bubble = cc.Sprite.extend({
         	this.onAdjMatch = null;
         	this.onClear = null;
         	this.onTurn = null;
+        	
+        	this.collidable = true;
         }
         // soap-bar
         else if(this.type == 17)
@@ -361,6 +395,8 @@ var Bubble = cc.Sprite.extend({
         	this.onAdjMatch = null;
         	this.onClear = null;
         	this.onTurn = null;
+        	
+        	this.collidable = true;
         }
         // Cloud
         else if(this.type == 18)
@@ -372,6 +408,8 @@ var Bubble = cc.Sprite.extend({
         	this.onClear = clusterClearEffect;
         	this.onTurn = null;
         	
+        	
+        	this.collidable = true;
         	this.isAnchor = true;
         }
         // Balloon
@@ -386,6 +424,8 @@ var Bubble = cc.Sprite.extend({
         	
         	this.isAnchor = true;
         	
+        	
+        	this.collidable = true;
         	this.matchable = true;
         }
          // Star - use meta effect for onhit, onmatch, etc, to reward level via Data.js
@@ -400,6 +440,8 @@ var Bubble = cc.Sprite.extend({
         	this.onClear = metaLevelEffect;
         	this.onTurn = null;
         	
+        	
+        	this.collidable = true;
         	this.isAnchor = false;
         	
         }
@@ -414,6 +456,8 @@ var Bubble = cc.Sprite.extend({
         	this.onAdjMatch = null;
         	this.onClear = daggerSuperEffect;
         	this.onTurn = rotateEffect;
+        	
+        	this.collidable = true;
         }
         // Egg
         else if(this.type == 22)
@@ -425,6 +469,8 @@ var Bubble = cc.Sprite.extend({
         	this.onClear = changeEffect;
         	this.onTurn = null;
         	
+        	
+        	this.collidable = true;
         	this.matchable = false;
         }
         // Hatched Chick
@@ -437,6 +483,8 @@ var Bubble = cc.Sprite.extend({
 			this.onClear = bubbleClearEffect;
         	this.onTurn = null;
         	
+        	
+        	this.collidable = true;
         	this.matchable = true;
         }
         // Snail
@@ -450,6 +498,8 @@ var Bubble = cc.Sprite.extend({
         	this.onClear = clearEffect;
         	this.onTurn = moveEffect;
         	
+        	
+        	this.collidable = true;
         	this.matchable = true;
         }
         // Siren
@@ -463,6 +513,8 @@ var Bubble = cc.Sprite.extend({
         	this.onClear = clearEffect;
         	this.onTurn = flipEffect;
         	
+        	
+        	this.collidable = true;
         	this.matchable = true; // only if in on state
         }
         // Lantern
@@ -476,6 +528,8 @@ var Bubble = cc.Sprite.extend({
         	this.onClear = clearEffect;
         	this.onTurn = moveEffect;
         	
+        	
+        	this.collidable = true;
         	this.matchable = true;
         }
         // Ghost
@@ -489,6 +543,8 @@ var Bubble = cc.Sprite.extend({
         	this.onClear = clearEffect;
         	this.onTurn = ghostEffect;
         	
+        	
+        	this.collidable = binary;
         	this.matchable = true; // only if on state
         }
         // Note    should have transparency variable like Ghost
@@ -504,6 +560,8 @@ var Bubble = cc.Sprite.extend({
         	this.onTurn = tickAction;
         	this.onCountdown = clearEffect;
         	
+        	
+        	this.collidable = true;
         	this.isAnchor = true;
         }
         // Spiderweb
@@ -517,6 +575,8 @@ var Bubble = cc.Sprite.extend({
         	this.onClear = null;
         	this.onTurn = tickAction;
         	this.onCountdown = clearEffect;
+        	
+        	this.collidable = false;
         }
         // Blank ball
         else if(this.type == 30)
@@ -527,6 +587,8 @@ var Bubble = cc.Sprite.extend({
 			this.onClear = bubbleClearEffect;
         	this.onTurn = null;
         	
+        	
+        	this.collidable = true;
         	this.matchable = true;
         }
          // Colored Star - use meta effect for onhit, onmatch, etc, to reward level via Data.js
@@ -541,6 +603,8 @@ var Bubble = cc.Sprite.extend({
         	this.onClear = metaLevelEffect;
         	this.onTurn = null;
         	
+        	
+        	this.collidable = true;
         	this.isAnchor = false;
         	
         }
@@ -604,17 +668,17 @@ var Bubble = cc.Sprite.extend({
 					this.bubbleImg = new cc.Sprite(res.pink_bulb_emoji);
 				else if(this.colorCode == "purple")
 					this.bubbleImg = new cc.Sprite(res.purple_bulb_emoji);*/cc.log(this.colorCode);
-				if(this.colorCode == "red" || this.colorCode == 0)
+				if(this.colorCode == "red")
 					this.bubbleImg = new cc.Sprite(res.red_bulb_emoji);
-				else if(this.colorCode == "yellow" || this.colorCode == 1)
+				else if(this.colorCode == "yellow")
 					this.bubbleImg = new cc.Sprite(res.yellow_bulb_emoji);
-				else if(this.colorCode == "green" || this.colorCode == 3)
+				else if(this.colorCode == "green" )
 					this.bubbleImg = new cc.Sprite(res.green_bulb_emoji);
-				else if(this.colorCode == "blue" || this.colorCode == 2)
+				else if(this.colorCode == "blue")
 					this.bubbleImg = new cc.Sprite(res.blue_bulb_emoji);
-				else if(this.colorCode == "pink" || this.colorCode == 4)
+				else if(this.colorCode == "pink")
 					this.bubbleImg = new cc.Sprite(res.pink_bulb_emoji);
-				else if(this.colorCode == "purple" || this.colorCode == 5)
+				else if(this.colorCode == "purple")
 					this.bubbleImg = new cc.Sprite(res.purple_bulb_emoji);
 				else cc.log("wtf");
 				cc.log(this.bubbleImg);
@@ -673,7 +737,21 @@ var Bubble = cc.Sprite.extend({
 			}// Egg
 			else if(this.type == 22)
 			{
-				this.bubbleImg = new cc.Sprite(res.egg_emoji);
+				//this.bubbleImg = new cc.Sprite(res.egg_emoji);
+				
+				if(this.colorCode == "red")
+					this.bubbleImg = new cc.Sprite(res.red_egg);
+				else if(this.colorCode == "yellow")
+					this.bubbleImg = new cc.Sprite(res.yellow_egg);
+				else if(this.colorCode == "green")
+					this.bubbleImg = new cc.Sprite(res.green_egg);
+				else if(this.colorCode == "blue")
+					this.bubbleImg = new cc.Sprite(res.blue_egg);
+				else if(this.colorCode == "pink")
+					this.bubbleImg = new cc.Sprite(res.pink_egg);
+				else if(this.colorCode == "purple")
+					this.bubbleImg = new cc.Sprite(res.purple_egg);
+				;
 			}
 			// Hatched Egg
 			else if(this.type == 23)

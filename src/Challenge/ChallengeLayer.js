@@ -446,9 +446,9 @@ var ChallengeLayer = cc.Layer.extend({
 		return true;
 	},
 	
-	openChallengeRewardLayer:function()
+	openChallengeRewardLayer:function(streak)
 	{
-		this.challengeRewardLayer = new ChallengeRewardLayer(cc.winSize.width-50, cc.winSize.height-this.bottomUILayer.height-this.topUILayer.height-20);
+		this.challengeRewardLayer = new ChallengeRewardLayer(cc.winSize.width-50, cc.winSize.height-this.bottomUILayer.height-this.topUILayer.height-20, streak);
 		this.challengeRewardLayer.attr({
 			x:cc.winSize.width/2,
 			y: (cc.winSize.height-this.bottomUILayer.height-this.topUILayer.height) / 2,

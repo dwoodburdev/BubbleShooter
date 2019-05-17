@@ -1,5 +1,5 @@
 var ChallengeRewardLayer = cc.Layer.extend({
-	ctor:function(width, height){
+	ctor:function(width, height, streak){
 		this._super();
 		//cc.associateWithNative( this, cc.Sprite );
 		
@@ -62,7 +62,7 @@ var ChallengeRewardLayer = cc.Layer.extend({
 		
 		this.summaryDisplayLayer = new ChallengeWinSummaryLayer(
 			this.width, 
-			this.height
+			this.height, streak
 			//this.tabTitleLabel.y-(this.tabTitleLabel.height*this.tabTitleLabel.scale) - (this.nextButton.y+(this.nextButton.height*this.nextButton.scale))
 		);
 		this.summaryDisplayLayer.attr({
