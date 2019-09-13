@@ -29,7 +29,7 @@ var TopUILayer = cc.Layer.extend({
 		});
 		this.addChild(this.coinImg);
 		
-		this.coinLabel = new cc.LabelTTF(""+DATA.coins, "Arial", 24);
+		this.coinLabel = new cc.LabelTTF("0", "Arial", 24);
 		this.coinLabel.attr({
 			"x":this.coinImg.x-3,
 			"y":this.height/2,
@@ -49,7 +49,7 @@ var TopUILayer = cc.Layer.extend({
 		});
 		//this.addChild(this.gemImg);
 		
-		this.gemLabel = new cc.LabelTTF(""+DATA.gems, "Arial", 24);
+		this.gemLabel = new cc.LabelTTF("0", "Arial", 24);
 		this.gemLabel.attr({
 			"x":this.gemImg.x-3,
 			"y":this.height/2,

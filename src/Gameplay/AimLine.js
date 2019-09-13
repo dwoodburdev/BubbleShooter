@@ -16,7 +16,7 @@ var AimLine = cc.Sprite.extend({
 	draw:function()
 	{
 		
-		this.dn.drawSegment(cc.p(this.origin.x,this.origin.y),cc.p(this.target.x, this.target.y),1,this.color);
+		//this.dn.drawSegment(cc.p(this.origin.x,this.origin.y),cc.p(this.target.x, this.target.y),1,this.color);
 	},
 	
 	moveTargetTo:function(target)

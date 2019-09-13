@@ -202,267 +202,300 @@ var MainContainerLayer = cc.Layer.extend({
 		this.worldMapLayer = null;
 		this.noLevelLayer = null;
 		
+		this.mouseDownFlag = false;
+		
 		var self = this;
+		
+		if(cc.sys.capabilities.hasOwnProperty('mouse')) {
+			cc.eventManager.addListener({
+				event: cc.EventListener.MOUSE,
+				
+				onMouseDown:function(event)
+				{
+					self.onDownEvent(event);
+					self.mouseDownFlag = true;
+					return false;
+				},
+				onMouseMove:function(event)
+				{
+					if(self.mouseDownFlag)
+						self.onMoveEvent(event);
+					return false;
+				},
+				onMouseUp:function(event)
+				{
+					self.mouseDownFlag = false;
+					self.onUpEvent(event);
+					return false;
+				}
+			}, this);
+		}
 		
 		if (cc.sys.capabilities.hasOwnProperty('touches')) {
 			cc.eventManager.addListener({
 			    event: cc.EventListener.TOUCH_ONE_BY_ONE,
 			    swallowTouches:true,
 			    onTouchBegan: function(touch, event){cc.log("TOUCHSTART");
-			   		var target = event.getCurrentTarget();
-			    	var locationInNode = self.convertToNodeSpace(touch.getLocation());
-					cc.log(locationInNode);
-					cc.log(self.curMainLayer);
-					if(!self.isPopup())
-					{cc.log("nopopup");cc.log(self.curMainLayer);
-				    	if(FUNCTIONS.posWithin(locationInNode, self.curMainLayer))
-				    	{cc.log("IN CUR LAYER");
-				    		//self.curMainLayer.onTouchBegan(touch.getLocation());
-				    		self.curMainLayer.onTouchBegan(touch.getLocation());
-				    	}
-			    	}
-			    	else
-			    	{
-			    		if(self.worldMapLayer != null)
-						{	
-							var returnObj = self.worldMapLayer.onTouchStarted(touch.getLocation());
-							
-						}
-			    	}
-			    	
-			    	return true;
+			   		
+				    	self.onDownEvent(touch);
+				    	return true;
 			    },
-			    onTouchMoved: function(touch, event){
-			    	var target = event.getCurrentTarget();
-			    	var locationInNode = self.convertToNodeSpace(touch.getLocation());
-
-					if(!self.isPopup())
-					{
-				    	if(FUNCTIONS.posWithin(locationInNode, self.curMainLayer))
-				    	{
-				    		self.curMainLayer.onTouchMoved(touch.getLocation());
-				    	}
-			    	}
-			    	else
-			    	{
-			    		if(self.worldMapLayer != null)
-						{	
-							var returnObj = self.worldMapLayer.onTouchMoved(locationInNode);
-							
-						}
-			    	}
-			    	return true;
+			    onTouchMoved: function(touch, event){cc.log("MOVE");
+			    			self.onMoveEvent(touch);
+			    			return true;
+			   
 			    },
 			    onTouchEnded: function(touch, event){cc.log("touchend main");
-				    var target = event.getCurrentTarget();
-				    var locationInNode = self.bottomUILayer.convertToNodeSpace(touch.getLocation());
-			    	
-			    	if(!self.isPopup())
-					{
-				    	if(FUNCTIONS.posWithin(locationInNode, self.bottomUILayer))
-				    	{cc.log("bottom");
-				    		var botReturn = null;
-				    		botReturn = self.bottomUILayer.onTouchEnd(touch.getLocation()/*locationInNode*/);
-				    		
-				    		if(botReturn == self.curTabName)
-				    		{
-				    			if(self.menuMode == "creator")
-				    			{
-				    				self.bottomUILayer.changeToGame();
-				    				self.topUILayer.changeToGame();
-				    				self.coreButtonsUI.changeToGame();
-				    			}
-				    			else if(self.menuMode == "game")
-				    			{
-				    				self.bottomUILayer.changeToEditor();
-				    				self.topUILayer.changeToEditor();
-				    				self.coreButtonsUI.changeToEditor();
-				    			}
-				    			self.swapCreatorMode();
-				    		}
-				    		else
-				    		{
-					    		if(botReturn == "challenge")
-					    		{
-					    			self.uiSlideToChallenge();
-					    		}
-					    		else if(botReturn == "gameplay")
-					    		{
-					    			self.uiSlideToGame();
-					    		}
-					    		else if(botReturn == "me")
-					    		{
-					    			self.uiSlideToMe();
-					    		}
-					    		else if(botReturn == "league")
-					    		{
-					    			self.uiSlideToLeague();
-					    		}
-					    		else if(botReturn == "friends")
-					    		{
-					    			self.uiSlideToFriends();
-					    		}
-				    		}
-				    	}
-				    	else if(FUNCTIONS.posWithin(touch.getLocation(), self.topUILayer))
-				    	{cc.log("topUI");
-				    		//self.openWorldMapLayer();
-				    		self.topUILayer.onTouchEnd(touch.getLocation());
-				    	}
-				    	else if( FUNCTIONS.posWithin(touch.getLocation(), self.curMainLayer))
-				    	{cc.log("curLayerrrrrr");
-				    		var returnObj = self.curMainLayer.onTouchEnded(touch.getLocation());
-				    		if(self.curTabName=="challenge" && self.menuMode=="creator")
-				    		{
-				    			if(returnObj != null)
-				    			{
-					    			if(returnObj.type == "edit")
-					    			{
-					    				var newLevelNum = returnObj.number;
-					    				self.mainEditorLayer.openCreatedLevel(newLevelNum);
-					    				
-					    				
-					    				
-					    				self.uiSlideToGame();
-					    			}
-					    			else if(returnObj.type == "test")
-					    			{
-					    				var testLevelNum = returnObj.number;
-					    				
-					    				var bubData = self.editorRewardsLayer.bubbleLayer.getBubbles();
-					    				var bubbles = [];
-							    		var numMoves = 0;
-						    			for(var i=0; i<bubData.length; i++)
-						    			{
-						    				var dBub = bubData[i];
-									  		
-									  		var colorCode = null;
-									  		var metaData = null;
-									  		if(dBub.type == 7)
-									  		{
-									  			colorCode = [];
-									  			var colorKeys = Object.keys(dBub.colorCode);
-									  			for(var j=0; j<colorKeys.length; j++)
-									  			{
-									  				colorCode.push(dBub.colorCode[colorKeys[j]]);
-									  			}
-									  		}
-									  		else colorCode = dBub.colorCode;
-									  		
-									  		/*if(dBub.type == 20)
-									  		{cc.log("star");
-									  			if("id" in dBub.meta && dBub.meta.id != null)
-									  			{cc.log("star with ID "+dBub.meta.id);
-									  				metaData = dBub.meta;
-									  			}
-									  		}*/
-									  		
-									  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:colorCode, binary:dBub.binary, meta:metaData};
-						    				bubbles.push(bubble);
-						    			}
-						
-						    			numMoves = 99;
-						    		
-							    		
-							    		var maxRow = 0;
-							    		var bubbleData = [];
-							    		for(var i=0; i<bubbles.length; i++)
-							    		{
-							    			if(bubbles[i].row > maxRow)
-							    				maxRow = bubbles[i].row;
-							    		}
-										
-										
-										DATA.setLevelQueue(DATA.challenges[1].queue);
-										
-										
-									
-							    		cc.director.runScene( new cc.TransitionSlideInB( 1.0, new PlaytestScene(bubbles, maxRow+1, numMoves, {}) ) );
-					    			}
-				    			}
-				    		}
-				    	}
-				    	else if(FUNCTIONS.posWithin(touch.getLocation(), self.coreButtonsUI))
-				    	{
-				    		cc.log("CORE BUTTONS YO");
-				    		self.curMainLayer.coreUITouched(touch.getLocation());
-				    	}
-					 	
-					 	cc.log(self.curMainLayer);
-					}
-					else
-					{
-						if(self.worldMapLayer != null)
-						{	
-							var returnObj = self.worldMapLayer.onTouchEnded(touch.getLocation());
-							if(returnObj == "close")
-							{
-								self.removeChild(self.worldMapLayer);
-								self.worldMapLayer = null;
-							}
-							else if(returnObj == "next")
-							{
-								//self.removeChild(self.worldMapLayer);
-								//self.worldMapLayer = null;
-								
-								self.closeWorldMapAfterCompletion();
-								
-								
-								
-							}
-						}
-						else if(self.preLayer != null)
-						{cc.log("CLICK IN PRELAYER");
-							var returnObj = self.preLayer.onTouchEnd(touch.getLocation());
-							if(returnObj == "close")
-							{
-								var scaleAction = cc.scaleTo(.5, 0, 0);
-								var moveToAction = cc.moveTo(.5, cc.p(cc.winSize.width*.5,25));
-								var spawn = cc.spawn(scaleAction,moveToAction);
-								self.preLayer.setCascadeOpacityEnabled(true);
-								var seq = new cc.Sequence(spawn, cc.callFunc( self.preLayer.removeFromParent, self.preLayer ) );
-								self.preLayer.runAction(seq);
-								self.preLayer = null;
-							}
-							else if(returnObj == "buy-prebooster")
-							{
-								self.removeChild(self.preLayer);
-								self.preLayer = null;
-								
-								self.buyPreboosterLayer = new BuyBoosterLayer(cc.winSize.width-50,self.height-50,"plus_five");
-								self.buyPreboosterLayer.attr({
-									x:25,
-									y:25,
-									anchorX:0,
-									anchorY:0
-								});
-								self.addChild(self.buyPreboosterLayer);
-							}
-							
-						}
-						else if(self.noLevelLayer != null)
-						{
-							var returnObject = self.noLevelLayer.onTouchEnd(touch.getLocation());
-							if(returnObject == "close")
-							{
-								var scaleAction = cc.scaleTo(.5, 0, 0);
-								var moveToAction = cc.moveTo(.5, cc.p(cc.winSize.width*.5,25));
-								var spawn = cc.spawn(scaleAction,moveToAction);
-								self.noLevelLayer.setCascadeOpacityEnabled(true);
-								var seq = new cc.Sequence(spawn, cc.callFunc( self.noLevelLayer.removeFromParent, self.noLevelLayer ) );
-								self.noLevelLayer.runAction(seq);
-								self.noLevelLayer = null;
-							}
-						}
-						
-					}
-					
-			    	return true;
+			    		self.onUpEvent(touch);
+			    		return true;
+				    
 			    }
+			    
 		    },this);
 		}
 		
-        //return true;
+	},
+	
+	onDownEvent:function(touch)
+	{cc.log("DOWN EVENT");cc.log(touch);
+    		var locationInNode = this.convertToNodeSpace(touch.getLocation());
+		cc.log(locationInNode);
+		cc.log(this.curMainLayer);
+		if(!this.isPopup())
+		{
+		    	if(FUNCTIONS.posWithin(locationInNode, this.curMainLayer))
+		    	{
+		    		this.curMainLayer.onTouchBegan(touch.getLocation());
+		    	}
+	    	}
+	    	else
+	    	{
+	    		if(this.worldMapLayer != null)
+				{	
+					var returnObj = this.worldMapLayer.onTouchStarted(touch.getLocation());
+					
+				}
+	    	}
+	    	
+	    //	return true;
+	},
+	onMoveEvent:function(touch)
+	{cc.log("MOVE EVENT");cc.log(touch);
+    		var locationInNode = this.convertToNodeSpace(touch.getLocation());
+
+		if(!this.isPopup())
+		{
+		    	if(FUNCTIONS.posWithin(locationInNode, this.curMainLayer))
+		    	{
+		    		this.curMainLayer.onTouchMoved(touch.getLocation());
+		    	}
+	    	}
+	    	else
+	    	{
+	    		if(this.worldMapLayer != null)
+				{	
+					var returnObj = this.worldMapLayer.onTouchMoved(locationInNode);
+					
+				}
+	    	}
+	    //	return true;
+	},
+	onUpEvent:function(touch)
+	{cc.log("UP EVENT");cc.log(touch);
+	    var locationInNode = this.bottomUILayer.convertToNodeSpace(touch.getLocation());
+    	
+    		if(!this.isPopup())
+		{
+		    	if(FUNCTIONS.posWithin(locationInNode, this.bottomUILayer))
+		    	{
+		    		var botReturn = null;
+		    		botReturn = this.bottomUILayer.onTouchEnd(touch.getLocation());
+		    		
+		    		if(botReturn == this.curTabName)
+		    		{
+		    			if(this.menuMode == "creator")
+		    			{
+		    				this.bottomUILayer.changeToGame();
+		    				this.topUILayer.changeToGame();
+		    				this.coreButtonsUI.changeToGame();
+		    			}
+		    			else if(this.menuMode == "game")
+		    			{
+		    				this.bottomUILayer.changeToEditor();
+		    				this.topUILayer.changeToEditor();
+		    				this.coreButtonsUI.changeToEditor();
+		    			}
+		    			this.swapCreatorMode();
+		    		}
+		    		else
+		    		{
+			    		if(botReturn == "challenge")
+			    		{
+			    			this.uiSlideToChallenge();
+			    		}
+			    		else if(botReturn == "gameplay")
+			    		{
+			    			this.uiSlideToGame();
+			    		}
+			    		else if(botReturn == "me")
+			    		{
+			    			this.uiSlideToMe();
+			    		}
+			    		else if(botReturn == "league")
+			    		{
+			    			this.uiSlideToLeague();
+			    		}
+			    		else if(botReturn == "friends")
+			    		{
+			    			this.uiSlideToFriends();
+			    		}
+		    		}
+		    	}
+		    	else if(FUNCTIONS.posWithin(touch.getLocation(), this.topUILayer))
+		    	{
+		    		this.topUILayer.onTouchEnd(touch.getLocation());
+		    	}
+		    	else if( FUNCTIONS.posWithin(touch.getLocation(), this.curMainLayer))
+		    	{
+		    		var returnObj = this.curMainLayer.onTouchEnded(touch.getLocation());
+		    		if(this.curTabName=="challenge" && this.menuMode=="creator")
+		    		{
+		    			if(returnObj != null)
+		    			{
+			    			if(returnObj.type == "edit")
+			    			{
+			    				var newLevelNum = returnObj.number;
+			    				this.mainEditorLayer.openCreatedLevel(newLevelNum);
+			    				
+			    				
+			    				
+			    				this.uiSlideToGame();
+			    			}
+			    			else if(returnObj.type == "test")
+			    			{
+			    				var testLevelNum = returnObj.number;
+			    				
+			    				var bubData = this.editorRewardsLayer.bubbleLayer.getBubbles();
+			    				var bubbles = [];
+					    		var numMoves = 0;
+				    			for(var i=0; i<bubData.length; i++)
+				    			{
+				    				var dBub = bubData[i];
+							  		
+							  		var colorCode = null;
+							  		var metaData = null;
+							  		if(dBub.type == 7)
+							  		{
+							  			colorCode = [];
+							  			var colorKeys = Object.keys(dBub.colorCode);
+							  			for(var j=0; j<colorKeys.length; j++)
+							  			{
+							  				colorCode.push(dBub.colorCode[colorKeys[j]]);
+							  			}
+							  		}
+							  		else colorCode = dBub.colorCode;
+							  		
+							  		
+							  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:colorCode, binary:dBub.binary, meta:metaData};
+				    				bubbles.push(bubble);
+				    			}
+				
+				    			numMoves = 99;
+				    		
+					    		
+					    		var maxRow = 0;
+					    		var bubbleData = [];
+					    		for(var i=0; i<bubbles.length; i++)
+					    		{
+					    			if(bubbles[i].row > maxRow)
+					    				maxRow = bubbles[i].row;
+					    		}
+								
+								
+								DATA.setLevelQueue(DATA.challenges[1].queue);
+								
+								
+							
+					    		cc.director.runScene( new cc.TransitionSlideInB( 1.0, new PlaytestScene(bubbles, maxRow+1, numMoves, {}) ) );
+			    			}
+		    			}
+		    		}
+		    	}
+		    	else if(FUNCTIONS.posWithin(touch.getLocation(), this.coreButtonsUI))
+		    	{
+		    		cc.log("CORE BUTTONS YO");
+		    		this.curMainLayer.coreUITouched(touch.getLocation());
+		    	}
+		 	
+		 	cc.log(this.curMainLayer);
+		}
+		else
+		{
+			if(this.worldMapLayer != null)
+			{	
+				var returnObj = this.worldMapLayer.onTouchEnded(touch.getLocation());
+				if(returnObj == "close")
+				{
+					this.removeChild(this.worldMapLayer);
+					this.worldMapLayer = null;
+				}
+				else if(returnObj == "next")
+				{
+					
+					this.closeWorldMapAfterCompletion();
+					
+					
+					
+				}
+			}
+			else if(this.preLayer != null)
+			{cc.log("CLICK IN PRELAYER");
+				var returnObj = this.preLayer.onTouchEnd(touch.getLocation());
+				if(returnObj == "close")
+				{
+					var scaleAction = cc.scaleTo(.5, 0, 0);
+					var moveToAction = cc.moveTo(.5, cc.p(cc.winSize.width*.5,25));
+					var spawn = cc.spawn(scaleAction,moveToAction);
+					this.preLayer.setCascadeOpacityEnabled(true);
+					var seq = new cc.Sequence(spawn, cc.callFunc( this.preLayer.removeFromParent, this.preLayer ) );
+					this.preLayer.runAction(seq);
+					this.preLayer = null;
+				}
+				else if(returnObj == "buy-prebooster")
+				{
+					this.removeChild(this.preLayer);
+					this.preLayer = null;
+					
+					this.buyPreboosterLayer = new BuyBoosterLayer(cc.winSize.width-50,this.height-50,"plus_five");
+					this.buyPreboosterLayer.attr({
+						x:25,
+						y:25,
+						anchorX:0,
+						anchorY:0
+					});
+					this.addChild(this.buyPreboosterLayer);
+				}
+				
+			}
+			else if(this.noLevelLayer != null)
+			{
+				var returnObject = this.noLevelLayer.onTouchEnd(touch.getLocation());
+				if(returnObject == "close")
+				{
+					var scaleAction = cc.scaleTo(.5, 0, 0);
+					var moveToAction = cc.moveTo(.5, cc.p(cc.winSize.width*.5,25));
+					var spawn = cc.spawn(scaleAction,moveToAction);
+					this.noLevelLayer.setCascadeOpacityEnabled(true);
+					var seq = new cc.Sequence(spawn, cc.callFunc( this.noLevelLayer.removeFromParent, this.noLevelLayer ) );
+					this.noLevelLayer.runAction(seq);
+					this.noLevelLayer = null;
+				}
+			}
+			
+		}
+		
+    //	return true;
+    
 	},
 	
 	uiSlideToChallenge:function()

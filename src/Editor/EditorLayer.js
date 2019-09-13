@@ -1,5 +1,5 @@
 var EditorLayer = cc.Layer.extend({
-	ctor:function(width, height){
+	ctor:function(width, height, editorData, startingBubbles, numRows){
 		this._super();
 		//cc.associateWithNative( this, cc.Sprite );
 		
@@ -16,98 +16,225 @@ var EditorLayer = cc.Layer.extend({
 		this.drawBinary = null;
 		this.drawMeta = {};
 		
+		this.levelId = null;
+		
 		this.mode = "create";
 		
 		this.moveNum = 0;
 		
-		this.editorUILayer = new EditorUILayer(this.width, this.height/3);
-		this.editorUILayer.attr({
-			x: 0,
-			y: 0,
-			anchorX: 0,
-			anchorY: 0
-		});
+		this.touchDown = false;
 		
-		this.midUILayer = new MidUILayer(this.width, this.width/12);
-		this.midUILayer.attr({
-			x: 0,
-			y: this.editorUILayer.height,
-			anchorX: 0,
-			anchorY: 0
-		});
+		this.features = editorData.features;
+		this.userLevels = editorData.userLevels;
 		
-		this.bubbleLayer = new EditorBubbleLayer(this.width, this.height-this.editorUILayer.height-this.midUILayer.height, 
-			[], 100);	
+		this.numRows = numRows;
+		
+	
+		var bubbleList = [];
+		var bubKeys = Object.keys(startingBubbles);
+		for(var i=0; i<bubKeys.length; i++)
+		{
+			var bub = startingBubbles[bubKeys[i]];
+			bubbleList.push(bub);
+		}
+		
+		var initNumRows = this.numRows;cc.log("ROWS: " + this.numRows);
+		if(initNumRows <= 20)
+			initNumRows = Math.floor(this.height/ ( Math.pow(3,.5)*(this.width/24) ) ) + 1;
+		cc.log(initNumRows);
+		this.bubbleLayer = new EditorBubbleLayer(this.width, this.height, 
+			bubbleList, initNumRows, {});//Math.floor(this.height/ ( Math.pow(3,.5)*(this.width/24) ) ) + 1);	
 		this.bubbleLayer.attr({
-			x:0,
-			y:this.editorUILayer.height+this.midUILayer.height,
-			//width:size.width,
-			//height:size.height-this.editorUILayer.height-this.midUILayer.height,
-			anchorX:0,
-			anchorY:0
-		});
-		this.addChild(this.bubbleLayer);
-		this.addChild(this.midUILayer);
-		this.addChild(this.editorUILayer);
-		
-		this.levelViewerLayer = new LevelViewer(this.width, this.height-this.editorUILayer.height-this.midUILayer.height);
-		this.levelViewerLayer.attr({
-			x:0,
-			y:this.editorUILayer.height+this.midUILayer.height,
-			anchorX:0,
-			anchorY:0
-		});
-		
-		this.viewerBubbleLayer = new EditorBubbleLayer(this.width, this.height-this.editorUILayer.height-this.midUILayer.height, [], 20);
-		this.viewerBubbleLayer.attr({
-			x:0,
-			y:this.editorUILayer.height+this.midUILayer.height,
-			anchorX:0,
-			anchorY:0
-		});
-		
-		this.levelViewerUILayer = new LevelViewerUILayer(this.width, this.height/3);
-		this.levelViewerUILayer.attr({
 			x:0,
 			y:0,
 			anchorX:0,
 			anchorY:0
 		});
-		
-		var self = this;
-		
+		this.addChild(this.bubbleLayer);
 		
 		
+		this.menuBarLayer = new MenuBarLayer(this.width*.95, this.height*.1, "new");
+		this.menuBarLayer.attr({
+			x:this.width*.025,
+			y:5,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.menuBarLayer);
 		
+		cc.log(startingBubbles);
+		if(Object.keys(startingBubbles).length > 0)
+		{
+			this.menuBarLayer.addPlayButton();
+			this.menuBarLayer.addSaveButton();
+			
+			//this.bubbleLayer.
+		}
+		
+	
 		
 	},
-	
-	openCreatedLevel:function(levelNum)
+	openFeatureLevel:function()
 	{
-		/*var newBubbles = [];
-		for(var i=0; i<newBubbles.length; i++)
-		{
-			var bub = newBubbles[i];
-			var drawType = bub.type;
-			var drawColor = bub.color;
-			var drawOrientation = bub.orientation;
-			var drawBinary = bub.binary;
-			var drawMeta = bub.meta;
-			this.bubbleLayer.paintHex({}, drawType, drawColor, drawOrientation, drawBinary, drawMeta);
-		}*/
-		var maxRow = 0;cc.log(levelNum);
-		var bubs = DATA.createdLevels[levelNum].bubbles;
+		var maxRow = 0;
+		//var bubs = DATA.features[levelNum].bubbles;
+		var bubs = this.feature.bubbles;
 		for(var i=0; i<bubs.length; i++)
 		{
 			if(bubs[i].row > maxRow)
 				maxRow = bubs[i].row;
 		}
-		var metaData = DATA.createdLevels[0].meta;
-		this.bubbleLayer.initLevel(bubs, maxRow+1, {type:"edit",number:levelNum});
+		var metaData = {};//DATA.feature.meta;
+		this.bubbleLayer.initLevel(bubs, maxRow+1, {type:"edit",number:0});
 		
+	},
+	
+	openIdentifiedLevel:function(levelData)
+	{cc.log("OPENING ID'd LEVEL");
+		
+		this.parent.playForeignLevel(levelData);
+			
+	},
+	
+	turnBrowserIntoEditor:function(level)
+	{
+		this.removeChild(this.bubbleLayer);
+		this.bubbleLayer = new EditorBubbleLayer(this.width, this.height, 
+			level.bubbles, Math.max(level.numRows, 25), {});//Math.floor(this.height/ ( Math.pow(3,.5)*(this.width/24) ) ) + 1);	
+		this.bubbleLayer.attr({
+			x:0,
+			y:0,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.bubbleLayer);
+		
+		
+		
+		//this.bubbleLayer.initLevel(bubs, maxRow+1, {type:"edit",number:levelNum});
+			
+	},
+	
+	openCreatedLevel:function(levelNum)
+	{
+			
+			var maxRow = 0;cc.log(levelNum);
+			//var bubs = DATA.createdLevels[levelNum].bubbles;
+			var bubs = this.parent.editorData.userLevels[levelNum].bubbles;cc.log(bubs);
+			for(var i=0; i<bubs.length; i++)
+			{
+				if(bubs[i].row > maxRow)
+					maxRow = bubs[i].row;
+			}
+			var metaData = this.userLevels[0].meta;
+			this.bubbleLayer.initLevel(bubs, maxRow+1, {type:"edit",number:levelNum});
+			
+			this.levelId = levelNum;
 		
 		
 	},
+	
+	
+	
+	saveAsNewLevel:function()
+	{cc.log("SAVING AS NEW LEVEL");
+		var bubbleData = this.bubbleLayer.getBubbles();
+   		var bubs = [];cc.log(bubbleData);
+   		
+   		var newNumRows = this.parent.curCreatedRows;
+   		var newNumMoves = this.parent.curCreatedMoves;
+   		var newColors = {};
+   		var newTypes = [];
+   		
+   		for(var i=0; i<bubbleData.length; i++)
+   		{
+   			var bub = bubbleData[i];
+   			
+   			if(newTypes.indexOf(bub.type) == -1)
+   				newTypes.push(bub.type);
+   			
+   			if(bub.type == 7)
+   			{
+   				bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":bub.meta.iteration});
+   			}
+   			else 
+   			{
+   				var color = null;
+   				if("colorCode" in bub && bub.colorCode !== undefined)
+   				{
+   					color = bub.colorCode;
+   					
+   					if(bub.type == 0)
+   					{
+   						if(!(color in newColors))
+   						{
+   							newColors[color] = 1;
+   						}
+   						else
+   						{
+   							newColors[color]++;
+   						}
+   					}	
+   				}
+   				var meta = null;
+   				if("meta" in bub && bub.meta !== undefined)
+   					meta = bub.meta;
+   				var newBub = {"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":color,"meta":meta};
+   				if("orientation" in bub && bub.orientation !== undefined)
+   					newBub.orientation = bub.orientation;
+   				if("binary" in bub && bub.orientation !== undefined)
+   					newBub.binary = bub.binary;
+   				bubs.push(newBub);
+   			}
+   		}cc.log(bubs);
+   		
+   		//var meta = {bulbData:this.editorUILayer.bulbData};
+   		
+   		
+   		
+		//DATA.saveNewLevelToDatabase(bubs, {});
+		var newLevel = {
+			bubbles:bubs,
+			colors:newColors,
+			numMoves:newNumMoves,
+			numRows:newNumRows,
+			queue:{type:"bucket",colors:[1,1,1,1,1,1]},
+			meta:{"0":0},
+			levelTypes:newTypes,
+			levelColors:Object.keys(newColors)
+		};
+		this.parent.updateNewCreatedLevel(newLevel);
+	},
+	/*
+	overwriteLevel:function(number)
+	{cc.log("OVERWRITE LEVEL "+number);
+		//DATA.createdLevels[number] = {bubbles:this.bubbleLayer.bubbles, queue:this.bubbleLayer.queue, meta:this.bubbleLayer.meta};
+		
+		var bubbleData = this.bubbleLayer.getBubbles();
+   		var bubs = [];cc.log(bubbleData);
+   		for(var i=0; i<bubbleData.length; i++)
+   		{
+   			var bub = bubbleData[i];
+   			
+   			if(bub.type == 7)
+   			{
+   				bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":bub.meta.iteration});
+   			}
+   			else 
+   			{
+   				var color = null;
+   				if("colorCode" in bub && bub.colorCode !== undefined)
+   					color = bub.colorCode;
+   				var meta = null;
+   				if("meta" in bub && bub.meta !== undefined)
+   					meta = bub.meta;
+   				bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":color,"meta":meta});
+   			}
+   		}cc.log(bubs);
+		
+		//DATA.overwriteCreatedLevel(bubs, {}, number);
+		//this.parent.
+	},*/
 	
 	coreUITouched:function(pos)
 	{
@@ -119,256 +246,74 @@ var EditorLayer = cc.Layer.extend({
 		}
 	},
 	
+	resetMenuBar:function()
+	{
+		this.removeChild(this.menuBarLayer);
+		
+		this.menuBarLayer = new MenuBarLayer(this.width*.95, this.height*.1, "new");
+		this.menuBarLayer.attr({
+			x:this.width*.025,
+			y:5,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.menuBarLayer);
+		
+		this.menuBarLayer.addPlayButton();
+		this.menuBarLayer.addSaveButton();
+			
+	},
+	
 	onTouchBegan:function(pos)
 		{cc.log("EDITOR TOUCH BEGAN !!!!!!!!!!");cc.log(pos);
 			//var target = event.getCurrentTarget();
-	    	var locationInNode = this.bubbleLayer.convertToNodeSpace(pos);
-	    	//this.bubbleLayer.onTouchBegin(touch.getLocation(), this.drawType);
-	    	if(locationInNode.y < 0)
-	    	{
-	    		if(this.mode == "create")
+		    	var locationInNode = this.bubbleLayer.convertToNodeSpace(pos);cc.log(locationInNode);
+		    
+
+		   if(locationInNode.x > this.menuBarLayer.x && locationInNode.x < this.menuBarLayer.x+this.menuBarLayer.width
+	    			&& locationInNode.y > this.menuBarLayer.y && locationInNode.y < this.menuBarLayer.y+this.menuBarLayer.height)
 	    		{
-	    			if(this.midUILayer.convertToNodeSpace(pos).y < 0)
-	    				this.editorUILayer.onTouchBegin(this.editorUILayer.convertToNodeSpace(pos));
-	    			else this.midUILayer.onTouchBegin(pos);
+	    			
 	    		}
-	    		else if(this.mode == "view")
+	    		else
 	    		{
-	    			if(this.midUILayer.convertToNodeSpace(pos).y < 0)
-	    			{
-	    				//this.levelViewerUILayer.onTouchBegin(touch.getLocation());
-	    			}
-	    			else this.midUILayer.onTouchBegin(pos);
-	    		}
-	    	}
-	    	else 
-	    	{
-	    		if(this.mode == "create")
-	    		{cc.log(locationInNode);
-	    			this.bubbleLayer.onTouchBegin(pos, this.drawType, this.drawColor, this.drawOrientation, this.drawBinary, this.drawMeta);
-	    		}
-	    		else if(this.mode == "view")
-	    		{
-	    			//this.viewerBubbleLayer.onTouchBegin(touch.getLocation(), this.drawType, this.drawColor);
-	    		}
-	    	}
+		    		this.bubbleLayer.onTouchBegin(locationInNode, this.drawType, this.drawColor, this.drawOrientation, this.drawBinary, this.drawMeta);
+		    }
 		},
 		onTouchMoved:function(pos)
 		{
-			//var target = event.getCurrentTarget();
-	    	var locationInNode = this.bubbleLayer.convertToNodeSpace(pos);
-	    	//this.bubbleLayer.onTouchBegin(touch.getLocation(), this.drawType);
-	    	//if(pos.y < this.bubbleLayer.y)
-	    	if(locationInNode.y < 0)
-	    	{
-	    		if(this.midUILayer.convertToNodeSpace(pos).y < 0)
+			var locationInNode = this.bubbleLayer.convertToNodeSpace(pos);
+			
+			if(locationInNode.x > this.menuBarLayer.x && locationInNode.x < this.menuBarLayer.x+this.menuBarLayer.width
+	    			&& locationInNode.y > this.menuBarLayer.y && locationInNode.y < this.menuBarLayer.y+this.menuBarLayer.height)
 	    		{
-	    			if(this.mode == "create")
-	    			{
-	    				this.editorUILayer.onTouchMoved(this.editorUILayer.convertToNodeSpace(pos));
-	    			}
-	    			else if(this.mode == "view")
-	    			{
-	    				this.levelViewerUILayer.onTouchMoved(pos);
-	    			}
+	    			
 	    		}
-	    		else this.midUILayer.onTouchMoved(pos);
-	    	}
-	    	else this.bubbleLayer.onTouchMoved(pos, this.drawType, this.drawColor, this.drawOrientation, this.drawBinary, this.drawMeta);
+	    		else
+	    		{
+	    			this.bubbleLayer.onTouchMoved(locationInNode, this.drawType, this.drawColor, this.drawOrientation, this.drawBinary, this.drawMeta);
+	    		}
 	    	
 		},
 		onTouchEnded:function(pos)
 		{
 			//var target = event.getCurrentTarget();
 		    var locationInNode = this.bubbleLayer.convertToNodeSpace(pos);
-	    	//this.bubbleLayer.onTouchBegin(touch.getLocation(), this.drawType);
-	    	var returnData = null;
-	    	var uiData = null;
-	    	//if(pos.y < this.bubbleLayer.y)
-	    	if(locationInNode.y < 0)
-	    	{
-	    		if(this.midUILayer.convertToNodeSpace(pos).y < 0)
+	    		//this.bubbleLayer.onTouchBegin(touch.getLocation(), this.drawType);
+	    		var returnData = null;
+	    		var uiData = null;
+	    	
+	    		
+	    		if(locationInNode.x > this.menuBarLayer.x && locationInNode.x < this.menuBarLayer.x+this.menuBarLayer.width
+	    			&& locationInNode.y > this.menuBarLayer.y && locationInNode.y < this.menuBarLayer.y+this.menuBarLayer.height)
 	    		{
-	    			if(this.mode == "create")
-	    			{
-	    				returnData = this.editorUILayer.onTouchEnded(this.editorUILayer.convertToNodeSpace(pos));
-	    			}
-	    			else if(this.mode == "view")
-	    			{
-	    				returnData = this.levelViewerUILayer.onTouchEnded(this.levelViewerUILayer.convertToNodeSpace(pos));
-	    				cc.log(returnData);
-	    			}
-	    			
+	    			this.menuBarLayer.onTouchEnded(locationInNode);
 	    		}
-	    		else {
-	    			uiData = this.midUILayer.onTouchEnded(pos);
+	    		else
+	    		{
+	    			this.bubbleLayer.onTouchEnded(locationInNode, this.drawType, this.drawColor, this.drawOrientation, this.drawBinary, this.drawMeta);
 	    		}
-	    	}
-	    	else
-	    	{
-	    		this.bubbleLayer.onTouchEnded(pos, this.drawType, this.drawColor, this.drawOrientation, this.drawBinary, this.drawMeta);
-		   	}
-		   	
-		   	if(returnData == "test")
-		   	{
-		   		var bubbleData = this.bubbleLayer.getBubbles();
-		   		var bubs = [];
-		   		for(var i=0; i<bubbleData.length; i++)
-		   		{
-		   			var bub = bubbleData[i];
-		   			if(bub.type == 7)
-		   			{
-		   				
-		   			}
-		   			bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":bub.colorCode});
-		   		}
-		   		var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(
-		   			{"bubbles":bubs}));
-		   		 var downloadAnchorNode = document.createElement('a');
-			    downloadAnchorNode.setAttribute("href",     dataStr);
-			    downloadAnchorNode.setAttribute("download", "level" + ".json");
-			    document.body.appendChild(downloadAnchorNode); // required for firefox
-			    downloadAnchorNode.click();
-			    downloadAnchorNode.remove();
-		   		
-		   		
-				cc.director.runScene(new GameplayScene(this.bubbleLayer.getBubbles(), this.bubbleLayer.getNumRows(), {bulbData:this.bubbleLayer.bulbData}));
-		   	}
-		   	else if(returnData == "save")
-		   	{
-		   		var bubbleData = this.bubbleLayer.getBubbles();
-		   		var bubs = [];cc.log(bubbleData);
-		   		for(var i=0; i<bubbleData.length; i++)
-		   		{
-		   			var bub = bubbleData[i];
-		   			
-		   			if(bub.type == 7)
-		   			{
-		   				bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":bub.meta.iteration});
-		   			}
-		   			else 
-		   			{
-		   				var color = null;
-		   				if("colorCode" in bub && bub.colorCode !== undefined)
-		   					color = bub.colorCode;
-		   				var meta = null;
-		   				if("meta" in bub && bub.meta !== undefined)
-		   					meta = bub.meta;
-		   				bubs.push({"row":bub.row,"col":bub.col,"type":bub.type,"colorCode":color,"meta":meta});
-		   			}
-		   		}cc.log(bubs);
-		   		
-		   		var meta = {bulbData:this.editorUILayer.bulbData};
-		   		
-		   		if(this.bubbleLayer.levelStatus.type == "new")
-		   			DATA.saveNewLevelToDatabase(bubs, meta);
-		   		else if(this.bubbleLayer.levelStatus.type == "edit")
-		   			DATA.overwriteCreatedLevel(bubs, meta, this.bubbleLayer.levelStatus.number);
-		   		else cc.log(this.bubbleLayer.levelStatus);
-		   	}
-		   	else if(returnData != null)
-		   	{
-		   		if(returnData.type == "level")
-		   		{
-		   			var maxRow = 0;
-		   			var bubs = DATA.createdLevels[returnData.number].bubbles;
-		   			for(var i=0; i<bubs.length; i++)
-		   			{
-		   				if(bubs[i].row > maxRow)
-		   					maxRow = bubs[i].row;
-		   			}
-		   			this.removeChild(this.viewerBubbleLayer);
-		   			cc.log(bubs);
-		   			var metaData = DATA.createdLevels[returnData.number].meta;cc.log(metaData);
-		   			/*var meta = {bulbData:[]};
-		   			if(metaData != null && "bulbData" in metaData)
-		   			{
-		   				for(var i=0; i<metaData.bulbData.length; i++)
-		   				{
-		   					for(var j=0; j<metaData.bulbData[i].length; j++)
-		   					{
-		   						meta.bulbData.push(metaData.bulbData[i][j]);
-		   					}
-		   				}
-		   			}cc.log(meta);*/
-		   			this.viewerBubbleLayer = new EditorBubbleLayer(this.width, this.height-this.editorUILayer.height-this.midUILayer.height,
-		   				bubs, maxRow+1, metaData);
-					this.viewerBubbleLayer.attr({
-						x:0,
-						y:this.editorUILayer.height+this.midUILayer.height,
-						anchorX:0,
-						anchorY:0
-					});
-		   			//this.viewerBubbleLayer.addBubbles(DATA.createdLevels[returnData.number].bubbles);
-		   			this.addChild(this.viewerBubbleLayer);
-		   			
-		   			this.removeChild(this.midUILayer);
-					this.addChild(this.midUILayer);
-					this.midUILayer.draw();
-		   		}
-		   		else if(returnData.type == "edit")
-		   		{
-		   			this.removeChild(this.viewerBubbleLayer);
-	   				
-	   				this.removeChild(this.levelViewerUILayer);
-	   				
-	   				this.bubbleLayer = new EditorBubbleLayer(this.width, this.height-this.editorUILayer.height-this.midUILayer.height, this.viewerBubbleLayer.bubbles, 100/*this.viewerBubbleLayer.numRows*/);	
-					this.bubbleLayer.attr({
-						x:0,
-						y:this.editorUILayer.height+this.midUILayer.height,
-						//width:size.width,
-						//height:size.height-this.editorUILayer.height-this.midUILayer.height,
-						anchorX:0,
-						anchorY:0
-					});
-	   				this.addChild(this.bubbleLayer);
-	   				this.bubbleLayer.draw();
-					
-					this.removeChild(this.midUILayer);
-					this.addChild(this.midUILayer);
-					this.midUILayer.draw();
-					
-					this.addChild(this.editorUILayer);
-					this.editorUILayer.draw();
-	   			
-		   			this.mode = "create";
-		   		}
-		   		else if(returnData.type == "test")
-		   		{
-		   			// Run gameplay scene, but with "playtest" mode, has button to go back to edit
-		   			var bubbles = DATA.createdLevels[returnData.number].bubbles;
-					var maxRow = 0;
-					var bubbleData = [];
-					for(var i=0; i<bubbles.length; i++)
-					{
-						if(bubbles[i].row > maxRow)
-							maxRow = bubbles[i].row;
-					}
-					DATA.setLevelQueue({"type":"bucket", "colors":[1,1,1,1,0,0]});// LATER - set to queue stored in data
-					cc.log(bubbles);
-					//cc.log(this.editorUILayer.bulbData);
-					var meta = DATA.createdLevels[returnData.number].meta;
-					cc.log(meta);
-					cc.director.runScene(new PlaytestScene(bubbles, maxRow+1, 99, meta));
-		   		}
-		   		else if(returnData.type == "share")
-		   		{
-		   			// Choose Friends OR Network to share with
-		   		}
-		   		else if(returnData.type < 0)
-		   		{
-		   			this.drawType = -1;
-		   		}
-		   		else
-		   		{cc.log(returnData);
-		   			this.drawType = returnData.type;
-		  			this.drawColor = returnData.color;cc.log(this.drawColor);
-		  			this.drawOrientation = returnData.orientation;
-		  			this.drawBinary = returnData.binary;
-		  			this.drawMeta = returnData.meta;
-		  		}
-		   	}
-		   	
+	    	
 		   	if(uiData != null)
 		   	{
 		   		if(uiData.type == "scrollup")
@@ -455,3 +400,4 @@ var EditorLayer = cc.Layer.extend({
 		}
 	
 });
+

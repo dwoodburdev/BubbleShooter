@@ -29,6 +29,8 @@ var Bubble = cc.Sprite.extend({
         
         this.bulbLabel = null;
         
+        this.isShooter = false;
+        
  		       //this.explosive = false;		// Has clearing effect (associated with on-hit or on-match or on-adj-match) ! (should associate this with each on-X effect in case has multiple effects depending)
         		//this.aoe = null;			// AoE for effect (need to think about this)
         		
@@ -751,7 +753,7 @@ var Bubble = cc.Sprite.extend({
 					this.bubbleImg = new cc.Sprite(res.pink_egg);
 				else if(this.colorCode == "purple")
 					this.bubbleImg = new cc.Sprite(res.purple_egg);
-				;
+				
 			}
 			// Hatched Egg
 			else if(this.type == 23)
@@ -995,6 +997,7 @@ var Bubble = cc.Sprite.extend({
 			// Egg (Poof)
 			else if(this.type == 4)
 				this.bubbleImg = new cc.Sprite(res.bubble_wrap_emoji);
+				//this.bubbleImg = new cc.Sprite(res.bubble_wrap_emoji);
 			// (Soap)
 			else if(this.type == 5)
 				this.bubbleImg = new cc.Sprite(res.soap_emoji);
@@ -1255,6 +1258,36 @@ var Bubble = cc.Sprite.extend({
 		
 	//},
 	
+	changeShooterColor:function(color)
+	{cc.log("changeShooterColor()");cc.log("CHANGING COLOR TO "+color);
+		this.removeChild(this.bubbleImg);
+		if(color == "yellow")
+			this.bubbleImg = new cc.Sprite(res.smile_ball);
+		else if(color == "blue")
+			this.bubbleImg = new cc.Sprite(res.sad_ball);
+		else if(color == "red")
+			this.bubbleImg = new cc.Sprite(res.angry_ball);
+		else if(color == "green")
+			this.bubbleImg = new cc.Sprite(res.sick_ball);
+		else if(color == "pink")
+			this.bubbleImg = new cc.Sprite(res.love_ball);
+		else if(color == "purple")
+			this.bubbleImg = new cc.Sprite(res.evil_ball);
+		
+		this.bubbleImg.setScale(this.r*2 / this.bubbleImg.width);
+		
+		this.bubbleImg.attr({
+			x:this.width/2,
+			y:this.height/2,
+			anchorX:.5,
+			anchorY:.5
+		});
+		this.addChild(this.bubbleImg);
+		
+		this.colorCode = color;
+		
+	},
+	
 	resetAnimation:function()
 	{
 		this.activeAnimation = false;
@@ -1270,6 +1303,11 @@ var Bubble = cc.Sprite.extend({
 			this.bubbleImg.runAction(new cc.RepeatForever(animateSeq));
 			
 		}*/
+	},
+	
+	flagAsShooter:function()
+	{
+		this.isShooter = true;
 	},
 	
 	updateSnailSprite:function()
@@ -1384,8 +1422,8 @@ var Bubble = cc.Sprite.extend({
 	{this.removeChild(this.bulbLabel);
 		this.bulbLabel = new cc.LabelTTF(""+iteration,"Roboto",24);
 		this.bulbLabel.attr({
-			x:DATA.bubbleR/3,
-			y:-DATA.bubbleR/3,
+			x:this.r/3,
+			y:-this.r/3,
 			anchorX:.5,
 			anchorY:.5
 		});
@@ -1666,7 +1704,7 @@ var Bubble = cc.Sprite.extend({
 	},
 	
 	initShotAnim:function(target, targetHex, numRows, maxRows, rowHeight, bottomMostY, bottomBub)
-	{
+	{cc.log(bottomMostY);
 		// The separate actions to be executed
 		var actions = [];
 		
@@ -1679,8 +1717,8 @@ var Bubble = cc.Sprite.extend({
 		cc.log("-NUM ROWS " + numRows);
 		
 		// BORDERS
-		var leftWallX = 0+DATA.bubbleR;
-		var rightWallX = this.parent.width-DATA.bubbleR;
+		var leftWallX = 0+this.r;
+		var rightWallX = this.parent.width-this.r;
 		
 		cc.log("-L Wall (bubbleR))   " + leftWallX);
 		cc.log("-R Wall)   " + rightWallX);
@@ -1688,18 +1726,18 @@ var Bubble = cc.Sprite.extend({
 		
 		var x=this.x;
 		cc.log("-X   " + x);
-		//var y=((numRows*DATA.bubbleR*2)+DATA.bubbleR) + (this.parent.height - this.y - this.parent.getOverflowOffset());
+		//var y=((numRows*this.r*2)+this.r) + (this.parent.height - this.y - this.parent.getOverflowOffset());
 		
-		var bottomBubbleTrueDist = (numRows*rowHeight)-DATA.bubbleR;cc.log(bottomBub.y);cc.log(this.y);
+		var bottomBubbleTrueDist = (numRows*rowHeight)-this.r;
 		var shooterToBottomBubDist = bottomBub.y - this.y;
 		
 		//var yPosFromTop = bottomBubbleTrueDist
 		
-		var y = bottomBubbleTrueDist + shooterToBottomBubDist /*- DATA.bubbleR + this.parent.getOverflowOffset()))*/;
+		var y = bottomBubbleTrueDist + shooterToBottomBubDist /*- this.r + this.parent.getOverflowOffset()))*/;
 		cc.log("y)  " + y);
 		// this.height - bub.row*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset
 		
-		var finalTargetY = targetHex.y*rowHeight+DATA.bubbleR;
+		var finalTargetY = targetHex.y*rowHeight+this.r;
 		cc.log("finalTargetY  " + finalTargetY);
 		
 		var direction = "";
@@ -1760,19 +1798,19 @@ var Bubble = cc.Sprite.extend({
 				dist = prevDist;
 				
 				if(direction == "right")
-					diffX = ( targetHex.x*DATA.bubbleR*2 + DATA.bubbleR + (targetHex.y%2)*DATA.bubbleR ) - x;
-				else diffX = x - ( targetHex.x*DATA.bubbleR*2 + DATA.bubbleR + (targetHex.y%2)*DATA.bubbleR );
+					diffX = ( targetHex.x*this.r*2 + this.r + (targetHex.y%2)*this.r ) - x;
+				else diffX = x - ( targetHex.x*this.r*2 + this.r + (targetHex.y%2)*this.r );
 				
 				cc.log("Instead, Move X " + diffX);
 				
 				//y -= Math.abs( m*diffX );
-				y =  (targetHex.y*rowHeight + DATA.bubbleR);
+				y =  (targetHex.y*rowHeight + this.r);
 				
 				if(direction == "left")
 					x-=diffX;
 				else x += diffX;
 				
-				//x = (targetHex.x*DATA.bubbleR*2 + DATA.bubbleR)
+				//x = (targetHex.x*this.r*2 + this.r)
 				
 				dist = Math.pow( Math.pow(Math.abs(y-prevY), 2) + Math.pow(Math.abs(diffX), 2) , .5 );cc.log(dist);
 			}
@@ -1792,8 +1830,8 @@ var Bubble = cc.Sprite.extend({
 			
 			
 			
-			var speed = DATA.bubbleR*2 * 1;
-			var time = dist*(1/(DATA.bubbleR*2*15));cc.log(dist);
+			var speed = this.r*2 * 1;
+			var time = dist*(1/(this.r*2*15));cc.log(dist);
 			//time=1;
 			cc.log("ACTION Move X) " + (x-prevX) + "   Y) "+(prevY-y));
 			var nextAction = cc.moveBy(time, (x - prevX), (prevY-y));

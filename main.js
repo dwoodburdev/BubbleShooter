@@ -99,6 +99,9 @@ cc.game.onStart = function(){
 
     // Setup the resolution policy and design resolution size
     cc.view.setDesignResolutionSize(cc.view.getFrameSize().width, cc.view.getFrameSize().height, cc.ResolutionPolicy.SHOW_ALL);
+	
+	// For splitting into 3 screens
+	//cc.view.setDesignResolutionSize(cc.view.getFrameSize().height*(750/1334), cc.view.getFrameSize().height, cc.ResolutionPolicy.SHOW_ALL);
 
     // The game will be resized when browser size change
     cc.view.resizeWithBrowserSize(true);
@@ -108,120 +111,165 @@ cc.game.onStart = function(){
     	//var bubbles = DATA.levels[DATA.worldLevelIndex].bubbles;
     	
     	
-		//cc.sys.localStorage.setItem("userID", null);
-		cc.log("hi");
-		cc.log(cc.sys.localStorage.getItem("userID"));
-		if(cc.sys.localStorage.getItem("userID") != null)
-		{
-			/*var bubbles = DATA.worldLevel.bubbles;
+    	
+    	
+    		this.startExistingUser = function(starterParams)
+    		{cc.log(starterParams);
+    			var userId = cc.sys.localStorage.getItem("userID");
 			
-			var maxRow = 0;
-			var bubbleData = [];
-			for(var i=0; i<bubbles.length; i++)
-			{
-				if(bubbles[i].row > maxRow)
-					maxRow = bubbles[i].row;
-			}
-			
-			DATA.worldBubbles = bubbles;
-			//DATA.setWorldQueue(DATA.worldLevel.queue);
-			
-			cc.director.runScene(new GameplayScene(bubbles, maxRow+1));*/
-			
-			DATA.userID = cc.sys.localStorage.getItem("userID");
-			
-			
-			DATA.database.ref("users/"+DATA.userID+"/world").once("value").then(function(snapshot){
-				var d = snapshot.val();
-				cc.log(d);
-				var meta = {};
-				if(d.meta != null)
-				{
-					if(d.meta.bulbData != null)
+			fire_database.ref("users/"+userId).once("value").then(function(snapshot){
+				var d = snapshot.val();cc.log(d.world);
+				var editor_data = {
+					challengeTries:d.challengeTries,
+					colorA:d.colorA,
+					colorB:d.colorB,
+					dailyResetTime:d.dailyResetTime,
+					dailyStreak:d.dailyStreak,
+					feature:d.feature,
+					numLevelsBeat:d.numLevelsBeat,
+					numStars:d.numStars,
+					resetTime:d.resetTime,
+					streak:d.streak,
+					userId:userId,
+					userLevels:[],
+					world:d.world,
+					worldQueue:d.worldQueue,
+					worldQueueActive:d.worldQueueActive,
+					
+					starterParams:starterParams
+				};
+				fire_database.ref("levels/userLevels/"+userId).once("value").then(function(snapshot){
+					var dLevels = snapshot.val();
+					if(dLevels != undefined)
 					{
-						meta.bulbData = [];
-						var bulbKeys = Object.keys(d.meta.bulbData);
-						for(var j=0; j<bulbKeys.length; j++)
+						var levelKeys = Object.keys(dLevels);
+						for(var i=0; i<levelKeys.length; i++)
 						{
-							meta.bulbData.push([]);
-							var iterKeys = Object.keys(d.meta.bulbData[bulbKeys[j]]);
-							for(var k=0; k<iterKeys.length; k++)
+							
+							var newLevelData = dLevels[levelKeys[i]];cc.log(newLevelData);
+							if(newLevelData != 0)
 							{
-								meta.bulbData[j].push(d.meta.bulbData[bulbKeys[j]][iterKeys[k]])
+								editor_data.userLevels.push(newLevelData);
+								editor_data.userLevels[editor_data.userLevels.length-1].code = levelKeys[i];
 							}
 						}
 					}
-				}
-				cc.log(meta);
-				var bubbles = [];
-			  	var bubKeys = Object.keys(d.bubbles);cc.log("bubs");cc.log("hola here");
-			  	for(var i=0; i<bubKeys.length; i++)
-			  	{
-			  		var dBub = d.bubbles[bubKeys[i]];cc.log(dBub);
-			  		
-			  		var colorCode = null;
-			  		var metaData = null;cc.log("hola");
-			  		if(dBub.type == 7)
-			  		{
-			  			colorCode = [];
-			  			for(var j=0; j<meta.bulbData[dBub.colorCode].length; j++)
-			  			{
-			  				var code = meta.bulbData[dBub.colorCode][j];
-			  				var colors = ["purple","red","yellow","green","blue","pink","purple"];
-			  				if(code != 0)
-			  					colorCode.push(colors[code]);
-			  					//cc.log(colors[code]);
-			  			}
-			  			//for(var j=0; j<colorKeys.length; j++)
-			  			//{
-			  			//	colorCode.push(meta.bulbData[dBub.colorCode[colorKeys[j]]]);
-			  			//}
-			  			cc.log(colorCode);
-			  		}
-			  		else colorCode = dBub.colorCode;
-			  		
-			  		if(dBub.type == 20)
-			  		{cc.log("star");cc.log(dBub);cc.log("hi");
-			  			if("meta" in dBub && "id" in dBub.meta && dBub.meta.id != null)
-			  			{cc.log("star with ID "+dBub.meta.id);
-			  				metaData = dBub.meta;
-			  			}
-			  		}
-			  		
-			  		var bubble = {row:dBub.row, col:dBub.col, type:dBub.type, colorCode:colorCode, binary:dBub.binary, meta:metaData};
-			  		//cc.log(bubble);
-			    	bubbles.push(bubble);
-			  	}
-			  	var queue = {type:d.queue.type, colors:d.queue.colors};
-			  	DATA.worldLevel = {"bubbles":bubbles, "queue":queue, "meta":meta};
-			  	cc.log(DATA.worldLevel);
-			  	//var bubbles = DATA.worldLevel.bubbles;
-			
-				var maxRow = 0;
-				for(var i=0; i<bubbles.length; i++)
-				{
-					if(bubbles[i].row > maxRow)
-						maxRow = bubbles[i].row;
-				}
-				
-				DATA.worldBubbles = bubbles;
-				//DATA.setWorldQueue(DATA.worldLevel.queue);
-				
-				//cc.director.runScene(new GameplayScene(bubbles, maxRow+1));
-			  	DATA.initUserData();
+					cc.director.runScene(new EditorScene(editor_data, fire_database));
+				});
 			});
-			
-		}
-		else
-		{
-			//var email = prompt("Please enter email.", "");
-			//var password = prompt("Password","");
-			
-			
-			//cc.director.runScene(new SignInScene(email, password));
-			cc.director.runScene(new SignInScene());
-		}
-    	//cc.director.pushScene(DATA.scenes["world-gameplay"]);
+    		};
+    		
+    		this.startNewUser = function(starterParams)
+    		{
+    			var editor_data = {
+				challengeTries:0,
+				colorA:"yellow",
+				colorB:"blue",
+				dailyResetStreak:0,
+				dailyStreak:0,
+				feature:
+				
+				{  "bubbles" : [ {    "col" : 0,    "colorCode" : "yellow",    "row" : 0,    "type" : 0  }, {    "col" : 0,    "colorCode" : "yellow",    "row" : 1,    "type" : 0  }, {    "col" : 1,    "colorCode" : "yellow",    "row" : 2,    "type" : 0  }, {    "col" : 2,    "colorCode" : "yellow",    "row" : 2,    "type" : 0  }, {    "col" : 1,    "colorCode" : "yellow",    "row" : 3,    "type" : 0  }, {    "col" : 2,    "colorCode" : "yellow",    "row" : 1,    "type" : 0  }, {    "col" : 2,    "colorCode" : "yellow",    "row" : 0,    "type" : 0  }, {    "col" : 1,    "colorCode" : "yellow",    "row" : 1,    "type" : 0  }, {    "col" : 1,    "colorCode" : "yellow",    "row" : 0,    "type" : 0  }, {    "col" : 3,    "colorCode" : "yellow",    "row" : 0,    "type" : 0  }, {    "col" : 4,    "colorCode" : "red",    "row" : 0,    "type" : 0  }, {    "col" : 4,    "colorCode" : "red",    "row" : 1,    "type" : 0  }, {    "col" : 5,    "colorCode" : "red",    "row" : 2,    "type" : 0  }, {    "col" : 5,    "colorCode" : "red",    "row" : 3,    "type" : 0  }, {    "col" : 6,    "colorCode" : "red",    "row" : 2,    "type" : 0  }, {    "col" : 6,    "colorCode" : "red",    "row" : 1,    "type" : 0  }, {    "col" : 6,    "colorCode" : "red",    "row" : 0,    "type" : 0  }, {    "col" : 5,    "colorCode" : "red",    "row" : 0,    "type" : 0  }, {    "col" : 5,    "colorCode" : "red",    "row" : 1,    "type" : 0  }, {    "col" : 7,    "colorCode" : "red",    "row" : 0,    "type" : 0  }, {    "col" : 8,    "colorCode" : "blue",    "row" : 0,    "type" : 0  }, {    "col" : 9,    "colorCode" : "blue",    "row" : 0,    "type" : 0  }, {    "col" : 10,    "colorCode" : "blue",    "row" : 0,    "type" : 0  }, {    "col" : 11,    "colorCode" : "blue",    "row" : 0,    "type" : 0  }, {    "col" : 10,    "colorCode" : "blue",    "row" : 1,    "type" : 0  }, {    "col" : 10,    "colorCode" : "blue",    "row" : 2,    "type" : 0  }, {    "col" : 9,    "colorCode" : "blue",    "row" : 3,    "type" : 0  }, {    "col" : 9,    "colorCode" : "blue",    "row" : 2,    "type" : 0  }, {    "col" : 8,    "colorCode" : "blue",    "row" : 1,    "type" : 0  }, {    "col" : 9,    "colorCode" : "blue",    "row" : 1,    "type" : 0  }, {    "col" : 3,    "colorCode" : "blue",    "row" : 1,    "type" : 0  }, {    "col" : 3,    "colorCode" : "blue",    "row" : 2,    "type" : 0  }, {    "col" : 4,    "colorCode" : "blue",    "row" : 2,    "type" : 0  }, {    "col" : 3,    "colorCode" : "blue",    "row" : 3,    "type" : 0  }, {    "col" : 7,    "colorCode" : "yellow",    "row" : 1,    "type" : 0  }, {    "col" : 8,    "colorCode" : "yellow",    "row" : 2,    "type" : 0  }, {    "col" : 7,    "colorCode" : "yellow",    "row" : 3,    "type" : 0  }, {    "col" : 7,    "colorCode" : "yellow",    "row" : 2,    "type" : 0  }, {    "col" : 4,    "colorCode" : "yellow",    "row" : 3,    "type" : 0  }, {    "col" : 4,    "colorCode" : "yellow",    "row" : 4,    "type" : 0  }, {    "col" : 5,    "colorCode" : "yellow",    "row" : 4,    "type" : 0  }, {    "col" : 4,    "colorCode" : "yellow",    "row" : 5,    "type" : 0  }, {    "col" : 10,    "colorCode" : "yellow",    "row" : 3,    "type" : 0  }, {    "col" : 11,    "colorCode" : "yellow",    "row" : 4,    "type" : 0  }, {    "col" : 10,    "colorCode" : "yellow",    "row" : 5,    "type" : 0  }, {    "col" : 10,    "colorCode" : "yellow",    "row" : 4,    "type" : 0  }, {    "col" : 6,    "colorCode" : "blue",    "row" : 3,    "type" : 0  }, {    "col" : 7,    "colorCode" : "blue",    "row" : 4,    "type" : 0  }, {    "col" : 6,    "colorCode" : "blue",    "row" : 5,    "type" : 0  }, {    "col" : 6,    "colorCode" : "blue",    "row" : 4,    "type" : 0  }, {    "col" : 1,    "colorCode" : "blue",    "row" : 4,    "type" : 0  }, {    "col" : 0,    "colorCode" : "blue",    "row" : 3,    "type" : 0  }, {    "col" : 0,    "colorCode" : "blue",    "row" : 4,    "type" : 0  }, {    "col" : 0,    "colorCode" : "blue",    "row" : 5,    "type" : 0  }, {    "col" : 2,    "colorCode" : "red",    "row" : 5,    "type" : 0  }, {    "col" : 2,    "colorCode" : "red",    "row" : 4,    "type" : 0  }, {    "col" : 3,    "colorCode" : "red",    "row" : 4,    "type" : 0  }, {    "col" : 2,    "colorCode" : "red",    "row" : 3,    "type" : 0  }, {    "col" : 8,    "colorCode" : "red",    "row" : 4,    "type" : 0  }, {    "col" : 9,    "colorCode" : "red",    "row" : 4,    "type" : 0  }, {    "col" : 8,    "colorCode" : "red",    "row" : 5,    "type" : 0  }, {    "col" : 8,    "colorCode" : "red",    "row" : 3,    "type" : 0  }, {    "col" : 5,    "colorCode" : "red",    "row" : 5,    "type" : 0  }, {    "col" : 6,    "colorCode" : "red",    "row" : 6,    "type" : 0  }, {    "col" : 5,    "colorCode" : "red",    "row" : 6,    "type" : 0  }, {    "col" : 5,    "colorCode" : "red",    "row" : 7,    "type" : 0  }, {    "col" : 4,    "colorCode" : "blue",    "row" : 6,    "type" : 0  }, {    "col" : 3,    "colorCode" : "blue",    "row" : 6,    "type" : 0  }, {    "col" : 3,    "colorCode" : "blue",    "row" : 5,    "type" : 0  }, {    "col" : 3,    "colorCode" : "blue",    "row" : 7,    "type" : 0  }, {    "col" : 10,    "colorCode" : "blue",    "row" : 6,    "type" : 0  }, {    "col" : 9,    "colorCode" : "blue",    "row" : 7,    "type" : 0  }, {    "col" : 9,    "colorCode" : "blue",    "row" : 6,    "type" : 0  }, {    "col" : 9,    "colorCode" : "blue",    "row" : 5,    "type" : 0  }, {    "col" : 7,    "colorCode" : "yellow",    "row" : 5,    "type" : 0  }, {    "col" : 8,    "colorCode" : "yellow",    "row" : 6,    "type" : 0  }, {    "col" : 7,    "colorCode" : "yellow",    "row" : 6,    "type" : 0  }, {    "col" : 7,    "colorCode" : "yellow",    "row" : 7,    "type" : 0  }, {    "col" : 2,    "colorCode" : "yellow",    "row" : 6,    "type" : 0  }, {    "col" : 1,    "colorCode" : "yellow",    "row" : 6,    "type" : 0  }, {    "col" : 1,    "colorCode" : "yellow",    "row" : 7,    "type" : 0  }, {    "col" : 1,    "colorCode" : "yellow",    "row" : 5,    "type" : 0  } ], "numRows":8, "numMoves":20, "colors":{"red":22,"blue":30,"yellow":30}, "queue" : {    "colors" : [ 1, 1, 1, 1, 1, 1 ],    "type" : "bucket"  }},
+				levelsBeaten:[[],[],[],[],[]],
+				numLevelsBeat:0,
+				numStars:0,
+				resetTime:0,
+				streak:1,
+				userId:null,
+				userLevels:[],
+				world:{  "bubbles" : [ {    "col" : 0,    "colorCode" : "yellow",    "row" : 0,    "type" : 0  }, {    "col" : 0,    "colorCode" : "yellow",    "row" : 1,    "type" : 0  }, {    "col" : 1,    "colorCode" : "yellow",    "row" : 2,    "type" : 0  }, {    "col" : 2,    "colorCode" : "yellow",    "row" : 2,    "type" : 0  }, {    "col" : 1,    "colorCode" : "yellow",    "row" : 3,    "type" : 0  }, {    "col" : 2,    "colorCode" : "yellow",    "row" : 1,    "type" : 0  }, {    "col" : 2,    "colorCode" : "yellow",    "row" : 0,    "type" : 0  }, {    "col" : 1,    "colorCode" : "yellow",    "row" : 1,    "type" : 0  }, {    "col" : 1,    "colorCode" : "yellow",    "row" : 0,    "type" : 0  }, {    "col" : 3,    "colorCode" : "yellow",    "row" : 0,    "type" : 0  }, {    "col" : 4,    "colorCode" : "red",    "row" : 0,    "type" : 0  }, {    "col" : 4,    "colorCode" : "red",    "row" : 1,    "type" : 0  }, {    "col" : 5,    "colorCode" : "red",    "row" : 2,    "type" : 0  }, {    "col" : 5,    "colorCode" : "red",    "row" : 3,    "type" : 0  }, {    "col" : 6,    "colorCode" : "red",    "row" : 2,    "type" : 0  }, {    "col" : 6,    "colorCode" : "red",    "row" : 1,    "type" : 0  }, {    "col" : 6,    "colorCode" : "red",    "row" : 0,    "type" : 0  }, {    "col" : 5,    "colorCode" : "red",    "row" : 0,    "type" : 0  }, {    "col" : 5,    "colorCode" : "red",    "row" : 1,    "type" : 0  }, {    "col" : 7,    "colorCode" : "red",    "row" : 0,    "type" : 0  }, {    "col" : 8,    "colorCode" : "blue",    "row" : 0,    "type" : 0  }, {    "col" : 9,    "colorCode" : "blue",    "row" : 0,    "type" : 0  }, {    "col" : 10,    "colorCode" : "blue",    "row" : 0,    "type" : 0  }, {    "col" : 11,    "colorCode" : "blue",    "row" : 0,    "type" : 0  }, {    "col" : 10,    "colorCode" : "blue",    "row" : 1,    "type" : 0  }, {    "col" : 10,    "colorCode" : "blue",    "row" : 2,    "type" : 0  }, {    "col" : 9,    "colorCode" : "blue",    "row" : 3,    "type" : 0  }, {    "col" : 9,    "colorCode" : "blue",    "row" : 2,    "type" : 0  }, {    "col" : 8,    "colorCode" : "blue",    "row" : 1,    "type" : 0  }, {    "col" : 9,    "colorCode" : "blue",    "row" : 1,    "type" : 0  }, {    "col" : 3,    "colorCode" : "blue",    "row" : 1,    "type" : 0  }, {    "col" : 3,    "colorCode" : "blue",    "row" : 2,    "type" : 0  }, {    "col" : 4,    "colorCode" : "blue",    "row" : 2,    "type" : 0  }, {    "col" : 3,    "colorCode" : "blue",    "row" : 3,    "type" : 0  }, {    "col" : 7,    "colorCode" : "yellow",    "row" : 1,    "type" : 0  }, {    "col" : 8,    "colorCode" : "yellow",    "row" : 2,    "type" : 0  }, {    "col" : 7,    "colorCode" : "yellow",    "row" : 3,    "type" : 0  }, {    "col" : 7,    "colorCode" : "yellow",    "row" : 2,    "type" : 0  }, {    "col" : 4,    "colorCode" : "yellow",    "row" : 3,    "type" : 0  }, {    "col" : 4,    "colorCode" : "yellow",    "row" : 4,    "type" : 0  }, {    "col" : 5,    "colorCode" : "yellow",    "row" : 4,    "type" : 0  }, {    "col" : 4,    "colorCode" : "yellow",    "row" : 5,    "type" : 0  }, {    "col" : 10,    "colorCode" : "yellow",    "row" : 3,    "type" : 0  }, {    "col" : 11,    "colorCode" : "yellow",    "row" : 4,    "type" : 0  }, {    "col" : 10,    "colorCode" : "yellow",    "row" : 5,    "type" : 0  }, {    "col" : 10,    "colorCode" : "yellow",    "row" : 4,    "type" : 0  }, {    "col" : 6,    "colorCode" : "blue",    "row" : 3,    "type" : 0  }, {    "col" : 7,    "colorCode" : "blue",    "row" : 4,    "type" : 0  }, {    "col" : 6,    "colorCode" : "blue",    "row" : 5,    "type" : 0  }, {    "col" : 6,    "colorCode" : "blue",    "row" : 4,    "type" : 0  }, {    "col" : 1,    "colorCode" : "blue",    "row" : 4,    "type" : 0  }, {    "col" : 0,    "colorCode" : "blue",    "row" : 3,    "type" : 0  }, {    "col" : 0,    "colorCode" : "blue",    "row" : 4,    "type" : 0  }, {    "col" : 0,    "colorCode" : "blue",    "row" : 5,    "type" : 0  }, {    "col" : 2,    "colorCode" : "red",    "row" : 5,    "type" : 0  }, {    "col" : 2,    "colorCode" : "red",    "row" : 4,    "type" : 0  }, {    "col" : 3,    "colorCode" : "red",    "row" : 4,    "type" : 0  }, {    "col" : 2,    "colorCode" : "red",    "row" : 3,    "type" : 0  }, {    "col" : 8,    "colorCode" : "red",    "row" : 4,    "type" : 0  }, {    "col" : 9,    "colorCode" : "red",    "row" : 4,    "type" : 0  }, {    "col" : 8,    "colorCode" : "red",    "row" : 5,    "type" : 0  }, {    "col" : 8,    "colorCode" : "red",    "row" : 3,    "type" : 0  }, {    "col" : 5,    "colorCode" : "red",    "row" : 5,    "type" : 0  }, {    "col" : 6,    "colorCode" : "red",    "row" : 6,    "type" : 0  }, {    "col" : 5,    "colorCode" : "red",    "row" : 6,    "type" : 0  }, {    "col" : 5,    "colorCode" : "red",    "row" : 7,    "type" : 0  }, {    "col" : 4,    "colorCode" : "blue",    "row" : 6,    "type" : 0  }, {    "col" : 3,    "colorCode" : "blue",    "row" : 6,    "type" : 0  }, {    "col" : 3,    "colorCode" : "blue",    "row" : 5,    "type" : 0  }, {    "col" : 3,    "colorCode" : "blue",    "row" : 7,    "type" : 0  }, {    "col" : 10,    "colorCode" : "blue",    "row" : 6,    "type" : 0  }, {    "col" : 9,    "colorCode" : "blue",    "row" : 7,    "type" : 0  }, {    "col" : 9,    "colorCode" : "blue",    "row" : 6,    "type" : 0  }, {    "col" : 9,    "colorCode" : "blue",    "row" : 5,    "type" : 0  }, {    "col" : 7,    "colorCode" : "yellow",    "row" : 5,    "type" : 0  }, {    "col" : 8,    "colorCode" : "yellow",    "row" : 6,    "type" : 0  }, {    "col" : 7,    "colorCode" : "yellow",    "row" : 6,    "type" : 0  }, {    "col" : 7,    "colorCode" : "yellow",    "row" : 7,    "type" : 0  }, {    "col" : 2,    "colorCode" : "yellow",    "row" : 6,    "type" : 0  }, {    "col" : 1,    "colorCode" : "yellow",    "row" : 6,    "type" : 0  }, {    "col" : 1,    "colorCode" : "yellow",    "row" : 7,    "type" : 0  }, {    "col" : 1,    "colorCode" : "yellow",    "row" : 5,    "type" : 0  } ], "numRows":8, "numMoves":20, "colors":{"red":22,"blue":30,"yellow":30}, "queue" : {    "colors" : [ 1, 1, 1, 1, 1, 1 ],    "type" : "bucket"  }},
+				worldQueue: [1,1,1,0,0,0],
+				worldQueueActive: [1,1,1,0,0,0],
+				
+				starterParams:starterParams
+			};
+			cc.director.runScene(new EditorScene(editor_data, fire_database));
+
+    		};
+    	
+    	
+    	
+    		
+    		var vars = {};
+		var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+		    vars[key] = value;
+		});
+    		cc.log(parts);
+	    		console.log("PARAMETERS");
+	  	cc.log(vars);
+	  	
+	  	
+	  	
+    		
+		var fire_database = firebase.database();
+    		
+    		if(Object.keys(vars).length >= 1 && Object.keys(vars).indexOf("userId") != -1 && Object.keys(vars).indexOf("levelId") != -1)
+    		{
+    			var self = this;
+    			fire_database.ref("levels/userLevels/"+vars.userId+"/"+vars.levelId).once("value").then(function(snapshot){
+    				var d = snapshot.val();
+    				cc.log("FOUND LEVEL");
+    				if(cc.sys.localStorage.getItem("userID") != null)
+				{
+					self.startExistingUser({"userLevel":d});
+				}
+				// IF YOU NEED TO SET UP A DUMMY USER FOR NOW
+				else
+				{
+					self.startNewUser({"userLevel":d});
+				}
+    				
+    				
+    			}).catch(function(error){
+				var errorCode = error.code;
+				var errorMessage = error.message;
+				cc.log(errorMessage);
+				// Unable to find level
+				cc.log("CRASHED FINDING LEVEL");
+				if(cc.sys.localStorage.getItem("userID") != null)
+				{
+					self.startExistingUser({});
+				}
+				// IF YOU NEED TO SET UP A DUMMY USER FOR NOW
+				else
+				{
+					self.startNewUser({});
+				}
+
+				
+				
+			});
+    		}
+    		else
+    		{
+    			cc.log("EXISTING USERID: " + cc.sys.localStorage.getItem("userID"));
+			// IF YOU NEED TO LOG EXISTING USER IN
+			if(cc.sys.localStorage.getItem("userID") != null)
+			{
+				
+				this.startExistingUser();
+				
+	
+				
+			}
+			// IF YOU NEED TO SET UP A DUMMY USER FOR NOW
+			else
+			{
+				this.startNewUser();
+			}
+    		}
+    		
+    		
+    	
+		
+		
+		
+		
+		
+		
+		
+		
+
     }, this);
 };
 cc.game.run();

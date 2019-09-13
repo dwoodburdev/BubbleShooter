@@ -7,7 +7,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 //	-onEnter()
 //	-initLevel()
 	
-	ctor:function(width, height, bubbles, numRows,meta){
+	ctor:function(width, height, bubbles, numRows, meta){
 		this._super();cc.log(bubbles);
 		
 		this.width = width;
@@ -15,7 +15,9 @@ var EditorBubbleLayer = cc.Layer.extend({
 		
 		var dn = new cc.DrawNode();
 		this.addChild(dn);
-		this.draw = function(){dn.drawRect(cc.p(0,0), cc.p(this.width,this.height), cc.color(255,255,255,255), 1, cc.color(0,0,0,255));};
+		this.draw = function(){dn.drawRect(cc.p(0,0), cc.p(this.width,this.height), cc.color(255,255,255,255), 1, cc.color(0,0,0,255));
+			//dn.drawRect(cc.p(0,0), cc.p(20, 24.94*20), cc.color(255,0,0,255), 1, cc.color(0,255,0,255));
+			};
 		this.draw();
 		
 		this.evenRowAdjacents = [{"x":-1,"y":0}, {"x":1,"y":0}, {"x":0,"y":1}, {"x":-1,"y":1}, {"x":0,"y":-1}, {"x":-1,"y":-1}];
@@ -41,6 +43,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 		
 		this.bubbles = [];
 		this.numRows = numRows;
+		//this.numRows = Math.floor(this.height/ ( Math.pow(3,.5)*(this.width/24) ) ) + 1;
 		this.bubbleMap = [];
 		
 		this.hexes = [];
@@ -60,6 +63,8 @@ var EditorBubbleLayer = cc.Layer.extend({
        	
        	this.levelStatus = {type:"new"};
        	
+       	this.emojiGoals = {};
+       	
        	
 		this.initLevel(bubbles, this.numRows, this.levelStatus);
 	},
@@ -78,6 +83,28 @@ var EditorBubbleLayer = cc.Layer.extend({
 	onEnter:function(){
 
 		
+	},
+	
+	getBubbleData:function()
+	{
+		var bubs = [];
+		for(var i=0; i<this.bubbles.length; i++)
+		{
+			var dBub = this.bubbles[i];
+			var bub = {row:dBub.row,col:dBub.col,type:dBub.type};
+			var colorCode = null;
+			if("colorCode" in dBub)
+				colorCode = dBub.colorCode;
+			bub.colorCode = colorCode;
+			if("orientation" in dBub && dBub.orientation != null)
+				bub.orientation = dBub.orientation;
+			if("binary" in dBub && dBub.binary != null)
+				bub.binary = dBub.binary;
+			
+			bubs.push(bub);
+		}
+		
+		return bubs;
 	},
 	
 	getBubbles:function()
@@ -165,12 +192,12 @@ var EditorBubbleLayer = cc.Layer.extend({
        	var hexIndicesToDelete = [];
        	for(var i=0; i<bubbles.length; i++)
        	{
-       		var colorData = bubbles[i].colorCode;cc.log(colorData);
+       		var colorData = bubbles[i].colorCode;
        		if(bubbles[i].type == 7)
-       		{cc.log(this.bulbData[colorData]);
+       		{
        			//colorData = FUNCTIONS.convertCodesToColors(this.bulbData[colorData]);
        			colorData = this.bulbData[colorData];
-       		}cc.log(colorData);
+       		}
        		var bub = new Bubble(this.bubbleR, colorData, bubbles[i].type, null, null, bubbles[i].meta, bubbles[i].row, bubbles[i].col);
 			//cc.log(bub);
 			bub.attr({
@@ -187,6 +214,16 @@ var EditorBubbleLayer = cc.Layer.extend({
 				this.addChild(bub);
 			}
 			hexIndicesToDelete.push(this.hexMap[bub.row][bub.col]);
+			
+			
+			if(bubbles[i].type == 0)
+			{
+				if(!(colorData in this.emojiGoals))
+				{
+					this.emojiGoals[colorData] = 0;
+				}
+				this.emojiGoals[colorData]++;
+			}
        	}
        	
        	hexIndicesToDelete.sort(function(a,b){return b-a;});
@@ -219,6 +256,12 @@ var EditorBubbleLayer = cc.Layer.extend({
 //	-resetShooter()
 
 	onTouchBegin:function(loc, drawType, drawColor, drawOrientation, drawBinary, drawMeta){
+		if(this.bubbles.length == 0)
+		{
+			this.parent.parent.readyCreatedPlay();
+			this.parent.parent.readySave();
+		}
+		
 		var hex = this.getHexAtPos(loc);
 		if(hex.y < this.bubbleMap.length)
 			this.paintHex(hex, drawType, drawColor, drawOrientation, drawBinary, drawMeta);
@@ -227,7 +270,6 @@ var EditorBubbleLayer = cc.Layer.extend({
 			this.addRows(hex.y-this.bubbleMap.length+1);
 			this.paintHex(hex, drawType, drawColor, drawOrientation, drawBinary, drawMeta);
 		}
-			
    	},
 	onTouchMoved:function(loc, drawType, drawColor, drawOrientation, drawBinary, drawMeta){
 		var hex = this.getHexAtPos(loc);
@@ -240,7 +282,11 @@ var EditorBubbleLayer = cc.Layer.extend({
 		}
 	},
 	onTouchEnded:function(loc){
-		
+		if(this.bubbles.length == 0)
+		{
+			this.parent.parent.preventCreatedPlay();
+			
+		}
 	},
 	
 	activateRow:function(rowIndex)
@@ -279,7 +325,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 			}
 		}
 	},
-	
+	// bubbles move up
 	scrollDown:function()
 	{cc.log(this.bottomActiveRow + " " + (this.numRows-1));
 		if(this.bottomActiveRow < this.numRows-1)
@@ -291,11 +337,44 @@ var EditorBubbleLayer = cc.Layer.extend({
 			this.curRow = Math.max(this.curRow-1, 0);
 			this.updateElementPositions();
 		}
+		else
+		{
+			
+			this.addRows(1);
+			
+			var overflowOffset = this.getOverflowOffset();
+	       	var rowNum = this.hexMap.length-1-1;					// ???????????????????????????????????
+	       	for(var i=0; i<this.hexMap[rowNum].length; i++)
+	       	{
+	       		var hex = new Bubble(this.bubbleR, null, -1, null, null, null, rowNum, i);
+	       		hex.attr({
+	       			x: this.bubbleR+i*this.bubbleR*2 + (rowNum%2)*this.bubbleR,
+	       			y: this.height - rowNum*((Math.pow(3, .5)/2) * (this.bubbleR*2)) - this.bubbleR + overflowOffset,
+	       			anchorX:.5,
+	       			anchorY:.5
+	       		});
+	       		this.hexes.push(hex);
+	       		this.hexMap[rowNum][i] = this.hexes.length-1;
+	       		if(rowNum >= this.topActiveRow && rowNum <= this.bottomActiveRow)
+	       		{
+	       			hex.active = true;
+	       			this.addChild(hex);
+	       		}
+			
+			}
+			
+			this.bottomActiveRow += 1;
+			this.activateRow(this.bottomActiveRow);
+			this.deactivateRow(this.topActiveRow);
+			this.topActiveRow += 1;
+			this.curRow = Math.max(this.curRow-1, 0);
+			this.updateElementPositions();
+		}
 	},
-	
+	// bubbles move down
 	scrollUp:function()
 	{
-		if(this.topActiveRow >0)
+		if(this.topActiveRow > 0)
 		{
 			this.topActiveRow -= 1;
 			this.activateRow(this.topActiveRow);
@@ -366,10 +445,21 @@ var EditorBubbleLayer = cc.Layer.extend({
 	{
 		var overflowOffset = this.getOverflowOffset();
 		
+		this.parent.parent.curUnsavedProg = true;
+		
 		if(drawType == -1)
 		{
 			if(hex.y < this.bubbleMap.length && this.bubbleMap[hex.y][hex.x] != -1)
 			{
+				var bub = this.bubbles[this.bubbleMap[hex.y][hex.x]];
+				
+				if(bub.type == 0)
+				{
+					this.emojiGoals[bub.colorCode]--;
+					if(this.emojiGoals[bub.colorCode] == 0)
+						delete this.emojiGoals[bub.colorCode];
+				}cc.log(this.emojiGoals);
+				
 				this.removeChild(this.bubbles[this.bubbleMap[hex.y][hex.x]]);
 				this.bubbles.splice(this.bubbleMap[hex.y][hex.x], 1);
 				this.bubbleMap[hex.y][hex.x] = -1;
@@ -385,6 +475,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 				this.hexMap[hex.y][hex.x] = this.hexes.length-1;
 				this.addChild(newHex);
 				
+				this.parent.parent.removeEditorBubble(hex.y, hex.x);
 			}
 			this.syncBubbleMap();
 		}
@@ -396,6 +487,18 @@ var EditorBubbleLayer = cc.Layer.extend({
 			
 			if(this.bubbleMap[hex.y][hex.x] == -1)
 			{
+				if(drawType == 0)
+				{
+					if(!(drawColor in this.emojiGoals))
+					{
+						this.emojiGoals[drawColor] = 1;
+					}
+					else
+					{
+						this.emojiGoals[drawColor]++;
+					}
+				}cc.log(this.emojiGoals);
+				
 				var hexBubble = this.hexes[this.hexMap[hex.y][hex.x]];
 				this.removeChild(hexBubble);
 				this.hexes.splice(this.hexMap[hex.y][hex.x], 1);
@@ -419,11 +522,32 @@ var EditorBubbleLayer = cc.Layer.extend({
 					bubble.addNumber(drawMeta.iteration);
 				}
 				
+				this.parent.parent.addEditorBubble(hex.y, hex.x, {"type":bubble.type, "colorCode":bubble.colorCode, "orientation":bubble.orientation, "binary":bubble.binary, "meta":bubble.meta, "row":bubble.row, "col":bubble.col});
 			}
 			// Replace existing bubble
-			else if(this.bubbleMap[hex.y][hex.x] != -1 && this.bubbles[this.bubbleMap[hex.y][hex.x]].colorCode != drawColor)
+			else if(this.bubbleMap[hex.y][hex.x] != -1 && (this.bubbles[this.bubbleMap[hex.y][hex.x]].type != drawType || this.bubbles[this.bubbleMap[hex.y][hex.x]].colorCode != drawColor) )
 			{
 				var oldBubble = this.bubbles[this.bubbleMap[hex.y][hex.x]];
+				if(drawType == 0)
+				{
+					if(!(drawColor in this.emojiGoals))
+					{
+						this.emojiGoals[drawColor] = 1;
+					}
+					else
+					{
+						this.emojiGoals[drawColor]++;
+					}
+					
+					if(oldBubble.type == 0)
+					{
+						this.emojiGoals[oldBubble.type]--;
+						if(this.emojiGoals[oldBubble.colorCode] == 0)
+							delete this.emojiGoals[oldBubble.colorCode];
+					}
+				}cc.log(this.emojiGoals);
+				
+				
 				this.removeChild(oldBubble);
 				var bubble = new Bubble(this.bubbleR,drawColor,drawType,drawOrientation,drawBinary,drawMeta,hex.y, hex.x);
 				bubble.attr({
@@ -432,6 +556,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 	       			anchorX:.5,
 	       			anchorY:.5
 	       		});
+	       		bubble.active = true;
 				this.addChild(bubble);
 				this.bubbles.splice(this.bubbleMap[hex.y][hex.x], 1, bubble);
 				
@@ -448,6 +573,8 @@ var EditorBubbleLayer = cc.Layer.extend({
 					bubble.addChild(bulbLabel);
 				}
 				
+				this.parent.parent.addEditorBubble(hex.y, hex.x, {"type":bubble.type, "colorCode":bubble.colorCode, "orientation":bubble.orientation, "binary":bubble.binary, "meta":bubble.meta, "row":bubble.row, "col":bubble.col});
+			
 			}
 		}
 	},
@@ -457,7 +584,7 @@ var EditorBubbleLayer = cc.Layer.extend({
 		var size = cc.winSize;
 		var loc = this.convertToNodeSpace(pos);
 		var overflowOffset = this.getOverflowOffset();
-		cc.log(pos.y);cc.log(this.parent.height);
+		//cc.log(pos.y);cc.log(this.parent.height);
 		var row = Math.floor((this.height-(loc.y) + overflowOffset)/this.rowHeight);
 		
 		var colOffset = 0;
@@ -762,11 +889,14 @@ var EditorBubbleLayer = cc.Layer.extend({
 		for(var i=0; i<num; i++)
 		{
 			var bubbleRow = [];
+			var hexRow = [];
 			for(var j=0; j<this.numCols-((initLength+i)%2); j++)
 			{
 				bubbleRow.push(-1);
+				hexRow.push(-1);
 			}
 			this.bubbleMap.push(bubbleRow);
+			this.hexMap.push(hexRow);
 			this.numRows++;
 		}
 	},

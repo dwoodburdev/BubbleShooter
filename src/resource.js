@@ -85,7 +85,7 @@ var res = {
     tumbleweed_emoji : "res/tumbleweed.png",
     spike_emoji : "res/fire.png",
     neutral_rubiks_emoji : "res/neutral-rubiks.png",
-    soap_emoji : "res/soap-0.png",
+    soap_emoji : "res/soap-6a.png",
     disco_emoji : "res/disco.png",
     gumball_emoji : "res/gumball.png",
     burst_gumball_emoji : "res/burst-gumball.png",
@@ -310,6 +310,12 @@ var res = {
     friends_button: "res/friends-button-selected-1.png",
     league_button: "res/league-button-selected-1.png",
     
+    world_button: "res/world-button-selected-1.png",
+    
+    leaderboard_button: "res/leaderboard-button-selected-1.png",
+    
+    trend_button:"res/trend-button-selected-1.png",
+    
     shop_selected_button: "res/shop-button-selected.png",
     editor_selected_button: "res/editor-button-selected.png",
     
@@ -446,6 +452,9 @@ var res = {
     
     bubble_wrap_emoji:"res/bubble-wrap.png",
     
+    plus:"res/plus.png",
+    minus:"res/minus.png",
+    
     pink_smirk_emoji: "res/pink-smirk-face.png",
     pink_kiss_emoji: "res/pink-kiss-face.png",
     pink_love_emoji: "res/pink-love-face.png",
@@ -459,6 +468,8 @@ var res = {
     black_button:"res/black-button.png",
     red_button:"res/red-button.png",
     
+    blank_tv:"res/blank-tv.png",
+    
     slot_machine:"res/slot-machine.png",
     slot_machine_dual:"res/slot-machine-dual.png",
     slot_machine_blank:"res/slot-machine-blank.png",
@@ -470,7 +481,92 @@ var res = {
     
     grass_bg:"res/grass-bg.png",
     
-    button_spin:"res/button_spin.png"
+    button_spin:"res/button_spin.png",
+    
+    prof_pic:"res/dummy-prof-pic.jpg",
+    
+    round_facebook: "res/button-fb.png",
+    round_twitter: "res/button-tw.png",
+    round_instagram: "res/button-ig.png",
+    round_linkedin: "res/button-li.png",
+    round_snapchat: "res/button-sc.png",
+    round_youtube: "res/button-yt.png",
+    
+    title_header: "res/title-header-1.png",
+    app_icon: "res/app-icon-1.png",
+    
+    heart:"res/heart.png",
+    win_medal:"res/sports-medal.png",
+    
+    downleft_arrow:"res/downleft-arrow.png",
+    downright_arrow:"res/downright-arrow.png",
+    upleft_arrow:"res/upleft-arrow.png",
+    upright_arrow:"res/upright-arrow.png",
+    
+    button_save:"res/button_save.png",
+    creators_button:"res/creator-button-selected-1.png",
+    button_publish:"res/button_publish.png",
+    button_like:"res/button_like.png",
+    button_follow:"res/button_follow.png",
+    button_signup:"res/button-sign-up.png",
+    button_watch:"res/button_watch.png",
+    
+    video_thumb:"res/video-thumb-1.png",
+    
+    thumb:"res/thumb-up.png",
+    
+    world_day_banner: "res/world-day-banner.png",
+    
+    pencil: "res/pencil.png",
+    
+    shoot_banner:"res/shoot-banner.png",
+    
+    flott:
+    {
+    		type:"font",
+    		name:"HeaderFont",
+    		srcs:["res/MPLUSRounded1c-Bold.ttf"]
+    },
+    
+    button_back_to_editor:"res/button_back_to_editor.png",
+    
+    solid_square:"res/solid-black-square.png",
+    transparent_square:"res/transparent-square.png",
+    
+    
+    twitter_login:"res/twitter-login.png",
+    facebook_login:"res/fb-login.png",
+    google_login:"res/google-login.png",
+    email_login:'res/email-login.png',
+    
+    prog_path:"res/prog-path.png",
+    play_bg:"res/round-green-bg.png",
+    stop_bg:"res/round-red-bg.png",
+    orange_bg:"res/round-orange-bg.png",
+    blue_bg:"res/round-blue-bg.png",
+    
+    black_bg:"res/round-black-bg.png",
+    
+    video_button:"res/video-button-selected-1.png",
+    
+    level_example:"res/level-example.png",
+    
+    concerned_sunglass_face:"res/concerned-sunglasses-face.png",
+    content_crown_face:"res/content-crown-face.png",
+    concerned_crown_face:"res/concerned-crown-face.png",
+    
+    round_reddit:"res/reddit-preview.png",
+    
+    world_planet: "res/world-planet.png",
+    
+    trophy: "res/trophy.png",
+    
+    moves_img: "res/moves-img.png",
+    thumb_down: "res/thumb-down.png",
+    peace_hand: "res/peace-hand.png",
+    
+    task_button: "res/task-button-selected-1.png"
+    
 };
 
 
