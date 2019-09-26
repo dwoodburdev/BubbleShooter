@@ -32,12 +32,16 @@ var WinStreakVisLayer = cc.Layer.extend({
 		
 		// Circles' lit color
 		var circleColor = cc.color(255,0,0,255);
-		if((DATA.streakStep == 1 && DATA.challengeTries == 0)
-			|| (DATA.streakStep == 2 && DATA.challengeTries == 1))
+		
+		var streakStep = 0;
+		var challengeTries = 0;
+		
+		if((streakStep == 1 && challengeTries == 0)
+			|| (streakStep == 2 && challengeTries == 1))
 		{
 			circleColor = cc.color(255,255,0,255);
 		}
-		else if(DATA.streakStep == 2 && DATA.challengeTries == 0)
+		else if(streakStep == 2 && challengeTries == 0)
 		{
 			circleColor = cc.color(0,255,0,255);
 		}
@@ -63,11 +67,11 @@ var WinStreakVisLayer = cc.Layer.extend({
 		
 		// Face 2
 		yOffset = 0;
-		if(DATA.streakStep == 0)
+		if(streakStep == 0)
 		{// black dot
 			this.dn.drawDot({x:startX + (spaceA+(spaceB/2)) + borderSpace*2, y:circleY}, spaceB/2, cc.color(0,0,0,255));
 		}
-		else if((DATA.streakStep == 1 && DATA.challengeTries == 1) || (DATA.streakStep == 2 && DATA.challengeTries == 2))
+		else if((streakStep == 1 && challengeTries == 1) || (streakStep == 2 && challengeTries == 2))
 		{// sad face
 			this.faceB = new cc.Sprite(res.sad_emoji);
 			this.faceB.setScale(spaceB / this.faceB.width);
@@ -92,7 +96,7 @@ var WinStreakVisLayer = cc.Layer.extend({
 			});
 			this.addChild(this.faceB);
 			
-			if(this.type == "win" && DATA.streakStep == 0 && DATA.challengeTries == 0)
+			if(this.type == "win" && streakStep == 0 && challengeTries == 0)
 			{
 				
 				var seq = new cc.Sequence(cc.FadeOut.create(.5), cc.FadeIn.create(.35), cc.delayTime(.75));
@@ -103,11 +107,11 @@ var WinStreakVisLayer = cc.Layer.extend({
 			
 		// Face 3
 		
-		if(DATA.streakStep < 2)
+		if(streakStep < 2)
 		{// black dot
 			this.dn.drawDot({x:startX + (spaceA+spaceB+(spaceC/2)) + borderSpace*3, y:circleY}, spaceC/2, cc.color(0,0,0,255));
 		}
-		else if(DATA.streakStep == 2 && DATA.challengeTries >= 1)
+		else if(streakStep == 2 && challengeTries >= 1)
 		{// sad face
 			this.faceC = new cc.Sprite(res.sad_emoji);
 			this.faceC.setScale(spaceC / this.faceC.width);
@@ -133,7 +137,7 @@ var WinStreakVisLayer = cc.Layer.extend({
 			});
 			this.addChild(this.faceC);
 			
-			if(this.type == "win" && DATA.streakStep == 2 && DATA.challengeTries == 0)
+			if(this.type == "win" && streakStep == 2 && challengeTries == 0)
 			{
 				
 				var seq = new cc.Sequence(cc.FadeOut.create(.5), cc.FadeIn.create(.35), cc.delayTime(.75));
@@ -141,11 +145,11 @@ var WinStreakVisLayer = cc.Layer.extend({
 			}
 		}
 		/*	
-		if(DATA.streakStep == 2 && DATA.challengeTries == 0)
+		if(streakStep == 2 && challengeTries == 0)
 		{
 			this.dn.drawDot({x:startX + (spaceA+spaceB+(spaceC/2)) + borderSpace*3, y:circleY}, spaceC/2, circleColor);
 		}
-		else if(DATA.streakStep == 2)
+		else if(streakStep == 2)
 		{
 			this.dn.drawDot({x:startX + (spaceA+spaceB+(spaceC/2)) + borderSpace*3, y:circleY}, spaceC/2, cc.color(100,100,100,255));
 		}

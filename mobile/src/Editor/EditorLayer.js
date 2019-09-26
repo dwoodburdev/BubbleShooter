@@ -50,7 +50,7 @@ var EditorLayer = cc.Layer.extend({
 		this.addChild(this.midUILayer);
 		this.addChild(this.editorUILayer);
 		
-		this.levelViewerLayer = new LevelViewer(this.width, this.height-this.editorUILayer.height-this.midUILayer.height);
+		/*this.levelViewerLayer = new LevelViewer(this.width, this.height-this.editorUILayer.height-this.midUILayer.height);
 		this.levelViewerLayer.attr({
 			x:0,
 			y:this.editorUILayer.height+this.midUILayer.height,
@@ -72,7 +72,7 @@ var EditorLayer = cc.Layer.extend({
 			y:0,
 			anchorX:0,
 			anchorY:0
-		});
+		});*/
 		
 		var self = this;
 		
@@ -178,35 +178,36 @@ var EditorLayer = cc.Layer.extend({
 	    	
 		},
 		onTouchEnded:function(pos)
-		{
+		{cc.log("TOUCH END EDITOR");
 			//var target = event.getCurrentTarget();
 		    var locationInNode = this.bubbleLayer.convertToNodeSpace(pos);
-	    	//this.bubbleLayer.onTouchBegin(touch.getLocation(), this.drawType);
-	    	var returnData = null;
-	    	var uiData = null;
-	    	//if(pos.y < this.bubbleLayer.y)
-	    	if(locationInNode.y < 0)
-	    	{
-	    		if(this.midUILayer.convertToNodeSpace(pos).y < 0)
-	    		{
-	    			if(this.mode == "create")
-	    			{
-	    				returnData = this.editorUILayer.onTouchEnded(this.editorUILayer.convertToNodeSpace(pos));
-	    			}
-	    			else if(this.mode == "view")
-	    			{
-	    				returnData = this.levelViewerUILayer.onTouchEnded(this.levelViewerUILayer.convertToNodeSpace(pos));
-	    				cc.log(returnData);
-	    			}
-	    			
-	    		}
-	    		else {
-	    			uiData = this.midUILayer.onTouchEnded(pos);
-	    		}
-	    	}
-	    	else
-	    	{
-	    		this.bubbleLayer.onTouchEnded(pos, this.drawType, this.drawColor, this.drawOrientation, this.drawBinary, this.drawMeta);
+		    	//this.bubbleLayer.onTouchBegin(touch.getLocation(), this.drawType);
+		    	var returnData = null;
+		    	var uiData = null;
+		    	//if(pos.y < this.bubbleLayer.y)
+		    	cc.log(locationInNode);
+		    	if(locationInNode.y < 0)
+		    	{
+		    		if(this.midUILayer.convertToNodeSpace(pos).y < 0)
+		    		{cc.log("CLICKED EDITOR PANEL");cc.log(this.mode);
+		    			if(this.mode == "create")
+		    			{
+		    				returnData = this.editorUILayer.onTouchEnded(this.editorUILayer.convertToNodeSpace(pos));cc.log(returnData);
+		    			}
+		    			else if(this.mode == "view")
+		    			{
+		    				returnData = this.levelViewerUILayer.onTouchEnded(this.levelViewerUILayer.convertToNodeSpace(pos));
+		    				cc.log(returnData);
+		    			}
+		    			
+		    		}
+		    		else {
+		    			uiData = this.midUILayer.onTouchEnded(pos);
+		    		}
+		    	}
+		    	else
+		    	{
+	    			this.bubbleLayer.onTouchEnded(pos, this.drawType, this.drawColor, this.drawOrientation, this.drawBinary, this.drawMeta);
 		   	}
 		   	
 		   	if(returnData == "test")

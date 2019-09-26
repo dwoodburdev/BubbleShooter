@@ -1,6 +1,6 @@
-var LevelViewerUILayer = cc.Layer.extend({
+var LevelBrowserLayer = cc.Layer.extend({
 	ctor:function(w,h, userLevels){
-		this._super();cc.log("LEVEL VIEWER B");
+		this._super();
 		
 		var size = cc.winSize;
 		
@@ -13,34 +13,58 @@ var LevelViewerUILayer = cc.Layer.extend({
 		
 		this.curSelectedLevel = -1;
 		
-		this.dividerX = this.width/12*7;
-		
 		this.topBoxIndex = 0;
 		
-		this.leftUpButton = new cc.Sprite(res.up_arrow);
-		this.leftUpButton.setScale(size.width/12 / this.leftUpButton.width);
-		this.leftUpButton.attr({
-			x:this.dividerX,
-			y:this.height,
-			anchorX:1,
-			anchorY:1
-		});
-		this.addChild(this.leftUpButton);
+		this.boxHeight = cc.winSize.width/7;
 		
-		this.leftDownButton = new cc.Sprite(res.down_arrow);
-		this.leftDownButton.setScale(size.width/12 / this.leftDownButton.width);
-		this.leftDownButton.attr({
-			x:this.dividerX,
-			y:this.height-(6*(size.width/12)),
-			anchorX:1,
+		var numRows = 0;
+		for(var i=0; i<this.userLevels[0].bubbles.length; i++)
+		{
+			var bub = this.userLevels[0].bubbles[i];
+			if(bub.row > numRows)
+				numRows = bub.row;
+		}
+		numRows++;
+		
+		this.bubbleLayer = new BubbleLayer(this.userLevels[0].bubbles, numRows, 1, "preview", size.width, this.height, [], 
+			{}, "red", "red", [0,0,0,0,0,0], [0,0,0,0,0,0], null, null);	
+		this.bubbleLayer.attr({
+			x:0,
+			y:0,
+			anchorX:0,
 			anchorY:0
 		});
-		this.addChild(this.leftDownButton);
+		this.addChild(this.bubbleLayer);
 		
+		this.leftButton = new cc.Sprite(res.left_hand);
+		this.leftButton.setScale(size.width/12 / this.leftButton.width);
+		this.leftButton.attr({
+			x:5,
+			y:5+this.boxHeight+3,
+			anchorX:0,
+			anchorY:.5
+		});
+		this.addChild(this.leftButton);
+		
+		this.rightButton = new cc.Sprite(res.right_hand);
+		this.rightButton.setScale(size.width/12 / this.rightButton.width);
+		this.rightButton.attr({
+			x:this.width-5,
+			y:5+this.boxHeight+3,
+			anchorX:1,
+			anchorY:.5
+		});
+		this.addChild(this.rightButton);
+		
+		
+		this.boxWidth = ( this.width - this.leftButton.width*this.leftButton.scale*2 - 10 )/2;
 		
 		this.levelBoxes = [];
-		this.boxWidth = this.dividerX-6-(cc.winSize.width/24)*2;
-		this.boxHeight = (cc.winSize.width/24)*4;
+		
+		this.boxA = null;
+		this.boxB = null;
+		this.boxC = null;
+		this.boxD = null;
 		
 		//var levelData = DATA.createdLevels;
 		var levelData = this.userLevels;cc.log(levelData);
@@ -51,11 +75,54 @@ var LevelViewerUILayer = cc.Layer.extend({
 		}
 		else
 		{
-			for(var i=0;i<levelDataKeys.length; i++)
-			{
-				var box = {"x":3,"num":i+1,"width":this.boxWidth,"height":this.boxHeight,"y":this.height-3-((i+1)*60)};
-				this.levelBoxes.push(box);
-			}
+			//for(var i=0;i<levelDataKeys.length && i<6; i++)
+			//{
+				//var box = {"x":3,"num":i+1,"width":this.boxWidth,"height":this.boxHeight,"y":this.height-3-((i+1)*60)};
+				//this.levelBoxes.push(box);
+				
+			//}
+			this.boxA = new LevelSourceBox(1, this.boxWidth, this.boxHeight);
+			this.boxA.attr({
+				x:this.leftButton.width*this.leftButton.scale,
+				y:5+this.boxHeight+5,
+				anchorX:0,
+				anchorY:0
+			});
+			this.addChild(this.boxA);
+			
+			this.boxB = new LevelSourceBox(2, this.boxWidth, this.boxHeight);
+			this.boxB.attr({
+				x:this.leftButton.width*this.leftButton.scale + this.boxWidth + 10,
+				y:5+this.boxHeight+5,
+				anchorX:0,
+				anchorY:0
+			});
+			this.addChild(this.boxB);
+			
+			this.boxC = new LevelSourceBox(3, this.boxWidth, this.boxHeight);
+			this.boxC.attr({
+				x:this.leftButton.width*this.leftButton.scale,
+				y:5,
+				anchorX:0,
+				anchorY:0
+			});
+			this.addChild(this.boxC);
+			
+			this.boxD = new LevelSourceBox(4, this.boxWidth, this.boxHeight);
+			this.boxD.attr({
+				x:this.leftButton.width*this.leftButton.scale + this.boxWidth + 10,
+				y:5,
+				anchorX:0,
+				anchorY:0
+			});
+			this.addChild(this.boxD);
+			
+			/*var boxA = {"x":,"num":1,"width":this.boxWidth,"height":this.boxHeight,"y":};
+			var boxB = {"x":this.leftButton.width*this.leftButton.scale + this.boxWidth + 10,"num":2,"width":this.boxWidth,"height":this.boxHeight,"y":5+this.boxHeight+5};
+			var boxC = {"x":this.leftButton.width*this.leftButton.scale,"num":3,"width":this.boxWidth,"height":this.boxHeight,"y":5};
+			var boxD = {"x":this.leftButton.width*this.leftButton.scale + this.boxWidth + 10,"num":4,"width":this.boxWidth,"height":this.boxHeight,"y":5};
+			*/
+			
 		}
 		
 		var sideButtonWidth = this.width*.3 - 4;
@@ -89,7 +156,8 @@ var LevelViewerUILayer = cc.Layer.extend({
 		});
 		this.addChild(this.shareButton);
 		
-		this.draw();
+		
+		//this.draw();
 	},
 	
 	
@@ -131,7 +199,7 @@ var LevelViewerUILayer = cc.Layer.extend({
 		}
 		else if(pos.x < this.dividerX)
 		{
-			if(FUNCTIONS.posWithinScaled(pos, this.leftUpButton))
+			/*if(FUNCTIONS.posWithinScaled(pos, this.leftUpButton))
 			{
 				this.topBoxIndex = Math.max(0, this.topBoxIndex-1);
 			}
@@ -139,11 +207,11 @@ var LevelViewerUILayer = cc.Layer.extend({
 			{
 				this.topBoxIndex = Math.min(this.levelBoxes.length-3, this.topBoxIndex+1);
 			}
-			this.draw();
+			this.draw();*/
 		}
 		else
 		{
-			if(FUNCTIONS.posWithinScaled(pos, this.editButton))
+			/*if(FUNCTIONS.posWithinScaled(pos, this.editButton))
 			{
 				cc.log("edit");
 				return {"type":"edit","number":this.curSelectedLevel};
@@ -157,16 +225,16 @@ var LevelViewerUILayer = cc.Layer.extend({
 			{
 				cc.log("share");
 				return {"type":"share","number":this.curSelectedLevel};
-			}
+			}*/
 		}
 	},
 	
 	draw:function(){
-		this.dn.drawRect(cc.p(0,0),cc.p(0+this.width, 0+this.height), cc.color(255,255,255,255),1,cc.color(0,0,0,255));
+		this.dn.drawRect(cc.p(0,0),cc.p(0+this.width, 0+this.height), cc.color(255,255,255,255),0,cc.color(0,0,0,255));
 		
 		this.dn.drawRect(cc.p(this.dividerX,this.y),cc.p(this.width, this.y+this.height), cc.color(255,255,255,255),1,cc.color(0,0,0,255));
 		
-		for(var i=0; i+this.topBoxIndex < this.levelBoxes.length; i++)
+		/*for(var i=0; i+this.topBoxIndex < this.levelBoxes.length; i++)
 		{
 			var box = this.levelBoxes[i+this.topBoxIndex];
 			var boxY = this.height-3-((i+1)*this.boxHeight);
@@ -174,7 +242,9 @@ var LevelViewerUILayer = cc.Layer.extend({
 			if((i+this.topBoxIndex)%2 == 1)
 				color = cc.color(180,180,180,255);
 			this.dn.drawRect(cc.p(3,boxY),cc.p(3+this.boxWidth,boxY+this.boxHeight), color,3,cc.color(0,0,0,255));
-		}
+		}*/
+		
+		
 		
 		
 	}

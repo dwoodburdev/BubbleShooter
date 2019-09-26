@@ -30,7 +30,7 @@ var MainContainerLayer = cc.Layer.extend({
 		this.topUILayer = new TopUILayer(size.height/15);
 		this.topUILayer.attr({
 			x: 0,
-			y:size.height-(size.height/15),
+			y:size.height-this.topUILayer.height,
 			anchorX:0,
 			anchorY:0
 		});
@@ -68,7 +68,7 @@ cc.log(this.editorData.colorB);
 
 		var meta = {};
 		this.gameplayLayer = new GameplayLayer(Object.values(this.bubbles), this.maxRow, cc.winSize.height-this.bottomUIHeight-this.topUIHeight-this.coreButtonsUI.height, 
-		meta, this.editorData.colorA, this.editorData.colorB, this.editorData.queueColors, this.editorData.queueBlueprint, this.database, this.editorData.userId);
+		meta, this.editorData.worldMoves, this.editorData.colorA, this.editorData.colorB, this.editorData.queueColors, this.editorData.queueBlueprint, this.database, this.editorData.userId);
 		this.gameplayLayer.attr({
 			x:0,
 			y:this.bottomUIHeight+this.coreButtonsUI.height,
@@ -87,73 +87,21 @@ cc.log(this.editorData.colorB);
 		
 		
 		
-		
-		
-		
-		
-		this.mainEditorLayer = new EditorLayer(cc.winSize.width, cc.winSize.height-this.bottomUIHeight-this.topUIHeight);
-		this.mainEditorLayer.attr({
-			x:0,
-			y:this.bottomUIHeight,//+this.coreButtonsUI.height,
-			anchorX:0,
-			anchorY:0
-		});
-		
-		this.editorCreatorsLayer = new CreatorsDisplayLayer(cc.winSize.width, cc.winSize.height-this.bottomUIHeight-this.topUIHeight);
-		this.editorCreatorsLayer.attr({
-			x:cc.winSize.width*2,
-			y:this.bottomUIHeight,
-			anchorX:0,
-			anchorY:0
-		});
-		this.editorEventLayer = new CreatorEventLayer(cc.winSize.width, cc.winSize.height-this.bottomUIHeight-this.topUIHeight);
-		this.editorEventLayer.attr({
-			x:cc.winSize.width*1,
-			y:this.bottomUIHeight,
-			anchorX:0,
-			anchorY:0
-		});
-		
-		this.editorRewardsLayer = new CreatorRewardsLayer(cc.winSize.width, cc.winSize.height-this.bottomUIHeight-this.topUIHeight);
-		this.editorRewardsLayer.attr({
-			x:cc.winSize.width*-1,
-			y:this.bottomUIHeight,
-			anchorX:0,
-			anchorY:0
-		});
-		
-		this.editorShopLayer = new CreatorsDisplayLayer(cc.winSize.width, cc.winSize.height-this.bottomUIHeight-this.topUIHeight);
-		this.editorShopLayer.attr({
-			x:cc.winSize.width*-2,
-			y:this.bottomUIHeight,
-			anchorX:0,
-			anchorY:0
-		});
-		
-		
+		var dailyBubVals = Object.values(this.dailyBubbles);
 		
 		var dailyMaxRow = 0;
-		for(var i=0; i<Object.values(this.dailyBubbles).length; i++)
+		for(var i=0; i<dailyBubVals.length; i++)
 		{
-			if(Object.values(this.dailyBubbles)[i].row > this.maxRow)
-				dailyMaxRow = Object.values(this.dailyBubbles)[i].row;
+			if(dailyBubVals[i].row > dailyMaxRow)
+				dailyMaxRow = dailyBubVals[i].row;
 		}
 		dailyMaxRow++;
 		
+		cc.log(this.dailyBubbles);
 		
+		cc.log("TEST");
 		
-		//this.challengeLayer = new ChallengeMenuDisplayLayer(cc.winSize.height-this.bottomUIHeight-this.topUIHeight-this.coreButtonsUI.height);
-		this.challengeLayer = new CommunityDisplayLayer(cc.winSize.height-this.bottomUIHeight-this.topUIHeight-this.coreButtonsUI.height,
-			Object.values(this.dailyBubbles), dailyMaxRow, meta, this.editorData.queueCount, this.editorData.queueBlueprint, this.database, this.editorData.userId);
-		this.challengeLayer.attr({
-			x:cc.winSize.width*-1,
-			y:this.bottomUIHeight+this.coreButtonsUI.height,
-			anchorX:0,
-			anchorY:0
-		});
-		this.addChild(this.challengeLayer);
-		
-		// Social Media
+		// Featured User Levels
 		this.meLayer = new MeDisplayLayer(cc.winSize.height-this.bottomUIHeight-this.topUIHeight-this.coreButtonsUI.height);
 		this.meLayer.attr({
 			x:cc.winSize.width*-2,
@@ -162,9 +110,26 @@ cc.log(this.editorData.colorB);
 			anchorY:0
 		});
 		this.addChild(this.meLayer);
-	
+		
+		cc.log("ME");
+		
+		// Daily Challenge
+		this.challengeLayer = new CommunityDisplayLayer(cc.winSize.height-this.bottomUIHeight-this.topUIHeight-this.coreButtonsUI.height,
+			Object.values(this.dailyBubbles), dailyMaxRow, this.editorData.feature.numMoves, meta, this.editorData.feature.queue.colors, 
+			this.database, this.editorData.userId, this.editorData.dailyResetTime);
+		this.challengeLayer.attr({
+			x:cc.winSize.width*-1,
+			y:this.bottomUIHeight+this.coreButtonsUI.height,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.challengeLayer);
+		
+		cc.log("CHALLENGE");
+		
+		// Editor
 		//this.leagueLayer = new FolderListLayer(cc.winSize.width, cc.winSize.height-this.bottomUIHeight-this.topUIHeight-this.coreButtonsUI.height, [this.feature]);
-		this.leagueLayer = new TaskDisplayLayer(cc.winSize.height-this.bottomUIHeight-this.topUIHeight-this.coreButtonsUI.height);
+		this.leagueLayer = new EditorLayer(cc.winSize.width, cc.winSize.height-this.bottomUIHeight-this.topUIHeight);
 		this.leagueLayer.attr({
 			x:cc.winSize.width*1,
 			y:this.bottomUIHeight+this.coreButtonsUI.height,
@@ -173,9 +138,13 @@ cc.log(this.editorData.colorB);
 		});
 		this.addChild(this.leagueLayer);
 		
-    		
+		cc.log("LEAGUE");
+		//cc.log(this.editorData.userLevels);
+		
+    		// Tasks
 		//this.friendsLayer = new FolderListLayer(cc.winSize.width, cc.winSize.height-this.bottomUIHeight-this.topUIHeight-this.coreButtonsUI.height, [this.feature]);
-		this.friendsLayer = new EditorLayer(cc.winSize.width, cc.winSize.height-this.bottomUIHeight-this.topUIHeight);
+		//this.friendsLayer = new TaskDisplayLayer(cc.winSize.height-this.bottomUIHeight-this.topUIHeight-this.coreButtonsUI.height, this.editorData.userLevels);
+		this.friendsLayer = new LevelBrowserLayer(cc.winSize.width, cc.winSize.height-this.bottomUIHeight-this.topUIHeight-this.coreButtonsUI.height, this.editorData.userLevels);
 		this.friendsLayer.attr({
 			x:cc.winSize.width*2,
 			y:this.bottomUIHeight+this.coreButtonsUI.height,
@@ -192,6 +161,8 @@ cc.log(this.editorData.colorB);
 		this.settingsLayer = null;
 		this.worldMapLayer = null;
 		this.noLevelLayer = null;
+		this.challengeFailedLayer = null;
+		this.dailyWinLayer = null;
 		
 		this.mouseDownFlag = false;
 		
@@ -214,7 +185,7 @@ cc.log(this.editorData.colorB);
 					return false;
 				},
 				onMouseUp:function(event)
-				{
+				{cc.log("TOUCH UP EVENT****************");
 					self.mouseDownFlag = false;
 					self.onUpEvent(event);
 					return false;
@@ -280,6 +251,7 @@ cc.log(this.editorData.colorB);
 				    	*/
 			    },
 			    onTouchEnded: function(touch, event){cc.log("touchend main");
+			    cc.log("TOUCH END WAHHHHHHHHHHHHHHHHH");
 			    		self.onUpEvent(touch);
 			    		return true;
 				    /*
@@ -532,11 +504,11 @@ cc.log(this.editorData.colorB);
 	onUpEvent:function(touch)
 	{cc.log("UP EVENT");cc.log(touch);
 	    var locationInNode = this.bottomUILayer.convertToNodeSpace(touch.getLocation());
-    	
+    		cc.log(locationInNode);
     		if(!this.isPopup())
-		{
+		{cc.log("not popup");
 		    	if(this.posWithin(locationInNode, this.bottomUILayer))
-		    	{
+		    	{cc.log("BOTTOM LAYER TOUCH");
 		    		var botReturn = null;
 		    		botReturn = this.bottomUILayer.onTouchEnd(touch.getLocation());
 		    		
@@ -585,7 +557,7 @@ cc.log(this.editorData.colorB);
 		    		this.topUILayer.onTouchEnd(touch.getLocation());
 		    	}
 		    	else if( this.posWithin(touch.getLocation(), this.curMainLayer))
-		    	{
+		    	{cc.log("TOUCH WITHIN LAYER-------------------------");
 		    		var returnObj = this.curMainLayer.onTouchEnded(touch.getLocation());
 		    		if(this.curTabName=="challenge" && this.menuMode=="creator")
 		    		{
@@ -655,8 +627,17 @@ cc.log(this.editorData.colorB);
 		    		cc.log("CORE BUTTONS YO");
 		    		this.curMainLayer.coreUITouched(touch.getLocation());
 		    	}
+		    	else 
+		    	{
+		    		cc.log("NO TOUCH WITHIN!!!!!!!!!!!!!!!!!!!!!!!!");
+		    		
+		 	}
+		    		cc.log(touch.getLocation());
+		    		cc.log("x: "+this.curMainLayer.x);
+		    		cc.log("y: "+this.curMainLayer.y);
+		    		cc.log("w: "+this.curMainLayer.width);
+		    		cc.log("h: "+this.curMainLayer.height);
 		 	
-		 	cc.log(this.curMainLayer);
 		}
 		else
 		{
@@ -720,6 +701,40 @@ cc.log(this.editorData.colorB);
 					this.noLevelLayer = null;
 				}
 			}
+			else if(this.challengeFailedLayer != null)
+			{
+				var returnObject = this.challengeFailedLayer.onTouchEnd(touch.getLocation());
+				if(returnObject == "close")
+				{
+					var scaleAction = cc.scaleTo(.5, 0, 0);
+					var moveToAction = cc.moveTo(.5, cc.p(cc.winSize.width*.5,25));
+					var spawn = cc.spawn(scaleAction,moveToAction);
+					this.challengeFailedLayer.setCascadeOpacityEnabled(true);
+					var seq = new cc.Sequence(spawn, cc.callFunc( this.challengeFailedLayer.removeFromParent, this.challengeFailedLayer ) );
+					this.challengeFailedLayer.runAction(seq);
+					this.challengeFailedLayer = null;
+					
+					
+					this.challengeLayer.resetAfterLoss();
+					
+					
+				}
+			}
+			else if(this.dailyWinLayer != null)
+			{
+				var returnObject = this.dailyWinLayer.onTouchEnd(touch.getLocation());
+				if(returnObject == "close")
+				{
+					var scaleAction = cc.scaleTo(.5, 0, 0);
+					var moveToAction = cc.moveTo(.5, cc.p(cc.winSize.width*.5,25));
+					var spawn = cc.spawn(scaleAction,moveToAction);
+					this.dailyWinLayer.setCascadeOpacityEnabled(true);
+					var seq = new cc.Sequence(spawn, cc.callFunc( this.dailyWinLayer.removeFromParent, this.dailyWinLayer ) );
+					this.dailyWinLayer.runAction(seq);
+					this.dailyWinLayer = null;
+					
+				}
+			}
 			
 		}
 		
@@ -752,8 +767,12 @@ cc.log(this.editorData.colorB);
 		
 		if(this.menuMode == "game")
 			this.curMainLayer = this.challengeLayer;
-		else if(this.menuMode == "creator")
-			this.curMainLayer = this.editorRewardsLayer;
+		//else if(this.menuMode == "creator")
+		//	this.curMainLayer = this.editorRewardsLayer;
+		
+		
+		
+			
 		this.curTabName = "challenge";
 		this.bottomUILayer.selectButton(this.curTabName);
 	},
@@ -784,8 +803,8 @@ cc.log(this.editorData.colorB);
 		
 		if(this.menuMode == "game")
 			this.curMainLayer = this.meLayer;
-		else if(this.menuMode == "creator")
-			this.curMainLayer = this.editorShopLayer;
+		//else if(this.menuMode == "creator")
+		//	this.curMainLayer = this.editorShopLayer;
 		this.curTabName = "me";
 		this.bottomUILayer.selectButton(this.curTabName);
 	},
@@ -816,8 +835,8 @@ cc.log(this.editorData.colorB);
 
 		if(this.menuMode == "game")
 			this.curMainLayer = this.gameplayLayer;
-		else if(this.menuMode == "creator")
-			this.curMainLayer = this.mainEditorLayer;
+		//else if(this.menuMode == "creator")
+		//	this.curMainLayer = this.mainEditorLayer;
 		this.curTabName = "gameplay";
 		this.bottomUILayer.selectButton(this.curTabName);
 	},
@@ -845,9 +864,9 @@ cc.log(this.editorData.colorB);
 		this.slideTabs(moveDistance);
 		
 		if(this.menuMode == "game")
-			this.curMainLayer = this.friendsLayer;
-		else if(this.menuMode == "creator")
-			this.curMainLayer = this.editorCreatorsLayer;
+			this.curMainLayer = this.leagueLayer;//this.friendsLayer;
+		//else if(this.menuMode == "creator")
+		//	this.curMainLayer = this.editorCreatorsLayer;
 		this.curTabName = "league";
 		this.bottomUILayer.selectButton(this.curTabName);
 	},
@@ -876,8 +895,8 @@ cc.log(this.editorData.colorB);
 		
 		if(this.menuMode == "game")
 			this.curMainLayer = this.leagueLayer;
-		else if(this.menuMode == "creator")
-			this.curMainLayer = this.editorEventLayer;
+		//else if(this.menuMode == "creator")
+		//	this.curMainLayer = this.editorEventLayer;
 		this.curTabName = "friends";
 		this.bottomUILayer.selectButton(this.curTabName);
 	},
@@ -891,7 +910,7 @@ cc.log(this.editorData.colorB);
 	
 	isPopup:function()
 	{
-		if(this.preLayer != null || this.settingsLayer != null || this.worldMapLayer != null || this.noLevelLayer != null)
+		if(this.preLayer != null || this.settingsLayer != null || this.worldMapLayer != null || this.noLevelLayer != null || this.challengeFailedLayer != null)
 			return true;
 		return false;
 	},
@@ -899,6 +918,13 @@ cc.log(this.editorData.colorB);
 	openSettingsLayer:function()
 	{
 		
+	},
+	
+	openDailyWinLayer:function()
+	{
+		this.dailyWinLayer = new ChallengeRewardLayer(cc.winSize.width-50, this.height-this.bottomUIHeight-this.topUIHeight-20);
+		this.dailyWinLayer.attr({x:25,y:this.bottomUIHeight + 10,anchorX:0,anchorY:0});
+		this.addChild(this.dailyWinLayer);
 	},
 	
 	swapCreatorMode:function()
@@ -1005,6 +1031,18 @@ cc.log(this.editorData.colorB);
 		var spawn = cc.spawn(scaleAction, moveToAction);
 		this.preLayer.runAction(spawn);
 	},*/
+	
+	openLevelOverPopup:function()
+	{
+		this.challengeFailedLayer = new ChallengeFailLayer(cc.winSize.width-50, this.height-this.bottomUIHeight-this.topUIHeight-20);
+		this.challengeFailedLayer.attr({x:cc.winSize.width*.5,y:25,anchorX:0,anchorY:0});
+		this.addChild(this.challengeFailedLayer);
+		this.challengeFailedLayer.setScale(0);
+		var scaleAction = cc.scaleTo(.5, 1, 1);
+		var moveToAction = cc.moveTo(.5, cc.p(25, this.bottomUIHeight+10));
+		var spawn = cc.spawn(scaleAction, moveToAction);
+		this.challengeFailedLayer.runAction(spawn);
+	},
 	
 	openNoLevelLayer:function()
 	{

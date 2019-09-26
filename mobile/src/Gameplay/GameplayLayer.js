@@ -1,5 +1,5 @@
 var GameplayLayer = cc.Layer.extend({
-	ctor:function(bubbles, numRows, height, meta, worldColorA, worldColorB, queueCounts, queueBlueprint, database, userId){
+	ctor:function(bubbles, numRows, height, meta, worldMoves, worldColorA, worldColorB, queueCounts, queueBlueprint, database, userId){
 		this._super();
 		//cc.associateWithNative( this, cc.Sprite );
 		this.height = height;
@@ -12,6 +12,8 @@ var GameplayLayer = cc.Layer.extend({
 		
 		this.bubbleLayerHeight = this.height;
 		
+		this.worldMoves = worldMoves;
+		
 		this.worldColorA = worldColorA;
 		this.worldColorB = worldColorB;
 		this.queueCounts = queueCounts;
@@ -20,7 +22,7 @@ var GameplayLayer = cc.Layer.extend({
 		this.database = database; 
 		this.userId = userId;
 
-		this.bubbleLayer = new BubbleLayer(bubbles, numRows, 99, "world", size.width, this.height, [], 
+		this.bubbleLayer = new BubbleLayer(bubbles, numRows, this.worldMoves, "world", size.width, this.height, [], 
 			meta, this.worldColorA, this.worldColorB, this.queueCounts, this.queueBlueprint, this.database, this.userId);	
 		this.bubbleLayer.attr({
 			x:0,

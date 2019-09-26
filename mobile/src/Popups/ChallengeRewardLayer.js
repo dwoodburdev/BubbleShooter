@@ -60,18 +60,17 @@ var ChallengeRewardLayer = cc.Layer.extend({
 		});
 		this.addChild(this.nextButton);
 		
-		this.summaryDisplayLayer = new ChallengeWinSummaryLayer(
+		/*this.summaryDisplayLayer = new ChallengeWinSummaryLayer(
 			this.width, 
 			this.height, streak
-			//this.tabTitleLabel.y-(this.tabTitleLabel.height*this.tabTitleLabel.scale) - (this.nextButton.y+(this.nextButton.height*this.nextButton.scale))
 		);
 		this.summaryDisplayLayer.attr({
 			x:0,
-			y:0,//this.nextButton.y+(this.nextButton.height*this.nextButton.scale),
+			y:0,
 			anchorX:0,
 			anchorY:0
 		});
-		this.addChild(this.summaryDisplayLayer);
+		this.addChild(this.summaryDisplayLayer);*/
 		
 		this.rewardPickerLayer = null;
 		this.dailyDisplayLayer = null;

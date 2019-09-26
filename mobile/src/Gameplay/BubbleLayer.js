@@ -32,6 +32,7 @@ var BubbleLayer = cc.Layer.extend({
 		this.queueCounts = queueCounts;
 		this.queueBlueprint = queueBlueprint;
 		
+		
 		this.database = database;
 		this.userId = userId;
 		
@@ -47,6 +48,9 @@ var BubbleLayer = cc.Layer.extend({
 		
 		this.aimDN = new cc.DrawNode();
 		this.addChild(this.aimDN);
+		
+		
+		this.bubbleToAddToDatabase = null;
 		
 		
 		this.aimlinePoints = [];
@@ -196,26 +200,18 @@ var BubbleLayer = cc.Layer.extend({
        	if(this.modeType != "preview")
 	    {
 	    	
-	    	/*this.phoneBG = new cc.Sprite(res.phone);
-	    	this.phoneBG.setScale(this.bubbleR*3 / this.phoneBG.height)
-	    	this.phoneBG.attr({
-	    		x:this.width*.17,
-	    		y:this.bubbleStartHeight,
-	    		anchorX:.5,
-	    		anchorY:.5
-	    	});
-	    	this.addChild(this.phoneBG);*/
-	    	
-	    	var newColor = "red";
-	    	if(this.modeType == "side-level")
-	    		newColor = "blue";
-	    	else if(this.modeType == "world")
-	    	{
-	    		newColor = this.worldColorB;
-	    	}
-	    	
+		    	/*this.phoneBG = new cc.Sprite(res.phone);
+		    	this.phoneBG.setScale(this.bubbleR*3 / this.phoneBG.height)
+		    	this.phoneBG.attr({
+		    		x:this.width*.17,
+		    		y:this.bubbleStartHeight,
+		    		anchorX:.5,
+		    		anchorY:.5
+		    	});
+		    	this.addChild(this.phoneBG);*/
+		    	
 	   
-	       	this.queueBubble = new Bubble(this.bubbleR, newColor, 0, null, null, null, null, null);
+	       	this.queueBubble = new Bubble(this.bubbleR, this.worldColorB, 0, null, null, null, null, null);
 	       	this.queueBubble.attr({
 	       		x:this.width*.17,
 	       		y:this.bubbleStartHeight,
@@ -223,10 +219,14 @@ var BubbleLayer = cc.Layer.extend({
 	       		anchorY:.5
 	       	});
 	       	this.queueBubble.active = true;
-	       	this.addChild(this.queueBubble);
+	       	if(this.modeType == "world")
+	       		this.addChild(this.queueBubble);
 	       	
 	       	
-	       	this.ballsLeftLabel = new cc.LabelTTF(""+this.numMoves+"/5", "Roboto", 30);
+	       	var ballsString = ""+this.numMoves;
+	    		if(this.modeType == "world")
+	    			ballsString = ""+this.numMoves+"/5";
+	       	this.ballsLeftLabel = new cc.LabelTTF(ballsString, "Roboto", 30);
 			this.ballsLeftLabel.attr({
 				"x":this.queueBubble.x,
 				"y":this.queueBubble.y-(cc.winSize.width/24)-10/*this.phoneBG.y-(this.phoneBG.height*this.phoneBG.scale)/2 - 5*/,
@@ -234,18 +234,12 @@ var BubbleLayer = cc.Layer.extend({
 				"anchorY":1
 			});
 			this.ballsLeftLabel.color = cc.color(0,0,0,255);
-			//this.addChild(this.ballsLeftLabel);
+			if(this.modeType == "world")
+				this.addChild(this.ballsLeftLabel);
 			
-			newColor = "green";
-	    	if(this.modeType == "side-level")
-	    		newColor = "blue";
-	    	else if(this.modeType == "world")
-	    	{
-	    		newColor = this.worldColorA;
-	    	}
 	    		
 			
-	       	this.shooter = new Bubble(this.bubbleR, newColor, 0, null, null, null, null, null);
+	       	this.shooter = new Bubble(this.bubbleR, this.worldColorA, 0, null, null, null, null, null);
 	       	this.shooter.attr({
 	       		x: this.width/2,
 	       		y: this.bubbleStartHeight,
@@ -253,10 +247,12 @@ var BubbleLayer = cc.Layer.extend({
 	       		anchorY:.5
 	       	});
 	       	this.shooter.active = true;
-	       	this.addChild(this.shooter);
+	       if(this.modeType == "world")
+	       			this.addChild(this.shooter);
 	       	
 	       	this.aimIndicator = {x:0, y:this.shooter.y+this.bubbleR*2, width:cc.winSize.width, height:(cc.winSize.width/24)*7/*(this.height-(this.bubbleR*22)) - (this.shooter.y+this.bubbleR*2)*/ , color:cc.color(0,0,0,50) };
-		    this.drawAimIndicator();
+		    if(this.modeType == "world")
+	       		this.drawAimIndicator();
 		    
 		    
 		    
@@ -269,7 +265,7 @@ var BubbleLayer = cc.Layer.extend({
        	if(this.modeType == "world" && this.numMoves < 5)
        	{
        		//DATA.setLastTimeMoveSpawned();
-			this.initMoveTimer();
+			//this.initMoveTimer();
        	}
        	
        	this.plusFivePreboosterIcon = null;
@@ -417,6 +413,17 @@ var BubbleLayer = cc.Layer.extend({
 		//cc.director.getPhysicsManager().enabled = true;
 		
 	},
+	
+	
+	addPlayElements:function()
+	{cc.log("SHOULD DRAW AIM IND");
+		this.addChild(this.shooter);
+		this.addChild(this.queueBubble);
+		this.drawAimIndicator();
+		this.addChild(this.ballsLeftLabel);
+	},
+	
+	
 	onEnter:function(){
 		this._super();
 		
@@ -453,14 +460,14 @@ var BubbleLayer = cc.Layer.extend({
 		this.aimDN.clear();
 		//if(this.modeType == "challenge" || (this.modeType == "world" && DATA.levelIndexB == null && this.numMoves > 0) || (this.modeType == "side-level"))
 		//{
-			if(this.aimLine == null)
+			if(this.aimLine == null){cc.log("DRAWING AIM NOW");cc.log(this.aimIndicator);
 				this.aimDN.drawRect(cc.p(this.aimIndicator.x+5, this.aimIndicator.y), cc.p(this.aimIndicator.x+this.aimIndicator.width-5, this.aimIndicator.y+this.aimIndicator.height), cc.color(0,0,0,100),1,cc.color(0,0,0,255));
-			else
+			}else{
 				this.aimDN.drawRect(cc.p(this.aimIndicator.x+5, this.aimIndicator.y), cc.p(this.aimIndicator.x+this.aimIndicator.width-5, this.aimIndicator.y+this.aimIndicator.height), this.aimIndicator.color,5,cc.color(0,0,0,255));
-		//}
+			}//}
 	},
 	clearAimIndicator:function()
-	{
+	{cc.log("CLEARING AIM NOW");
 		this.aimDN.clear();
 	},
 	/*
@@ -1076,10 +1083,10 @@ var BubbleLayer = cc.Layer.extend({
 				this.shooter.runAction(shooterSeq);
 				
 		   		//this.parent.parent.updatePhoneQueueBubble();
-		   		this.runAction(cc.callFunc(this.parent.parent.removePhoneQueueBubble, this.parent.parent));
-		   		this.runAction(new cc.Sequence(cc.delayTime(.3),cc.callFunc(this.parent.parent.updatePhoneQueueBubble, this.parent.parent)));
+		   		//this.runAction(cc.callFunc(this.parent.parent.removePhoneQueueBubble, this.parent.parent));
+		   		//this.runAction(new cc.Sequence(cc.delayTime(.3),cc.callFunc(this.parent.parent.updatePhoneQueueBubble, this.parent.parent)));
 		   		
-		   		this.parent.parent.pulsePhone();
+		   		//this.parent.parent.pulsePhone();
 
 		   }
 		  
@@ -1301,10 +1308,16 @@ var BubbleLayer = cc.Layer.extend({
 		//DATA.colorNextTurn(this.modeType);
 		//DATA.setDatabaseColors();
 		
+		cc.log(this.worldColorA);
+		cc.log(this.worldColorB);
+		
+		cc.log(this.queueCounts);
+		cc.log(this.queueBlueprint);
+		
 		
 		//var newShooterColor = "green";
 		this.worldColorA = this.worldColorB;
-		this.worldColorB = "pink";
+		//this.worldColorB = "pink";
        
 		this.shooter = null;
        	this.shooter = new Bubble(this.bubbleR, this.worldColorA, 0, null, null, null, null, null);
@@ -1320,33 +1333,51 @@ var BubbleLayer = cc.Layer.extend({
        	var shooterAction = cc.moveTo(.25, this.width/2, this.shooter.y);
        	this.shooter.runAction(shooterAction);
        	
+       	
+       	if(this.queueCounts[0] == 0 && this.queueCounts[1] == 0 && this.queueCounts[2] == 0 
+       		&& this.queueCounts[3] == 0 && this.queueCounts[4] == 0 && this.queueCounts[5] == 0)
+       	{cc.log("RESETTING QUEUE");
+       		for(var i=0; i<this.queueCounts.length; i++)
+       		{
+       			this.queueCounts[i] = this.queueBlueprint[i];
+       		}
+       		
+       		
+       	}
+       	
+       	
        	var colorKeys = ["yellow","blue","red","green","pink","purple"];
        	var colorIndices = [];
        	for(var i=0; i<this.queueCounts.length; i++)
        	{
-       		for(var j=0; j<this.queueCounts[i].length; j++)
+       		for(var j=0; j<this.queueCounts[i]; j++)
        		{
        			colorIndices.push(i);
        		}
        	}
        	
-       	if(colorIndices.length == 0)
-       	{
-       		this.queueCounts = this.queueBlueprint;
-       		
-       		for(var i=0; i<this.queueCounts.length; i++)
-	       	{
-	       		for(var j=0; j<this.queueCounts[i].length; j++)
-	       		{
-	       			colorIndices.push(i);
-	       		}
-	       	}
-       	}
+       	cc.log("COLOR INDICES");
+       	cc.log(colorIndices);
        	
-       	var colorIndex = Math.floor(Math.random()*colorIndices.length);
+       	var colorIndex = colorIndices[Math.floor(Math.random()*colorIndices.length)];
        	this.queueCounts[colorIndex]--;
        	
        	this.worldColorB = colorKeys[colorIndex];
+       	
+       	cc.log("COLOR INDEX: "+colorIndex);
+       	
+       	
+       	
+       	
+       	
+       	
+       	cc.log("NEW COLOR: " + this.worldColorB);
+       	
+       	cc.log("NEW QUEUECOUNTS");
+       	cc.log(this.queueCounts);
+       	cc.log("QUEUE BLUEPRINT");
+       	cc.log(this.queueBlueprint);
+       	
        	
 		//this.prevShooterColor = DATA.getShooterColor(this.modeType);
 		//this.shooterColor = this.nextShooterColor;
@@ -1386,6 +1417,8 @@ var BubbleLayer = cc.Layer.extend({
 		if(this.modeType == "world")
 		{
 			var newBubbles = [{"y":row,"x":col,"type":this.shooter.type,"colorCode":this.shooter.colorCode}];cc.log("new bubbles");cc.log(newBubbles);
+			this.bubbleToAddToDatabase = {row:row, col:col, colorCode:this.shooter.colorCode, type:this.shooter.type};
+			
 			//DATA.setAddDatabaseBubbles(newBubbles);
 			
 		}
@@ -1579,10 +1612,10 @@ var BubbleLayer = cc.Layer.extend({
 			//DATA.updateWorldBubblesDatabase(this.bubbles);
 			
 			
-			//if(this.modeType == "world")
-			//{
+			if(this.modeType == "world")
+			{
 				this.databaseRemoveWorldBubbles(databasePositionsToDestroy);
-			//}
+			}
 			
 			
 				
@@ -1697,6 +1730,29 @@ var BubbleLayer = cc.Layer.extend({
 			
 		}
 		
+		if(this.bubbleToAddToDatabase != null)
+		{
+			if(/*this.bubbleToAddToDatabase.row >= this.bubbleMap.length ||*/ this.bubbleMap[this.bubbleToAddToDatabase.row][this.bubbleToAddToDatabase.col] != -1)
+			{
+				cc.log("ADDING NEW BUBBLE TO DATABASE");
+				this.database.ref("users/"+this.userId+"/world/bubbles/"+this.bubbleToAddToDatabase.row+"_"+this.bubbleToAddToDatabase.col).set(this.bubbleToAddToDatabase);
+				
+				// ADD LOGIC IN CASE THIS NEW BUBBLE ADDS A ROW
+				
+				/*if(this.bubbleToAddToDatabase.row >= this.bubbleMap.length)
+				{
+					var newRow = [];
+					for(var i=0; i<11-this.bubbleMap.length%2; i++)
+					{
+						newRow.push(-1);
+					}
+					this.bubbleMap.push(newRow);
+				}*/
+				
+			}
+			this.bubbleToAddToDatabase = null;
+		}
+		
 		/*this.database.ref("users/"+self.userId+"/world").once("value").then(function(snapshot){
 			var d = snapshot.val();
 			
@@ -1774,6 +1830,18 @@ var BubbleLayer = cc.Layer.extend({
 	{
 		this.turnNumber++;
 		this.numMoves--;
+		
+		
+		
+		if(this.numMoves == 0)
+		{
+			if(this.modeType != "world")
+			{
+				this.parent.parent.openLevelOverPopup();
+				var date = new Date();
+				this.database.ref("users/"+this.userId+"/dailyResetTime").set(date.getTime()+(1000*60*10));
+			}
+		}
 		
 		
 		
@@ -1949,6 +2017,19 @@ var BubbleLayer = cc.Layer.extend({
 		{
 			this.clearAimIndicator();
 		}
+		
+		if(this.modeType == "world")
+		{
+			this.ballsLeftLabel.setString(""+this.numMoves + "/5");
+		}
+		else this.ballsLeftLabel.setString(this.numMoves);
+		
+		
+		
+		if(this.modeType == "world")
+		{
+			this.database.ref("users/"+this.userId+"/worldMoves").set(this.numMoves);
+		}
 	},
 	
 	
@@ -1992,10 +2073,10 @@ var BubbleLayer = cc.Layer.extend({
 				this.unschedule(this.triggerRandomIdle);
 				//cc.director.runScene(new RewardScene());
 				//this.parent.openWorldRewardsLayer();
-				this.parent.parent.openWorldMapLayerAfterCompletion();
-				//DATA.worldColorsEliminated = [];
-				//DATA.resetForNewWorld();
-
+				
+				//this.parent.parent.openWorldMapLayerAfterCompletion();
+				
+				this.parent.parent.openDailyWinLayer();
 			}
 			
 		

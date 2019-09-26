@@ -286,12 +286,12 @@ var EditorUILayer = cc.Layer.extend({
 	
 	onTouchBegin:function(pos)
 	{cc.log("TOUCH BEGIN UIUIUI");
-		if(FUNCTIONS.posWithinScaled(pos, this.leftDownButton))
+		if(this.posWithinScaled(pos, this.leftDownButton))
 		{cc.log("left down");
 			this.schedule(this.scrollButtonsUp, .03);
 			this.scrollUpFlag = true;
 		}
-		else if(FUNCTIONS.posWithinScaled(pos, this.leftUpButton))
+		else if(this.posWithinScaled(pos, this.leftUpButton))
 		{
 			this.schedule(this.scrollButtonsDown, .03);
 			this.scrollDownFlag = true;
@@ -299,12 +299,12 @@ var EditorUILayer = cc.Layer.extend({
 	},
 	onTouchMoved:function(pos)
 	{cc.log("TOUCH MOVE UIUIUI");
-		if(this.scrollUpFlag && !FUNCTIONS.posWithinScaled(pos, this.leftDownButton))
+		if(this.scrollUpFlag && !this.posWithinScaled(pos, this.leftDownButton))
 		{
 			this.scrollUpFlag = false;
 			this.stopScrollUp();
 		}
-		else if(this.scrollDownFlag && !FUNCTIONS.posWithinScaled(pos, this.leftUpButton))
+		else if(this.scrollDownFlag && !this.posWithinScaled(pos, this.leftUpButton))
 		{
 			this.scrollDownFlag = false;
 			this.stopScrollDown();
@@ -316,7 +316,7 @@ var EditorUILayer = cc.Layer.extend({
 		var size = cc.winSize;
 		
 		// Buttons
-		if(FUNCTIONS.posWithinScaled(pos, this.rightTabArrow))
+		if(this.posWithinScaled(pos, this.rightTabArrow))
 		{
 			this.tabIndex++;
 			if(this.tabIndex > 1)
@@ -330,7 +330,7 @@ var EditorUILayer = cc.Layer.extend({
 			this.imgButtons = [];
 			this.loadButtons();
 		}
-		else if(FUNCTIONS.posWithinScaled(pos, this.leftTabArrow))
+		else if(this.posWithinScaled(pos, this.leftTabArrow))
 		{
 			this.tabIndex--;
 			if(this.tabIndex < 0)
@@ -344,7 +344,7 @@ var EditorUILayer = cc.Layer.extend({
 			this.imgButtons = [];
 			this.loadButtons();
 		}
-		else if(FUNCTIONS.posWithinScaled(pos, this.rightUpButton))
+		else if(this.posWithinScaled(pos, this.rightUpButton))
 		{
 			if(this.sidemenuMode == "bulb")
 			{
@@ -352,7 +352,7 @@ var EditorUILayer = cc.Layer.extend({
 				this.resetBulbIcons();
 			}
 		}
-		else if(FUNCTIONS.posWithinScaled(pos, this.rightDownButton))
+		else if(this.posWithinScaled(pos, this.rightDownButton))
 		{
 			if(this.sidemenuMode == "bulb")
 			{
@@ -363,7 +363,7 @@ var EditorUILayer = cc.Layer.extend({
 				this.resetBulbIcons();
 			}
 		}
-		else if(FUNCTIONS.posWithinScaled(pos, this.leftUpButton))
+		else if(this.posWithinScaled(pos, this.leftUpButton))
 		{
 			if(this.scrollDownFlag)
 			{
@@ -371,7 +371,7 @@ var EditorUILayer = cc.Layer.extend({
 				this.stopScrollDown();
 			}
 		}
-		else if(FUNCTIONS.posWithinScaled(pos, this.leftDownButton))
+		else if(this.posWithinScaled(pos, this.leftDownButton))
 		{
 			if(this.scrollUpFlag)
 			{
@@ -1140,6 +1140,17 @@ var EditorUILayer = cc.Layer.extend({
 		
 		
 		this.draw();
+	},
+	
+	
+	posWithinScaled:function(pos, box)
+	{
+		if(pos.x > box.x-box.width*box.scale && pos.x < box.x+box.width*box.scale
+			&& pos.y > box.y-box.height*box.scale && pos.y < box.y+box.height*box.scale)
+		{
+			return true;
+		}
+		return false;
 	},
 	
 	

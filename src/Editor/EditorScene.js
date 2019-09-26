@@ -1893,9 +1893,10 @@ var EditorScene = cc.Scene.extend({
 	
 	getMatchTarget:function(colorCode)
 	{
-		var emojiImg = this.panelLayer.playSideLayer.getEmojiImgOfColor(colorCode);
+		//var emojiImg = this.panelLayer.playSideLayer.getEmojiImgOfColor(colorCode);
 		
-		return {x:emojiImg.x-this.panelLayer.playSideLayer.width, y:this.panelLayer.y+this.panelLayer.playSideLayer.y+emojiImg.y}
+		//return {x:emojiImg.x-this.panelLayer.playSideLayer.width, y:this.panelLayer.y+this.panelLayer.playSideLayer.y+emojiImg.y}
+		return {x:50, y:50};
 	},
 	
 	isAnEmojiEliminated:function()

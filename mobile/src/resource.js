@@ -490,7 +490,16 @@ var res = {
     
     task_button: "res/task-button-selected-1.png",
     
-    title_header:"res/title-header.png"
+    title_header:"res/title-header.png",
+    
+    moves_img: "res/moves-img.png",
+    thumb_down: "res/thumb-down.png",
+    peace_hand: "res/peace-hand.png",
+    thumb:"res/thumb-up.png",
+    
+    left_hand: "res/left-hand.png",
+    right_hand: "res/right-hand.png"
+    
 };
 
 

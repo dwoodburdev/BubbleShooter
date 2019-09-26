@@ -35,6 +35,8 @@
     	"src/CoreUI/FriendsLayer.js",
     	"src/CoreUI/LeagueDisplayLayer.js",
     	"src/CoreUI/LeagueLayer.js",
+    	"src/CoreUI/LevelBrowserLayer.js",
+    	"src/CoreUI/LevelSourceBox.js",
     	"src/CoreUI/MainContainerLayer.js",
     	"src/CoreUI/MainContainerScene.js",
     	"src/CoreUI/MeDisplayLayer.js",

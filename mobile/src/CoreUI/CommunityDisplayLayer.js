@@ -1,5 +1,5 @@
 var CommunityDisplayLayer = cc.Layer.extend({
-	ctor:function(height, bubbles, numRows, meta, queueCounts, queueBlueprint, database, userId){
+	ctor:function(height, bubbles, numRows, numMoves, meta, queueCounts, database, userId, dailyResetTime){
 		this._super();
 		//cc.associateWithNative( this, cc.Sprite );
 		
@@ -10,11 +10,15 @@ var CommunityDisplayLayer = cc.Layer.extend({
 		
 		this.bubbles = bubbles;
 		this.numRows = numRows;
+		this.numMoves = numMoves;
 		this.meta = meta;
 		this.queueCounts = queueCounts;
-		this.queueBlueprint = queueBlueprint;
 		this.database = database;
 		this.userId = userId;
+		this.dailyResetTime = dailyResetTime;
+		
+		this.minsTilReady = 0;
+		this.secsTilReady = 0;
 		
 		
 		this.bgDn = new cc.DrawNode();
@@ -33,10 +37,67 @@ var CommunityDisplayLayer = cc.Layer.extend({
 		this.tabTitleLabel.color = cc.color(0,0,0,255);
 		//this.addChild(this.tabTitleLabel);
 		
+		var colors = ["yellow","blue","red","green","pink","purple"];
+		var colorCodes = {"yellow":0,"blue":1,"red":2,"green":3,"pink":4,"purple":5};
+		var queueCountsCopy = [];
+		
+		// what is first color found, to know in case of single-color level
+		var firstColorFound = null;
+		for(var i=0; i<this.queueCounts.length && firstColorFound==null; i++)
+		{
+			if(this.queueCounts[i] > 0)
+				firstColorFound = colors[i];
+		}
+		
+		// copy queueCounts for queueBlueprint
+		for(var i=0; i<this.queueCounts.length; i++)
+		{
+			queueCountsCopy.push(this.queueCounts[i]);
+		}
+		
+		// get list of color possibilities
+		var colorPossibilities = [];
+		for(var i=0; i<this.queueCounts.length; i++)
+		{
+			for(var j=0; j<this.queueCounts[i]; j++)
+			{
+				colorPossibilities.push(colors[i]);
+			}
+		}
+		
+		// get first color, update queue
+		var colorAIndex = Math.floor(Math.random()*colorPossibilities.length);
+		var colorA = colorPossibilities[colorAIndex];
+		colorPossibilities.splice(colorAIndex, 1);
+		this.queueCounts[colorCodes[colorA]]--;
+		
+		var colorB = null;
+		
+		// Get second color
+		// (if a single-color level)
+		if(colorPossibilities.length == 0)
+		{
+			colorB = firstColorFound;
+		}
+		else	
+		{
+			var colorBIndex = Math.floor(Math.random()*colorPossibilities.length);
+			colorB = colorPossibilities[colorBIndex];
+			this.queueCounts[colorCodes[colorB]]--;
+		}
 		
 		
-		this.bubbleLayer = new BubbleLayer(this.bubbles, this.numRows, 99, "side-level", this.width, this.height, [], 
-			this.meta, this.queueCounts, this.queueBlueprint, this.database, this.userId);	
+		var bubCopies = [];
+		for(var i=0; i<this.bubbles.length; i++)
+		{
+			var oldBub = this.bubbles[i];
+			var newBub = {row:oldBub.row, col:oldBub.col, type:oldBub.type, colorCode:oldBub.colorCode}
+			bubCopies.push(newBub);
+		}
+		
+		
+		this.bubbleLayer = new BubbleLayer(bubCopies, this.numRows, this.numMoves, "side-level", this.width, this.height, [], 
+			this.meta, colorA, colorB, this.queueCounts, queueCountsCopy, this.database, this.userId);	
 		this.bubbleLayer.attr({
 			x:0,
 			y:0,
@@ -46,6 +107,7 @@ var CommunityDisplayLayer = cc.Layer.extend({
 		this.addChild(this.bubbleLayer);
 		
 		
+		var date = new Date();
 		
 		this.playButton = new cc.Sprite(res.play_bg);
 		this.playButton.setScale(this.height / 8 / this.playButton.height);
@@ -55,7 +117,12 @@ var CommunityDisplayLayer = cc.Layer.extend({
 			anchorX:.5,
 			anchorY:0
 		});
-		this.addChild(this.playButton);
+		if(date.getTime() > this.dailyResetTime)
+		{
+			this.addChild(this.playButton);
+		}
+		
+		this.waitLabel = null;
 		
 		this.playLabel = new cc.LabelTTF("Play", "HeaderFont", Math.floor(this.height/8 * .8));
 		this.playLabel.color = cc.color(255,255,255,255);
@@ -65,11 +132,46 @@ var CommunityDisplayLayer = cc.Layer.extend({
 			anchorX:.5,
 			anchorY:1
 		});
-		this.addChild(this.playLabel);
+		if(date.getTime() > this.dailyResetTime)
+		{
+			this.addChild(this.playLabel);
+		}
+		else
+		{
+			var millisTilReady = this.dailyResetTime - date.getTime();
+			var secsTilReady = Math.floor(millisTilReady / 1000);
+			var minsTilReady = Math.floor(secsTilReady / 60);
+			secsTilReady = secsTilReady - minsTilReady*60;
+			var secsString = ""+secsTilReady;
+			if(secsTilReady < 10)
+				secsString = "0"+secsTilReady;
+			this.waitLabel = new cc.LabelTTF(""+minsTilReady+":"+secsString, "HeaderFont", Math.floor(this.height/8 * .8));
+			this.waitLabel.color = cc.color(0,0,0,255);
+			this.waitLabel.attr({
+				x:this.width/2,
+				y:this.playButton.y + this.playButton.height*this.playButton.scale - 3,
+				anchorX:.5,
+				anchorY:1
+			});
+			this.addChild(this.waitLabel);
+			
+			this.minsTilReady = minsTilReady;
+			this.secsTilReady = secsTilReady;
+		}
+		
+		this.featureLabel = new cc.LabelTTF("Daily Level", "HeaderFont", Math.floor(this.height/16));
+		this.featureLabel.color = cc.color(0,0,0,255);
+		this.featureLabel.attr({
+			x:this.width/2,
+			y:this.playButton.y + this.playButton.height*this.playButton.scale + 3 + Math.floor(this.height/16),
+			anchorX:.5,
+			anchorY:1
+		});
+		this.addChild(this.featureLabel);
 		
 		var boxesWidth = this.height*.1;
-		var boxesBottom = this.playButton.y + this.playButton.height*this.playButton.scale + 5;
-		
+		//var boxesBottom = this.playButton.y + this.playButton.height*this.playButton.scale + 5;
+		var boxesBottom = this.featureLabel.y + 5;
 		
 		/*this.dn.drawRect(
 			cc.p(5, boxesBottom),
@@ -84,7 +186,7 @@ var CommunityDisplayLayer = cc.Layer.extend({
 		this.streakDisplay = new StreakDisplay(this.width*.475, this.height*.2);
 		this.streakDisplay.attr({
 			x:this.width*.0125,
-			y:this.playButton.y + this.playButton.height*this.playButton.scale + 5,
+			y:boxesBottom,
 			anchorX:0,
 			anchorY:0
 		});
@@ -93,7 +195,7 @@ var CommunityDisplayLayer = cc.Layer.extend({
 		this.rewardDisplay = new DailyRewardDisplay(this.width*.475, this.height*.2);
 		this.rewardDisplay.attr({
 			x:this.width*.5125,
-			y:this.playButton.y + this.playButton.height*this.playButton.scale + 5,
+			y:boxesBottom,
 			anchorX:0,
 			anchorY:0
 		});
@@ -165,7 +267,7 @@ var CommunityDisplayLayer = cc.Layer.extend({
 	{
 		pos = this.convertToNodeSpace(pos);
 		
-		if(this.playButton != null)
+		if(this.playButton != null && this.minsTilReady <= 0 && this.secsTilReady <= 0)
 		{
 			var playW = this.playButton.width*this.playButton.scale;
 			cc.log(pos);
@@ -177,12 +279,15 @@ var CommunityDisplayLayer = cc.Layer.extend({
 				this.removeChild(this.playLabel);
 				this.removeChild(this.streakDisplay);
 				this.removeChild(this.rewardDisplay);
+				this.removeChild(this.featureLabel);
 				
 				this.playButton = null;
 				this.playLabel = null;
 				this.streakDisplay = null;
 				this.rewardDisplay = null;
+				this.featureLabel = null;
 				
+				this.bubbleLayer.addPlayElements();
 				
 			}
 			else if(pos.x > this.bubbleLayer.x && pos.x < this.bubbleLayer.x+this.bubbleLayer.width &&
@@ -202,6 +307,87 @@ var CommunityDisplayLayer = cc.Layer.extend({
 		
 		
 		
+		
+	},
+	
+	
+	resetAfterLoss:function()
+	{
+		var colors = ["yellow","blue","red","green","pink","purple"];
+		var colorCodes = {"yellow":0,"blue":1,"red":2,"green":3,"pink":4,"purple":5};
+		var queueCountsCopy = [];
+		
+		// what is first color found, to know in case of single-color level
+		var firstColorFound = null;
+		for(var i=0; i<this.queueCounts.length && firstColorFound==null; i++)
+		{
+			if(this.queueCounts[i] > 0)
+				firstColorFound = colors[i];
+		}
+		
+		// copy queueCounts for queueBlueprint
+		for(var i=0; i<this.queueCounts.length; i++)
+		{
+			queueCountsCopy.push(this.queueCounts[i]);
+		}
+		
+		
+		this.removeChild(this.bubbleLayer);
+		
+		cc.log(this.bubbles);
+		cc.log(this.numRows);
+		cc.log(this.numMoves);
+		cc.log(this.queueCounts);
+		cc.log(queueCountsCopy);
+		
+		this.bubbleLayer = null;
+		this.bubbleLayer = new BubbleLayer(this.bubbles, this.numRows, this.numMoves, "side-level", this.width, this.height, [], 
+			this.meta, "red", "blue", this.queueCounts, queueCountsCopy, this.database, this.userId);	
+		this.bubbleLayer.attr({
+			x:0,
+			y:0,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.bubbleLayer);
+		
+		
+		var boxesBottom = this.height*.1;
+		
+		this.streakDisplay = new StreakDisplay(this.width*.475, this.height*.2);
+		this.streakDisplay.attr({
+			x:this.width*.0125,
+			y:boxesBottom,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.streakDisplay);
+		
+		this.rewardDisplay = new DailyRewardDisplay(this.width*.475, this.height*.2);
+		this.rewardDisplay.attr({
+			x:this.width*.5125,
+			y:boxesBottom,
+			anchorX:0,
+			anchorY:0
+		});
+		this.addChild(this.rewardDisplay);
+		
+		
+		this.minsTilReady = 10;
+		this.secsTilReady = 0;
+		
+		var secsString = ""+secsTilReady;
+		if(secsTilReady < 10)
+			secsString = "0"+secsTilReady;
+		this.waitLabel = new cc.LabelTTF(""+minsTilReady+":"+secsString, "HeaderFont", Math.floor(this.height/8 * .8));
+		this.waitLabel.color = cc.color(0,0,0,255);
+		this.waitLabel.attr({
+			x:this.width/2,
+			y:this.playButton.y + this.playButton.height*this.playButton.scale - 3,
+			anchorX:.5,
+			anchorY:1
+		});
+		this.addChild(this.waitLabel);
 		
 	}
 	

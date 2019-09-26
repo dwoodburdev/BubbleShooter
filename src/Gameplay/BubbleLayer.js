@@ -3354,6 +3354,7 @@ var BubbleLayer = cc.Layer.extend({
 			}
 			else
 			{
+				
 				var bubble = this.bubbles[culledBubbleIndices[i]];
 				var bubbleColor = bubble.colorCode;cc.log(bubbleColor);
 				var targetToOrigin = this.parent.parent.getMatchTarget(bubble.colorCode);

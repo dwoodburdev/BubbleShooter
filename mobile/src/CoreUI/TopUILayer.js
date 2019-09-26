@@ -31,12 +31,12 @@ var TopUILayer = cc.Layer.extend({
 		this.addChild(this.settingsButton);
 		
 		this.titleImg = new cc.Sprite(res.title_header);
-		this.titleImg.setScale(this.height*.95 / this.titleImg.height);
+		this.titleImg.setScale(this.height*.8 / this.titleImg.height);
 		this.titleImg.attr({
 			x:this.width/2,
-			y:this.height/2,
+			y:this.height,
 			anchorX:.5,
-			anchorY:.5
+			anchorY:1
 		});
 		this.addChild(this.titleImg);
 		

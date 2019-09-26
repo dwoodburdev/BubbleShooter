@@ -109,8 +109,8 @@ var ChallengeWinDailyLayer = cc.Layer.extend({
 			anchorX:0,anchorY:0
 		});
 		this.addChild(this.challengeAProgBar);
-		this.challengeAProgBar.setProg(DATA.dailyChallenges[0].progress/DATA.dailyChallenges[0].number);
-		this.challengeAProgBar.setSubProg((DATA.dailyChallenges[0].progress-DATA.dailyAProgress)/DATA.dailyChallenges[0].number);
+		//this.challengeAProgBar.setProg(DATA.dailyChallenges[0].progress/DATA.dailyChallenges[0].number);
+		//this.challengeAProgBar.setSubProg((DATA.dailyChallenges[0].progress-DATA.dailyAProgress)/DATA.dailyChallenges[0].number);
 		
 		
 		
@@ -198,7 +198,7 @@ var ChallengeWinDailyLayer = cc.Layer.extend({
 		this.addChild(challengeCRemText);
 		*/
 		
-		DATA.refreshProgress();
+		//DATA.refreshProgress();
 	},
 	
 	draw:function()

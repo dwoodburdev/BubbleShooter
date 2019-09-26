@@ -54,7 +54,7 @@ var BottomUILayer = cc.Layer.extend({
 		});
 		this.addChild(this.playButton);
 		
-		this.leagueButton = new cc.Sprite(res.task_button);
+		this.leagueButton = new cc.Sprite(res.pencil_button);
 		//this.leagueButton = new cc.Sprite(res.pencil_button);
 		this.leagueButton.setScaleX(this.appWidth/this.leagueButton.width);
 		this.leagueButton.setScaleY(this.appWidth/this.leagueButton.height);
@@ -66,7 +66,7 @@ var BottomUILayer = cc.Layer.extend({
 		});
 		this.addChild(this.leagueButton);
 		
-		this.friendsButton = new cc.Sprite(res.pencil_button);
+		this.friendsButton = new cc.Sprite(res.task_button);
 		//this.friendsButton = new cc.Sprite(res.browse_button);
 		this.friendsButton.setScaleX(this.appWidth/this.friendsButton.width);
 		this.friendsButton.setScaleY(this.appWidth/this.friendsButton.height);

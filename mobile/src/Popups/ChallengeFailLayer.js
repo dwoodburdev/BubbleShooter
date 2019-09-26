@@ -45,7 +45,7 @@ var ChallengeFailLayer = cc.Layer.extend({
 		});
 		//this.addChild(this.emojiFace);
 		
-		this.streakDescription = new cc.LabelTTF((DATA.streakStep+1)+" tries per level", "Roboto",18);
+		this.streakDescription = new cc.LabelTTF(" tries per level", "Roboto",18);
 		this.streakDescription.attr({
 			x:this.width/2,
 			y:this.emojiFace.y-(this.emojiFace.height*this.emojiFace.scale)-3,
@@ -91,7 +91,7 @@ var ChallengeFailLayer = cc.Layer.extend({
 	},
 		
 		
-    onTouchEnded: function(pos){
+    onTouchEnd: function(pos){
 	    //var target = event.getCurrentTarget();
 	    //var locationInNode = self.convertToNodeSpace(touch.getLocation());
     	/*
